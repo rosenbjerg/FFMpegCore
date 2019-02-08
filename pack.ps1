@@ -1,0 +1,1 @@
+.\.nuget\nuget.exe pack .\FFMpegCore\ -Prop Configuration=Release
