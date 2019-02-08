@@ -91,15 +91,15 @@ namespace FFMpegCore.FFMPEG
             }
 
             FFMpegHelper.ConversionExceptionCheck(source.ToFileInfo(), output);
+            var container = new ArgumentsContainer();
+            container.Add(new InputArgument(source));
+            container.Add(new VideoCodecArgument(VideoCodec.Png));
+            container.Add(new FrameOutputCountArgument(1));
+            container.Add(new SeekArgument(captureTime));
+            container.Add(new SizeArgument(size));
+            container.Add(new OutputArgument(output));
 
-            var thumbArgs = ArgumentsStringifier.Input(source) +
-                            ArgumentsStringifier.Video(VideoCodec.Png) +
-                            ArgumentsStringifier.FrameOutputCount(1) +
-                            ArgumentsStringifier.Seek(captureTime) +
-                            ArgumentsStringifier.Size(size) +
-                            ArgumentsStringifier.Output(output);
-
-            if (!RunProcess(thumbArgs, output))
+            if (!RunProcess(container, output))
             {
                 throw new OperationCanceledException("Could not take snapshot!");
             }
@@ -150,9 +150,7 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.ForType(type));
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
-            string args = "";
-            
-            var scale = VideoSize.Original == size ? 1 : 
+            var scale = VideoSize.Original == size ? 1 :
                 (double)source.Height / (int)size;
 
             var outputSize = new Size(
@@ -165,38 +163,38 @@ namespace FFMpegCore.FFMPEG
                 outputSize.Width += 1;
             }
 
+            var container = new ArgumentsContainer();
+
             switch (type)
             {
                 case VideoType.Mp4:
-
-                    args =       ArgumentsStringifier.Input(source) +
-                                 ArgumentsStringifier.Threads(multithreaded) +
-                                 ArgumentsStringifier.Scale(outputSize) +
-                                 ArgumentsStringifier.Video(VideoCodec.LibX264, 2400) +
-                                 ArgumentsStringifier.Speed(speed) +
-                                 ArgumentsStringifier.Audio(AudioCodec.Aac, audioQuality) +
-                                 ArgumentsStringifier.Output(output);
+                    container.Add(new InputArgument(source));
+                    container.Add(new ThreadsArgument(multithreaded));
+                    container.Add(new ScaleArgument(outputSize));
+                    container.Add(new VideoCodecArgument(VideoCodec.LibX264, 2400));
+                    container.Add(new SpeedArgument(speed));
+                    container.Add(new AudioCodecArgument(AudioCodec.Aac, audioQuality));
+                    container.Add(new OutputArgument(output));
                     break;
                 case VideoType.Ogv:
-                    args =       ArgumentsStringifier.Input(source) +
-                                 ArgumentsStringifier.Threads(multithreaded) +
-                                 ArgumentsStringifier.Scale(outputSize) +
-                                 ArgumentsStringifier.Video(VideoCodec.LibTheora, 2400) +
-                                 ArgumentsStringifier.Speed(16) +
-                                 ArgumentsStringifier.Audio(AudioCodec.LibVorbis, audioQuality) +
-                                 ArgumentsStringifier.Output(output);
-
+                    container.Add(new InputArgument(source));
+                    container.Add(new ThreadsArgument(multithreaded));
+                    container.Add(new ScaleArgument(outputSize));
+                    container.Add(new VideoCodecArgument(VideoCodec.LibTheora, 2400));
+                    container.Add(new SpeedArgument(speed));
+                    container.Add(new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality));
+                    container.Add(new OutputArgument(output));
                     break;
                 case VideoType.Ts:
-                    args =       ArgumentsStringifier.Input(source) +
-                                 ArgumentsStringifier.Copy() +
-                                 ArgumentsStringifier.BitStreamFilter(Channel.Video, Filter.H264_Mp4ToAnnexB) +
-                                 ArgumentsStringifier.ForceFormat(VideoCodec.MpegTs) +
-                                 ArgumentsStringifier.Output(output);
+                    container.Add(new InputArgument(source));
+                    container.Add(new CopyArgument());
+                    container.Add(new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB));
+                    container.Add(new ForceFormatArgument(VideoCodec.MpegTs));
+                    container.Add(new OutputArgument(output));
                     break;
             }
 
-            if (!RunProcess(args, output))
+            if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Conversion, $"The video could not be converted to {Enum.GetName(typeof(VideoType), type)}");
             }
@@ -217,15 +215,15 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
             FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
 
-            var args = ArgumentsStringifier.Loop(1) +
-                       ArgumentsStringifier.Input(image) +
-                       ArgumentsStringifier.Input(audio) +
-                       ArgumentsStringifier.Video(VideoCodec.LibX264, 2400) +
-                       ArgumentsStringifier.Audio(AudioCodec.Aac, AudioQuality.Normal) +
-                       ArgumentsStringifier.FinalizeAtShortestInput(true) +
-                       ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new LoopArgument(1));
+            container.Add(new InputArgument(image.FullName, audio.FullName));
+            container.Add(new VideoCodecArgument(VideoCodec.LibX264, 2400));
+            container.Add(new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal));
+            container.Add(new ShortestArgument(true));
+            container.Add(new OutputArgument(output));
 
-            if (!RunProcess(args, output))
+            if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "An error occured while adding the audio file to the image.");
             }
@@ -256,14 +254,15 @@ namespace FFMpegCore.FFMPEG
                 return destinationPath;
             }).ToList();
 
-            var args = ArgumentsStringifier.InputConcat(temporaryVideoParts) +
-                ArgumentsStringifier.Copy() +
-                ArgumentsStringifier.BitStreamFilter(Channel.Audio, Filter.Aac_AdtstoAsc) +
-                ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new ConcatArgument(temporaryVideoParts));
+            container.Add(new CopyArgument());
+            container.Add(new BitStreamFilterArgument(Channel.Audio, Filter.Aac_AdtstoAsc));
+            container.Add(new OutputArgument(output));
 
             try
             {
-                if (!RunProcess(args, output))
+                if (!RunProcess(container, output))
                 {
                     throw new FFMpegException(FFMpegExceptionType.Operation, "Could not join the provided video files.");
                 }
@@ -284,7 +283,7 @@ namespace FFMpegCore.FFMPEG
         /// <param name="images">Image sequence collection</param>
         /// <returns>Output video information.</returns>
         public VideoInfo JoinImageSequence(FileInfo output, double frameRate = 30, params ImageInfo[] images)
-        {            
+        {
             var temporaryImageFiles = images.Select((image, index) =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
@@ -296,17 +295,18 @@ namespace FFMpegCore.FFMPEG
 
             var firstImage = images.First();
 
-            var args = ArgumentsStringifier.FrameRate(frameRate) +
-                ArgumentsStringifier.Size(new Size(firstImage.Width, firstImage.Height)) +
-                ArgumentsStringifier.StartNumber(0) +
-                ArgumentsStringifier.Input($"{firstImage.Directory}\\%09d.png") +
-                ArgumentsStringifier.FrameOutputCount(images.Length) +
-                ArgumentsStringifier.Video(VideoCodec.LibX264) +
-                ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new FrameRateArgument(frameRate));
+            container.Add(new SizeArgument(firstImage.Width, firstImage.Height));
+            container.Add(new StartNumberArgument(0));
+            container.Add(new InputArgument($"{firstImage.Directory}\\%09d.png"));
+            container.Add(new FrameOutputCountArgument(images.Length));
+            container.Add(new VideoCodecArgument(VideoCodec.LibX264));
+            container.Add(new OutputArgument(output));
 
             try
             {
-                if (!RunProcess(args, output))
+                if (!RunProcess(container, output))
                 {
                     throw new FFMpegException(FFMpegExceptionType.Operation, "Could not join the provided image sequence.");
                 }
@@ -331,10 +331,11 @@ namespace FFMpegCore.FFMPEG
 
             if (uri.Scheme == "http" || uri.Scheme == "https")
             {
-                var args = ArgumentsStringifier.Input(uri) +
-                    ArgumentsStringifier.Output(output);
-
-                if (!RunProcess(args, output))
+                var container = new ArgumentsContainer();
+                container.Add(new InputArgument(uri));
+                container.Add(new OutputArgument(output));
+                
+                if (!RunProcess(container, output))
                 {
                     throw new FFMpegException(FFMpegExceptionType.Operation, $"Saving the ${uri.AbsoluteUri} stream failed.");
                 }
@@ -356,12 +357,13 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionSizeExceptionCheck(source);
             FFMpegHelper.ExtensionExceptionCheck(output, source.Extension);
 
-            var args = ArgumentsStringifier.Input(source) +
-                       ArgumentsStringifier.Copy() +
-                       ArgumentsStringifier.Disable(Channel.Audio) +
-                       ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new InputArgument(source));
+            container.Add(new CopyArgument());
+            container.Add(new DisableChannelArgument(Channel.Audio));
+            container.Add(new OutputArgument(output));
 
-            if (!RunProcess(args, output))
+            if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not mute the requested video.");
             }
@@ -380,11 +382,12 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionExceptionCheck(source.ToFileInfo(), output);
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp3);
 
-            var args = ArgumentsStringifier.Input(source) +
-                       ArgumentsStringifier.Disable(Channel.Video) +
-                       ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new InputArgument(source));
+            container.Add(new DisableChannelArgument(Channel.Video));
+            container.Add(new OutputArgument(output));
 
-            if (!RunProcess(args, output))
+            if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not extract the audio from the requested video.");
             }
@@ -409,14 +412,15 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionSizeExceptionCheck(source);
             FFMpegHelper.ExtensionExceptionCheck(output, source.Extension);
 
-            var args = ArgumentsStringifier.Input(source) +
-                       ArgumentsStringifier.Input(audio) +
-                       ArgumentsStringifier.Copy(Channel.Video) +
-                       ArgumentsStringifier.Audio(AudioCodec.Aac, AudioQuality.Hd) +
-                       ArgumentsStringifier.FinalizeAtShortestInput(stopAtShortest) +
-                       ArgumentsStringifier.Output(output);
+            var container = new ArgumentsContainer();
+            container.Add(new InputArgument(source.FullName, audio.FullName));
+            //container.Add(new InputArgument(audio));
+            container.Add(new CopyArgument());
+            container.Add(new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Hd));
+            container.Add(new ShortestArgument(stopAtShortest));
+            container.Add(new OutputArgument(output));
 
-            if (!RunProcess(args, output))
+            if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
             }
@@ -429,19 +433,7 @@ namespace FFMpegCore.FFMPEG
             var args = argumentBuilder.BuildArguments(arguments);
             var output = ((OutputArgument)arguments[typeof(OutputArgument)]).GetAsFileInfo();
 
-            if (!RunProcess(args, output))
-            {
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
-            }
-
-            return new VideoInfo(output);
-        }
-
-        public VideoInfo Convert(ArgumentsContainer arguments, FileInfo input, FileInfo output)
-        {
-            var args = argumentBuilder.BuildArguments(arguments, input, output);
-
-            if (!RunProcess(args, output))
+            if (!RunProcess(arguments, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
             }
@@ -467,11 +459,11 @@ namespace FFMpegCore.FFMPEG
 
         private volatile StringBuilder _errorOutput = new StringBuilder();
 
-        private bool RunProcess(string args, FileInfo output)
+        private bool RunProcess(ArgumentsContainer container, FileInfo output)
         {
             var successState = true;
 
-            CreateProcess(args, _ffmpegPath, true, rStandardError: true);
+            CreateProcess(this.argumentBuilder.BuildArguments(container), _ffmpegPath, true, rStandardError: true);
 
             try
             {
