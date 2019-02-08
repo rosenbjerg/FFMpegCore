@@ -10,25 +10,25 @@ namespace FFMpegCore.FFMPEG.Arguments
     /// <summary>
     /// Represents input parameter
     /// </summary>
-    public class InputArgument : Argument<string>
+    public class InputArgument : Argument<string[]>
     {
         public InputArgument()
         {
         }
 
-        public InputArgument(string value) : base(value)
+        public InputArgument(params string[] values) : base(values)
         {
         }
 
-        public InputArgument(VideoInfo value) : base(value.FullName)
+        public InputArgument(params VideoInfo[] values) : base(values.Select(v => v.FullName).ToArray())
         {
         }
 
-        public InputArgument(FileInfo value) : base(value.FullName)
+        public InputArgument(params FileInfo[] values) : base(values.Select(v => v.FullName).ToArray())
         {
         }
 
-        public InputArgument(Uri value) : base(value.AbsolutePath)
+        public InputArgument(params Uri[] values) : base(values.Select(v => v.AbsolutePath).ToArray())
         {
         }
 
@@ -38,7 +38,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Input(Value);
+            return string.Join(" ", Value.Select(v => ArgumentsStringifier.Input(v)));
         }
     }
 }
