@@ -10,7 +10,7 @@ namespace FFMpegCore.FFMPEG.Arguments
     /// <summary>
     /// Represents output parameter
     /// </summary>
-    public class OutputArgument : InputArgument
+    public class OutputArgument : Argument<string>
     {
         public OutputArgument()
         {
@@ -20,15 +20,15 @@ namespace FFMpegCore.FFMPEG.Arguments
         {
         }
 
-        public OutputArgument(VideoInfo value) : base(value)
+        public OutputArgument(VideoInfo value) : base(value.FullName)
         {
         }
 
-        public OutputArgument(FileInfo value) : base(value)
+        public OutputArgument(FileInfo value) : base(value.FullName)
         {
         }
 
-        public OutputArgument(Uri value) : base(value)
+        public OutputArgument(Uri value) : base(value.AbsolutePath)
         {
         }
 

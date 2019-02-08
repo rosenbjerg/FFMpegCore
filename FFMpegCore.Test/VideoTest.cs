@@ -69,11 +69,17 @@ namespace FFMpegCore.Tests
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                container.Add(new InputArgument(input));
-                container.Add(new OutputArgument(output));
+                var arguments = new ArgumentsContainer();
+                arguments.Add(new InputArgument(input));
+                foreach (var arg in container)
+                {
+                    arguments.Add(arg.Value);
+                }
+                arguments.Add(new OutputArgument(output));
+
                 var scaling = container.Find<ScaleArgument>();
 
-                Encoder.Convert(container);
+                Encoder.Convert(arguments);
 
                 var outputVideo = new VideoInfo(output.FullName);
 

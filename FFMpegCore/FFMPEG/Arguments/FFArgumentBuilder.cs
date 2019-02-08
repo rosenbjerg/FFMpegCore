@@ -26,68 +26,13 @@ namespace FFMpegCore.FFMPEG.Arguments
 
             CheckContainerException(container);
 
-            StringBuilder sb = new StringBuilder();
 
-            sb.Append(GetInput(container).GetStringValue().Trim() + " ");
-
-            foreach(var a in container)
-            {
-                if(!IsInputOrOutput(a.Key))
-                {
-                    sb.Append(a.Value.GetStringValue().Trim() + " ");
-                }
-            }
-
-            sb.Append(container[typeof(OutputArgument)].GetStringValue().Trim());
-
-            var overrideArg = container.Find<OverrideArgument>();
-            if (overrideArg != null)
-                sb.Append(" " + overrideArg.GetStringValue().Trim());
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Builds parameters string from <see cref="ArgumentsContainer"/> that would be passed to ffmpeg process
-        /// </summary>
-        /// <param name="container">Container of arguments</param>
-        /// <param name="input">Input file</param>
-        /// <param name="output">Output file</param>
-        /// <returns>Parameters string</returns>
-        public string BuildArguments(ArgumentsContainer container, FileInfo input, FileInfo output)
-        {
-            CheckContainerException(container);
-            CheckExtensionOfOutputExtension(container, output);
-            FFMpegHelper.ConversionExceptionCheck(input, output);
-
-
-            StringBuilder sb = new StringBuilder();
-
-            var inputA = new InputArgument(input);
-            var outputA = new OutputArgument();
-
-            sb.Append(inputA.GetStringValue().Trim() + " ");
-
-            foreach (var a in container)
-            {
-                if (!IsInputOrOutput(a.Key))
-                {
-                    sb.Append(a.Value.GetStringValue().Trim() + " ");
-                }
-            }
-
-            sb.Append(outputA.GetStringValue().Trim());
-
-            var overrideArg = container.Find<OverrideArgument>();
-            if (overrideArg != null)
-                sb.Append(" " + overrideArg.GetStringValue().Trim());
-
-            return sb.ToString();
+            return string.Join(" ", container.Select(argument => argument.Value.GetStringValue().Trim()));
         }
 
         private void CheckContainerException(ArgumentsContainer container)
         {
-            //TODO: implement arguments check            
+            // TODO: implement arguments check            
         }
 
         private void CheckExtensionOfOutputExtension(ArgumentsContainer container, FileInfo output)

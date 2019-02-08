@@ -17,7 +17,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         {
         }
 
-        public SizeArgument(Size value) : base(value)
+        public SizeArgument(Size? value) : base(value.HasValue ? value.Value : new Size())
         {
         }
 
