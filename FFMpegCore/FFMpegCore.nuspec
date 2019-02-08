@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Vlad Jerca</authors>
+    <owners>Vlad Jerca</owners>
+    <projectUrl>https://github.com/vladjerca/FFMpegCore</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>
+      More information available @ https://github.com/vladjerca/FFMpegCore/blob/master/README.md
+    </releaseNotes>
+    <contentFiles>
+        <files include="**/FFMPEG/bin/*.*" buildAction="Content" />
+    </contentFiles>
+    <copyright>Copyright 2019</copyright>
+    <tags>ffmpeg video conversion FFMpegCore mp4 ogv net.core core net</tags>
+  </metadata>
+</package>
