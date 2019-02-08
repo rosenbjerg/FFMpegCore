@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore", "FFMpegCore\FFMpegCore.csproj", "{19DE2EC2-9955-4712-8096-C22EF6713E4F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Test", "FFMpegCore.Test\FFMpegCore.Test.csproj", "{F20C8353-72D9-454B-9F16-3624DBAD2328}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19DE2EC2-9955-4712-8096-C22EF6713E4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19DE2EC2-9955-4712-8096-C22EF6713E4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19DE2EC2-9955-4712-8096-C22EF6713E4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19DE2EC2-9955-4712-8096-C22EF6713E4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1B53337-60E7-49CB-A171-D4AEF6B4D5F0}
+	EndGlobalSection
+EndGlobal
