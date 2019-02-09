@@ -1,6 +1,6 @@
 ﻿using FFMpegCore.FFMPEG.Enums;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
     /// Represents cpu speed parameter
@@ -21,7 +21,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Disable(Value);
+            return ArgumentStringifier.Disable(Value);
         }
     }
 }

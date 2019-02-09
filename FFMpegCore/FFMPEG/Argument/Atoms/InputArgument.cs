@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
     /// Represents input parameter
@@ -38,7 +38,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return string.Join(" ", Value.Select(v => ArgumentsStringifier.Input(v)));
+            return string.Join(" ", Value.Select(v => ArgumentStringifier.Input(v)));
         }
     }
 }

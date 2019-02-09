@@ -1,21 +1,22 @@
-﻿using System;
+﻿using FFMpegCore.FFMPEG.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents seek parameter
+    /// Represents speed parameter
     /// </summary>
-    public class SeekArgument : Argument<TimeSpan?>
+    public class SpeedArgument : Argument<Speed>
     {
-        public SeekArgument()
-        {
+        public SpeedArgument()
+        {            
         }
 
-        public SeekArgument(TimeSpan? value) : base(value)
+        public SpeedArgument(Speed value) : base(value)
         {
         }
 
@@ -25,7 +26,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Seek(Value);
+            return ArgumentStringifier.Speed(Value);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.FFMPEG;
-using FFMpegCore.FFMPEG.Arguments;
+using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Enums;
 using FFMpegCore.Tests.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -61,7 +61,7 @@ namespace FFMpegCore.Tests
             }
         }
 
-        public void Convert(VideoType type, ArgumentsContainer container)
+        public void Convert(VideoType type, ArgumentContainer container)
         {
             var output = Input.OutputLocation(type);
 
@@ -69,7 +69,7 @@ namespace FFMpegCore.Tests
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                var arguments = new ArgumentsContainer();
+                var arguments = new ArgumentContainer();
                 arguments.Add(new InputArgument(input));
                 foreach (var arg in container)
                 {
@@ -122,7 +122,7 @@ namespace FFMpegCore.Tests
         [TestMethod]
         public void Video_ToMP4_Args()
         {
-            var container = new ArgumentsContainer();
+            var container = new ArgumentContainer();
             container.Add(new VideoCodecArgument(VideoCodec.LibX264));
             Convert(VideoType.Mp4, container);
         }
@@ -136,7 +136,7 @@ namespace FFMpegCore.Tests
         [TestMethod]
         public void Video_ToTS_Args()
         {
-            var container = new ArgumentsContainer();
+            var container = new ArgumentContainer();
             container.Add(new CopyArgument());
             container.Add(new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB));
             container.Add(new ForceFormatArgument(VideoCodec.MpegTs));
@@ -153,7 +153,7 @@ namespace FFMpegCore.Tests
         [TestMethod]
         public void Video_ToOGV_Resize_Args()
         {
-            var container = new ArgumentsContainer();
+            var container = new ArgumentContainer();
             container.Add(new ScaleArgument(VideoSize.Ed));
             container.Add(new VideoCodecArgument(VideoCodec.LibTheora));
             Convert(VideoType.Ogv, container);
@@ -168,7 +168,7 @@ namespace FFMpegCore.Tests
         [TestMethod]
         public void Video_ToMP4_Resize_Args()
         {
-            var container = new ArgumentsContainer();
+            var container = new ArgumentContainer();
             container.Add(new ScaleArgument(VideoSize.Ld));
             container.Add(new VideoCodecArgument(VideoCodec.LibX264));
             Convert(VideoType.Mp4, container);

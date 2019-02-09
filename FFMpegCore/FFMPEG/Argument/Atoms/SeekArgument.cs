@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents shortest parameter
+    /// Represents seek parameter
     /// </summary>
-    public class ShortestArgument : Argument<bool>
+    public class SeekArgument : Argument<TimeSpan?>
     {
-        public ShortestArgument()
+        public SeekArgument()
         {
         }
 
-        public ShortestArgument(bool value) : base(value)
+        public SeekArgument(TimeSpan? value) : base(value)
         {
         }
 
@@ -25,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.FinalizeAtShortestInput(Value);
+            return ArgumentStringifier.Seek(Value);
         }
     }
 }

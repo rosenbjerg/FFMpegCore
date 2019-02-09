@@ -5,29 +5,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
     /// Container of arguments represented parameters of FFMPEG process
     /// </summary>
-    public class ArgumentsContainer : IDictionary<Type, Argument>
+    public class ArgumentContainer : IDictionary<Type, Argument>
     {
-        Dictionary<Type, Argument> _args;
+        IDictionary<Type, Argument> _args;
 
-        public ArgumentsContainer()
+        public ArgumentContainer(params Argument[] arguments)
         {
             _args = new Dictionary<Type, Argument>();
+
+            foreach(var argument in arguments)
+            {
+                this.Add(argument);
+            }
         }
 
-        public Argument this[Type key] { get => ((IDictionary<Type, Argument>)_args)[key]; set => ((IDictionary<Type, Argument>)_args)[key] = value; }
+        public Argument this[Type key] { get => _args[key]; set => _args[key] = value; }
 
-        public ICollection<Type> Keys => ((IDictionary<Type, Argument>)_args).Keys;
+        public ICollection<Type> Keys => _args.Keys;
 
-        public ICollection<Argument> Values => ((IDictionary<Type, Argument>)_args).Values;
+        public ICollection<Argument> Values => _args.Values;
 
-        public int Count => ((IDictionary<Type, Argument>)_args).Count;
+        public int Count => _args.Count;
 
-        public bool IsReadOnly => ((IDictionary<Type, Argument>)_args).IsReadOnly;
+        public bool IsReadOnly => _args.IsReadOnly;
 
         /// <summary>
         /// This method is not supported, left for <see cref="{IDictionary<Type, Argument>}"/> interface support
@@ -48,7 +53,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         [Obsolete]
         public void Add(KeyValuePair<Type, Argument> item)
         {
-            throw new InvalidOperationException("Not supported operation");
+            this.Add(item.Value);
         }
 
         /// <summary>
@@ -56,7 +61,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// </summary>
         public void Clear()
         {
-            ((IDictionary<Type, Argument>)_args).Clear();
+            _args.Clear();
         }
 
         /// <summary>
@@ -66,16 +71,19 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>Returns if contains item</returns>
         public bool Contains(KeyValuePair<Type, Argument> item)
         {
-            return ((IDictionary<Type, Argument>)_args).Contains(item);
+            return _args.Contains(item);
         }
 
         /// <summary>
         /// Adds argument to collection
         /// </summary>
         /// <param name="value">Argument that should be added to collection</param>
-        public void Add(Argument value)
+        public void Add(params Argument[] values)
         {
-            ((IDictionary<Type, Argument>)_args).Add(value.GetType(), value);
+            foreach(var value in values) 
+            {
+                _args.Add(value.GetType(), value);
+            }
         }
 
         /// <summary>
@@ -96,37 +104,37 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns></returns>
         public bool ContainsKey(Type key)
         {
-            return ((IDictionary<Type, Argument>)_args).ContainsKey(key);
+            return _args.ContainsKey(key);
         }
 
         public void CopyTo(KeyValuePair<Type, Argument>[] array, int arrayIndex)
         {
-            ((IDictionary<Type, Argument>)_args).CopyTo(array, arrayIndex);
+            _args.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<Type, Argument>> GetEnumerator()
         {
-            return ((IDictionary<Type, Argument>)_args).GetEnumerator();
+            return _args.GetEnumerator();
         }
 
         public bool Remove(Type key)
         {
-            return ((IDictionary<Type, Argument>)_args).Remove(key);
+            return _args.Remove(key);
         }
 
         public bool Remove(KeyValuePair<Type, Argument> item)
         {
-            return ((IDictionary<Type, Argument>)_args).Remove(item);
+            return _args.Remove(item);
         }
 
         public bool TryGetValue(Type key, out Argument value)
         {
-            return ((IDictionary<Type, Argument>)_args).TryGetValue(key, out value);
+            return _args.TryGetValue(key, out value);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IDictionary<Type, Argument>)_args).GetEnumerator();
+            return _args.GetEnumerator();
         }
 
         /// <summary>

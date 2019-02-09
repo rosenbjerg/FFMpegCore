@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents frame output count parameter
+    /// Represents loop parameter
     /// </summary>
-    public class FrameOutputCountArgument : Argument<int>
+    public class LoopArgument : Argument<int>
     {
-        public FrameOutputCountArgument()
+        public LoopArgument()
         {
         }
 
-        public FrameOutputCountArgument(int value) : base(value)
+        public LoopArgument(int value) : base(value)
         {
         }
 
@@ -25,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.FrameOutputCount(Value);
+            return ArgumentStringifier.Loop(Value);
         }
     }
 }
