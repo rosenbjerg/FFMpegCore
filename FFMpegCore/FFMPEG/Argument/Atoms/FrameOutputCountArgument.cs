@@ -4,15 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents override parameter
-    /// If output file should be overrided if exists
+    /// Represents frame output count parameter
     /// </summary>
-    public class OverrideArgument : Argument
+    public class FrameOutputCountArgument : Argument<int>
     {
-        public OverrideArgument()
+        public FrameOutputCountArgument()
+        {
+        }
+
+        public FrameOutputCountArgument(int value) : base(value)
         {
         }
 
@@ -22,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return "-y";
+            return ArgumentStringifier.FrameOutputCount(Value);
         }
     }
 }

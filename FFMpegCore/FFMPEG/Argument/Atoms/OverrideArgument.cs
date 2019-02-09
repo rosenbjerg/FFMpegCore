@@ -4,18 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents start number parameter
+    /// Represents override parameter
+    /// If output file should be overrided if exists
     /// </summary>
-    public class StartNumberArgument : Argument<int>
+    public class OverrideArgument : Argument
     {
-        public StartNumberArgument()
-        {
-        }
-
-        public StartNumberArgument(int value) : base(value)
+        public OverrideArgument()
         {
         }
 
@@ -25,7 +22,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.StartNumber(Value);
+            return "-y";
         }
     }
 }
