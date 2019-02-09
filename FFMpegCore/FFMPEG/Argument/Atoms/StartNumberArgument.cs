@@ -1,22 +1,21 @@
-﻿using FFMpegCore.FFMPEG.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents force format parameter
+    /// Represents start number parameter
     /// </summary>
-    public class ForceFormatArgument : Argument<VideoCodec>
+    public class StartNumberArgument : Argument<int>
     {
-        public ForceFormatArgument()
+        public StartNumberArgument()
         {
         }
 
-        public ForceFormatArgument(VideoCodec value) : base(value)
+        public StartNumberArgument(int value) : base(value)
         {
         }
 
@@ -26,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.ForceFormat(Value);
+            return ArgumentStringifier.StartNumber(Value);
         }
     }
 }

@@ -18,10 +18,6 @@ namespace FFMpegCore.Extend
             {
                 return new FFMpeg().PosterWithAudio(tempFile, audio, output);
             }
-            catch(Exception e)
-            {
-                throw;
-            }
             finally
             {
                 tempFile.Delete();

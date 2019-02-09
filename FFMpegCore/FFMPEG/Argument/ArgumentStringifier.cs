@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
-    internal static class ArgumentsStringifier
+    internal static class ArgumentStringifier
     {
         internal static string Speed(Speed speed)
         {

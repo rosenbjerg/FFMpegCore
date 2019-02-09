@@ -1,41 +1,31 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Helpers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Builds parameters string from <see cref="ArgumentsContainer"/> that would be passed to ffmpeg process
+    /// Builds parameters string from <see cref="ArgumentContainer"/> that would be passed to ffmpeg process
     /// </summary>
     public class FFArgumentBuilder : IArgumentBuilder
     {
         /// <summary>
-        /// Builds parameters string from <see cref="ArgumentsContainer"/> that would be passed to ffmpeg process
+        /// Builds parameters string from <see cref="ArgumentContainer"/> that would be passed to ffmpeg process
         /// </summary>
         /// <param name="container">Container of arguments</param>
         /// <returns>Parameters string</returns>
-        public string BuildArguments(ArgumentsContainer container)
+        public string BuildArguments(ArgumentContainer container)
         {
             if (!container.ContainsInputOutput())
                 throw new ArgumentException("No input or output parameter found", nameof(container));
-
-            CheckContainerException(container);
-
+            
 
             return string.Join(" ", container.Select(argument => argument.Value.GetStringValue().Trim()));
         }
 
-        private void CheckContainerException(ArgumentsContainer container)
-        {
-            // TODO: implement arguments check            
-        }
-
-        private void CheckExtensionOfOutputExtension(ArgumentsContainer container, FileInfo output)
+        private void CheckExtensionOfOutputExtension(ArgumentContainer container, FileInfo output)
         {
             if(container.ContainsKey(typeof(VideoCodecArgument)))
             {
@@ -44,7 +34,7 @@ namespace FFMpegCore.FFMPEG.Arguments
             }
         }
 
-        private Argument GetInput(ArgumentsContainer container)
+        private Argument GetInput(ArgumentContainer container)
         {
             if (container.ContainsKey(typeof(InputArgument)))
                 return container[typeof(InputArgument)];
@@ -52,16 +42,6 @@ namespace FFMpegCore.FFMPEG.Arguments
                 return container[typeof(ConcatArgument)];
             else
                 throw new ArgumentException("No inputs found");
-        }
-
-        private bool IsInputOrOutput(Argument arg)
-        {
-            return IsInputOrOutput(arg.GetType());
-        }
-
-        private bool IsInputOrOutput(Type arg)
-        {
-            return (arg == typeof(InputArgument)) || (arg == typeof(ConcatArgument)) || (arg == typeof(OutputArgument)) || (arg == typeof(OverrideArgument));
         }
     }
 }

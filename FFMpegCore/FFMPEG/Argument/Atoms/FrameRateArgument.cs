@@ -1,22 +1,21 @@
-﻿using FFMpegCore.FFMPEG.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents speed parameter
+    /// Represents frame rate parameter
     /// </summary>
-    public class SpeedArgument : Argument<Speed>
+    public class FrameRateArgument : Argument<double>
     {
-        public SpeedArgument()
-        {            
+        public FrameRateArgument()
+        {
         }
 
-        public SpeedArgument(Speed value) : base(value)
+        public FrameRateArgument(double value) : base(value)
         {
         }
 
@@ -26,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Speed(Value);
+            return ArgumentStringifier.FrameRate(Value);
         }
     }
 }

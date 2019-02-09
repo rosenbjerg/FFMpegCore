@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents loop parameter
+    /// Represents shortest parameter
     /// </summary>
-    public class LoopArgument : Argument<int>
+    public class ShortestArgument : Argument<bool>
     {
-        public LoopArgument()
+        public ShortestArgument()
         {
         }
 
-        public LoopArgument(int value) : base(value)
+        public ShortestArgument(bool value) : base(value)
         {
         }
 
@@ -25,7 +25,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Loop(Value);
+            return ArgumentStringifier.FinalizeAtShortestInput(Value);
         }
     }
 }

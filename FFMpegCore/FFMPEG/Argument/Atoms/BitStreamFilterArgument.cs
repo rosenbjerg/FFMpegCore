@@ -1,21 +1,22 @@
-﻿using System;
+﻿using FFMpegCore.FFMPEG.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents frame rate parameter
+    /// Represents parameter of bitstream filter
     /// </summary>
-    public class FrameRateArgument : Argument<double>
+    public class BitStreamFilterArgument : Argument<Channel, Filter>
     {
-        public FrameRateArgument()
+        public BitStreamFilterArgument()
         {
         }
 
-        public FrameRateArgument(double value) : base(value)
+        public BitStreamFilterArgument(Channel first, Filter second) : base(first, second)
         {
         }
 
@@ -25,7 +26,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.FrameRate(Value);
+            return ArgumentStringifier.BitStreamFilter(First, Second);
         }
     }
 }

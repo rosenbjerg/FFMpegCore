@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     public interface IArgumentBuilder
     {
-        string BuildArguments(ArgumentsContainer container);
+        string BuildArguments(ArgumentContainer container);
     }
 }

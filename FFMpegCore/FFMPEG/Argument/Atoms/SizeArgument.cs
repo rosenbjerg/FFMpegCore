@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FFMpegCore.FFMPEG.Enums;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
     /// Represents size parameter
@@ -35,7 +35,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Size(Value);
+            return ArgumentStringifier.Size(Value);
         }
     }
 }

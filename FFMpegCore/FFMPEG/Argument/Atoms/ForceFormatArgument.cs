@@ -1,21 +1,22 @@
-﻿using System;
+﻿using FFMpegCore.FFMPEG.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Arguments
+namespace FFMpegCore.FFMPEG.Argument
 {
     /// <summary>
-    /// Represents cpu speed parameter
+    /// Represents force format parameter
     /// </summary>
-    public class CpuSpeedArgument : Argument<int>
+    public class ForceFormatArgument : Argument<VideoCodec>
     {
-        public CpuSpeedArgument()
+        public ForceFormatArgument()
         {
         }
 
-        public CpuSpeedArgument(int value) : base(value)
+        public ForceFormatArgument(VideoCodec value) : base(value)
         {
         }
 
@@ -25,7 +26,7 @@ namespace FFMpegCore.FFMPEG.Arguments
         /// <returns>String representation of the argument</returns>
         public override string GetStringValue()
         {
-            return ArgumentsStringifier.Speed(Value);
+            return ArgumentStringifier.ForceFormat(Value);
         }
     }
 }
