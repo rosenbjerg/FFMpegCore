@@ -1,17 +1,25 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace FFMpegCore.FFMPEG
 {
     public abstract class FFBase : IDisposable
     {
+        private static string _ConfigFile = "./ffmpeg.config.json";
+        private static string _DefaultRoot = ".\\FFMPEG\\bin";
         protected string ConfiguredRoot;
         protected Process Process;
 
         protected FFBase()
         {
-            ConfiguredRoot = ".\\FFMPEG\\bin";
+            ConfiguredRoot =
+                !File.Exists(_ConfigFile) ?
+                _DefaultRoot :
+                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_ConfigFile))["RootDirectory"];
         }
 
         /// <summary>
