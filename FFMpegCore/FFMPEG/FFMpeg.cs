@@ -203,12 +203,12 @@ namespace FFMpegCore.FFMPEG
                     break;
             }
 
-            _totalTime = TimeSpan.MinValue;
-
             if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Conversion, $"The video could not be converted to {Enum.GetName(typeof(VideoType), type)}");
             }
+
+            _totalTime = TimeSpan.MinValue;
 
             return new VideoInfo(output);
         }
