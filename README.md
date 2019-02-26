@@ -22,6 +22,10 @@ The root directory for the ffmpeg binaries can be configured via the `ffmpeg.con
 }
 ```
 
+The files that need to be included can be found here: https://github.com/vladjerca/FFMpegCore/tree/master/FFMpegCore/FFMPEG/bin
+
+I can only guarantee an expected behaviour built binaries included, other 3rd party builds could contain API changes rendering an unexpected behaviour.
+
 ### FFProbe
 
 FFProbe is used to gather video information
