@@ -12,6 +12,16 @@ Install-Package FFMpegCore
 
 A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.
 
+### Configuratoin
+
+The root directory for the ffmpeg binaries can be configured via the `ffmpeg.config.json` file.
+
+```json
+{
+  "RootDirectory": ".//FFMPEG//bin"
+}
+```
+
 ### FFProbe
 
 FFProbe is used to gather video information
