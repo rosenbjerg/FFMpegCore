@@ -151,6 +151,8 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.ForType(type));
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
+            _totalTime = source.Duration;
+
             var scale = VideoSize.Original == size ? 1 :
                 (double)source.Height / (int)size;
 
@@ -200,6 +202,8 @@ namespace FFMpegCore.FFMPEG
                     );
                     break;
             }
+
+            _totalTime = TimeSpan.MinValue;
 
             if (!RunProcess(container, output))
             {
