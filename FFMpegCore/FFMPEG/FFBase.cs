@@ -14,12 +14,27 @@ namespace FFMpegCore.FFMPEG
         protected string ConfiguredRoot;
         protected Process Process;
 
-        protected FFBase()
+        protected FFBase(FFMpegOptions opts = null)
         {
-            ConfiguredRoot =
-                !File.Exists(_ConfigFile) ?
-                _DefaultRoot :
-                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_ConfigFile))["RootDirectory"];
+            var options = opts;
+
+            if (
+                opts == null &&
+                File.Exists(_ConfigFile)
+            )
+            {
+                options = JsonConvert.DeserializeObject<FFMpegOptions>(File.ReadAllText(_ConfigFile));
+            }
+
+            if (options == null)
+            {
+                options = new FFMpegOptions
+                {
+                    RootDirectory = _DefaultRoot
+                };
+            }
+
+            ConfiguredRoot = options.RootDirectory;
         }
 
         /// <summary>
