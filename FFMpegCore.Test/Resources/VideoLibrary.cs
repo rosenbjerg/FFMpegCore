@@ -2,7 +2,7 @@
 using System.IO;
 using FFMpegCore.Enums;
 
-namespace FFMpegCore.Tests.Resources
+namespace FFMpegCore.Test.Resources
 {
     public enum AudioType
     {

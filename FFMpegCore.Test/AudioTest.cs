@@ -1,9 +1,9 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Tests.Resources;
+using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace FFMpegCore.Tests
+namespace FFMpegCore.Test
 {
     [TestClass]
     public class AudioTest : BaseTest

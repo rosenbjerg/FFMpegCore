@@ -1,9 +1,8 @@
-﻿using System.Configuration;
+﻿using FFMpegCore.FFMPEG;
+using FFMpegCore.Test.Resources;
 using System.IO;
-using FFMpegCore.FFMPEG;
-using FFMpegCore.Tests.Resources;
 
-namespace FFMpegCore.Tests
+namespace FFMpegCore.Test
 {
     public class BaseTest
     {
