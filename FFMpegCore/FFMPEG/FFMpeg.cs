@@ -25,18 +25,12 @@ namespace FFMpegCore.FFMPEG
         /// <summary>
         ///     Intializes the FFMPEG encoder.
         /// </summary>
-        public FFMpeg()
+        public FFMpeg(FFMpegOptions opts = null): base(opts)
         {
             _Init();
             ArgumentBuilder = new FFArgumentBuilder();
         }
-
-        public FFMpeg(IArgumentBuilder builder)
-        {
-            _Init();
-            ArgumentBuilder = builder;
-        }
-
+        
         private void _Init()
         {
             FFMpegHelper.RootExceptionCheck(ConfiguredRoot);
