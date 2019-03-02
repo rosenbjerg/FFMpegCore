@@ -8,7 +8,7 @@ namespace FFMpegCore.FFMPEG
 {
     public sealed class FFProbe : FFBase
     {
-        public FFProbe()
+        public FFProbe(FFMpegOptions opts = null): base(opts)
         {
             FFProbeHelper.RootExceptionCheck(ConfiguredRoot);
 
