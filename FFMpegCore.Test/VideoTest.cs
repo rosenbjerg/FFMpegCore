@@ -1,15 +1,15 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.FFMPEG;
 using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Enums;
-using FFMpegCore.Tests.Resources;
+using FFMpegCore.Test;
+using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-namespace FFMpegCore.Tests
+namespace FFMpegCore.Test
 {
     [TestClass]
     public class VideoTest : BaseTest

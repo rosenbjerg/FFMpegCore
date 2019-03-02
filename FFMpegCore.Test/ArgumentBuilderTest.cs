@@ -3,21 +3,18 @@ using FFMpegCore.FFMPEG.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FFMpegCore.Tests
+namespace FFMpegCore.Test
 {
     [TestClass]
-    public class ArgumentBuilderTests : BaseTest
+    public class ArgumentBuilderTest : BaseTest
     {
         List<string> concatFiles = new List<string>
         { "1.mp4", "2.mp4", "3.mp4", "4.mp4"};
 
         FFArgumentBuilder builder;
 
-        public ArgumentBuilderTests() : base()
+        public ArgumentBuilderTest() : base()
         {
             builder = new FFArgumentBuilder();
         }
