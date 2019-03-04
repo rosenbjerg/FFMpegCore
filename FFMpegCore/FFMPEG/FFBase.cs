@@ -9,32 +9,10 @@ namespace FFMpegCore.FFMPEG
 {
     public abstract class FFBase : IDisposable
     {
-        private static string _ConfigFile = "./ffmpeg.config.json";
-        private static string _DefaultRoot = ".\\FFMPEG\\bin";
-        protected string ConfiguredRoot;
         protected Process Process;
 
-        protected FFBase(FFMpegOptions opts = null)
+        protected FFBase()
         {
-            var options = opts;
-
-            if (
-                opts == null &&
-                File.Exists(_ConfigFile)
-            )
-            {
-                options = JsonConvert.DeserializeObject<FFMpegOptions>(File.ReadAllText(_ConfigFile));
-            }
-
-            if (options == null)
-            {
-                options = new FFMpegOptions
-                {
-                    RootDirectory = _DefaultRoot
-                };
-            }
-
-            ConfiguredRoot = options.RootDirectory;
         }
 
         /// <summary>
