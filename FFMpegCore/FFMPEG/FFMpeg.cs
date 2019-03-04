@@ -25,20 +25,15 @@ namespace FFMpegCore.FFMPEG
         /// <summary>
         ///     Intializes the FFMPEG encoder.
         /// </summary>
-        public FFMpeg(FFMpegOptions opts = null): base(opts)
+        public FFMpeg(): base()
         {
-            _Init();
-            ArgumentBuilder = new FFArgumentBuilder();
-        }
-        
-        private void _Init()
-        {
-            FFMpegHelper.RootExceptionCheck(ConfiguredRoot);
-            FFProbeHelper.RootExceptionCheck(ConfiguredRoot);
+            FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
             var target = Environment.Is64BitProcess ? "x64" : "x86";
 
-            _ffmpegPath = ConfiguredRoot + $"\\{target}\\ffmpeg.exe";
+            _ffmpegPath = $"{FFMpegOptions.Options.RootDirectory}\\{target}\\ffmpeg.exe";
+
+            ArgumentBuilder = new FFArgumentBuilder();
         }
 
         /// <summary>

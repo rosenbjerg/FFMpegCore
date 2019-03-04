@@ -12,7 +12,23 @@ Install-Package FFMpegCore
 
 A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.
 
-### Configuratoin
+### Configuration
+
+By default the `RootDirectory` is set to `"\\FFMPEG\\bin"`.
+
+
+#### Option 1
+
+The default value can be overwritten via the `FFMpegOptions` class:
+
+```c#
+public Startup() 
+{
+    FFMpegOptions.Configure(new FFMpegOptions { RootDirectory = "\\My_Binary\\Path" });
+}
+```
+
+#### Option 2
 
 The root directory for the ffmpeg binaries can be configured via the `ffmpeg.config.json` file.
 
