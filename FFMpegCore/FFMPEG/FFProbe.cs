@@ -3,18 +3,19 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 
 namespace FFMpegCore.FFMPEG
 {
     public sealed class FFProbe : FFBase
     {
-        public FFProbe(FFMpegOptions opts = null): base(opts)
+        public FFProbe(): base()
         {
-            FFProbeHelper.RootExceptionCheck(ConfiguredRoot);
+            FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
             var target = Environment.Is64BitProcess ? "x64" : "x86";
 
-            _ffprobePath = ConfiguredRoot + $"\\{target}\\ffprobe.exe";
+            _ffprobePath = $"{FFMpegOptions.Options.RootDirectory}\\{target}\\ffprobe.exe";
         }
 
         /// <summary>
