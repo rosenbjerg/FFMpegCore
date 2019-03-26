@@ -107,12 +107,9 @@ namespace FFMpegCore.FFMPEG
                 }
             }
 
-            if (output.Exists)
+            if (output.Exists && !persistSnapshotOnFileSystem)
             {
-                if (!persistSnapshotOnFileSystem)
-                {
-                    output.Delete();
-                }
+                output.Delete();
             }
 
             return result;
