@@ -354,8 +354,9 @@ public class OverrideArgument : Argument
 ```
 ## Contributors
 
-<a href="https://github.com/vladjerca"><img src="https://avatars.githubusercontent.com/u/6339681?v=3" title="vladjerca" width="80" height="80"></a>
-<a href="https://github.com/max619"><img src="https://avatars.githubusercontent.com/u/26447324?v=3" title="max619" width="80" height="80"></a>
+<a href="https://github.com/vladjerca"><img src="https://avatars.githubusercontent.com/u/6339681?v=4" title="vladjerca" width="80" height="80"></a>
+<a href="https://github.com/max619"><img src="https://avatars.githubusercontent.com/u/26447324?v=4" title="max619" width="80" height="80"></a>
+<a href="https://github.com/kyriakosio"><img src="https://avatars3.githubusercontent.com/u/6959989?v=4" title="max619" width="80" height="80"></a>
 
 ### License
 
