@@ -48,8 +48,9 @@ namespace FFMpegCore.FFMPEG
         /// <param name="output">Output video file</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <param name="persistSnapshotOnFileSystem">By default, it deletes the created image on disk. If set to true, it won't delete the image</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public Bitmap Snapshot(VideoInfo source, FileInfo output, Size? size = null, TimeSpan? captureTime = null)
+        public Bitmap Snapshot(VideoInfo source, FileInfo output, Size? size = null, TimeSpan? captureTime = null, bool persistSnapshotOnFileSystem = false)
         {
             if (captureTime == null)
                 captureTime = TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
@@ -106,7 +107,7 @@ namespace FFMpegCore.FFMPEG
                 }
             }
 
-            if (output.Exists)
+            if (output.Exists && !persistSnapshotOnFileSystem)
             {
                 output.Delete();
             }

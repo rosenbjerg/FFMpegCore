@@ -1,7 +1,6 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Enums;
-using FFMpegCore.Test;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -32,7 +31,8 @@ namespace FFMpegCore.Test
                 {
                     Assert.AreEqual(outputVideo.Width, input.Width);
                     Assert.AreEqual(outputVideo.Height, input.Height);
-                } else
+                }
+                else
                 {
                     Assert.AreNotEqual(outputVideo.Width, input.Width);
                     Assert.AreNotEqual(outputVideo.Height, input.Height);
@@ -90,7 +90,8 @@ namespace FFMpegCore.Test
                 {
                     Assert.AreEqual(outputVideo.Width, input.Width);
                     Assert.AreEqual(outputVideo.Height, input.Height);
-                } else
+                }
+                else
                 {
                     if (scaling.Value.Width != -1)
                     {
@@ -212,6 +213,29 @@ namespace FFMpegCore.Test
                     Assert.AreEqual(input.Width, bitmap.Width);
                     Assert.AreEqual(input.Height, bitmap.Height);
                     Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+                }
+            }
+            finally
+            {
+                if (File.Exists(output.FullName))
+                    File.Delete(output.FullName);
+            }
+        }
+
+        [TestMethod]
+        public void Video_Snapshot_PersistSnapshot()
+        {
+            var output = Input.OutputLocation(ImageType.Png);
+            try
+            {
+                var input = VideoInfo.FromFileInfo(Input);
+
+                using (var bitmap = Encoder.Snapshot(input, output, persistSnapshotOnFileSystem: true))
+                {
+                    Assert.AreEqual(input.Width, bitmap.Width);
+                    Assert.AreEqual(input.Height, bitmap.Height);
+                    Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+                    Assert.IsTrue(File.Exists(output.FullName));
                 }
             }
             finally
