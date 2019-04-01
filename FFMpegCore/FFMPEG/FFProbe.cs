@@ -1,14 +1,15 @@
-﻿using FFMpegCore.Helpers;
+﻿using FFMpegCore.FFMPEG.Exceptions;
+using FFMpegCore.Helpers;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 
 namespace FFMpegCore.FFMPEG
 {
     public sealed class FFProbe : FFBase
     {
+        static readonly double BITS_TO_MB = 1024 * 1024 * 8;
+
         public FFProbe(): base()
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
@@ -38,70 +39,55 @@ namespace FFMpegCore.FFMPEG
             var jsonOutput =
                 RunProcess($"-v quiet -print_format json -show_streams \"{info.FullName}\"");
 
-            var metadata = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(jsonOutput);
-            int videoIndex = metadata["streams"][0]["codec_type"] == "video" ? 0 : 1,
-                audioIndex = 1 - videoIndex;
+            var metadata = JsonConvert.DeserializeObject<FFMpegStreamMetadata>(jsonOutput);
 
-            var bitRate = Convert.ToDouble(metadata["streams"][videoIndex]["bit_rate"], CultureInfo.InvariantCulture);
-                       
-            try
+            if (metadata.Streams == null || metadata.Streams.Count == 0)
             {
-                var duration = Convert.ToDouble(metadata["streams"][videoIndex]["duration"], CultureInfo.InvariantCulture);
-                info.Duration = TimeSpan.FromSeconds(duration);
-                info.Duration = info.Duration.Subtract(TimeSpan.FromMilliseconds(info.Duration.Milliseconds));
+                throw new FFMpegException(FFMpegExceptionType.File, $"No video or audio streams could be detected. Source: ${info.FullName}");
             }
-            catch (Exception)
+  
+            var video = metadata.Streams.Find(s => s.CodecType == "video");
+            var audio = metadata.Streams.Find(s => s.CodecType == "audio");
+
+            double videoSize = 0d;
+            double audioSize = 0d;
+
+            var duration = TimeSpan.FromSeconds(double.TryParse((video ?? audio).Duration, out var output) ? output : 0);
+            info.Duration = duration.Subtract(TimeSpan.FromMilliseconds(duration.Milliseconds));
+
+            if (video != null)
             {
-                info.Duration = TimeSpan.FromSeconds(0);
-            }
+                var bitRate = Convert.ToDouble(video.BitRate, CultureInfo.InvariantCulture);
+                var fr = video.FrameRate.Split('/');
+                var commonDenominator = FFProbeHelper.Gcd(video.Width, video.Height);
 
+                videoSize = bitRate * duration.TotalSeconds / BITS_TO_MB;
 
-            // Get video size in megabytes
-            double videoSize = 0,
-                   audioSize = 0;
-
-            try
-            {
-                info.VideoFormat = metadata["streams"][videoIndex]["codec_name"];
-                videoSize = bitRate * info.Duration / 8388608;
-            }
-            catch (Exception)
+                info.VideoFormat = video.CodecName;
+                info.Width = video.Width;
+                info.Height = video.Height;
+                info.FrameRate = Math.Round(
+                    Convert.ToDouble(fr[0], CultureInfo.InvariantCulture) /
+                    Convert.ToDouble(fr[1], CultureInfo.InvariantCulture),
+                    3);
+                info.Ratio = video.Width / commonDenominator + ":" + video.Height / commonDenominator;
+            } else
             {
                 info.VideoFormat = "none";
             }
 
-            // Get audio format - wrap for exceptions if the video has no audio
-            try
+            if (audio != null)
             {
-                info.AudioFormat = metadata["streams"][audioIndex]["codec_name"];
-                audioSize = bitRate *  info.Duration / 8388608;
-            }
-            catch (Exception)
+                var bitRate = Convert.ToDouble(audio.BitRate, CultureInfo.InvariantCulture);
+                info.AudioFormat = audio.CodecName;
+                audioSize = bitRate * duration.TotalSeconds / BITS_TO_MB;
+            } else
             {
                 info.AudioFormat = "none";
+
             }
 
-            // Get video format
-
-
-            // Get video width
-            info.Width = metadata["streams"][videoIndex]["width"];
-
-            // Get video height
-            info.Height = metadata["streams"][videoIndex]["height"];
-
             info.Size = Math.Round(videoSize + audioSize, 2);
-
-            // Get video aspect ratio
-            var cd = FFProbeHelper.Gcd(info.Width, info.Height);
-            info.Ratio = info.Width / cd + ":" + info.Height / cd;
-
-            // Get video framerate
-            var fr = ((string)metadata["streams"][videoIndex]["r_frame_rate"]).Split('/');
-            info.FrameRate = Math.Round(
-                Convert.ToDouble(fr[0], CultureInfo.InvariantCulture) /
-                Convert.ToDouble(fr[1], CultureInfo.InvariantCulture),
-                3);
 
             return info;
         }
