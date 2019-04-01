@@ -30,6 +30,9 @@
     <None Update="Resources\audio.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\audio_only.mp4">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\cover.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

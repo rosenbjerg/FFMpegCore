@@ -308,5 +308,15 @@ namespace FFMpegCore.Test
                 }
             }
         }
+
+        [TestMethod]
+        public void Video_With_Only_Audio_Should_Extract_Metadata()
+        {
+            var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoAudioOnly);
+            Assert.AreEqual(video.VideoFormat, "none");
+            Assert.AreEqual(video.AudioFormat, "aac");
+            Assert.AreEqual(video.Duration.TotalSeconds, 79);
+            Assert.AreEqual(video.Size, 1.25);
+        }
     }
 }
