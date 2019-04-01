@@ -17,6 +17,7 @@ namespace FFMpegCore.Test.Resources
     public static class VideoLibrary
     {
         public static readonly FileInfo LocalVideo = new FileInfo(".\\Resources\\input.mp4");
+        public static readonly FileInfo LocalVideoAudioOnly = new FileInfo(".\\Resources\\audio_only.mp4");
         public static readonly FileInfo LocalVideoNoAudio = new FileInfo(".\\Resources\\mute.mp4");
         public static readonly FileInfo LocalAudio = new FileInfo(".\\Resources\\audio.mp3");
         public static readonly FileInfo LocalCover = new FileInfo(".\\Resources\\cover.png");
