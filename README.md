@@ -45,6 +45,11 @@ I can only guarantee an expected behaviour built binaries included, other 3rd pa
 MacOSX 
 The Unit test have run on MacOSX - 10.14.4 using ffmpeg version 4.1.3. (It was installed using "brew install ffmpeg" and "brew install mono-libgdiplus"). The RootDirectory was set to "/usr/local/bin" for running unit test.
 
+Ubuntu 16.04
+The unit test failed on 2 test when running against default ffmpeg package of (ffmpeg version 2.8.15-0ubuntu0.16.04.1)
+    The two test that failed were Video_ToMP4_Args and Video_ToMP4_Resize_Args
+The Unit test passed when running against ffmpeg version 4.1.3
+
 ### FFProbe
 
 FFProbe is used to gather video information
