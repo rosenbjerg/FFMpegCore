@@ -3,6 +3,8 @@ using FFMpegCore.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -14,9 +16,16 @@ namespace FFMpegCore.FFMPEG
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            var target = Environment.Is64BitProcess ? "x64" : "x86";
+            var progName = "ffprobe";
+            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
+                var target = Environment.Is64BitProcess ? "x64" : "x86";
 
-            _ffprobePath = $"{FFMpegOptions.Options.RootDirectory}\\{target}\\ffprobe.exe";
+                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
+            }
+
+            var path = $"{Path.DirectorySeparatorChar}{progName}";
+
+            _ffprobePath = $"{FFMpegOptions.Options.RootDirectory}{path}";
         }
 
         /// <summary>
