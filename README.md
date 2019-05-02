@@ -42,6 +42,9 @@ The files that need to be included can be found here: https://github.com/vladjer
 
 I can only guarantee an expected behaviour built binaries included, other 3rd party builds could contain API changes rendering an unexpected behaviour.
 
+MacOSX 
+The Unit test have run on MacOSX - 10.14.4 using ffmpeg version 4.1.3. (It was installed using "brew install ffmpeg" and "brew install mono-libgdiplus"). The RootDirectory was set to "/usr/local/bin" for running unit test.
+
 ### FFProbe
 
 FFProbe is used to gather video information
