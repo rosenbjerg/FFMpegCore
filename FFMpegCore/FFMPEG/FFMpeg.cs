@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -29,9 +30,16 @@ namespace FFMpegCore.FFMPEG
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            var target = Environment.Is64BitProcess ? "x64" : "x86";
+            var progName = "ffmpeg";
+            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
+                var target = Environment.Is64BitProcess ? "x64" : "x86";
 
-            _ffmpegPath = $"{FFMpegOptions.Options.RootDirectory}\\{target}\\ffmpeg.exe";
+                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
+            }
+
+            var path = $"{Path.DirectorySeparatorChar}{progName}";
+
+            _ffmpegPath = $"{FFMpegOptions.Options.RootDirectory}{path}";
 
             ArgumentBuilder = new FFArgumentBuilder();
         }
@@ -302,7 +310,7 @@ namespace FFMpegCore.FFMPEG
                 new FrameRateArgument(frameRate),
                 new SizeArgument(firstImage.Width, firstImage.Height),
                 new StartNumberArgument(0),
-                new InputArgument($"{firstImage.Directory}\\%09d.png"),
+                new InputArgument($"{firstImage.Directory}{Path.DirectorySeparatorChar}%09d.png"),
                 new FrameOutputCountArgument(images.Length),
                 new VideoCodecArgument(VideoCodec.LibX264),
                 new OutputArgument(output)
