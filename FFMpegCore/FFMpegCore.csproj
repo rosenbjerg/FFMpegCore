@@ -7,9 +7,12 @@
     <PackageProjectUrl>https://github.com/vladjerca/FFMpegCore</PackageProjectUrl>
     <Copyright>Vlad Jerca</Copyright>
     <Description>A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.</Description>
-    <Version>1.0.7</Version>
-    <AssemblyVersion>1.0.7.0</AssemblyVersion>
-    <FileVersion>1.0.7.0</FileVersion>
+    <Version>1.0.8</Version>
+    <AssemblyVersion>1.0.8.0</AssemblyVersion>
+    <FileVersion>1.0.8.0</FileVersion>
+    <PackageReleaseNotes># v1.0.8
+
+- add support for OSX and Linux</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
