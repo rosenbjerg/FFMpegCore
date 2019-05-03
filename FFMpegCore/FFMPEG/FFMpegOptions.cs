@@ -5,8 +5,8 @@ namespace FFMpegCore.FFMPEG
 {
     public class FFMpegOptions
     {
-        private static string _ConfigFile = ".\\ffmpeg.config.json";
-        private static string _DefaultRoot = ".\\FFMPEG\\bin";
+        private static string _ConfigFile = $".{Path.DirectorySeparatorChar}ffmpeg.config.json";
+        private static string _DefaultRoot = $".{Path.DirectorySeparatorChar}FFMPEG{Path.DirectorySeparatorChar}bin";
 
         public static FFMpegOptions Options { get; private set; } = new FFMpegOptions();
 

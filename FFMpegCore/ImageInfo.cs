@@ -158,7 +158,7 @@ namespace FFMpegCore
         /// <param name="destination"></param>
         public void MoveTo(DirectoryInfo destination)
         {
-            var newLocation = $"{destination.FullName}\\{Name}{Extension}";
+            var newLocation = $"{destination.FullName}{Path.DirectorySeparatorChar}{Name}{Extension}";
             _file.MoveTo(newLocation);
             _file = new FileInfo(newLocation);
         }

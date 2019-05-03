@@ -17,7 +17,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Options_Defaults_Configured()
         {
-            Assert.AreEqual(new FFMpegOptions().RootDirectory, ".\\FFMPEG\\bin");
+            Assert.AreEqual(new FFMpegOptions().RootDirectory, $".{Path.DirectorySeparatorChar}FFMPEG{Path.DirectorySeparatorChar}bin");
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace FFMpegCore.Test
         {
             Assert.AreEqual(
                 FFMpegOptions.Options.RootDirectory, 
-                JsonConvert.DeserializeObject<FFMpegOptions>(File.ReadAllText(".\\ffmpeg.config.json")).RootDirectory
+                JsonConvert.DeserializeObject<FFMpegOptions>(File.ReadAllText($".{Path.DirectorySeparatorChar}ffmpeg.config.json")).RootDirectory
             );
         }
 

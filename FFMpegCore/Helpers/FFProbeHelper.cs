@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using FFMpegCore.FFMPEG.Exceptions;
 
 namespace FFMpegCore.Helpers
@@ -23,9 +24,14 @@ namespace FFMpegCore.Helpers
                 throw new FFMpegException(FFMpegExceptionType.Dependency,
                     "FFProbe root is not configured in app config. Missing key 'ffmpegRoot'.");
 
-            var target = Environment.Is64BitProcess ? "x64" : "x86";
+            var progName = "ffprobe";
+            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
+                var target = Environment.Is64BitProcess ? "x64" : "x86";
 
-            var path = root + $"\\{target}\\ffprobe.exe";
+                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
+            }
+
+            var path = root + $"{Path.DirectorySeparatorChar}{progName}";
 
             if (!File.Exists(path))
                 throw new FFMpegException(FFMpegExceptionType.Dependency,
