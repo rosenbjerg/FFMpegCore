@@ -30,16 +30,7 @@ namespace FFMpegCore.FFMPEG
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            var progName = "ffmpeg";
-            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
-                var target = Environment.Is64BitProcess ? "x64" : "x86";
-
-                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
-            }
-
-            var path = $"{Path.DirectorySeparatorChar}{progName}";
-
-            _ffmpegPath = $"{FFMpegOptions.Options.RootDirectory}{path}";
+            _ffmpegPath = FFMpegOptions.Options.FFmpegBinary;
 
             ArgumentBuilder = new FFArgumentBuilder();
         }
