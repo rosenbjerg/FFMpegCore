@@ -16,16 +16,7 @@ namespace FFMpegCore.FFMPEG
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            var progName = "ffprobe";
-            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
-                var target = Environment.Is64BitProcess ? "x64" : "x86";
-
-                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
-            }
-
-            var path = $"{Path.DirectorySeparatorChar}{progName}";
-
-            _ffprobePath = $"{FFMpegOptions.Options.RootDirectory}{path}";
+            _ffprobePath = FFMpegOptions.Options.FFProbeBinary;
         }
 
         /// <summary>
