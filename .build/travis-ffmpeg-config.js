@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+if (process.env.TRAVIS_OS_NAME === 'windows') { return; }
+
 const CONFIG_PATH = path.resolve('./FFMpegCore.Test/ffmpeg.config.json');
 
 console.log('--- Configuring ffmpeg binary path for:', process.env.TRAVIS_OS_NAME);
