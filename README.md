@@ -3,7 +3,7 @@
 [![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![Build Status](https://travis-ci.org/vladjerca/FFMpegCore.svg?branch=master)](https://travis-ci.org/vladjerca/FFMpegCore)
 
-## Setup
+# Setup
 
 #### NuGet:
 
@@ -13,19 +13,46 @@ Install-Package FFMpegCore
 
 A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.
 
-### Configuration
+## Binaries
 
-By default the `RootDirectory` is set to `"\\FFMPEG\\bin"`.
+If you prefer to manually download them, visit [ffbinaries](https://ffbinaries.com/downloads).
 
+#### Windows
+
+command: `choco install ffmpeg -Y`
+
+location: `C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin`
+
+#### Mac OSX
+
+command: `brew install ffmpeg mono-libgdiplus`
+
+location: `/usr/local/bin`
+
+#### Ubuntu
+
+command: `sudo apt-get install -y ffmpeg libgdiplus`
+
+location: `/usr/bin`
+
+## Path Configuration
+
+#### Behavior
+
+If you are building a client app, and you don't know the processor achitecture.
+
+By creating a folder `x64` and `x86` in the `root` directory, the lib will automatically try to use either `/root/{ARCH}/(ffmpeg|ffprobe).exe`.
+
+If these folders are not defined, it will try to find the binaries in `/root/(ffmpeg|ffprobe.exe)`
 
 #### Option 1
 
-The default value can be overwritten via the `FFMpegOptions` class:
+The default value (`\\FFMPEG\\bin`) can be overwritten via the `FFMpegOptions` class:
 
 ```c#
 public Startup() 
 {
-    FFMpegOptions.Configure(new FFMpegOptions { RootDirectory = "\\My_Binary\\Path" });
+    FFMpegOptions.Configure(new FFMpegOptions { RootDirectory = "./bin" });
 }
 ```
 
@@ -35,23 +62,16 @@ The root directory for the ffmpeg binaries can be configured via the `ffmpeg.con
 
 ```json
 {
-  "RootDirectory": ".//FFMPEG//bin"
+  "RootDirectory": "./bin"
 }
 ```
 
-The files that need to be included can be found here: https://github.com/vladjerca/FFMpegCore/tree/master/FFMpegCore/FFMPEG/bin
+# Compatibility
+ Some versions of FFMPEG might not have the same argument schema. The lib has been tested with version `3.3` to `4.1`
 
-I can only guarantee an expected behaviour built binaries included, other 3rd party builds could contain API changes rendering an unexpected behaviour.
+ # API
 
-MacOSX 
-The Unit test have run on MacOSX - 10.14.4 using ffmpeg version 4.1.3. (It was installed using "brew install ffmpeg" and "brew install mono-libgdiplus"). The RootDirectory was set to "/usr/local/bin" for running unit test.
-
-Ubuntu 16.04
-The unit test failed on 2 test when running against default ffmpeg package of (ffmpeg version 2.8.15-0ubuntu0.16.04.1)
-    The two test that failed were Video_ToMP4_Args and Video_ToMP4_Resize_Args
-The Unit test passed when running against ffmpeg version 4.1.3
-
-### FFProbe
+## FFProbe
 
 FFProbe is used to gather video information
 ```csharp
@@ -83,7 +103,7 @@ Resolution : 1280x720
 Size : 2.88 Mb
 ```
 
-### FFMpeg
+## FFMpeg
 Convert your video files to web ready formats:
 
 ```csharp
