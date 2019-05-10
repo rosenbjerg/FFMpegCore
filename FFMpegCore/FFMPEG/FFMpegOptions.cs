@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using FFMpegCore.FFMPEG.Exceptions;
+using Newtonsoft.Json;
+using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -24,5 +27,49 @@ namespace FFMpegCore.FFMPEG
         }
 
         public string RootDirectory { get; set; } = _DefaultRoot;
+
+        public string FFmpegBinary
+        {
+            get
+            {
+                var target = Environment.Is64BitProcess ? "x64" : "x86";
+                var progName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffmpeg.exe" : "ffmpeg";
+
+                if (Directory.Exists($"{Options.RootDirectory}{target}"))
+                {
+                    progName = $"{target}{Path.DirectorySeparatorChar}{progName}";
+                }
+
+                var path = $"{Options.RootDirectory}{Path.DirectorySeparatorChar}{progName}";
+
+                if (!File.Exists(path))
+                    throw new FFMpegException(FFMpegExceptionType.Dependency,
+                        $"FFMpeg cannot be found @ {path}");
+
+                return path;
+            }
+        }
+
+        public string FFProbeBinary
+        {
+            get
+            {
+                var target = Environment.Is64BitProcess ? "x64" : "x86";
+                var progName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffprobe.exe" : "ffprobe";
+
+                if (Directory.Exists($"{Options.RootDirectory}{target}"))
+                {
+                    progName = $"{target}{Path.DirectorySeparatorChar}{progName}";
+                }
+
+                var path = $"{Options.RootDirectory}{Path.DirectorySeparatorChar}{progName}";
+
+                if (!File.Exists(path))
+                    throw new FFMpegException(FFMpegExceptionType.Dependency,
+                        $"FFProbe cannot be found @ {path}");
+
+                return path;
+            }
+        }
     }
 }
