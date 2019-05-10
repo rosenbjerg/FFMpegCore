@@ -23,19 +23,7 @@ namespace FFMpegCore.Helpers
             if (root == null)
                 throw new FFMpegException(FFMpegExceptionType.Dependency,
                     "FFProbe root is not configured in app config. Missing key 'ffmpegRoot'.");
-
-            var progName = "ffprobe";
-            if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
-                var target = Environment.Is64BitProcess ? "x64" : "x86";
-
-                progName = $"{target}{Path.DirectorySeparatorChar}{progName}.exe";
-            }
-
-            var path = root + $"{Path.DirectorySeparatorChar}{progName}";
-
-            if (!File.Exists(path))
-                throw new FFMpegException(FFMpegExceptionType.Dependency,
-                    $"FFProbe cannot be found in the in {path}...");
+          
         }
     }
 }
