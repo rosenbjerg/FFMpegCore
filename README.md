@@ -39,9 +39,10 @@ location: `/usr/bin`
 
 #### Behavior
 
-If you are building a client app, and you don't know the processor achitecture.
+If you wish to support multiple client processor architectures, you can do so by creating a folder `x64` and `x86` in the `root` directory.
+Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) for build for the respective architectures. 
 
-By creating a folder `x64` and `x86` in the `root` directory, the lib will automatically try to use either `/root/{ARCH}/(ffmpeg|ffprobe).exe`.
+By doing so, the library will attempt to use either `/root/{ARCH}/(ffmpeg|ffprobe).exe`.
 
 If these folders are not defined, it will try to find the binaries in `/root/(ffmpeg|ffprobe.exe)`
 
