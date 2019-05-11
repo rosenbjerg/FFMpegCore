@@ -2,29 +2,25 @@ language: csharp
 mono: none
 matrix:
   include:
-    - os: windows
-    # - os: osx
-    #   mono: none
-    #   dotnet: 2.1.300
-    # - os: linux
-    #   dist: trusty
-    #   dotnet: 2.1.300
-before_install:
-    # linux
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:mc3man/trusty-media; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y ffmpeg libgdiplus; fi
-    # osx 
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install ffmpeg mono-libgdiplus; fi
-    # osx and linux common
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then ffmpeg -hwaccels; fi
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then nvm install --lts; fi
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then nvm use --lts; fi
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then node ./.build/travis-ffmpeg-config.js; fi
-    # windows 
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then choco install dotnetcore-sdk --version 2.1.300 -Y; fi
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then choco install ffmpeg --version 4.1.1 -Y; fi
+    - os: osx
+      mono: none
+      dotnet: 2.1.300
+      before_install:
+        - brew update
+        - brew install ffmpeg mono-libgdiplus
+        - nvm install --lts
+        - nvm use --lts
+        - node ./.build/travis-ffmpeg-config.js
+    - os: linux
+      dist: trusty
+      dotnet: 2.1.300
+      before_install:
+        - sudo add-apt-repository -y ppa:mc3man/trusty-media
+        - sudo apt-get update
+        - sudo apt-get install -y ffmpeg libgdiplus
+        - nvm install --lts
+        - nvm use --lts
+        - node ./.build/travis-ffmpeg-config.js
 script:
   - dotnet restore
   - dotnet build ./FFMpegCore/
