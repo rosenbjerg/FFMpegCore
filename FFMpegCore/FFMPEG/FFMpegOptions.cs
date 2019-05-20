@@ -8,8 +8,8 @@ namespace FFMpegCore.FFMPEG
 {
     public class FFMpegOptions
     {
-        private static string _ConfigFile = $".{Path.DirectorySeparatorChar}ffmpeg.config.json";
-        private static string _DefaultRoot = $".{Path.DirectorySeparatorChar}FFMPEG{Path.DirectorySeparatorChar}bin";
+        private static string _ConfigFile = Path.Combine(".", "ffmpeg.config.json");
+        private static string _DefaultRoot = Path.Combine(".", "FFMPEG", "bin");
 
         public static FFMpegOptions Options { get; private set; } = new FFMpegOptions();
 
@@ -35,12 +35,12 @@ namespace FFMpegCore.FFMPEG
                 var target = Environment.Is64BitProcess ? "x64" : "x86";
                 var progName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffmpeg.exe" : "ffmpeg";
 
-                if (Directory.Exists($"{Options.RootDirectory}{target}"))
+                if (Directory.Exists(Path.Combine(Options.RootDirectory, target)))
                 {
-                    progName = $"{target}{Path.DirectorySeparatorChar}{progName}";
+                    progName = Path.Combine(target, progName);
                 }
 
-                var path = $"{Options.RootDirectory}{Path.DirectorySeparatorChar}{progName}";
+                var path = Path.Combine(Options.RootDirectory, progName);
 
                 if (!File.Exists(path))
                     throw new FFMpegException(FFMpegExceptionType.Dependency,
@@ -57,12 +57,12 @@ namespace FFMpegCore.FFMPEG
                 var target = Environment.Is64BitProcess ? "x64" : "x86";
                 var progName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffprobe.exe" : "ffprobe";
 
-                if (Directory.Exists($"{Options.RootDirectory}{target}"))
+                if (Directory.Exists(Path.Combine(Options.RootDirectory, target)))
                 {
-                    progName = $"{target}{Path.DirectorySeparatorChar}{progName}";
+                    progName = Path.Combine(target, progName);
                 }
 
-                var path = $"{Options.RootDirectory}{Path.DirectorySeparatorChar}{progName}";
+                var path = Path.Combine(Options.RootDirectory, progName);
 
                 if (!File.Exists(path))
                     throw new FFMpegException(FFMpegExceptionType.Dependency,
