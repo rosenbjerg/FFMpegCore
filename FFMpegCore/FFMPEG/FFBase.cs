@@ -25,20 +25,14 @@ namespace FFMpegCore.FFMPEG
         /// </summary>
         public bool IsWorking
         {
-            get
+             get
             {
-                bool processHasExited;
-
-                try
+                if (Process != null)
                 {
-                    processHasExited = Process.HasExited;
-                }
-                catch
-                {
-                    processHasExited = true;
+                    return !Process.HasExited && Process.GetProcesses().Any(x => x.Id == Process.Id);
                 }
 
-                return !processHasExited && Process.GetProcesses().Any(x => x.Id == Process.Id);
+                return true;
             }
         }
 
