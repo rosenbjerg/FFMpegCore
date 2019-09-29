@@ -28,7 +28,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
         }
 
-        public InputArgument(params Uri[] values) : base(values.Select(v => v.AbsolutePath).ToArray())
+        public InputArgument(params Uri[] values) : base(values.Select(v => v.AbsoluteUri).ToArray())
         {
         }
 
