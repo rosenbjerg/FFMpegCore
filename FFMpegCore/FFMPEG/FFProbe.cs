@@ -5,6 +5,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using RunProcessAsTask;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -28,6 +30,15 @@ namespace FFMpegCore.FFMPEG
         {
             return ParseVideoInfo(new VideoInfo(source));
         }
+        /// <summary>
+        ///     Probes the targeted video file asynchronously and retrieves all available details.
+        /// </summary>
+        /// <param name="source">Source video file.</param>
+        /// <returns>A task for the video info object containing all details necessary.</returns>
+        public Task<VideoInfo> ParseVideoInfoAsync(string source)
+        {
+            return ParseVideoInfoAsync(new VideoInfo(source));
+        }
 
         /// <summary>
         ///     Probes the targeted video file and retrieves all available details.
@@ -36,10 +47,26 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(VideoInfo info)
         {
-            var jsonOutput =
-                RunProcess($"-v quiet -print_format json -show_streams \"{info.FullName}\"");
+            var output = RunProcess(BuildFFProbeArguments(info));
+            return ParseVideoInfoInternal(info, output);
+        }
+        /// <summary>
+        ///     Probes the targeted video file asynchronously and retrieves all available details.
+        /// </summary>
+        /// <param name="info">Source video file.</param>
+        /// <returns>A video info object containing all details necessary.</returns>
+        public async Task<VideoInfo> ParseVideoInfoAsync(VideoInfo info)
+        {
+            var output = await RunProcessAsync(_ffprobePath, BuildFFProbeArguments(info));
+            return ParseVideoInfoInternal(info, output);
+        }
 
-            var metadata = JsonConvert.DeserializeObject<FFMpegStreamMetadata>(jsonOutput);
+        private static string BuildFFProbeArguments(VideoInfo info) =>
+            $"-v quiet -print_format json -show_streams \"{info.FullName}\"";
+        
+        private VideoInfo ParseVideoInfoInternal(VideoInfo info, string probeOutput)
+        {
+            var metadata = JsonConvert.DeserializeObject<FFMpegStreamMetadata>(probeOutput);
 
             if (metadata.Streams == null || metadata.Streams.Count == 0)
             {
