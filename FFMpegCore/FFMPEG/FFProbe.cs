@@ -79,7 +79,7 @@ namespace FFMpegCore.FFMPEG
             double videoSize = 0d;
             double audioSize = 0d;
 
-            var duration = TimeSpan.FromSeconds(double.TryParse((video ?? audio).Duration, out var output) ? output : 0);
+            var duration = TimeSpan.FromSeconds(double.TryParse((video ?? audio).Duration, NumberStyles.Any, CultureInfo.InvariantCulture, out var output) ? output : 0);
             info.Duration = duration.Subtract(TimeSpan.FromMilliseconds(duration.Milliseconds));
 
             if (video != null)
