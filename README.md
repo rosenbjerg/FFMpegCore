@@ -1,3 +1,9 @@
+# Maintainer Wanted:
+
+I'm not really focused on the `.Net` world anymore, most of the things I've done for this project have been to help out small projects. I don't have the time to regularly maintain this repository, especially considering most people complain and almost never contribute (excluding the few who do of course). If anyone is interested in ownership over this project, please comment on this issue: 
+
+https://github.com/vladjerca/FFMpegCore/issues/34
+
 
 # FFMpegCore 
 [![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
