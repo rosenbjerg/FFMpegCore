@@ -12,7 +12,7 @@
     <releaseNotes>
       More information available @ https://github.com/vladjerca/FFMpegCore/blob/master/README.md
     </releaseNotes>
-    <copyright>Copyright 2019</copyright>
+    <copyright>Copyright 2020</copyright>
     <tags>ffmpeg video conversion FFMpegCore mp4 ogv net.core core net</tags>
     <dependencies>
       <dependency id="Microsoft.CSharp" version="4.5.0" exclude="Build,Analyzers" />
