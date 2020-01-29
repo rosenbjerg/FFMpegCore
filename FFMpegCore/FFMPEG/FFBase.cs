@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using RunProcessAsTask;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -77,6 +79,11 @@ namespace FFMpegCore.FFMPEG
             {
                 IsKillFaulty = true;
             }
+        }
+        protected async Task<string> RunProcessAsync(string filePath, string arguments)
+        {
+            var result = await ProcessEx.RunAsync(filePath, arguments);
+            return string.Join("", result.StandardOutput);
         }
     }
 }
