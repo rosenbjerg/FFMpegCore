@@ -214,5 +214,12 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(str, "-i \"input.mp4\" -codec:v libx264 -pix_fmt yuv420p -y \"output.mp4\"");
         }
+
+        [TestMethod]
+        public void Builder_BuildString_Duration() {
+            var str = GetArgumentsString(new DurationArgument(TimeSpan.FromSeconds(20)));
+
+            Assert.AreEqual(str, "-i \"input.mp4\" -t 00:00:20 \"output.mp4\"");
+        }
     }
 }
