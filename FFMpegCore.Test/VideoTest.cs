@@ -3,6 +3,7 @@ using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Enums;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
@@ -317,6 +318,28 @@ namespace FFMpegCore.Test
             Assert.AreEqual(video.AudioFormat, "aac");
             Assert.AreEqual(video.Duration.TotalSeconds, 79);
             Assert.AreEqual(video.Size, 1.25);
+        }
+
+        [TestMethod]
+        public void Video_Duration() {
+            var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
+            var output = Input.OutputLocation(VideoType.Mp4);
+
+            var arguments = new ArgumentContainer();
+            arguments.Add(new InputArgument(VideoLibrary.LocalVideo));
+            arguments.Add(new DurationArgument(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5)));
+            arguments.Add(new OutputArgument(output));
+
+            try {
+                Encoder.Convert(arguments);
+
+                Assert.IsTrue(File.Exists(output.FullName));
+                var outputVideo = new VideoInfo(output.FullName);
+                Assert.AreEqual(video.Duration.TotalSeconds - 5, outputVideo.Duration.TotalSeconds);
+            } finally {
+                if (File.Exists(output.FullName))
+                    output.Delete();
+            }
         }
     }
 }
