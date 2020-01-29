@@ -201,5 +201,10 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             return $"-start_number {v} ";
         }
+
+        internal static string Duration(TimeSpan? duration)
+        {
+            return !duration.HasValue ? string.Empty : $"-t {duration} ";
+        }
     }
 }
