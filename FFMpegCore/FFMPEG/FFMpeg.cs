@@ -436,13 +436,20 @@ namespace FFMpegCore.FFMPEG
 
         public VideoInfo Convert(ArgumentContainer arguments)
         {
-            var args = ArgumentBuilder.BuildArguments(arguments);
             var output = ((OutputArgument)arguments[typeof(OutputArgument)]).GetAsFileInfo();
+            var sources = ((InputArgument)arguments[typeof(InputArgument)]).GetAsVideoInfo();
+
+            // Sum duration of all sources
+            _totalTime = TimeSpan.Zero;
+            foreach (var source in sources)
+                _totalTime += source.Duration;
 
             if (!RunProcess(arguments, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
             }
+
+            _totalTime = TimeSpan.MinValue;
 
             return new VideoInfo(output);
         }
