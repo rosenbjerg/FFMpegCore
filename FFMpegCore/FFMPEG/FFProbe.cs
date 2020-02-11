@@ -3,10 +3,7 @@ using FFMpegCore.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Globalization;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using RunProcessAsTask;
 
 namespace FFMpegCore.FFMPEG
 {

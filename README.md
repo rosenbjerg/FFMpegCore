@@ -1,6 +1,6 @@
 # FFMpegCore 
 [![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
-[![Build Status](https://travis-ci.org/vladjerca/FFMpegCore.svg?branch=master)](https://travis-ci.org/vladjerca/FFMpegCore)
+[![Build Status](https://travis-ci.org/rosenbjerg/FFMpegCore.svg)](https://travis-ci.org/vladjerca/FFMpegCore)
 
 # Setup
 

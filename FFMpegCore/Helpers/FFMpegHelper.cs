@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using FFMpegCore.FFMPEG.Exceptions;
 
 namespace FFMpegCore.Helpers
