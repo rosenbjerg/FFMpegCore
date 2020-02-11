@@ -11,7 +11,6 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -26,7 +25,7 @@ namespace FFMpegCore.FFMPEG
         /// <summary>
         ///     Intializes the FFMPEG encoder.
         /// </summary>
-        public FFMpeg(): base()
+        public FFMpeg() : base()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
@@ -49,7 +48,8 @@ namespace FFMpegCore.FFMPEG
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
         /// <param name="persistSnapshotOnFileSystem">By default, it deletes the created image on disk. If set to true, it won't delete the image</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public Bitmap Snapshot(VideoInfo source, FileInfo output, Size? size = null, TimeSpan? captureTime = null, bool persistSnapshotOnFileSystem = false)
+        public Bitmap Snapshot(VideoInfo source, FileInfo output, Size? size = null, TimeSpan? captureTime = null,
+            bool persistSnapshotOnFileSystem = false)
         {
             if (captureTime == null)
                 captureTime = TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
@@ -66,28 +66,28 @@ namespace FFMpegCore.FFMPEG
             {
                 if (size.Value.Width == 0)
                 {
-                    var ratio = source.Width / (double)size.Value.Width;
+                    var ratio = source.Width / (double) size.Value.Width;
 
-                    size = new Size((int)(source.Width * ratio), (int)(source.Height * ratio));
+                    size = new Size((int) (source.Width * ratio), (int) (source.Height * ratio));
                 }
 
                 if (size.Value.Height == 0)
                 {
-                    var ratio = source.Height / (double)size.Value.Height;
+                    var ratio = source.Height / (double) size.Value.Height;
 
-                    size = new Size((int)(source.Width * ratio), (int)(source.Height * ratio));
+                    size = new Size((int) (source.Width * ratio), (int) (source.Height * ratio));
                 }
             }
 
             FFMpegHelper.ConversionExceptionCheck(source.ToFileInfo(), output);
             var container = new ArgumentContainer(
-                    new InputArgument(source),
-                    new VideoCodecArgument(VideoCodec.Png),
-                    new FrameOutputCountArgument(1),
-                    new SeekArgument(captureTime),
-                    new SizeArgument(size),
-                    new OutputArgument(output)
-                );
+                new InputArgument(source),
+                new VideoCodecArgument(VideoCodec.Png),
+                new FrameOutputCountArgument(1),
+                new SeekArgument(captureTime),
+                new SizeArgument(size),
+                new OutputArgument(output)
+            );
 
             if (!RunProcess(container, output))
             {
@@ -97,7 +97,7 @@ namespace FFMpegCore.FFMPEG
             output.Refresh();
 
             Bitmap result;
-            using (var bmp = (Bitmap)Image.FromFile(output.FullName))
+            using (var bmp = (Bitmap) Image.FromFile(output.FullName))
             {
                 using (var ms = new MemoryStream())
                 {
@@ -129,10 +129,8 @@ namespace FFMpegCore.FFMPEG
             VideoInfo source,
             FileInfo output,
             VideoType type = VideoType.Mp4,
-            Speed speed =
-            Speed.SuperFast,
-            VideoSize size =
-            VideoSize.Original,
+            Speed speed = Speed.SuperFast,
+            VideoSize size = VideoSize.Original,
             AudioQuality audioQuality = AudioQuality.Normal,
             bool multithreaded = false)
         {
@@ -142,13 +140,12 @@ namespace FFMpegCore.FFMPEG
 
             _totalTime = source.Duration;
 
-            var scale = VideoSize.Original == size ? 1 :
-                (double)source.Height / (int)size;
+            var scale = VideoSize.Original == size ? 1 : (double) source.Height / (int) size;
 
             var outputSize = new Size(
-                        (int)(source.Width / scale),
-                        (int)(source.Height / scale)
-                    );
+                (int) (source.Width / scale),
+                (int) (source.Height / scale)
+            );
 
             if (outputSize.Width % 2 != 0)
             {
@@ -194,7 +191,8 @@ namespace FFMpegCore.FFMPEG
 
             if (!RunProcess(container, output))
             {
-                throw new FFMpegException(FFMpegExceptionType.Conversion, $"The video could not be converted to {Enum.GetName(typeof(VideoType), type)}");
+                throw new FFMpegException(FFMpegExceptionType.Conversion,
+                    $"The video could not be converted to {Enum.GetName(typeof(VideoType), type)}");
             }
 
             _totalTime = TimeSpan.MinValue;
@@ -226,7 +224,8 @@ namespace FFMpegCore.FFMPEG
 
             if (!RunProcess(container, output))
             {
-                throw new FFMpegException(FFMpegExceptionType.Operation, "An error occured while adding the audio file to the image.");
+                throw new FFMpegException(FFMpegExceptionType.Operation,
+                    "An error occured while adding the audio file to the image.");
             }
 
             return new VideoInfo(output);
@@ -248,10 +247,10 @@ namespace FFMpegCore.FFMPEG
                 FFMpegHelper.ConversionSizeExceptionCheck(video);
                 var destinationPath = video.FullName.Replace(video.Extension, FileExtension.Ts);
                 Convert(
-                   video,
-                   new FileInfo(destinationPath),
-                   VideoType.Ts
-               );
+                    video,
+                    new FileInfo(destinationPath),
+                    VideoType.Ts
+                );
                 return destinationPath;
             }).ToList();
 
@@ -266,10 +265,11 @@ namespace FFMpegCore.FFMPEG
             {
                 if (!RunProcess(container, output))
                 {
-                    throw new FFMpegException(FFMpegExceptionType.Operation, "Could not join the provided video files.");
+                    throw new FFMpegException(FFMpegExceptionType.Operation,
+                        "Could not join the provided video files.");
                 }
-                return new VideoInfo(output);
 
+                return new VideoInfo(output);
             }
             finally
             {
@@ -289,7 +289,8 @@ namespace FFMpegCore.FFMPEG
             var temporaryImageFiles = images.Select((image, index) =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
-                var destinationPath = image.FullName.Replace(image.Name, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                var destinationPath =
+                    image.FullName.Replace(image.Name, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
                 File.Copy(image.FullName, destinationPath);
 
                 return destinationPath;
@@ -311,7 +312,8 @@ namespace FFMpegCore.FFMPEG
             {
                 if (!RunProcess(container, output))
                 {
-                    throw new FFMpegException(FFMpegExceptionType.Operation, "Could not join the provided image sequence.");
+                    throw new FFMpegException(FFMpegExceptionType.Operation,
+                        "Could not join the provided image sequence.");
                 }
 
                 return new VideoInfo(output);
@@ -341,11 +343,13 @@ namespace FFMpegCore.FFMPEG
 
                 if (!RunProcess(container, output))
                 {
-                    throw new FFMpegException(FFMpegExceptionType.Operation, $"Saving the ${uri.AbsoluteUri} stream failed.");
+                    throw new FFMpegException(FFMpegExceptionType.Operation,
+                        $"Saving the ${uri.AbsoluteUri} stream failed.");
                 }
 
                 return new VideoInfo(output);
             }
+
             throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
         }
 
@@ -395,7 +399,8 @@ namespace FFMpegCore.FFMPEG
 
             if (!RunProcess(container, output))
             {
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not extract the audio from the requested video.");
+                throw new FFMpegException(FFMpegExceptionType.Operation,
+                    "Could not extract the audio from the requested video.");
             }
 
             output.Refresh();
@@ -436,8 +441,8 @@ namespace FFMpegCore.FFMPEG
 
         public VideoInfo Convert(ArgumentContainer arguments)
         {
-            var output = ((OutputArgument)arguments[typeof(OutputArgument)]).GetAsFileInfo();
-            var sources = ((InputArgument)arguments[typeof(InputArgument)]).GetAsVideoInfo();
+            var output = ((OutputArgument) arguments[typeof(OutputArgument)]).GetAsFileInfo();
+            var sources = ((InputArgument) arguments[typeof(InputArgument)]).GetAsVideoInfo();
 
             // Sum duration of all sources
             _totalTime = TimeSpan.Zero;
@@ -475,8 +480,8 @@ namespace FFMpegCore.FFMPEG
         private bool RunProcess(ArgumentContainer container, FileInfo output)
         {
             var successState = true;
-
-            CreateProcess(this.ArgumentBuilder.BuildArguments(container), _ffmpegPath, true, rStandardError: true);
+            
+            CreateProcess(ArgumentBuilder.BuildArguments(container), _ffmpegPath, true, rStandardError: true);
 
             try
             {
@@ -506,6 +511,7 @@ namespace FFMpegCore.FFMPEG
                     throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
                 }
             }
+
             return successState;
         }
 
@@ -520,6 +526,7 @@ namespace FFMpegCore.FFMPEG
             }
         }
 
+        private static Regex _progressRegex = new Regex(@"\w\w:\w\w:\w\w", RegexOptions.Compiled);
         private void OutputData(object sender, DataReceivedEventArgs e)
         {
             if (e.Data == null)
@@ -532,14 +539,14 @@ namespace FFMpegCore.FFMPEG
 
             if (OnProgress == null || !IsWorking) return;
 
-            var r = new Regex(@"\w\w:\w\w:\w\w");
-            var m = r.Match(e.Data);
 
             if (!e.Data.Contains("frame")) return;
-            if (!m.Success) return;
+            
+            var match = _progressRegex.Match(e.Data);
+            if (!match.Success) return;
 
-            var t = TimeSpan.Parse(m.Value, CultureInfo.InvariantCulture);
-            var percentage = Math.Round(t.TotalSeconds / _totalTime.TotalSeconds * 100, 2);
+            var processed = TimeSpan.Parse(match.Value, CultureInfo.InvariantCulture);
+            var percentage = Math.Round(processed.TotalSeconds / _totalTime.TotalSeconds * 100, 2);
             OnProgress(percentage);
         }
 
