@@ -40,5 +40,9 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             return string.Join(" ", Value.Select(v => ArgumentStringifier.Input(v)));
         }
+        public VideoInfo[] GetAsVideoInfo()
+        {
+            return Value.Select(v => new VideoInfo(v)).ToArray();
+        }
     }
 }
