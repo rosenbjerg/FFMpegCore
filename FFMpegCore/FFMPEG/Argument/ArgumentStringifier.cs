@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -16,11 +15,6 @@ namespace FFMpegCore.FFMPEG.Argument
         internal static string Speed(int cpu)
         {
             return $"-quality good -cpu-used {cpu} -deadline realtime ";
-        }
-
-        internal static string Audio(AudioCodec codec, AudioQuality bitrate)
-        {
-            return Audio(codec) + Audio(bitrate);
         }
 
         internal static string Audio(AudioCodec codec, int bitrate)
@@ -69,11 +63,6 @@ namespace FFMpegCore.FFMPEG.Argument
             return $"-threads {threads} ";
         }
 
-        internal static string Input(Uri uri)
-        {
-            return Input(uri.AbsolutePath);
-        }
-
         internal static string Disable(Channel type)
         {
             switch (type)
@@ -85,21 +74,6 @@ namespace FFMpegCore.FFMPEG.Argument
                 default:
                     return string.Empty;
             }
-        }
-
-        internal static string Input(VideoInfo input)
-        {
-            return $"-i \"{input.FullName}\" ";
-        }
-
-        internal static string Input(FileInfo input)
-        {
-            return $"-i \"{input.FullName}\" ";
-        }
-
-        internal static string Output(FileInfo output)
-        {
-            return $"\"{output.FullName}\"";
         }
 
         internal static string Output(string output)
@@ -120,11 +94,6 @@ namespace FFMpegCore.FFMPEG.Argument
         internal static string Scale(int width, int height)
         {
             return $"-vf scale={width}:{height} ";
-        }
-
-        internal static string Scale(Size size)
-        {
-            return Scale(size.Width, size.Height);
         }
 
         internal static string Size(Size? size)

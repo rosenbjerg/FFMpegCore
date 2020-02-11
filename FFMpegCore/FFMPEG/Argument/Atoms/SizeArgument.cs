@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using FFMpegCore.FFMPEG.Enums;
 
 namespace FFMpegCore.FFMPEG.Argument
@@ -17,7 +12,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
         }
 
-        public SizeArgument(Size? value) : base(value.HasValue ? value.Value : new Size())
+        public SizeArgument(Size? value) : base(value ?? new Size())
         {
         }
 
