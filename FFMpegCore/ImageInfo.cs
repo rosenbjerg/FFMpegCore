@@ -1,10 +1,8 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.FFMPEG;
 using FFMpegCore.Helpers;
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 
 namespace FFMpegCore
 {
