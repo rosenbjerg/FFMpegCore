@@ -53,7 +53,7 @@ namespace FFMpegCore.Test
         public void Builder_BuildString_AudioCodec()
         {
             var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal));
-            Assert.AreEqual(str, "-i \"input.mp4\" -codec:a aac -b:a 128k -strict experimental \"output.mp4\"");
+            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"");
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace FFMpegCore.Test
         {
             var str = GetArgumentsString(new VideoCodecArgument(VideoCodec.LibX264));
 
-            Assert.AreEqual(str, "-i \"input.mp4\" -codec:v libx264 -pix_fmt yuv420p \"output.mp4\"");
+            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\"");
         }
 
         [TestMethod]
@@ -212,7 +212,7 @@ namespace FFMpegCore.Test
         {
             var str = GetArgumentsString(new VideoCodecArgument(VideoCodec.LibX264), new OverrideArgument());
 
-            Assert.AreEqual(str, "-i \"input.mp4\" -codec:v libx264 -pix_fmt yuv420p -y \"output.mp4\"");
+            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p -y \"output.mp4\"");
         }
 
         [TestMethod]
