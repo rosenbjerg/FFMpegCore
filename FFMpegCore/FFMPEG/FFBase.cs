@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using RunProcessAsTask;
@@ -83,6 +80,23 @@ namespace FFMpegCore.FFMPEG
         protected async Task<string> RunProcessAsync(string filePath, string arguments)
         {
             var result = await ProcessEx.RunAsync(filePath, arguments);
+            return string.Join("", result.StandardOutput);
+        }
+    }
+
+    public static class ProcessHelpers
+    {
+        public static void RunProcess(string filePath, string arguments)
+        {
+            
+        }
+        public static async Task<string> RunProcessAsync(string fileName, string arguments)
+        {
+            var startInfo = new ProcessStartInfo(fileName, arguments);
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+
+            var result = await ProcessEx.RunAsync(startInfo);
             return string.Join("", result.StandardOutput);
         }
     }
