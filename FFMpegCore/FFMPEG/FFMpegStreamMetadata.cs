@@ -42,7 +42,6 @@ namespace FFMpegCore.FFMPEG
         internal string Duration { get; set; }
     }
 
-
     internal class FFMpegStreamMetadata
     {
         [JsonProperty("streams")]
