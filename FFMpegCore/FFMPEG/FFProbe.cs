@@ -77,7 +77,7 @@ namespace FFMpegCore.FFMPEG
             double audioSize = 0d;
 
             string sDuration = (video ?? audio).Duration;
-            TimeSpan duration;
+            TimeSpan duration = TimeSpan.Zero;
             if (sDuration != null)
             {
                 duration = TimeSpan.FromSeconds(double.TryParse(sDuration, NumberStyles.Any, CultureInfo.InvariantCulture, out var output) ? output : 0);
@@ -85,7 +85,8 @@ namespace FFMpegCore.FFMPEG
             else
             {
                 sDuration = (video ?? audio).Tags.Duration;
-                TimeSpan.TryParse(sDuration.Remove(sDuration.LastIndexOf('.') + 8), CultureInfo.InvariantCulture, out duration); // TimeSpan fractions only allow up to 7 digits
+                if (sDuration != null)
+                    TimeSpan.TryParse(sDuration.Remove(sDuration.LastIndexOf('.') + 8), CultureInfo.InvariantCulture, out duration); // TimeSpan fractions only allow up to 7 digits
             }
             info.Duration = duration;
             
