@@ -260,7 +260,11 @@ namespace FFMpegCore.Test
                 var result = Encoder.Join(output, input, input2);
 
                 Assert.IsTrue(File.Exists(output.FullName));
-                Assert.AreEqual(input.Duration.TotalSeconds * 2, result.Duration.TotalSeconds);
+                TimeSpan expectedDuration = input.Duration * 2;
+                Assert.AreEqual(expectedDuration.Days, result.Duration.Days);
+                Assert.AreEqual(expectedDuration.Hours, result.Duration.Hours);
+                Assert.AreEqual(expectedDuration.Minutes, result.Duration.Minutes);
+                Assert.AreEqual(expectedDuration.Seconds, result.Duration.Seconds);
                 Assert.AreEqual(input.Height, result.Height);
                 Assert.AreEqual(input.Width, result.Width);
             }
@@ -316,10 +320,10 @@ namespace FFMpegCore.Test
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoAudioOnly);
             Assert.AreEqual(video.VideoFormat, "none");
             Assert.AreEqual(video.AudioFormat, "aac");
-            Assert.AreEqual(video.Duration.TotalSeconds, 79);
+            Assert.AreEqual(video.Duration.TotalSeconds, 79.451);
             Assert.AreEqual(video.Size, 1.25);
         }
-
+        
         [TestMethod]
         public void Video_Duration() {
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
@@ -335,7 +339,11 @@ namespace FFMpegCore.Test
 
                 Assert.IsTrue(File.Exists(output.FullName));
                 var outputVideo = new VideoInfo(output.FullName);
-                Assert.AreEqual(video.Duration.TotalSeconds - 5, outputVideo.Duration.TotalSeconds);
+
+                Assert.AreEqual(video.Duration.Days, outputVideo.Duration.Days);
+                Assert.AreEqual(video.Duration.Hours, outputVideo.Duration.Hours);
+                Assert.AreEqual(video.Duration.Minutes, outputVideo.Duration.Minutes);
+                Assert.AreEqual(video.Duration.Seconds - 5, outputVideo.Duration.Seconds);
             } finally {
                 if (File.Exists(output.FullName))
                     output.Delete();

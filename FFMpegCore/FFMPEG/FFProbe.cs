@@ -85,10 +85,9 @@ namespace FFMpegCore.FFMPEG
             else
             {
                 sDuration = (video ?? audio).Tags.Duration;
-                TimeSpan.TryParse(sDuration.Remove(sDuration.LastIndexOf('.')), CultureInfo.InvariantCulture, out duration);
+                TimeSpan.TryParse(sDuration.Remove(sDuration.LastIndexOf('.') + 8), CultureInfo.InvariantCulture, out duration); // TimeSpan fractions only allow up to 7 digits
             }
-            // Strip milliseconds and additional ticks
-            info.Duration = new TimeSpan(duration.Days, duration.Hours, duration.Minutes, duration.Seconds);
+            info.Duration = duration;
             
             if (video != null)
             {
