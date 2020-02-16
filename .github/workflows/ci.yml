@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Prepare FFMpeg
-      run: apt-get update && apt-get install -y ffmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
