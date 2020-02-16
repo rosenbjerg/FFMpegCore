@@ -99,11 +99,9 @@ namespace FFMpegCore.FFMPEG
             Bitmap result;
             using (var bmp = (Bitmap) Image.FromFile(output.FullName))
             {
-                using (var ms = new MemoryStream())
-                {
-                    bmp.Save(ms, ImageFormat.Png);
-                    result = new Bitmap(ms);
-                }
+                using var ms = new MemoryStream();
+                bmp.Save(ms, ImageFormat.Png);
+                result = new Bitmap(ms);
             }
 
             if (output.Exists && !persistSnapshotOnFileSystem)
@@ -499,13 +497,13 @@ namespace FFMpegCore.FFMPEG
                 Process.Close();
 
                 if (File.Exists(output.FullName))
-                    using (var file = File.Open(output.FullName, FileMode.Open))
+                {
+                    using var file = File.Open(output.FullName, FileMode.Open);
+                    if (file.Length == 0)
                     {
-                        if (file.Length == 0)
-                        {
-                            throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
-                        }
+                        throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
                     }
+                }
                 else
                 {
                     throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
