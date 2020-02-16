@@ -24,7 +24,7 @@ namespace FFMpegCore.FFMPEG.Argument
 
         internal static string Audio(AudioCodec codec)
         {
-            return $"-codec:a {codec.ToString().ToLower()} ";
+            return $"-c:a {codec.ToString().ToLower()} ";
         }
 
         internal static string Audio(AudioQuality bitrate)
@@ -34,12 +34,12 @@ namespace FFMpegCore.FFMPEG.Argument
 
         internal static string Audio(int bitrate)
         {
-            return $"-b:a {bitrate}k -strict experimental ";
+            return $"-b:a {bitrate}k ";
         }
 
         internal static string Video(VideoCodec codec, int bitrate = 0)
         {
-            var video = $"-codec:v {codec.ToString().ToLower()} -pix_fmt yuv420p ";
+            var video = $"-c:v {codec.ToString().ToLower()} -pix_fmt yuv420p ";
 
             if (bitrate > 0)
             {
