@@ -318,10 +318,10 @@ namespace FFMpegCore.Test
         public void Video_With_Only_Audio_Should_Extract_Metadata()
         {
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoAudioOnly);
-            Assert.AreEqual(video.VideoFormat, "none");
-            Assert.AreEqual(video.AudioFormat, "aac");
-            Assert.AreEqual(video.Duration.TotalSeconds, 79.451);
-            Assert.AreEqual(video.Size, 1.25);
+            Assert.AreEqual("none", video.VideoFormat);
+            Assert.AreEqual("aac", video.AudioFormat);
+            Assert.AreEqual(79.0, video.Duration.TotalSeconds, 0.1);
+            Assert.AreEqual(1.25, video.Size);
         }
         
         [TestMethod]
