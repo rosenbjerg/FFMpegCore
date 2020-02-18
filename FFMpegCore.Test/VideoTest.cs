@@ -316,7 +316,7 @@ namespace FFMpegCore.Test
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoAudioOnly);
             Assert.AreEqual("none", video.VideoFormat);
             Assert.AreEqual("aac", video.AudioFormat);
-            Assert.AreEqual(79.0, video.Duration.TotalSeconds, 0.1);
+            Assert.AreEqual(79.5, video.Duration.TotalSeconds, 0.4);
             Assert.AreEqual(1.25, video.Size);
         }
 
