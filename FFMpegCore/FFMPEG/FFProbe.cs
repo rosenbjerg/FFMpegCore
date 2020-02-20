@@ -4,17 +4,18 @@ using Newtonsoft.Json;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Instances;
 
 namespace FFMpegCore.FFMPEG
 {
-    public sealed class FFProbe : FFBase
+    public sealed class FFProbe
     {
         static readonly double BITS_TO_MB = 1024 * 1024 * 8;
+        private readonly string _ffprobePath;
 
         public FFProbe(): base()
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-
             _ffprobePath = FFMpegOptions.Options.FFProbeBinary;
         }
 
@@ -44,7 +45,9 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(VideoInfo info)
         {
-            var output = RunProcess(BuildFFProbeArguments(info));
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info));
+            instance.BlockUntilFinished();
+            var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
         /// <summary>
@@ -54,7 +57,9 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public async Task<VideoInfo> ParseVideoInfoAsync(VideoInfo info)
         {
-            var output = await RunProcessAsync(_ffprobePath, BuildFFProbeArguments(info));
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info));
+            await instance.FinishedRunning();
+            var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
 
@@ -115,35 +120,5 @@ namespace FFMpegCore.FFMPEG
 
             return info;
         }
-
-        #region Private Members & Methods
-
-        private readonly string _ffprobePath;
-
-        private string RunProcess(string args)
-        {
-            CreateProcess(args, _ffprobePath, rStandardOutput: true);
-
-            string output;
-
-            try
-            {
-                Process.Start();
-                output = Process.StandardOutput.ReadToEnd();
-            }
-            catch (Exception)
-            {
-                output = "";
-            }
-            finally
-            {
-                Process.WaitForExit();
-                Process.Close();
-            }
-
-            return output;
-        }
-
-        #endregion
     }
 }
