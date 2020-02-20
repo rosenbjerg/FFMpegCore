@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Instances;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -44,13 +45,7 @@ namespace FFMpegCore.FFMPEG
                 ffName = Path.Combine(target, ffName);
             }
 
-            var path = Path.Combine(Options.RootDirectory, ffName);
-
-            if (!File.Exists(path))
-                throw new FFMpegException(FFMpegExceptionType.Dependency,
-                    $"{name} cannot be found @ {path}");
-
-            return path;
+            return Path.Combine(Options.RootDirectory, ffName);
         }
     }
 }
