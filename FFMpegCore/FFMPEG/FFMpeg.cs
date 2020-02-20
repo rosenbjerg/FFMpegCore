@@ -13,12 +13,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Instances;
 
 namespace FFMpegCore.FFMPEG
 {
     public delegate void ConversionHandler(double percentage);
 
-    public class FFMpeg : FFBase
+    public class FFMpeg
     {
         IArgumentBuilder ArgumentBuilder { get; set; }
 
@@ -458,59 +459,42 @@ namespace FFMpegCore.FFMPEG
         }
 
         /// <summary>
+        ///     Returns true if the associated process is still alive/running.
+        /// </summary>
+        public bool IsWorking => _instance.Started;
+
+        /// <summary>
         ///     Stops any current job that FFMpeg is running.
         /// </summary>
         public void Stop()
         {
             if (IsWorking)
             {
-                Process.StandardInput.Write('q');
+                _instance.SendInput("q").Wait();
             }
         }
 
         #region Private Members & Methods
 
-        private string _ffmpegPath;
+        private readonly string _ffmpegPath;
         private TimeSpan _totalTime;
 
         private volatile StringBuilder _errorOutput = new StringBuilder();
 
         private bool RunProcess(ArgumentContainer container, FileInfo output)
         {
-            var successState = true;
+            _instance?.Dispose();
+            var arguments = ArgumentBuilder.BuildArguments(container);
+            _instance = new Instance(_ffmpegPath, arguments);
+            _instance.DataReceived += OutputData;
+            var exitCode = _instance.BlockUntilFinished();
             
-            CreateProcess(ArgumentBuilder.BuildArguments(container), _ffmpegPath, true, rStandardError: true);
-
-            try
+            if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
             {
-                Process.Start();
-                Process.ErrorDataReceived += OutputData;
-                Process.BeginErrorReadLine();
-                Process.WaitForExit();
-            }
-            catch (Exception)
-            {
-                successState = false;
-            }
-            finally
-            {
-                Process.Close();
-
-                if (File.Exists(output.FullName))
-                {
-                    using var file = File.Open(output.FullName, FileMode.Open);
-                    if (file.Length == 0)
-                    {
-                        throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
-                    }
-                }
-                else
-                {
-                    throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
-                }
+                throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
             }
 
-            return successState;
+            return exitCode == 0;
         }
 
         private void Cleanup(IEnumerable<string> pathList)
@@ -524,23 +508,28 @@ namespace FFMpegCore.FFMPEG
             }
         }
 
-        private static Regex _progressRegex = new Regex(@"\w\w:\w\w:\w\w", RegexOptions.Compiled);
-        private void OutputData(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data == null)
-                return;
+        private static readonly Regex ProgressRegex = new Regex(@"\w\w:\w\w:\w\w", RegexOptions.Compiled);
+        private Instance _instance;
 
-            _errorOutput.AppendLine(e.Data);
+        private void OutputData(object sender, (DataType Type, string Data) msg)
+        {
+            var (type, data) = msg;
+            
+            if (data == null) return;
+            if (type == DataType.Error)
+            {
+                _errorOutput.AppendLine(data);
+                return;
+            }
+            
 #if DEBUG
-            Trace.WriteLine(e.Data);
+            Trace.WriteLine(data);
 #endif
 
-            if (OnProgress == null || !IsWorking) return;
-
-
-            if (!e.Data.Contains("frame")) return;
+            if (OnProgress == null) return;
+            if (!data.Contains("frame")) return;
             
-            var match = _progressRegex.Match(e.Data);
+            var match = ProgressRegex.Match(data);
             if (!match.Success) return;
 
             var processed = TimeSpan.Parse(match.Value, CultureInfo.InvariantCulture);
