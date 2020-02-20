@@ -31,6 +31,15 @@ namespace FFMpegCore.FFMPEG
 
         [JsonProperty("r_frame_rate")]
         internal string FrameRate { get; set; }
+
+        [JsonProperty("tags")]
+        internal Tags Tags { get; set; }
+    }
+
+    internal class Tags
+    {
+        [JsonProperty("DURATION")]
+        internal string Duration { get; set; }
     }
 
     internal class FFMpegStreamMetadata
