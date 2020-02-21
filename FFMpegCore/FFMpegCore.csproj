@@ -3,15 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <NeutralLanguage>en</NeutralLanguage>
-    <RepositoryUrl>https://github.com/vladjerca/FFMpegCore</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/vladjerca/FFMpegCore</PackageProjectUrl>
-    <Copyright>Vlad Jerca</Copyright>
+    <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
+    <Copyright></Copyright>
     <Description>A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.</Description>
     <Version>1.0.12</Version>
-    <AssemblyVersion>1.0.12.0</AssemblyVersion>
-    <FileVersion>1.0.12.0</FileVersion>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <PackageReleaseNotes>Minor fixes and refactoring</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
+    <PackageVersion>1.1.0</PackageVersion>
+    <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
+    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
+    <RepositoryType>GitHub</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

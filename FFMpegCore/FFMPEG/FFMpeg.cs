@@ -485,6 +485,7 @@ namespace FFMpegCore.FFMPEG
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
+            
             _instance = new Instance(_ffmpegPath, arguments);
             _instance.DataReceived += OutputData;
             var exitCode = _instance.BlockUntilFinished();
