@@ -22,5 +22,6 @@ jobs:
     - name: Run unit tests
       run: dotnet test
     - name: Publish NuGet package
+      if: github.event.pull_request.merged
       run: NUPKG=`find . -type f -name FFMpegCore*.nupkg` && dotnet nuget push $NUPKG -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
       
