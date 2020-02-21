@@ -1,6 +1,7 @@
 name: NuGet release
 on:
   pull_request:
+    types: [opened, closed]
     branches:
       - release
 jobs:
