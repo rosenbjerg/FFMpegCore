@@ -12,6 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Prepare FFMpeg
+      if: github.event.pull_request.merged == false
       run: sudo apt-get update && sudo apt-get install -y ffmpeg
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -20,8 +21,9 @@ jobs:
     - name: Build solution -c Release
       run: dotnet build
     - name: Run unit tests
+      if: github.event.pull_request.merged == false
       run: dotnet test
     - name: Publish NuGet package
-      if: github.event.pull_request.merged
+      if: github.event.pull_request.merged == true
       run: NUPKG=`find . -type f -name FFMpegCore*.nupkg` && dotnet nuget push $NUPKG -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
       
