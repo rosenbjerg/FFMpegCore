@@ -437,7 +437,7 @@ namespace FFMpegCore.FFMPEG
 
             return new VideoInfo(output);
         }
-
+        
         public VideoInfo Convert(ArgumentContainer arguments)
         {
             var output = ((OutputArgument) arguments[typeof(OutputArgument)]).GetAsFileInfo();
