@@ -178,22 +178,6 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_DrawtextFilter()
         {
-
-            var container = new ArgumentContainer
-            {
-                new InputArgument("input.mp4"),
-                new DrawTextArgument("Stack Overflow", "/path/to/font.ttf",
-                    ("fontcolor", "white"),
-                    ("fontsize", "24"),
-                    ("box", "1"),
-                    ("boxcolor", "black@0.5"),
-                    ("boxborderw", "5"),
-                    ("x", "(w-text_w)/2"),
-                    ("y", "(h-text_h)/2")),
-                new OutputArgument("output.mp4")
-            };
-            var result = new FFMpeg().Convert(container);
-
             var str = GetArgumentsString(new DrawTextArgument("Stack Overflow", "/path/to/font.ttf", 
                 ("fontcolor", "white"),
                 ("fontsize", "24"),
