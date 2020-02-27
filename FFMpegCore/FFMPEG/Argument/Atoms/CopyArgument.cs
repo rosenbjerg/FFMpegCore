@@ -18,7 +18,7 @@ namespace FFMpegCore.FFMPEG.Argument
             {
                 Channel.Audio => "-c:a copy",
                 Channel.Video => "-c:v copy",
-                Channel.Both => "-c copy"
+                _ => "-c copy"
             };
         }
     }

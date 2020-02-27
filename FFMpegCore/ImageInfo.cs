@@ -23,14 +23,14 @@ namespace FFMpegCore
 
             fileInfo.Refresh();
 
-            this.Size = fileInfo.Length / (1024 * 1024);
+            Size = fileInfo.Length / (1024 * 1024);
 
             using (var image = Image.FromFile(fileInfo.FullName))
             {
-                this.Width = image.Width;
-                this.Height = image.Height;
-                var cd = FFProbeHelper.Gcd(this.Width, this.Height);
-                this.Ratio = $"{this.Width / cd}:{this.Height / cd}";
+                Width = image.Width;
+                Height = image.Height;
+                var cd = FFProbeHelper.Gcd(Width, Height);
+                Ratio = $"{Width / cd}:{Height / cd}";
             }
 
 

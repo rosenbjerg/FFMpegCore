@@ -70,8 +70,7 @@ namespace FFMpegCore.Test
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                var arguments = new ArgumentContainer();
-                arguments.Add(new InputArgument(input));
+                var arguments = new ArgumentContainer {new InputArgument(input)};
                 foreach (var arg in container)
                 {
                     arguments.Add(arg.Value);
@@ -124,8 +123,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Args()
         {
-            var container = new ArgumentContainer();
-            container.Add(new VideoCodecArgument(VideoCodec.LibX264));
+            var container = new ArgumentContainer {new VideoCodecArgument(VideoCodec.LibX264)};
             Convert(VideoType.Mp4, container);
         }
 
@@ -138,10 +136,12 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToTS_Args()
         {
-            var container = new ArgumentContainer();
-            container.Add(new CopyArgument());
-            container.Add(new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB));
-            container.Add(new ForceFormatArgument(VideoCodec.MpegTs));
+            var container = new ArgumentContainer
+            {
+                new CopyArgument(),
+                new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB),
+                new ForceFormatArgument(VideoCodec.MpegTs)
+            };
             Convert(VideoType.Ts, container);
         }
 
@@ -155,9 +155,11 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToOGV_Resize_Args()
         {
-            var container = new ArgumentContainer();
-            container.Add(new ScaleArgument(VideoSize.Ed));
-            container.Add(new VideoCodecArgument(VideoCodec.LibTheora));
+            var container = new ArgumentContainer
+            {
+                new ScaleArgument(VideoSize.Ed), 
+                new VideoCodecArgument(VideoCodec.LibTheora)
+            };
             Convert(VideoType.Ogv, container);
         }
 
@@ -170,9 +172,11 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Resize_Args()
         {
-            var container = new ArgumentContainer();
-            container.Add(new ScaleArgument(VideoSize.Ld));
-            container.Add(new VideoCodecArgument(VideoCodec.LibX264));
+            var container = new ArgumentContainer
+            {
+                new ScaleArgument(VideoSize.Ld), 
+                new VideoCodecArgument(VideoCodec.LibX264)
+            };
             Convert(VideoType.Mp4, container);
         }
 
@@ -209,12 +213,10 @@ namespace FFMpegCore.Test
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                using (var bitmap = Encoder.Snapshot(input, output))
-                {
-                    Assert.AreEqual(input.Width, bitmap.Width);
-                    Assert.AreEqual(input.Height, bitmap.Height);
-                    Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
-                }
+                using var bitmap = Encoder.Snapshot(input, output);
+                Assert.AreEqual(input.Width, bitmap.Width);
+                Assert.AreEqual(input.Height, bitmap.Height);
+                Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
             }
             finally
             {
@@ -231,13 +233,11 @@ namespace FFMpegCore.Test
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                using (var bitmap = Encoder.Snapshot(input, output, persistSnapshotOnFileSystem: true))
-                {
-                    Assert.AreEqual(input.Width, bitmap.Width);
-                    Assert.AreEqual(input.Height, bitmap.Height);
-                    Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
-                    Assert.IsTrue(File.Exists(output.FullName));
-                }
+                using var bitmap = Encoder.Snapshot(input, output, persistSnapshotOnFileSystem: true);
+                Assert.AreEqual(input.Width, bitmap.Width);
+                Assert.AreEqual(input.Height, bitmap.Height);
+                Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+                Assert.IsTrue(File.Exists(output.FullName));
             }
             finally
             {
@@ -260,7 +260,7 @@ namespace FFMpegCore.Test
                 var result = Encoder.Join(output, input, input2);
 
                 Assert.IsTrue(File.Exists(output.FullName));
-                TimeSpan expectedDuration = input.Duration * 2;
+                var expectedDuration = input.Duration * 2;
                 Assert.AreEqual(expectedDuration.Days, result.Duration.Days);
                 Assert.AreEqual(expectedDuration.Hours, result.Duration.Hours);
                 Assert.AreEqual(expectedDuration.Minutes, result.Duration.Minutes);
@@ -289,7 +289,7 @@ namespace FFMpegCore.Test
                     .ToList()
                     .ForEach(file =>
                     {
-                        for (int i = 0; i < 15; i++)
+                        for (var i = 0; i < 15; i++)
                         {
                             imageSet.Add(new ImageInfo(file));
                         }
@@ -329,10 +329,12 @@ namespace FFMpegCore.Test
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
             var output = Input.OutputLocation(VideoType.Mp4);
 
-            var arguments = new ArgumentContainer();
-            arguments.Add(new InputArgument(VideoLibrary.LocalVideo));
-            arguments.Add(new DurationArgument(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5)));
-            arguments.Add(new OutputArgument(output));
+            var arguments = new ArgumentContainer
+            {
+                new InputArgument(VideoLibrary.LocalVideo),
+                new DurationArgument(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5)),
+                new OutputArgument(output)
+            };
 
             try {
                 Encoder.Convert(arguments);

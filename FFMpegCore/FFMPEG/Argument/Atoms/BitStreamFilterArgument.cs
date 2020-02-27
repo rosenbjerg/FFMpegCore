@@ -1,5 +1,4 @@
-﻿using System;
-using FFMpegCore.FFMPEG.Enums;
+﻿using FFMpegCore.FFMPEG.Enums;
 
 namespace FFMpegCore.FFMPEG.Argument
 {

@@ -3,7 +3,6 @@ using FFMpegCore.FFMPEG.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using FFMpegCore.FFMPEG;
 
 namespace FFMpegCore.Test
 {
@@ -22,8 +21,7 @@ namespace FFMpegCore.Test
 
         private string GetArgumentsString(params Argument[] args)
         {
-            var container = new ArgumentContainer();
-            container.Add(new InputArgument("input.mp4"));
+            var container = new ArgumentContainer {new InputArgument("input.mp4")};
             foreach (var a in args)
             {
                 container.Add(a);
@@ -68,10 +66,8 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_Concat()
         {
-            var container = new ArgumentContainer();
- 
-            container.Add(new ConcatArgument(concatFiles));
-            container.Add(new OutputArgument("output.mp4"));
+            var container = new ArgumentContainer {new ConcatArgument(concatFiles), new OutputArgument("output.mp4")};
+
 
             var str = builder.BuildArguments(container);
 
