@@ -6,14 +6,9 @@
     /// </summary>
     public class OverrideArgument : Argument
     {
-        public OverrideArgument()
-        {
-        }
+        public OverrideArgument() { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
             return "-y";

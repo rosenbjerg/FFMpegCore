@@ -5,21 +5,14 @@
     /// </summary>
     public class FrameOutputCountArgument : Argument<int>
     {
-        public FrameOutputCountArgument()
-        {
-        }
+        public FrameOutputCountArgument() { }
 
-        public FrameOutputCountArgument(int value) : base(value)
-        {
-        }
+        public FrameOutputCountArgument(int value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.FrameOutputCount(Value);
+            return $"-vframes {Value}";
         }
     }
 }

@@ -28,9 +28,7 @@ namespace FFMpegCore
         /// Create a video information object from a target path.
         /// </summary>
         /// <param name="path">Path to video.</param>
-        public VideoInfo(string path) : this(new FileInfo(path))
-        {
-        }
+        public VideoInfo(string path) : this(new FileInfo(path)) { }
 
         /// <summary>
         /// Duration of the video file.

@@ -46,9 +46,7 @@ namespace FFMpegCore
         /// Create a image information object from a target path.
         /// </summary>
         /// <param name="path">Path to image.</param>
-        public ImageInfo(string path) : this(new FileInfo(path))
-        {
-        }
+        public ImageInfo(string path) : this(new FileInfo(path)) { }
 
         /// <summary>
         /// Aspect ratio.

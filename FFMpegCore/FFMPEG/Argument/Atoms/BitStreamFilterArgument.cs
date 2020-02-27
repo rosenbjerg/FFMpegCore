@@ -1,4 +1,5 @@
-﻿using FFMpegCore.FFMPEG.Enums;
+﻿using System;
+using FFMpegCore.FFMPEG.Enums;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -7,21 +8,19 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class BitStreamFilterArgument : Argument<Channel, Filter>
     {
-        public BitStreamFilterArgument()
-        {
-        }
+        public BitStreamFilterArgument() { }
 
-        public BitStreamFilterArgument(Channel first, Filter second) : base(first, second)
-        {
-        }
+        public BitStreamFilterArgument(Channel first, Filter second) : base(first, second) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.BitStreamFilter(First, Second);
+            return First switch
+            {
+                Channel.Audio => $"-bsf:a {Second.ToString().ToLower()}",
+                Channel.Video => $"-bsf:v {Second.ToString().ToLower()}",
+                _ => string.Empty
+            };
         }
     }
 }

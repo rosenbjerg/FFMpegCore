@@ -22,23 +22,16 @@
     /// </summary>
     public abstract class Argument<T> : Argument
     {
-        private T _value;
-
         /// <summary>
         /// Value type of <see cref="T"/>
         /// </summary>
-        public T Value { get => _value; set { CheckValue(value); _value = value; } }
+        public T Value { get; protected set; }
 
         public Argument() { }
 
         public Argument(T value)
         {
             Value = value;
-        }
-
-        protected virtual void CheckValue(T value)
-        {
-            
         }
     }
 
@@ -47,19 +40,15 @@
     /// </summary>
     public abstract class Argument<T1, T2> : Argument
     {
-
-        private T1 _first;
-        private T2 _second;
-
         /// <summary>
         /// First value type of <see cref="T"/>
         /// </summary>
-        public T1 First { get => _first; set { CheckFirst(_first); _first = value; } }
+        public T1 First { get; set; }
 
         /// <summary>
         /// Second value type of <see cref="T"/>
         /// </summary>
-        public T2 Second { get => _second; set { CheckSecond(_second); _second = value; } }
+        public T2 Second { get; set; }
 
         public Argument() { }
 
@@ -67,16 +56,6 @@
         {
             First = first;
             Second = second;
-        }
-
-        protected virtual void CheckFirst(T1 value)
-        {
-
-        }
-
-        protected virtual void CheckSecond(T2 value)
-        {
-
         }
     }
 }
