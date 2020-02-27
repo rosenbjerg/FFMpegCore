@@ -12,7 +12,11 @@
     public enum AudioCodec
     {
         Aac,
-        LibVorbis
+        LibVorbis,
+        LibFdk_Aac,
+        Ac3,
+        Eac3,
+        LibMp3Lame
     }
 
     public enum Filter
