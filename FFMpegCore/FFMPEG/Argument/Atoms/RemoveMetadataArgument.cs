@@ -5,13 +5,12 @@
     /// </summary>
     public class RemoveMetadataArgument : Argument
     {
-        public RemoveMetadataArgument()
-        {
-        }
+        public RemoveMetadataArgument() { }
 
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return $"-map_metadata -1 ";
+            return $"-map_metadata -1";
         }
     }
 }

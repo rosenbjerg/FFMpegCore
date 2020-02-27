@@ -10,33 +10,23 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <summary>
         /// Bitrate of audio channel
         /// </summary>
-        public int Bitrate { get; protected set; } = (int)AudioQuality.Normal;
+        public int Bitrate { get; } = (int)AudioQuality.Normal;
 
-        public AudioCodecArgument()
-        {
-        }
+        public AudioCodecArgument() { }
 
-        public AudioCodecArgument(AudioCodec value) : base(value)
-        {
-        }
+        public AudioCodecArgument(AudioCodec value) : base(value) { }
 
-        public AudioCodecArgument(AudioCodec value, AudioQuality bitrate) : base(value)
-        {
-            Bitrate = (int)bitrate;
-        }
+        public AudioCodecArgument(AudioCodec value, AudioQuality bitrate) : this(value, (int) bitrate) { }
 
         public AudioCodecArgument(AudioCodec value, int bitrate) : base(value)
         {
             Bitrate = bitrate;
         }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Audio(Value, Bitrate);
+            return $"-c:a {Value.ToString().ToLower()} -b:a {Bitrate}k";
         }
     }
 }

@@ -7,21 +7,19 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class DisableChannelArgument : Argument<Channel>
     {
-        public DisableChannelArgument()
-        {
-        }
+        public DisableChannelArgument() { }
 
-        public DisableChannelArgument(Channel value) : base(value)
-        {
-        }
+        public DisableChannelArgument(Channel value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Disable(Value);
+            return Value switch
+            {
+                Channel.Video => "-vn",
+                Channel.Audio => "-an",
+                _ => string.Empty
+            };
         }
     }
 }

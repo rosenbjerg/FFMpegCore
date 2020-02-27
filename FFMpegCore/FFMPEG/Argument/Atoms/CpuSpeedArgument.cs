@@ -5,21 +5,14 @@
     /// </summary>
     public class CpuSpeedArgument : Argument<int>
     {
-        public CpuSpeedArgument()
-        {
-        }
+        public CpuSpeedArgument() { }
 
-        public CpuSpeedArgument(int value) : base(value)
-        {
-        }
+        public CpuSpeedArgument(int value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Speed(Value);
+            return $"-quality good -cpu-used {Value} -deadline realtime";
         }
     }
 }

@@ -7,21 +7,14 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class ForceFormatArgument : Argument<VideoCodec>
     {
-        public ForceFormatArgument()
-        {
-        }
+        public ForceFormatArgument() { }
 
-        public ForceFormatArgument(VideoCodec value) : base(value)
-        {
-        }
+        public ForceFormatArgument(VideoCodec value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.ForceFormat(Value);
+            return $"-f {Value.ToString().ToLower()}";
         }
     }
 }

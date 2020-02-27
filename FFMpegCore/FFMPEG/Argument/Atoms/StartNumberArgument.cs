@@ -5,21 +5,14 @@
     /// </summary>
     public class StartNumberArgument : Argument<int>
     {
-        public StartNumberArgument()
-        {
-        }
+        public StartNumberArgument() { }
 
-        public StartNumberArgument(int value) : base(value)
-        {
-        }
+        public StartNumberArgument(int value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.StartNumber(Value);
+            return $"-start_number {Value}";
         }
     }
 }

@@ -10,27 +10,19 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class ConcatArgument : Argument<IEnumerable<string>>, IEnumerable<string>
     {
-        public ConcatArgument()
-        {
-            Value = new List<string>();
-        }
+        public ConcatArgument() : base(new List<string>()) { }
 
-        public ConcatArgument(IEnumerable<string> value) : base(value)
-        {
-        }
+        public ConcatArgument(IEnumerable<string> value) : base(value) { }
 
         public IEnumerator<string> GetEnumerator()
         {
             return Value.GetEnumerator();
         }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.InputConcat(Value);
+            return $"-i \"concat:{string.Join(@"|", Value)}\"";
         }
 
         IEnumerator IEnumerable.GetEnumerator()

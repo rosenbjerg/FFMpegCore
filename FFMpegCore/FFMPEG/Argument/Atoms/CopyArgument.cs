@@ -8,22 +8,18 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class CopyArgument : Argument<Channel>
     {
-        public CopyArgument()
-        {
-            Value = Channel.Both;
-        }
+        public CopyArgument() : base(Channel.Both) { }
+        public CopyArgument(Channel value = Channel.Both) : base(value) { }
 
-        public CopyArgument(Channel value = Channel.Both) : base(value)
-        {
-        }
-
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Copy(Value);
+            return Value switch
+            {
+                Channel.Audio => "-c:a copy",
+                Channel.Video => "-c:v copy",
+                Channel.Both => "-c copy"
+            };
         }
     }
 }

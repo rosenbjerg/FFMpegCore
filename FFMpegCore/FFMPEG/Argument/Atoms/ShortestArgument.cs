@@ -5,21 +5,14 @@
     /// </summary>
     public class ShortestArgument : Argument<bool>
     {
-        public ShortestArgument()
-        {
-        }
+        public ShortestArgument() { }
 
-        public ShortestArgument(bool value) : base(value)
-        {
-        }
+        public ShortestArgument(bool value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.FinalizeAtShortestInput(Value);
+            return Value ? "-shortest" : string.Empty;
         }
     }
 }

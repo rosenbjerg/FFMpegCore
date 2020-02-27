@@ -11,17 +11,12 @@ namespace FFMpegCore.FFMPEG.Argument
         {            
         }
 
-        public SpeedArgument(Speed value) : base(value)
-        {
-        }
+        public SpeedArgument(Speed value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Speed(Value);
+            return $"-preset {Value.ToString().ToLower()}";
         }
     }
 }

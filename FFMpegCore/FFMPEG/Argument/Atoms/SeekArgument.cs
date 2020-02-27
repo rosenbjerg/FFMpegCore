@@ -7,21 +7,14 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class SeekArgument : Argument<TimeSpan?>
     {
-        public SeekArgument()
-        {
-        }
+        public SeekArgument() { }
 
-        public SeekArgument(TimeSpan? value) : base(value)
-        {
-        }
+        public SeekArgument(TimeSpan? value) : base(value) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Seek(Value);
+            return !Value.HasValue ? string.Empty : $"-ss {Value}";
         }
     }
 }

@@ -15,9 +15,10 @@ namespace FFMpegCore.FFMPEG.Argument
             }
         }
 
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return $"-vbr {Value} ";
+            return $"-vbr {Value}";
         }
     }
 }

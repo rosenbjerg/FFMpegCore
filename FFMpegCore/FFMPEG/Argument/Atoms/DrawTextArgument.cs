@@ -9,13 +9,12 @@ namespace FFMpegCore.FFMPEG.Argument
     public class DrawTextArgument : Argument<IEnumerable<(string key, string value)>>
     {
         public DrawTextArgument(string text, string fontPath, params (string, string)[] optionalArguments) 
-            : base(new[] {("text", text), ("fontfile", fontPath)}.Concat(optionalArguments))
-        {
-        }
+            : base(new[] {("text", text), ("fontfile", fontPath)}.Concat(optionalArguments)) { }
 
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return $"-vf drawtext=\"{string.Join(": ", Value.Select(FormatArgumentPair))}\" ";
+            return $"-vf drawtext=\"{string.Join(": ", Value.Select(FormatArgumentPair))}\"";
         }
 
         private static string FormatArgumentPair((string key, string value) pair)
