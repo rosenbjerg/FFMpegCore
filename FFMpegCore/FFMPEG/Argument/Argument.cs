@@ -41,14 +41,14 @@
     public abstract class Argument<T1, T2> : Argument
     {
         /// <summary>
-        /// First value type of <see cref="T"/>
+        /// First value type of <see cref="T1"/>
         /// </summary>
-        public T1 First { get; set; }
+        public T1 First { get; }
 
         /// <summary>
-        /// Second value type of <see cref="T"/>
+        /// Second value type of <see cref="T2"/>
         /// </summary>
-        public T2 Second { get; set; }
+        public T2 Second { get; }
 
         public Argument() { }
 

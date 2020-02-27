@@ -17,7 +17,7 @@ namespace FFMpegCore.FFMPEG.Argument
 
             foreach(var argument in arguments)
             {
-                this.Add(argument);
+                Add(argument);
             }
         }
 
@@ -50,7 +50,7 @@ namespace FFMpegCore.FFMPEG.Argument
         [Obsolete]
         public void Add(KeyValuePair<Type, Argument> item)
         {
-            this.Add(item.Value);
+            Add(item.Value);
         }
 
         /// <summary>

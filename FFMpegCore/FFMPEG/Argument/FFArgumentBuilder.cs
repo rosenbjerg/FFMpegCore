@@ -1,7 +1,4 @@
-﻿using FFMpegCore.Enums;
-using FFMpegCore.Helpers;
-using System;
-using System.IO;
+﻿using System;
 using System.Linq;
 
 namespace FFMpegCore.FFMPEG.Argument

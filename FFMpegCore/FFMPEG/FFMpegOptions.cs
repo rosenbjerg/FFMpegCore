@@ -1,9 +1,7 @@
-﻿using FFMpegCore.FFMPEG.Exceptions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Instances;
 
 namespace FFMpegCore.FFMPEG
 {
