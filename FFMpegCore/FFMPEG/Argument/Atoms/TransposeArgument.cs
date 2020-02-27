@@ -15,9 +15,9 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public TransposeArgument(int transpose) : base(transpose)
         {
-            if (transpose < 0 || transpose > 5)
+            if (transpose < 0 || transpose > 3)
             {
-                throw new ArgumentException("Argument is outside range (0 - 5)", nameof(transpose));
+                throw new ArgumentException("Argument is outside range (0 - 3)", nameof(transpose));
             }
         }
 
