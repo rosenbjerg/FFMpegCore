@@ -8,30 +8,21 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class ScaleArgument : Argument<Size>
     {
-        public ScaleArgument()
-        {
-        }
+        public ScaleArgument() { }
 
-        public ScaleArgument(Size value) : base(value)
-        {
-        }
+        public ScaleArgument(Size value) : base(value) { }
 
-        public ScaleArgument(int width, int heignt) : base(new Size(width, heignt))
-        {
-        }
+        public ScaleArgument(int width, int height) : base(new Size(width, height)) { }
 
         public ScaleArgument(VideoSize videosize)
         {
             Value = videosize == VideoSize.Original ? new Size(-1, -1) : new Size(-1, (int)videosize);
         }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Scale(Value.Width, Value.Height);
+            return $"-vf scale={Value.Width}:{Value.Height}";
         }
     }
 }

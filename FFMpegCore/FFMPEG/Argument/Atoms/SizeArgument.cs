@@ -8,29 +8,18 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class SizeArgument : ScaleArgument
     {
-        public SizeArgument()
-        {
-        }
+        public SizeArgument() { }
 
-        public SizeArgument(Size? value) : base(value ?? new Size())
-        {
-        }
+        public SizeArgument(Size? value) : base(value ?? default) { }
 
-        public SizeArgument(VideoSize videosize) : base(videosize)
-        {
-        }
+        public SizeArgument(VideoSize videosize) : base(videosize) { }
 
-        public SizeArgument(int width, int heignt) : base(width, heignt)
-        {
-        }
+        public SizeArgument(int width, int height) : base(width, height) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Size(Value);
+            return Value == default ? string.Empty : $"-s {Value.Width}x{Value.Height}";
         }
     }
 }

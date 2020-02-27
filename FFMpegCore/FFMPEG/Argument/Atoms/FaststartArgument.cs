@@ -5,13 +5,12 @@
     /// </summary>
     public class FaststartArgument : Argument
     {
-        public FaststartArgument()
-        {
-        }
+        public FaststartArgument() { }
 
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return "-movflags faststart ";
+            return "-movflags faststart";
         }
     }
 }

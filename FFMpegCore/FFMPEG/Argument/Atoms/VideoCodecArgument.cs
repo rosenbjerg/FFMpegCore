@@ -9,26 +9,26 @@ namespace FFMpegCore.FFMPEG.Argument
     {
         public int Bitrate { get; protected set; } = 0;
 
-        public VideoCodecArgument()
-        {
-        }
+        public VideoCodecArgument() { }
 
-        public VideoCodecArgument(VideoCodec value) : base(value)
-        {
-        }
+        public VideoCodecArgument(VideoCodec value) : base(value) { }
 
         public VideoCodecArgument(VideoCodec value, int bitrate) : base(value)
         {
             Bitrate = bitrate;
         }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Video(Value, Bitrate);
+            var video = $"-c:v {Value.ToString().ToLower()} -pix_fmt yuv420p";
+
+            if (Bitrate != default)
+            {
+                video += $" -b:v {Bitrate}k";
+            }
+
+            return video;
         }
     }
 }

@@ -8,33 +8,20 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class OutputArgument : Argument<string>
     {
-        public OutputArgument()
-        {
-        }
+        public OutputArgument() { }
 
-        public OutputArgument(string value) : base(value)
-        {
-        }
+        public OutputArgument(string value) : base(value) { }
 
-        public OutputArgument(VideoInfo value) : base(value.FullName)
-        {
-        }
+        public OutputArgument(VideoInfo value) : base(value.FullName) { }
 
-        public OutputArgument(FileInfo value) : base(value.FullName)
-        {
-        }
+        public OutputArgument(FileInfo value) : base(value.FullName) { }
 
-        public OutputArgument(Uri value) : base(value.AbsolutePath)
-        {
-        }
+        public OutputArgument(Uri value) : base(value.AbsolutePath) { }
 
-        /// <summary>
-        /// String representation of the argument
-        /// </summary>
-        /// <returns>String representation of the argument</returns>
+        /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return ArgumentStringifier.Output(Value);
+            return $"\"{Value}\"";
         }
 
         public FileInfo GetAsFileInfo()
