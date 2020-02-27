@@ -78,11 +78,11 @@ namespace FFMpegCore.FFMPEG
             var video = metadata.Streams.Find(s => s.CodecType == "video");
             var audio = metadata.Streams.Find(s => s.CodecType == "audio");
 
-            double videoSize = 0d;
-            double audioSize = 0d;
+            var videoSize = 0d;
+            var audioSize = 0d;
 
-            string sDuration = (video ?? audio).Duration;
-            TimeSpan duration = TimeSpan.Zero;
+            var sDuration = (video ?? audio).Duration;
+            var duration = TimeSpan.Zero;
             if (sDuration != null)
             {
                 duration = TimeSpan.FromSeconds(double.TryParse(sDuration, NumberStyles.Any, CultureInfo.InvariantCulture, out var output) ? output : 0);
