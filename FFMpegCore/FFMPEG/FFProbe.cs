@@ -10,11 +10,13 @@ namespace FFMpegCore.FFMPEG
 {
     public sealed class FFProbe
     {
+        private readonly int _outputCapacity;
         static readonly double BITS_TO_MB = 1024 * 1024 * 8;
         private readonly string _ffprobePath;
 
-        public FFProbe(): base()
+        public FFProbe(int outputCapacity = int.MaxValue)
         {
+            _outputCapacity = outputCapacity;
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             _ffprobePath = FFMpegOptions.Options.FFProbeBinary;
         }
@@ -45,7 +47,7 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info));
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
             instance.BlockUntilFinished();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
@@ -57,7 +59,7 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public async Task<VideoInfo> ParseVideoInfoAsync(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info));
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
             await instance.FinishedRunning();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);

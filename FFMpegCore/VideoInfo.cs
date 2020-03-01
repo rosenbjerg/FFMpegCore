@@ -12,7 +12,7 @@ namespace FFMpegCore
         /// Create a video information object from a file information object.
         /// </summary>
         /// <param name="fileInfo">Video file information.</param>
-        public VideoInfo(FileInfo fileInfo)
+        public VideoInfo(FileInfo fileInfo, int outputCapacity = int.MaxValue)
         {
             fileInfo.Refresh();
 
@@ -21,14 +21,15 @@ namespace FFMpegCore
 
             _file = fileInfo;
 
-            new FFProbe().ParseVideoInfo(this);
+            new FFProbe(outputCapacity).ParseVideoInfo(this);
         }
 
         /// <summary>
         /// Create a video information object from a target path.
         /// </summary>
         /// <param name="path">Path to video.</param>
-        public VideoInfo(string path) : this(new FileInfo(path)) { }
+        /// <param name="outputCapacity">Max amount of outputlines</param>
+        public VideoInfo(string path, int outputCapacity = int.MaxValue) : this(new FileInfo(path), outputCapacity) { }
 
         /// <summary>
         /// Duration of the video file.
