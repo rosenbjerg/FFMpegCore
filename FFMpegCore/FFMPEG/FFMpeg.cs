@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Instances;
 
 namespace FFMpegCore.FFMPEG
@@ -21,7 +22,7 @@ namespace FFMpegCore.FFMPEG
 
     public class FFMpeg
     {
-        IArgumentBuilder ArgumentBuilder { get; set; }
+        IArgumentBuilder ArgumentBuilder { get; set; } = new FFArgumentBuilder();
 
         /// <summary>
         ///     Intializes the FFMPEG encoder.
@@ -29,10 +30,7 @@ namespace FFMpegCore.FFMPEG
         public FFMpeg() : base()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-
             _ffmpegPath = FFMpegOptions.Options.FFmpegBinary;
-
-            ArgumentBuilder = new FFArgumentBuilder();
         }
 
         /// <summary>
@@ -137,66 +135,46 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.ForType(type));
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
-            _totalTime = source.Duration;
-
             var scale = VideoSize.Original == size ? 1 : (double) source.Height / (int) size;
-
-            var outputSize = new Size(
-                (int) (source.Width / scale),
-                (int) (source.Height / scale)
-            );
+            var outputSize = new Size((int) (source.Width / scale), (int) (source.Height / scale));
 
             if (outputSize.Width % 2 != 0)
-            {
                 outputSize.Width += 1;
-            }
 
-            var container = new ArgumentContainer();
-
-            switch (type)
+            return type switch
             {
-                case VideoType.Mp4:
-                    container.Add(
-                        new InputArgument(source),
-                        new ThreadsArgument(multithreaded),
-                        new ScaleArgument(outputSize),
-                        new VideoCodecArgument(VideoCodec.LibX264, 2400),
-                        new SpeedArgument(speed),
-                        new AudioCodecArgument(AudioCodec.Aac, audioQuality),
-                        new OutputArgument(output)
-                    );
-                    break;
-                case VideoType.Ogv:
-                    container.Add(
-                        new InputArgument(source),
-                        new ThreadsArgument(multithreaded),
-                        new ScaleArgument(outputSize),
-                        new VideoCodecArgument(VideoCodec.LibTheora, 2400),
-                        new SpeedArgument(speed),
-                        new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
-                        new OutputArgument(output)
-                    );
-                    break;
-                case VideoType.Ts:
-                    container.Add(
-                        new InputArgument(source),
-                        new CopyArgument(),
-                        new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB),
-                        new ForceFormatArgument(VideoCodec.MpegTs),
-                        new OutputArgument(output)
-                    );
-                    break;
-            }
-
-            if (!RunProcess(container, output))
-            {
-                throw new FFMpegException(FFMpegExceptionType.Conversion,
-                    $"The video could not be converted to {Enum.GetName(typeof(VideoType), type)}");
-            }
-
-            _totalTime = TimeSpan.MinValue;
-
-            return new VideoInfo(output);
+                VideoType.Mp4 => Convert(new ArgumentContainer(
+                    new InputArgument(source),
+                    new ThreadsArgument(multithreaded),
+                    new ScaleArgument(outputSize),
+                    new VideoCodecArgument(VideoCodec.LibX264, 2400),
+                    new SpeedArgument(speed),
+                    new AudioCodecArgument(AudioCodec.Aac, audioQuality),
+                    new OutputArgument(output))),
+                VideoType.Ogv => Convert(new ArgumentContainer(
+                    new InputArgument(source),
+                    new ThreadsArgument(multithreaded),
+                    new ScaleArgument(outputSize),
+                    new VideoCodecArgument(VideoCodec.LibTheora, 2400),
+                    new SpeedArgument(speed),
+                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new OutputArgument(output))),
+                VideoType.Ts => Convert(new ArgumentContainer(
+                    new InputArgument(source),
+                    new CopyArgument(),
+                    new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB),
+                    new ForceFormatArgument(VideoCodec.MpegTs),
+                    new OutputArgument(output))),
+                VideoType.WebM => Convert(new ArgumentContainer(
+                    new InputArgument(source),
+                    new ThreadsArgument(multithreaded),
+                    new ScaleArgument(outputSize),
+                    new VideoCodecArgument(VideoCodec.LibVpx, 2400),
+                    new SpeedArgument(speed),
+                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new OutputArgument(output))),
+                _ => throw new ArgumentOutOfRangeException(nameof(type))
+            };
         }
 
         /// <summary>
@@ -213,14 +191,13 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
 
             var container = new ArgumentContainer(
-                new LoopArgument(1),
                 new InputArgument(image.FullName, audio.FullName),
+                new LoopArgument(1),
                 new VideoCodecArgument(VideoCodec.LibX264, 2400),
                 new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal),
                 new ShortestArgument(true),
                 new OutputArgument(output)
             );
-
             if (!RunProcess(container, output))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation,
@@ -245,30 +222,18 @@ namespace FFMpegCore.FFMPEG
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(video);
                 var destinationPath = video.FullName.Replace(video.Extension, FileExtension.Ts);
-                Convert(
-                    video,
-                    new FileInfo(destinationPath),
-                    VideoType.Ts
-                );
+                Convert(video, new FileInfo(destinationPath), VideoType.Ts);
                 return destinationPath;
             }).ToList();
 
-            var container = new ArgumentContainer(
-                new ConcatArgument(temporaryVideoParts),
-                new CopyArgument(),
-                new BitStreamFilterArgument(Channel.Audio, Filter.Aac_AdtstoAsc),
-                new OutputArgument(output)
-            );
-
             try
             {
-                if (!RunProcess(container, output))
-                {
-                    throw new FFMpegException(FFMpegExceptionType.Operation,
-                        "Could not join the provided video files.");
-                }
-
-                return new VideoInfo(output);
+                return Convert(new ArgumentContainer(
+                    new ConcatArgument(temporaryVideoParts),
+                    new CopyArgument(),
+                    new BitStreamFilterArgument(Channel.Audio, Filter.Aac_AdtstoAsc),
+                    new OutputArgument(output)
+                ));
             }
             finally
             {
@@ -314,7 +279,7 @@ namespace FFMpegCore.FFMPEG
                     throw new FFMpegException(FFMpegExceptionType.Operation,
                         "Could not join the provided image sequence.");
                 }
-
+                
                 return new VideoInfo(output);
             }
             finally
@@ -335,18 +300,10 @@ namespace FFMpegCore.FFMPEG
 
             if (uri.Scheme == "http" || uri.Scheme == "https")
             {
-                var container = new ArgumentContainer(
+                return Convert(new ArgumentContainer(
                     new InputArgument(uri),
                     new OutputArgument(output)
-                );
-
-                if (!RunProcess(container, output))
-                {
-                    throw new FFMpegException(FFMpegExceptionType.Operation,
-                        $"Saving the ${uri.AbsoluteUri} stream failed.");
-                }
-
-                return new VideoInfo(output);
+                ));
             }
 
             throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
@@ -364,19 +321,12 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionSizeExceptionCheck(source);
             FFMpegHelper.ExtensionExceptionCheck(output, source.Extension);
 
-            var container = new ArgumentContainer(
+            return Convert(new ArgumentContainer(
                 new InputArgument(source),
-                new CopyArgument(),
+                new CopyArgument(Channel.Video),
                 new DisableChannelArgument(Channel.Audio),
                 new OutputArgument(output)
-            );
-
-            if (!RunProcess(container, output))
-            {
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not mute the requested video.");
-            }
-
-            return new VideoInfo(output);
+            ));
         }
 
         /// <summary>
@@ -422,40 +372,49 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ConversionSizeExceptionCheck(source);
             FFMpegHelper.ExtensionExceptionCheck(output, source.Extension);
 
-            var container = new ArgumentContainer(
+            return Convert(new ArgumentContainer(
                 new InputArgument(source.FullName, audio.FullName),
                 new CopyArgument(),
                 new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Hd),
                 new ShortestArgument(stopAtShortest),
                 new OutputArgument(output)
-            );
-
-            if (!RunProcess(container, output))
-            {
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
-            }
-
-            return new VideoInfo(output);
+            ));
         }
         
         public VideoInfo Convert(ArgumentContainer arguments)
         {
-            var output = ((OutputArgument) arguments[typeof(OutputArgument)]).GetAsFileInfo();
-            var sources = ((InputArgument) arguments[typeof(InputArgument)]).GetAsVideoInfo();
-
-            // Sum duration of all sources
-            _totalTime = TimeSpan.Zero;
-            foreach (var source in sources)
-                _totalTime += source.Duration;
+            var (sources, output) = GetInputOutput(arguments);
+            _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
 
             if (!RunProcess(arguments, output))
-            {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
-            }
 
             _totalTime = TimeSpan.MinValue;
-
             return new VideoInfo(output);
+        }
+        public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments)
+        {
+            var (sources, output) = GetInputOutput(arguments);
+            _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
+
+            if (!await RunProcessAsync(arguments, output))
+                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
+
+            _totalTime = TimeSpan.MinValue;
+            return new VideoInfo(output);
+        }
+
+        private static (VideoInfo[] Input, FileInfo Output) GetInputOutput(ArgumentContainer arguments)
+        {
+            var output = ((OutputArgument) arguments[typeof(OutputArgument)]).GetAsFileInfo();
+            VideoInfo[] sources;
+            if (arguments.TryGetArgument<InputArgument>(out var input))
+                sources = input.GetAsVideoInfo();
+            else if (arguments.TryGetArgument<ConcatArgument>(out var concat))
+                sources = concat.GetAsVideoInfo();
+            else
+                throw new FFMpegException(FFMpegExceptionType.Operation, "No input or concat argument found");
+            return (sources, output);
         }
 
         /// <summary>
@@ -489,9 +448,21 @@ namespace FFMpegCore.FFMPEG
             var exitCode = _instance.BlockUntilFinished();
             
             if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
-            {
                 throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
-            }
+
+            return exitCode == 0;
+        }
+        private async Task<bool> RunProcessAsync(ArgumentContainer container, FileInfo output)
+        {
+            _instance?.Dispose();
+            var arguments = ArgumentBuilder.BuildArguments(container);
+            
+            _instance = new Instance(_ffmpegPath, arguments);
+            _instance.DataReceived += OutputData;
+            var exitCode = await _instance.FinishedRunning();
+            
+            if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
 
             return exitCode == 0;
         }
