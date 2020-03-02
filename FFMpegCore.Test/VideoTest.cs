@@ -351,5 +351,32 @@ namespace FFMpegCore.Test
                     output.Delete();
             }
         }
+        
+        [TestMethod]
+        public void Video_UpdatesProgress() {
+            var output = Input.OutputLocation(VideoType.Mp4);
+
+            var percentageDone = 0.0;
+            void OnProgess(double percentage) => percentageDone = percentage;
+            Encoder.OnProgress += OnProgess;
+
+            var arguments = new ArgumentContainer
+            {
+                new InputArgument(VideoLibrary.LocalVideo),
+                new DurationArgument(TimeSpan.FromSeconds(8)),
+                new OutputArgument(output)
+            };
+
+            try {
+                Encoder.Convert(arguments);
+                Encoder.OnProgress -= OnProgess;
+            
+                Assert.IsTrue(File.Exists(output.FullName));
+                Assert.AreNotEqual(0.0, percentageDone);
+            } finally {
+                if (File.Exists(output.FullName))
+                    output.Delete();
+            }
+        }
     }
 }
