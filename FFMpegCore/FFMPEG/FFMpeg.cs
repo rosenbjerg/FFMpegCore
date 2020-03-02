@@ -479,8 +479,6 @@ namespace FFMpegCore.FFMPEG
         private readonly string _ffmpegPath;
         private TimeSpan _totalTime;
 
-        private volatile StringBuilder _errorOutput = new StringBuilder();
-
         private bool RunProcess(ArgumentContainer container, FileInfo output)
         {
             _instance?.Dispose();
@@ -492,7 +490,7 @@ namespace FFMpegCore.FFMPEG
             
             if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
             {
-                throw new FFMpegException(FFMpegExceptionType.Process, _errorOutput);
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
             }
 
             return exitCode == 0;
@@ -509,31 +507,20 @@ namespace FFMpegCore.FFMPEG
             }
         }
 
-        private static readonly Regex ProgressRegex = new Regex(@"\w\w:\w\w:\w\w", RegexOptions.Compiled);
+        private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
         private Instance _instance;
 
         private void OutputData(object sender, (DataType Type, string Data) msg)
         {
-            var (type, data) = msg;
-            
-            if (data == null) return;
-            if (type == DataType.Error)
-            {
-                _errorOutput.AppendLine(data);
-                return;
-            }
-            
 #if DEBUG
-            Trace.WriteLine(data);
+            Trace.WriteLine(msg.Data);
 #endif
-
             if (OnProgress == null) return;
-            if (!data.Contains("frame")) return;
             
-            var match = ProgressRegex.Match(data);
+            var match = ProgressRegex.Match(msg.Data);
             if (!match.Success) return;
 
-            var processed = TimeSpan.Parse(match.Value, CultureInfo.InvariantCulture);
+            var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             var percentage = Math.Round(processed.TotalSeconds / _totalTime.TotalSeconds * 100, 2);
             OnProgress(percentage);
         }
