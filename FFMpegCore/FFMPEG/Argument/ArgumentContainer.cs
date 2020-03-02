@@ -23,6 +23,19 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public Argument this[Type key] { get => _args[key]; set => _args[key] = value; }
 
+        public bool TryGetArgument<T>(out T output)
+            where T : Argument
+        {
+            if (_args.TryGetValue(typeof(T), out var arg))
+            {
+                output = (T) arg;
+                return true;
+            }
+
+            output = default;
+            return false;
+        }
+
         public ICollection<Type> Keys => _args.Keys;
 
         public ICollection<Argument> Values => _args.Values;

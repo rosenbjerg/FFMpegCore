@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -28,6 +29,10 @@ namespace FFMpegCore.FFMPEG.Argument
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+        public VideoInfo[] GetAsVideoInfo()
+        {
+            return Value.Select(v => new VideoInfo(v)).ToArray();
         }
     }
 }
