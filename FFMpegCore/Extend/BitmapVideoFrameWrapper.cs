@@ -25,7 +25,7 @@ namespace FFMpegCore.Extend
             Format = ConvertStreamFormat(bitmap.PixelFormat);
         }
 
-        public void Serialize(IInputPipe pipe)
+        public void Serialize(System.IO.Stream stream)
         {
             var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
 
@@ -33,7 +33,7 @@ namespace FFMpegCore.Extend
             {
                 var buffer = new byte[data.Stride * data.Height];
                 Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                pipe.Write(buffer, 0, buffer.Length);
+                stream.Write(buffer, 0, buffer.Length);
             }
             finally
             {
@@ -41,7 +41,7 @@ namespace FFMpegCore.Extend
             }
         }
 
-        public async Task SerializeAsync(IInputPipe pipe)
+        public async Task SerializeAsync(System.IO.Stream stream)
         {
             var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
 
@@ -49,7 +49,7 @@ namespace FFMpegCore.Extend
             {
                 var buffer = new byte[data.Stride * data.Height];
                 Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                await pipe.WriteAsync(buffer, 0, buffer.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length);
             }
             finally
             {

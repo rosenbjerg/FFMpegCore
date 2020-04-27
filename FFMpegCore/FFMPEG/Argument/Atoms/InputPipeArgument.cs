@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
-    public class InputPipeArgument : Argument, IInputPipe
+    /// <summary>
+    /// Represents input parameter for a named pipe
+    /// </summary>
+    public class InputPipeArgument : Argument
     {
         public string PipeName { get; private set; }
         public IPipeSource Source { get; private set; }
@@ -37,22 +40,6 @@ namespace FFMpegCore.FFMPEG.Argument
             pipe = null;
         }
 
-        public void Write(byte[] buffer, int offset, int count)
-        {
-            if(pipe == null)
-                throw new InvalidOperationException("Pipe shouled be opened before");
-
-            pipe.Write(buffer, offset, count);
-        }
-
-        public Task WriteAsync(byte[] buffer, int offset, int count)
-        {
-            if (pipe == null)
-                throw new InvalidOperationException("Pipe shouled be opened before");
-
-            return pipe.WriteAsync(buffer, offset, count);
-        }
-
         public override string GetStringValue()
         {
             return $"-y {Source.GetFormat()} -i \\\\.\\pipe\\{PipeName}";
@@ -61,14 +48,14 @@ namespace FFMpegCore.FFMPEG.Argument
         public void FlushPipe()
         {
             pipe.WaitForConnection();
-            Source.FlushData(this);
+            Source.FlushData(pipe);
         }
 
 
         public async Task FlushPipeAsync()
         {
             await pipe.WaitForConnectionAsync();
-            await Source.FlushDataAsync(this);
+            await Source.FlushDataAsync(pipe);
         }
     }
 }

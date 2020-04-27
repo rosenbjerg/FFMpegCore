@@ -11,7 +11,7 @@ namespace FFMpegCore.FFMPEG.Pipes
         int Height { get; }
         string Format { get; }
 
-        void Serialize(IInputPipe pipe);
-        Task SerializeAsync(IInputPipe pipe);
+        void Serialize(System.IO.Stream pipe);
+        Task SerializeAsync(System.IO.Stream pipe);
     }
 }
