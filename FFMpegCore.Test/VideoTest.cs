@@ -217,7 +217,6 @@ namespace FFMpegCore.Test
             var container = new ArgumentContainer
             {
                 new CopyArgument(),
-                new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB),
                 new ForceFormatArgument(VideoCodec.MpegTs)
             };
             ConvertFromPipe(VideoType.Ts, container);

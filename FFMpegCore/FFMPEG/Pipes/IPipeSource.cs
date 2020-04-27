@@ -9,7 +9,7 @@ namespace FFMpegCore.FFMPEG.Pipes
     public interface IPipeSource
     {
         string GetFormat();
-        void FlushData(IInputPipe pipe);
-        Task FlushDataAsync(IInputPipe pipe);
+        void FlushData(System.IO.Stream pipe);
+        Task FlushDataAsync(System.IO.Stream pipe);
     }
 }
