@@ -88,7 +88,7 @@ namespace FFMpegCore.FFMPEG
                 new OutputArgument(output)
             );
 
-            if (!RunProcess(container, output))
+            if (!RunProcess(container, output, false))
             {
                 throw new OperationCanceledException("Could not take snapshot!");
             }
@@ -198,7 +198,7 @@ namespace FFMpegCore.FFMPEG
                 new ShortestArgument(true),
                 new OutputArgument(output)
             );
-            if (!RunProcess(container, output))
+            if (!RunProcess(container, output, false))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation,
                     "An error occured while adding the audio file to the image.");
@@ -274,7 +274,7 @@ namespace FFMpegCore.FFMPEG
 
             try
             {
-                if (!RunProcess(container, output))
+                if (!RunProcess(container, output, false))
                 {
                     throw new FFMpegException(FFMpegExceptionType.Operation,
                         "Could not join the provided image sequence.");
@@ -346,7 +346,7 @@ namespace FFMpegCore.FFMPEG
                 new OutputArgument(output)
             );
 
-            if (!RunProcess(container, output))
+            if (!RunProcess(container, output, false))
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation,
                     "Could not extract the audio from the requested video.");
@@ -381,26 +381,26 @@ namespace FFMpegCore.FFMPEG
             ));
         }
 
-        public VideoInfo Convert(ArgumentContainer arguments)
+        public VideoInfo Convert(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
             var (sources, output) = GetInputOutput(arguments);
             if (sources != null)
                 _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
 
-            if (!RunProcess(arguments, output))
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
+            if (!RunProcess(arguments, output, skipExistsCheck))
+                throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
             return new VideoInfo(output);
         }
-        public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments)
+        public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
             var (sources, output) = GetInputOutput(arguments);
             if (sources != null)
                 _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
 
-            if (!await RunProcessAsync(arguments, output))
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Could not replace the video audio.");
+            if (!await RunProcessAsync(arguments, output, skipExistsCheck))
+                throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
             return new VideoInfo(output);
@@ -442,7 +442,7 @@ namespace FFMpegCore.FFMPEG
         private readonly string _ffmpegPath;
         private TimeSpan _totalTime;
 
-        private bool RunProcess(ArgumentContainer container, FileInfo output)
+        private bool RunProcess(ArgumentContainer container, FileInfo output, bool skipExistsCheck)
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
@@ -478,21 +478,22 @@ namespace FFMpegCore.FFMPEG
                     exitCode = _instance.BlockUntilFinished();
                 }
 
-                if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
+                if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
                     throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
 
                 return exitCode == 0;
             }
-            finally 
+            finally
             {
                 if (inputPipeArgument != null)
                     inputPipeArgument.ClosePipe();
             }
         }
-        private async Task<bool> RunProcessAsync(ArgumentContainer container, FileInfo output)
+        private async Task<bool> RunProcessAsync(ArgumentContainer container, FileInfo output, bool skipExistsCheck)
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
+
             int exitCode = -1;
             if (container.TryGetArgument<InputPipeArgument>(out var inputPipeArgument))
             {
@@ -517,7 +518,7 @@ namespace FFMpegCore.FFMPEG
                     exitCode = await _instance.FinishedRunning();
                 }
 
-                if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
+                if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
                     throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
 
                 return exitCode == 0;
