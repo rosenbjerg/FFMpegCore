@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FFMpegCore.FFMPEG.Pipes
 {
+    /// <summary>
+    /// Implementation of <see cref="IPipeSource"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 
+    /// </summary>
     public class RawVideoPipeSource : IPipeSource
     {
         public string StreamFormat { get; set; }
