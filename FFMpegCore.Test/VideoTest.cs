@@ -62,6 +62,61 @@ namespace FFMpegCore.Test
                     File.Delete(output.FullName);
             }
         }
+        
+        private void ConvertFromStreamPipe(VideoType type, ArgumentContainer container)
+        {
+            var output = Input.OutputLocation(type);
+
+            try
+            {
+                var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoWebm);
+                using (var inputStream = System.IO.File.OpenRead(input.FullName))
+                {
+                    var pipeSource = new StreamPipeSource(inputStream);
+                    var arguments = new ArgumentContainer { new InputPipeArgument(pipeSource) };
+                    foreach (var arg in container)
+                    {
+                        arguments.Add(arg.Value);
+                    }
+                    arguments.Add(new OutputArgument(output));
+
+                    var scaling = container.Find<ScaleArgument>();
+
+                    Encoder.Convert(arguments);
+
+                    var outputVideo = new VideoInfo(output.FullName);
+
+                    Assert.IsTrue(File.Exists(output.FullName));
+                    Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.FrameRate);
+
+                    if (scaling == null)
+                    {
+                        Assert.AreEqual(outputVideo.Width, input.Width);
+                        Assert.AreEqual(outputVideo.Height, input.Height);
+                    }
+                    else
+                    {
+                        if (scaling.Value.Width != -1)
+                        {
+                            Assert.AreEqual(outputVideo.Width, scaling.Value.Width);
+                        }
+
+                        if (scaling.Value.Height != -1)
+                        {
+                            Assert.AreEqual(outputVideo.Height, scaling.Value.Height);
+                        }
+
+                        Assert.AreNotEqual(outputVideo.Width, input.Width);
+                        Assert.AreNotEqual(outputVideo.Height, input.Height);
+                    }
+                }
+            }
+            finally
+            {
+                if (File.Exists(output.FullName))
+                    File.Delete(output.FullName);
+            }
+        }
 
         public void Convert(VideoType type, ArgumentContainer container)
         {
@@ -191,6 +246,13 @@ namespace FFMpegCore.Test
         {
             var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
             ConvertFromPipe(VideoType.Mp4, container);
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamPipe()
+        {
+            var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
+            ConvertFromStreamPipe(VideoType.Mp4, container);
         }
 
         [TestMethod]
