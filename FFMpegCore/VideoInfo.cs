@@ -1,4 +1,6 @@
 ﻿using FFMpegCore.FFMPEG;
+using FFMpegCore.FFMPEG.Argument;
+using FFMpegCore.FFMPEG.Pipes;
 using System;
 using System.IO;
 

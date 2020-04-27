@@ -47,7 +47,7 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info.FullName)) {DataBufferCapacity = _outputCapacity};
             instance.BlockUntilFinished();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
@@ -59,14 +59,14 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public async Task<VideoInfo> ParseVideoInfoAsync(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info.FullName)) {DataBufferCapacity = _outputCapacity};
             await instance.FinishedRunning();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
 
-        private static string BuildFFProbeArguments(VideoInfo info) =>
-            $"-v quiet -print_format json -show_streams \"{info.FullName}\"";
+        private static string BuildFFProbeArguments(string fullPath) =>
+            $"-v quiet -print_format json -show_streams \"{fullPath}\"";
         
         private VideoInfo ParseVideoInfoInternal(VideoInfo info, string probeOutput)
         {
@@ -133,5 +133,21 @@ namespace FFMpegCore.FFMPEG
 
             return info;
         }
+
+        internal FFMpegStreamMetadata GetMetadata(string path)
+        {
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(path)) { DataBufferCapacity = _outputCapacity };
+            instance.BlockUntilFinished();
+            var output = string.Join("", instance.OutputData);
+            return JsonConvert.DeserializeObject<FFMpegStreamMetadata>(output);
+        }
+
+        internal async Task<FFMpegStreamMetadata> GetMetadataAsync(string path)
+        {
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(path)) { DataBufferCapacity = _outputCapacity };
+            await instance.FinishedRunning();
+            var output = string.Join("", instance.OutputData);
+            return JsonConvert.DeserializeObject<FFMpegStreamMetadata>(output);
+        }        
     }
 }

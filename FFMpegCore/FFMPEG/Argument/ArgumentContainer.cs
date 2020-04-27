@@ -15,7 +15,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             _args = new Dictionary<Type, Argument>();
 
-            foreach(var argument in arguments)
+            foreach (var argument in arguments)
             {
                 Add(argument);
             }
@@ -28,7 +28,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             if (_args.TryGetValue(typeof(T), out var arg))
             {
-                output = (T) arg;
+                output = (T)arg;
                 return true;
             }
 
@@ -90,7 +90,7 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <param name="value">Argument that should be added to collection</param>
         public void Add(params Argument[] values)
         {
-            foreach(var value in values) 
+            foreach (var value in values)
             {
                 _args.Add(value.GetType(), value);
             }
@@ -102,8 +102,9 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <returns></returns>
         public bool ContainsInputOutput()
         {
-            return ((ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument))) ||
-                    (!ContainsKey(typeof(InputArgument)) && ContainsKey(typeof(ConcatArgument))))
+            return ((ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument)) && !ContainsKey(typeof(InputPipeArgument))) ||
+                    (!ContainsKey(typeof(InputArgument)) && ContainsKey(typeof(ConcatArgument)) && !ContainsKey(typeof(InputPipeArgument))) ||
+                    (!ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument)) && ContainsKey(typeof(InputPipeArgument))))
                     && ContainsKey(typeof(OutputArgument));
         }
 
