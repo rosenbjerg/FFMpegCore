@@ -381,6 +381,42 @@ public class OverrideArgument : Argument
     }
 }
 ```
+### Input piping
+With input piping it is possible to write video frames directly from program memory without saving them to jpeg or png and then passing path to input of ffmpeg. This feature also allows us to convert video on-the-fly while frames are beeing generated/created/processed.
+
+`IPipeSource` interface is used as source of data. It could be represented as encoded video stream or raw frames stream. Currently `IPipeSource` interface has single implementation, `RawVideoPipeSource` that is used for raw stream encoding.
+
+For example:
+
+Method that is generate bitmap frames:
+```csharp
+IEnumerable<IVideoFrame> CreateFrames(int count)
+{
+    for(int i = 0; i < count; i++)
+    {
+        yield return GetNextFrame(); //method of generating new frames
+    }
+}
+```
+Then create `ArgumentsContainer` with `InputPipeArgument`
+```csharp
+var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumerable<IVideoFrame> or IEnumerator<IVideoFrame> to constructor of RawVideoPipeSource
+{
+    FrameRate = 30 //set source frame rate
+};
+var container = new ArgumentsContainer
+{
+    new InputPipeArgument(videoFramesSource),
+    ... //Other encoding arguments
+    new OutputArgument("temporary.mp4")
+};
+
+var ffmpeg = new FFMpeg();
+var result = ffmpeg.Convert(arguments);
+```
+
+if you want to use `System.Drawing.Bitmap` as `IVideoFrame`, there is `BitmapVideoFrameWrapper` wrapper class.
+
 ## Contributors
 
 <a href="https://github.com/vladjerca"><img src="https://avatars.githubusercontent.com/u/6339681?v=4" title="vladjerca" width="80" height="80"></a>
