@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FFMpegCore.FFMPEG.Pipes
 {
+    /// <summary>
+    /// Interface for ffmpeg pipe source data IO
+    /// </summary>
     public interface IPipeSource
     {
         string GetFormat();
