@@ -31,11 +31,11 @@ namespace FFMpegCore.FFMPEG.Pipes
             {
                 if (!framesEnumerator.MoveNext())
                     throw new InvalidOperationException("Enumerator is empty, unable to get frame");
-
-                StreamFormat = framesEnumerator.Current.Format;
-                Width = framesEnumerator.Current.Width;
-                Height = framesEnumerator.Current.Height;
             }
+            StreamFormat = framesEnumerator.Current.Format;
+            Width = framesEnumerator.Current.Width;
+            Height = framesEnumerator.Current.Height;
+
 
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
