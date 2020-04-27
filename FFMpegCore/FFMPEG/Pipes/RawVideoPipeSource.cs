@@ -37,29 +37,29 @@ namespace FFMpegCore.FFMPEG.Pipes
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
 
-        public void FlushData(IInputPipe pipe)
+        public void FlushData(System.IO.Stream stream)
         {
             if (framesEnumerator.Current != null)
             {
-                framesEnumerator.Current.Serialize(pipe);
+                framesEnumerator.Current.Serialize(stream);
             }
 
             while (framesEnumerator.MoveNext())
             {
-                framesEnumerator.Current.Serialize(pipe);
+                framesEnumerator.Current.Serialize(stream);
             }
         }
 
-        public async Task FlushDataAsync(IInputPipe pipe)
+        public async Task FlushDataAsync(System.IO.Stream stream)
         {
             if (framesEnumerator.Current != null)
             {
-                await framesEnumerator.Current.SerializeAsync(pipe);
+                await framesEnumerator.Current.SerializeAsync(stream);
             }
 
             while (framesEnumerator.MoveNext())
             {
-                await framesEnumerator.Current.SerializeAsync(pipe);
+                await framesEnumerator.Current.SerializeAsync(stream);
             }
         }
 

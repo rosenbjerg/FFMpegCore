@@ -493,7 +493,7 @@ namespace FFMpegCore.FFMPEG
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
-
+            int exitCode = -1;
             if (container.TryGetArgument<InputPipeArgument>(out var inputPipeArgument))
             {
                 inputPipeArgument.OpenPipe();
@@ -506,9 +506,16 @@ namespace FFMpegCore.FFMPEG
 
                 if (inputPipeArgument != null)
                 {
-                    await inputPipeArgument.FlushPipeAsync();
+                    var task = _instance.FinishedRunning();
+                    inputPipeArgument.FlushPipe();
+                    inputPipeArgument.ClosePipe();
+
+                    exitCode = await task;
                 }
-                var exitCode = await _instance.FinishedRunning();
+                else
+                {
+                    exitCode = await _instance.FinishedRunning();
+                }
 
                 if (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0)
                     throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
