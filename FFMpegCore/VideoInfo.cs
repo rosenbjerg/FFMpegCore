@@ -133,6 +133,16 @@ namespace FFMpegCore
         }
 
         /// <summary>
+        ///  Create a video information object from a encoded stream.
+        /// </summary>
+        /// <param name="stream">Encoded video stream.</param>
+        /// <returns></returns>
+        public static VideoInfo FromStream(System.IO.Stream stream)
+        {
+            return new FFProbe().ParseVideoInfo(stream);
+        }
+
+        /// <summary>
         ///  Pretty prints the video information.
         /// </summary>
         /// <returns></returns>
