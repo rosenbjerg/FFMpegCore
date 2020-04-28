@@ -16,7 +16,7 @@ namespace FFMpegCore.FFMPEG.Argument
     public class InputPipeArgument : Argument
     {
         public string PipeName { get; private set; }
-        public string PipePath => $@"\\.\pipe\{PipeName}";
+        public string PipePath => PipeHelpers.GetPipePath(PipeName);
         public IPipeSource Source { get; private set; }
 
         private NamedPipeServerStream pipe;
@@ -24,7 +24,7 @@ namespace FFMpegCore.FFMPEG.Argument
         public InputPipeArgument(IPipeSource source)
         {
             Source = source;
-            PipeName = "FFMpegCore_Pipe_" + Guid.NewGuid();
+            PipeName = PipeHelpers.GetUnqiuePipeName();
         }
 
         public void OpenPipe()
@@ -43,7 +43,7 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public override string GetStringValue()
         {
-            return $"-y {Source.GetFormat()} -i {PipePath}";
+            return $"-y {Source.GetFormat()} -i \"{PipePath}\"";
         }
 
         public void FlushPipe()
