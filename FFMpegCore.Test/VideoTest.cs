@@ -72,7 +72,7 @@ namespace FFMpegCore.Test
                 var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoWebm);
                 using (var inputStream = System.IO.File.OpenRead(input.FullName))
                 {
-                    var pipeSource = new StreamPipeSource(inputStream);
+                    var pipeSource = new StreamPipeDataWriter(inputStream);
                     var arguments = new ArgumentContainer { new InputPipeArgument(pipeSource) };
                     foreach (var arg in container)
                     {
@@ -183,7 +183,7 @@ namespace FFMpegCore.Test
 
             try
             {
-                var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
+                var videoFramesSource = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
                 var arguments = new ArgumentContainer { new InputPipeArgument(videoFramesSource) };
                 foreach (var arg in container)
                 {

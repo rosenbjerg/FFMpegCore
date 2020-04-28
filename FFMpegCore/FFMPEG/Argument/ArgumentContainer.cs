@@ -102,10 +102,8 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <returns></returns>
         public bool ContainsInputOutput()
         {
-            return ((ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument)) && !ContainsKey(typeof(InputPipeArgument))) ||
-                    (!ContainsKey(typeof(InputArgument)) && ContainsKey(typeof(ConcatArgument)) && !ContainsKey(typeof(InputPipeArgument))) ||
-                    (!ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument)) && ContainsKey(typeof(InputPipeArgument))))
-                    && ContainsKey(typeof(OutputArgument));
+            return CountExistedKeys(typeof(InputArgument), typeof(ConcatArgument), typeof(InputPipeArgument)) == 1 &&
+                   CountExistedKeys(typeof(OutputArgument), typeof(OutputPipeArgument)) == 1;
         }
 
         /// <summary>
@@ -116,6 +114,16 @@ namespace FFMpegCore.FFMPEG.Argument
         public bool ContainsKey(Type key)
         {
             return _args.ContainsKey(key);
+        }
+
+        public int CountExistedKeys(params Type[] types)
+        {
+            int count = 0;
+            for(int i =0; i < types.Length; i++)
+                if (_args.ContainsKey(types[i]))
+                    count++;
+
+            return count;
         }
 
         public void CopyTo(KeyValuePair<Type, Argument>[] array, int arrayIndex)
