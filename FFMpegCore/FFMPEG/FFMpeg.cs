@@ -15,6 +15,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Instances;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -391,6 +393,9 @@ namespace FFMpegCore.FFMPEG
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
+
+            if (output == null)
+                return null;
             return new VideoInfo(output);
         }
         public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments, bool skipExistsCheck = false)
@@ -403,12 +408,21 @@ namespace FFMpegCore.FFMPEG
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
+            if (output == null)
+                return null;
             return new VideoInfo(output);
         }
 
         private static (VideoInfo[] Input, FileInfo Output) GetInputOutput(ArgumentContainer arguments)
         {
-            var output = ((OutputArgument)arguments[typeof(OutputArgument)]).GetAsFileInfo();
+            FileInfo output;
+            if (arguments.TryGetArgument<OutputArgument>(out var outputArg))
+                output = outputArg.GetAsFileInfo();
+            else if (arguments.TryGetArgument<OutputPipeArgument>(out var outputPipeArg))
+                output = null;
+            else
+                throw new FFMpegException(FFMpegExceptionType.Operation, "No output argument found");
+
             VideoInfo[] sources;
             if (arguments.TryGetArgument<InputArgument>(out var input))
                 sources = input.GetAsVideoInfo();
@@ -452,84 +466,141 @@ namespace FFMpegCore.FFMPEG
             {
                 inputPipeArgument.OpenPipe();
             }
-
-            try
+            if (container.TryGetArgument<OutputPipeArgument>(out var outputPipeArgument))
             {
-                _instance = new Instance(_ffmpegPath, arguments);
-                _instance.DataReceived += OutputData;
+                outputPipeArgument.OpenPipe();
+            }
 
-                if (inputPipeArgument != null)
+
+            _instance = new Instance(_ffmpegPath, arguments);
+            _instance.DataReceived += OutputData;
+
+            if (inputPipeArgument != null || outputPipeArgument != null)
+            {
+                try
                 {
-                    try
+                    using (var tokenSource = new CancellationTokenSource())
                     {
-                        var task = _instance.FinishedRunning();
-                        inputPipeArgument.FlushPipe();
-                        inputPipeArgument.ClosePipe();
-                        task.Wait();
-                        exitCode = task.Result;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData), ex);
+                        var concurrentTasks = new List<Task>();
+                        concurrentTasks.Add(_instance.FinishedRunning()
+                            .ContinueWith((t =>
+                            {
+                                exitCode = t.Result;
+                                if (exitCode != 0)
+                                    tokenSource.Cancel();
+                            })));
+                        if (inputPipeArgument != null)
+                            concurrentTasks.Add(inputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    inputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+                        if (outputPipeArgument != null)
+                            concurrentTasks.Add(outputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    outputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+
+                        Task.WaitAll(concurrentTasks.ToArray()/*, tokenSource.Token*/);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    exitCode = _instance.BlockUntilFinished();
+                    inputPipeArgument?.ClosePipe();
+                    outputPipeArgument?.ClosePipe();
+                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData), ex);
                 }
-
-                if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
-                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
-
-                return exitCode == 0;
             }
-            finally
+            else
             {
-                if (inputPipeArgument != null)
-                    inputPipeArgument.ClosePipe();
+                exitCode = _instance.BlockUntilFinished();
             }
+
+            if(exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            if (outputPipeArgument == null && !skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            return exitCode == 0;
         }
         private async Task<bool> RunProcessAsync(ArgumentContainer container, FileInfo output, bool skipExistsCheck)
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
+            var exitCode = -1;
 
-            int exitCode = -1;
             if (container.TryGetArgument<InputPipeArgument>(out var inputPipeArgument))
             {
                 inputPipeArgument.OpenPipe();
             }
-            try
+            if (container.TryGetArgument<OutputPipeArgument>(out var outputPipeArgument))
             {
-
-                _instance = new Instance(_ffmpegPath, arguments);
-                _instance.DataReceived += OutputData;
-
-                if (inputPipeArgument != null)
-                {
-                    var task = _instance.FinishedRunning();
-                    inputPipeArgument.FlushPipe();
-                    inputPipeArgument.ClosePipe();
-
-                    exitCode = await task;
-                }
-                else
-                {
-                    exitCode = await _instance.FinishedRunning();
-                }
-
-                if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
-                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
-
-                return exitCode == 0;
+                outputPipeArgument.OpenPipe();
             }
-            finally
+
+
+            _instance = new Instance(_ffmpegPath, arguments);
+            _instance.DataReceived += OutputData;
+
+            if (inputPipeArgument != null || outputPipeArgument != null)
             {
-                if (inputPipeArgument != null)
+                try
                 {
-                    inputPipeArgument.ClosePipe();
+                    using (var tokenSource = new CancellationTokenSource())
+                    {
+                        var concurrentTasks = new List<Task>();
+                        concurrentTasks.Add(_instance.FinishedRunning()
+                            .ContinueWith((t =>
+                            {
+                                exitCode = t.Result;
+                                if (exitCode != 0)
+                                    tokenSource.Cancel();
+                            })));
+                        if (inputPipeArgument != null)
+                            concurrentTasks.Add(inputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    inputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+                        if (outputPipeArgument != null)
+                            concurrentTasks.Add(outputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    outputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+
+                        await Task.WhenAll(concurrentTasks);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    inputPipeArgument?.ClosePipe();
+                    outputPipeArgument?.ClosePipe();
+                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData), ex);
                 }
             }
+            else
+            {
+                exitCode = await _instance.FinishedRunning();
+            }
+
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            if (outputPipeArgument == null && !skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            return exitCode == 0;
         }
 
         private void Cleanup(IEnumerable<string> pathList)
