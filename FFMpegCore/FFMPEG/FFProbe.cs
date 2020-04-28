@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Instances;
 using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Pipes;
+using System.IO;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -81,18 +82,23 @@ namespace FFMpegCore.FFMPEG
             var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
             pipeArgument.OpenPipe();
 
+            var task = instance.FinishedRunning();
             try
             {
-                var task = instance.FinishedRunning();
-                pipeArgument.FlushPipe();
+                pipeArgument.ProcessDataAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 pipeArgument.ClosePipe();
-                task.Wait();
+            }
+            catch(IOException)
+            {
             }
             finally
             {
                 pipeArgument.ClosePipe();
             }
+            var exitCode = task.ConfigureAwait(false).GetAwaiter().GetResult();
 
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
@@ -111,17 +117,20 @@ namespace FFMpegCore.FFMPEG
             var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
             pipeArgument.OpenPipe();
 
+            var task = instance.FinishedRunning();
             try
             {
-                var task = instance.FinishedRunning();
-                await pipeArgument.FlushPipeAsync();
+                await pipeArgument.ProcessDataAsync();
                 pipeArgument.ClosePipe();
-                await task;
+            }
+            catch (IOException)
+            {
             }
             finally
             {
                 pipeArgument.ClosePipe();
             }
+            var exitCode = await task;
 
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
