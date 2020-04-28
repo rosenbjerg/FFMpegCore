@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace FFMpegCore.FFMPEG.Pipes
 {
-    public class StreamPipedataReader : IPipeDataReader
+    public class StreamPipeDataReader : IPipeDataReader
     {
         public System.IO.Stream DestanationStream { get; private set; }
         public int BlockSize { get; set; } = 4096;
 
-        public StreamPipedataReader(System.IO. Stream destanationStream)
+        public StreamPipeDataReader(System.IO. Stream destanationStream)
         {
             DestanationStream = destanationStream;
         }

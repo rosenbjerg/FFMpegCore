@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 namespace FFMpegCore.FFMPEG.Pipes
 {
     /// <summary>
-    /// Implementation of <see cref="IPipeSource"/> used for stream redirection
+    /// Implementation of <see cref="IPipeDataWriter"/> used for stream redirection
     /// </summary>
-    public class StreamPipeSource : IPipeSource
+    public class StreamPipeDataWriter : IPipeDataWriter
     {
         public System.IO.Stream Source { get; private set; }
         public int BlockSize { get; set; } = 4096;
 
-        public StreamPipeSource(System.IO.Stream stream)
+        public StreamPipeDataWriter(System.IO.Stream stream)
         {
             Source = stream;
         }
 
-        public void FlushData(System.IO.Stream pipe)
+        public void WriteData(System.IO.Stream pipe)
         {
             var buffer = new byte[BlockSize];
             int read;
@@ -28,7 +28,7 @@ namespace FFMpegCore.FFMPEG.Pipes
             }
         }
 
-        public async Task FlushDataAsync(System.IO.Stream pipe)
+        public async Task WriteDataAsync(System.IO.Stream pipe)
         {
             var buffer = new byte[BlockSize];
             int read;
