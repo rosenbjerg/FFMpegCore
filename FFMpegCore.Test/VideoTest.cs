@@ -666,5 +666,30 @@ namespace FFMpegCore.Test
                     output.Delete();
             }
         }
+
+        [TestMethod]
+        public void Video_TranscodeInMemory()
+        {
+            using (var resStream = new MemoryStream())
+            {
+                var reader = new StreamPipeDataReader(resStream);
+                var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, PixelFormat.Format24bppRgb, 128, 128));
+
+                var container = new ArgumentContainer
+                    {
+                            new InputPipeArgument(writer),
+                            new VideoCodecArgument("vp9"),
+                            new ForceFormatArgument("webm"),
+                            new OutputPipeArgument(reader)
+                    };
+
+                Encoder.Convert(container);
+
+                resStream.Position = 0;
+                var vi = VideoInfo.FromStream(resStream);
+                Assert.AreEqual(vi.Width, 128);
+                Assert.AreEqual(vi.Height, 128);
+            }
+        }
     }
 }
