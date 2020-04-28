@@ -10,6 +10,10 @@ namespace FFMpegCore
     {
         private FileInfo _file;
 
+        internal VideoInfo()
+        {
+
+        }
         /// <summary>
         /// Create a video information object from a file information object.
         /// </summary>
@@ -76,37 +80,37 @@ namespace FFMpegCore
         /// <summary>
         /// Gets the name of the file.
         /// </summary>
-        public string Name => _file.Name;
+        public string Name => _file != null ? _file.Name : throw new FileNotFoundException();
 
         /// <summary>
         /// Gets the full path of the file.
         /// </summary>
-        public string FullName => _file.FullName;
+        public string FullName => _file != null ? _file.FullName : throw new FileNotFoundException();
 
         /// <summary>
         /// Gets the file extension.
         /// </summary>
-        public string Extension => _file.Extension;
+        public string Extension => _file != null ? _file.Extension : throw new FileNotFoundException();
 
         /// <summary>
         /// Gets a flag indicating if the file is read-only.
         /// </summary>
-        public bool IsReadOnly => _file.IsReadOnly;
+        public bool IsReadOnly => _file != null ? _file.IsReadOnly : throw new FileNotFoundException();
 
         /// <summary>
         /// Gets a flag indicating if the file exists (no cache, per call verification).
         /// </summary>
-        public bool Exists => File.Exists(FullName);
+        public bool Exists => _file != null ? File.Exists(FullName) : false;
 
         /// <summary>
         /// Gets the creation date.
         /// </summary>
-        public DateTime CreationTime => _file.CreationTime;
+        public DateTime CreationTime => _file != null ? _file.CreationTime : throw new FileNotFoundException();
 
         /// <summary>
         /// Gets the parent directory information.
         /// </summary>
-        public DirectoryInfo Directory => _file.Directory;
+        public DirectoryInfo Directory => _file != null ? _file.Directory : throw new FileNotFoundException();
 
         /// <summary>
         /// Create a video information object from a file information object.
