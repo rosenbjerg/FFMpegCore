@@ -99,6 +99,7 @@ namespace FFMpegCore.FFMPEG
 
             if (exitCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
+
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
@@ -131,6 +132,9 @@ namespace FFMpegCore.FFMPEG
                 pipeArgument.ClosePipe();
             }
             var exitCode = await task;
+
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
 
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
