@@ -9,5 +9,6 @@ namespace FFMpegCore.FFMPEG.Pipes
     {
         void ReadData(System.IO.Stream stream);
         Task ReadDataAsync(System.IO.Stream stream);
+        string GetFormat();
     }
 }
