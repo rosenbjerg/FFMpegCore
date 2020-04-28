@@ -17,11 +17,11 @@ namespace FFMpegCore.FFMPEG.Argument
     {
         public string PipeName { get; private set; }
         public string PipePath => PipeHelpers.GetPipePath(PipeName);
-        public IPipeSource Source { get; private set; }
+        public IPipeDataWriter Source { get; private set; }
 
         private NamedPipeServerStream pipe;
 
-        public InputPipeArgument(IPipeSource source)
+        public InputPipeArgument(IPipeDataWriter source)
         {
             Source = source;
             PipeName = PipeHelpers.GetUnqiuePipeName();
@@ -49,14 +49,14 @@ namespace FFMpegCore.FFMPEG.Argument
         public void FlushPipe()
         {
             pipe.WaitForConnection();
-            Source.FlushData(pipe);
+            Source.WriteData(pipe);
         }
 
 
         public async Task FlushPipeAsync()
         {
             await pipe.WaitForConnectionAsync();
-            await Source.FlushDataAsync(pipe);
+            await Source.WriteDataAsync(pipe);
         }
     }
 }
