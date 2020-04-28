@@ -5,6 +5,8 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Instances;
+using FFMpegCore.FFMPEG.Argument;
+using FFMpegCore.FFMPEG.Pipes;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -61,6 +63,56 @@ namespace FFMpegCore.FFMPEG
         {
             var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info.FullName)) {DataBufferCapacity = _outputCapacity};
             await instance.FinishedRunning();
+            var output = string.Join("", instance.OutputData);
+            return ParseVideoInfoInternal(info, output);
+        }
+
+        public VideoInfo ParseVideoInfo(System.IO.Stream stream)
+        {
+            var info = new VideoInfo();
+            var streamPipeSource = new StreamPipeSource(stream);
+            var pipeArgument = new InputPipeArgument(streamPipeSource);
+
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
+            pipeArgument.OpenPipe();
+
+            try
+            {
+                var task = instance.FinishedRunning();
+                pipeArgument.FlushPipe();
+                pipeArgument.ClosePipe();
+                task.Wait();
+            }
+            finally
+            {
+                pipeArgument.ClosePipe();
+            }
+
+            var output = string.Join("", instance.OutputData);
+            return ParseVideoInfoInternal(info, output);
+        }
+
+        public async Task<VideoInfo> ParseVideoInfoAsync(System.IO.Stream stream)
+        {
+            var info = new VideoInfo();
+            var streamPipeSource = new StreamPipeSource(stream);
+            var pipeArgument = new InputPipeArgument(streamPipeSource);
+
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
+            pipeArgument.OpenPipe();
+
+            try
+            {
+                var task = instance.FinishedRunning();
+                await pipeArgument.FlushPipeAsync();
+                pipeArgument.ClosePipe();
+                await task;
+            }
+            finally
+            {
+                pipeArgument.ClosePipe();
+            }
+
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
