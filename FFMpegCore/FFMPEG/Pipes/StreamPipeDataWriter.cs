@@ -12,6 +12,7 @@ namespace FFMpegCore.FFMPEG.Pipes
     {
         public System.IO.Stream Source { get; private set; }
         public int BlockSize { get; set; } = 4096;
+        public string StreamFormat { get; set; } = string.Empty;
 
         public StreamPipeDataWriter(System.IO.Stream stream)
         {
@@ -40,7 +41,7 @@ namespace FFMpegCore.FFMPEG.Pipes
 
         public string GetFormat()
         {
-            return "";
+            return StreamFormat;
         }
     }
 }
