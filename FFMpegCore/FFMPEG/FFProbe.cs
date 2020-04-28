@@ -67,6 +67,11 @@ namespace FFMpegCore.FFMPEG
             return ParseVideoInfoInternal(info, output);
         }
 
+        /// <summary>
+        ///     Probes the targeted video stream and retrieves all available details.
+        /// </summary>
+        /// <param name="stream">Encoded video stream.</param>
+        /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(System.IO.Stream stream)
         {
             var info = new VideoInfo();
@@ -92,6 +97,11 @@ namespace FFMpegCore.FFMPEG
             return ParseVideoInfoInternal(info, output);
         }
 
+        /// <summary>
+        ///     Probes the targeted video stream asynchronously and retrieves all available details.
+        /// </summary>
+        /// <param name="stream">Encoded video stream.</param>
+        /// <returns>A video info object containing all details necessary.</returns>
         public async Task<VideoInfo> ParseVideoInfoAsync(System.IO.Stream stream)
         {
             var info = new VideoInfo();
