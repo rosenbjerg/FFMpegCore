@@ -9,10 +9,10 @@ namespace FFMpegCore.FFMPEG.Pipes
     /// <summary>
     /// Interface for ffmpeg pipe source data IO
     /// </summary>
-    public interface IPipeSource
+    public interface IPipeDataWriter
     {
         string GetFormat();
-        void FlushData(System.IO.Stream pipe);
-        Task FlushDataAsync(System.IO.Stream pipe);
+        void WriteData(System.IO.Stream pipe);
+        Task WriteDataAsync(System.IO.Stream pipe);
     }
 }

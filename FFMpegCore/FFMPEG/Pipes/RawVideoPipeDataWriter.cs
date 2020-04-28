@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace FFMpegCore.FFMPEG.Pipes
 {
     /// <summary>
-    /// Implementation of <see cref="IPipeSource"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 
+    /// Implementation of <see cref="IPipeDataWriter"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 
     /// </summary>
-    public class RawVideoPipeSource : IPipeSource
+    public class RawVideoPipeDataWriter : IPipeDataWriter
     {
         public string StreamFormat { get; set; }
         public int Width { get; set; }
@@ -17,12 +17,12 @@ namespace FFMpegCore.FFMPEG.Pipes
         public int FrameRate { get; set; } = 25;
         private IEnumerator<IVideoFrame> framesEnumerator;
 
-        public RawVideoPipeSource(IEnumerator<IVideoFrame> framesEnumerator)
+        public RawVideoPipeDataWriter(IEnumerator<IVideoFrame> framesEnumerator)
         {
             this.framesEnumerator = framesEnumerator;
         }
 
-        public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
+        public RawVideoPipeDataWriter(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
         public string GetFormat()
         {
@@ -40,7 +40,7 @@ namespace FFMpegCore.FFMPEG.Pipes
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
 
-        public void FlushData(System.IO.Stream stream)
+        public void WriteData(System.IO.Stream stream)
         {
             if (framesEnumerator.Current != null)
             {
@@ -53,7 +53,7 @@ namespace FFMpegCore.FFMPEG.Pipes
             }
         }
 
-        public async Task FlushDataAsync(System.IO.Stream stream)
+        public async Task WriteDataAsync(System.IO.Stream stream)
         {
             if (framesEnumerator.Current != null)
             {
