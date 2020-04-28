@@ -75,7 +75,7 @@ namespace FFMpegCore.FFMPEG
         public VideoInfo ParseVideoInfo(System.IO.Stream stream)
         {
             var info = new VideoInfo();
-            var streamPipeSource = new StreamPipeSource(stream);
+            var streamPipeSource = new StreamPipeDataWriter(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
 
             var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
@@ -105,7 +105,7 @@ namespace FFMpegCore.FFMPEG
         public async Task<VideoInfo> ParseVideoInfoAsync(System.IO.Stream stream)
         {
             var info = new VideoInfo();
-            var streamPipeSource = new StreamPipeSource(stream);
+            var streamPipeSource = new StreamPipeDataWriter(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
 
             var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
