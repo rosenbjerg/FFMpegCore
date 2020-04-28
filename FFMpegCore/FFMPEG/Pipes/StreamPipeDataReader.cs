@@ -9,8 +9,9 @@ namespace FFMpegCore.FFMPEG.Pipes
     {
         public System.IO.Stream DestanationStream { get; private set; }
         public int BlockSize { get; set; } = 4096;
+        public string Format { get; set; } = string.Empty;
 
-        public StreamPipeDataReader(System.IO. Stream destanationStream)
+        public StreamPipeDataReader(System.IO.Stream destanationStream)
         {
             DestanationStream = destanationStream;
         }
@@ -19,7 +20,7 @@ namespace FFMpegCore.FFMPEG.Pipes
         {
             int read;
             var buffer = new byte[BlockSize];
-            while((read = stream.Read(buffer, 0, buffer.Length)) != 0)
+            while ((read = stream.Read(buffer, 0, buffer.Length)) != 0)
                 DestanationStream.Write(buffer, 0, buffer.Length);
         }
 
@@ -29,6 +30,11 @@ namespace FFMpegCore.FFMPEG.Pipes
             var buffer = new byte[BlockSize];
             while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
                 await DestanationStream.WriteAsync(buffer, 0, buffer.Length);
+        }
+
+        public string GetFormat()
+        {
+            return Format;
         }
     }
 }
