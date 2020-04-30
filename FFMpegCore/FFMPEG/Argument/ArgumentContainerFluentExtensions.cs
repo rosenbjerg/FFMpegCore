@@ -82,6 +82,32 @@ namespace FFMpegCore.FFMPEG.Argument.Fluent
             return container;
         }
 
+        public class DrawTextOptions
+        {
+            public string Text { get; set; }
+            public string FontPath { get; set; }
+            public List<(string, string)> Params { get; private set; }
+
+            public DrawTextOptions()
+            {
+                Params = new List<(string, string)>();
+            }
+
+            public DrawTextOptions AddParam(string key, string value)
+            {
+                Params.Add((key, value));
+                return this;
+            }
+        }
+
+        public static ArgumentContainer DrawText(this ArgumentContainer container, Action<DrawTextOptions> builder)
+        {
+            var argumentParams = new DrawTextOptions();
+            builder.Invoke(argumentParams);
+            container.Add(new DrawTextArgument(argumentParams.Text, argumentParams.FontPath, argumentParams.Params.ToArray()));
+            return container;
+        }
+
         public static ArgumentContainer DrawText(this ArgumentContainer container, string text, string fontPath, params (string, string)[] optionalArguments)
         {
             container.Add(new DrawTextArgument(text, fontPath, optionalArguments));
