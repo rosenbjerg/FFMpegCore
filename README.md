@@ -363,7 +363,16 @@ Custom video converting presets could be created with help of `ArgumentsContaine
 var container = new ArgumentsContainer();
 container.Add(new VideoCodecArgument(VideoCodec.LibX264));
 container.Add(new ScaleArgument(VideoSize.Hd));
+```
+or use Fluent API
 
+```csharp
+var container = new ArgumentContainer()
+                .VideoCodec(VideoCodec.LibX264)
+                .Scale(VideoSize.Hd);
+```
+
+```csharp
 var ffmpeg = new FFMpeg();
 var result = ffmpeg.Convert(container, new FileInfo("input.mp4"), new FileInfo("output.mp4"));
 ```
