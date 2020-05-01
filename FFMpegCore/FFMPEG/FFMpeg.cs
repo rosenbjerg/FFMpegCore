@@ -395,7 +395,7 @@ namespace FFMpegCore.FFMPEG
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
-            return new VideoInfo(output);
+            return output.Exists ? new VideoInfo(output) : null;
         }
         public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
@@ -406,7 +406,7 @@ namespace FFMpegCore.FFMPEG
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
-            return new VideoInfo(output);
+            return output.Exists ? new VideoInfo(output) : null;
         }
 
         private static (VideoInfo[] Input, FileInfo Output) GetInputOutput(ArgumentContainer arguments)
