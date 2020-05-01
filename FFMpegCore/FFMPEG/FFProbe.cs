@@ -72,7 +72,7 @@ namespace FFMpegCore.FFMPEG
         {
             var metadata = JsonConvert.DeserializeObject<FFMpegStreamMetadata>(probeOutput);
 
-            if (metadata.Streams == null || metadata.Streams.Count == 0)
+            if (metadata?.Streams == null || metadata.Streams.Count == 0)
             {
                 throw new FFMpegException(FFMpegExceptionType.File, $"No video or audio streams could be detected. Source: ${info.FullName}");
             }
