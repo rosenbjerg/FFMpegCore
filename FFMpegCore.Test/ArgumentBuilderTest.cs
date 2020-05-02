@@ -234,10 +234,10 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_Raw()
         {
-            var str = GetArgumentsString(new RawArgument(null));
+            var str = GetArgumentsString(new CustomArgument(null));
             Assert.AreEqual(str, "-i \"input.mp4\"  \"output.mp4\"");
 
-            str = GetArgumentsString(new RawArgument("-acodec copy"));
+            str = GetArgumentsString(new CustomArgument("-acodec copy"));
             Assert.AreEqual(str, "-i \"input.mp4\" -acodec copy \"output.mp4\"");
         }
     }
