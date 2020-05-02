@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -102,8 +103,8 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <returns></returns>
         public bool ContainsInputOutput()
         {
-            return CountExistedKeys(typeof(InputArgument), typeof(ConcatArgument), typeof(InputPipeArgument)) == 1 &&
-                   CountExistedKeys(typeof(OutputArgument), typeof(OutputPipeArgument)) == 1;
+            return ContainsOnlyOneOf(typeof(InputArgument), typeof(ConcatArgument), typeof(InputPipeArgument)) &&
+                   ContainsOnlyOneOf(typeof(OutputArgument), typeof(OutputPipeArgument));
         }
 
         /// <summary>
@@ -116,14 +117,9 @@ namespace FFMpegCore.FFMPEG.Argument
             return _args.ContainsKey(key);
         }
 
-        public int CountExistedKeys(params Type[] types)
+        public bool ContainsOnlyOneOf(params Type[] types)
         {
-            int count = 0;
-            for(int i =0; i < types.Length; i++)
-                if (_args.ContainsKey(types[i]))
-                    count++;
-
-            return count;
+            return types.Count(t => _args.ContainsKey(t)) == 1;
         }
 
         public void CopyTo(KeyValuePair<Type, Argument>[] array, int arrayIndex)
