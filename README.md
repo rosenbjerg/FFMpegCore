@@ -358,9 +358,9 @@ public enum VideoCodec
 }
 ```
 ### ArgumentBuilder
-Custom video converting presets could be created with help of `ArgumentsContainer` class:
+Custom video converting presets could be created with help of `ArgumentContainer` class:
 ```csharp
-var container = new ArgumentsContainer();
+var container = new ArgumentContainer();
 container.Add(new VideoCodecArgument(VideoCodec.LibX264));
 container.Add(new ScaleArgument(VideoSize.Hd));
 
@@ -368,7 +368,7 @@ var ffmpeg = new FFMpeg();
 var result = ffmpeg.Convert(container, new FileInfo("input.mp4"), new FileInfo("output.mp4"));
 ```
 
-Other availible arguments could be found in `FFMpegCore.FFMPEG.Arguments` namespace.
+Other availible arguments could be found in `FFMpegCore.FFMPEG.Argument` namespace.
 
 If you need to create your custom argument, you just need to create new class, that is inherited from `Argument`, `Argument<T>` or `Argument<T1, T2>`
 For example:
