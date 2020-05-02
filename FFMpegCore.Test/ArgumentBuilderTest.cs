@@ -50,8 +50,22 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_AudioCodec()
         {
-            var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal));
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"");
+            var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac));
+            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac \"output.mp4\"");
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioBitrate()
+        {
+            var str = GetArgumentsString(new AudioBitrateArgument(AudioQuality.Normal));
+            Assert.AreEqual(str, "-i \"input.mp4\" -b:a 128k \"output.mp4\"");
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Quiet()
+        {
+            var str = GetArgumentsString(new QuietArgument());
+            Assert.AreEqual(str, "-i \"input.mp4\" -hide_banner -loglevel warning \"output.mp4\"");
         }
 
         [TestMethod]
