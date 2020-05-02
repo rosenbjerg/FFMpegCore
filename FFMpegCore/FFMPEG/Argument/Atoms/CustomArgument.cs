@@ -1,8 +1,8 @@
 ﻿namespace FFMpegCore.FFMPEG.Argument
 {
-    public class RawArgument : Argument<string>
+    public class CustomArgument : Argument<string>
     {
-        public RawArgument(string argument) : base(argument)
+        public CustomArgument(string argument) : base(argument)
         {
         }
 
