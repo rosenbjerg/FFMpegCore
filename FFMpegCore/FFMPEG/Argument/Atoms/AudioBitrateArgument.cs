@@ -5,14 +5,15 @@ namespace FFMpegCore.FFMPEG.Argument
     /// <summary>
     /// Represents parameter of audio codec and it's quality
     /// </summary>
-    public class AudioCodecArgument : Argument<AudioCodec>
+    public class AudioBitrateArgument : Argument<int>
     {
-        public AudioCodecArgument(AudioCodec value) : base(value) { }
+        public AudioBitrateArgument(AudioQuality value) : base((int)value) { }
+        public AudioBitrateArgument(int bitrate) : base(bitrate) { }
 
         /// <inheritdoc/>
         public override string GetStringValue()
         {
-            return $"-c:a {Value.ToString().ToLower()}";
+            return $"-b:a {Value}k";
         }
     }
 }
