@@ -8,6 +8,7 @@ namespace FFMpegCore
 {
     public class VideoInfo
     {
+        private const string NoVideoPlaceholder = "NULL";
         private FileInfo _file;
 
         internal VideoInfo()
@@ -148,10 +149,10 @@ namespace FFMpegCore
         /// <returns></returns>
         public override string ToString()
         {
-            return "Video Path : " + FullName + Environment.NewLine +
-                   "Video Root : " + Directory.FullName + Environment.NewLine +
-                   "Video Name: " + Name + Environment.NewLine +
-                   "Video Extension : " + Extension + Environment.NewLine +
+            return "Video Path : " + (_file != null ? FullName : NoVideoPlaceholder) + Environment.NewLine +
+                   "Video Root : " + (_file != null ? Directory.FullName : NoVideoPlaceholder) + Environment.NewLine +
+                   "Video Name: " + (_file != null ? Name : NoVideoPlaceholder) + Environment.NewLine +
+                   "Video Extension : " + (_file != null ? Extension : NoVideoPlaceholder) + Environment.NewLine +
                    "Video Duration : " + Duration + Environment.NewLine +
                    "Audio Format : " + AudioFormat + Environment.NewLine +
                    "Video Format : " + VideoFormat + Environment.NewLine +
