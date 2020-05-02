@@ -16,21 +16,11 @@ namespace FFMpegCore.FFMPEG.Pipes
             DestanationStream = destanationStream;
         }
 
-        public void ReadData(System.IO.Stream stream)
-        {
-            int read;
-            var buffer = new byte[BlockSize];
-            while ((read = stream.Read(buffer, 0, buffer.Length)) != 0)
-                DestanationStream.Write(buffer, 0, buffer.Length);
-        }
+        public void ReadData(System.IO.Stream stream) =>
+            stream.CopyTo(DestanationStream, BlockSize);
 
-        public async Task ReadDataAsync(System.IO.Stream stream)
-        {
-            int read;
-            var buffer = new byte[BlockSize];
-            while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
-                await DestanationStream.WriteAsync(buffer, 0, buffer.Length);
-        }
+        public Task ReadDataAsync(System.IO.Stream stream) =>
+            stream.CopyToAsync(DestanationStream, BlockSize);
 
         public string GetFormat()
         {
