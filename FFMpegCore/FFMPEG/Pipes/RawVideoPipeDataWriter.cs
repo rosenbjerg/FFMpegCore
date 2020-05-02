@@ -11,9 +11,9 @@ namespace FFMpegCore.FFMPEG.Pipes
     /// </summary>
     public class RawVideoPipeDataWriter : IPipeDataWriter
     {
-        public string StreamFormat { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public string StreamFormat { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
         public int FrameRate { get; set; } = 25;
         private IEnumerator<IVideoFrame> framesEnumerator;
 
