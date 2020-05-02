@@ -151,7 +151,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibX264, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.Aac, audioQuality),
+                    new AudioCodecArgument(AudioCodec.Aac),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 VideoType.Ogv => Convert(new ArgumentContainer(
                     new InputArgument(source),
@@ -159,7 +160,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibTheora, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new AudioCodecArgument(AudioCodec.LibVorbis),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 VideoType.Ts => Convert(new ArgumentContainer(
                     new InputArgument(source),
@@ -173,7 +175,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibVpx, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new AudioCodecArgument(AudioCodec.LibVorbis),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
@@ -196,7 +199,8 @@ namespace FFMpegCore.FFMPEG
                 new InputArgument(image.FullName, audio.FullName),
                 new LoopArgument(1),
                 new VideoCodecArgument(VideoCodec.LibX264, 2400),
-                new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal),
+                new AudioCodecArgument(AudioCodec.Aac),
+                new AudioBitrateArgument(AudioQuality.Normal),
                 new ShortestArgument(true),
                 new OutputArgument(output)
             );
@@ -377,7 +381,8 @@ namespace FFMpegCore.FFMPEG
             return Convert(new ArgumentContainer(
                 new InputArgument(source.FullName, audio.FullName),
                 new CopyArgument(),
-                new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Hd),
+                new AudioCodecArgument(AudioCodec.Aac),
+                new AudioBitrateArgument(AudioQuality.Hd),
                 new ShortestArgument(stopAtShortest),
                 new OutputArgument(output)
             ));
@@ -394,9 +399,7 @@ namespace FFMpegCore.FFMPEG
 
             _totalTime = TimeSpan.MinValue;
 
-            if (output == null)
-                return null;
-            return new VideoInfo(output);
+            return output != null && output.Exists ? new VideoInfo(output) : null;
         }
         public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
@@ -408,9 +411,8 @@ namespace FFMpegCore.FFMPEG
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
-            if (output == null)
-                return null;
-            return new VideoInfo(output);
+
+            return output != null && output.Exists ? new VideoInfo(output) : null;
         }
 
         private static (VideoInfo[] Input, FileInfo Output) GetInputOutput(ArgumentContainer arguments)
