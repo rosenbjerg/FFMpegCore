@@ -19,25 +19,11 @@ namespace FFMpegCore.FFMPEG.Pipes
             Source = stream;
         }
 
-        public void WriteData(System.IO.Stream pipe)
-        {
-            var buffer = new byte[BlockSize];
-            int read;
-            while ((read = Source.Read(buffer, 0, buffer.Length)) != 0)
-            {
-                pipe.Write(buffer, 0, read);
-            }
-        }
+        public void WriteData(System.IO.Stream pipe)=>
+            Source.CopyTo(pipe, BlockSize);
 
-        public async Task WriteDataAsync(System.IO.Stream pipe)
-        {
-            var buffer = new byte[BlockSize];
-            int read;
-            while ((read = await Source.ReadAsync(buffer, 0, buffer.Length)) != 0)
-            {
-                await pipe.WriteAsync(buffer, 0, read);
-            }
-        }
+        public Task WriteDataAsync(System.IO.Stream pipe) =>
+            Source.CopyToAsync(pipe, BlockSize);
 
         public string GetFormat()
         {
