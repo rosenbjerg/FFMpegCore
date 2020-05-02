@@ -1,4 +1,5 @@
 ﻿using FFMpegCore.FFMPEG.Argument;
+using FFMpegCore.FFMPEG.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +16,7 @@ namespace FFMpegCore.FFMPEG.Pipes
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int FrameRate { get; set; } = 25;
+        private bool formatInitialized = false;
         private IEnumerator<IVideoFrame> framesEnumerator;
 
         public RawVideoPipeDataWriter(IEnumerator<IVideoFrame> framesEnumerator)
@@ -26,16 +28,20 @@ namespace FFMpegCore.FFMPEG.Pipes
 
         public string GetFormat()
         {
-            //see input format references https://lists.ffmpeg.org/pipermail/ffmpeg-user/2012-July/007742.html
-            if (framesEnumerator.Current == null)
+            if (!formatInitialized)
             {
-                if (!framesEnumerator.MoveNext())
-                    throw new InvalidOperationException("Enumerator is empty, unable to get frame");
-            }
-            StreamFormat = framesEnumerator.Current.Format;
-            Width = framesEnumerator.Current.Width;
-            Height = framesEnumerator.Current.Height;
+                //see input format references https://lists.ffmpeg.org/pipermail/ffmpeg-user/2012-July/007742.html
+                if (framesEnumerator.Current == null)
+                {
+                    if (!framesEnumerator.MoveNext())
+                        throw new InvalidOperationException("Enumerator is empty, unable to get frame");
+                }
+                StreamFormat = framesEnumerator.Current.Format;
+                Width = framesEnumerator.Current.Width;
+                Height = framesEnumerator.Current.Height;
 
+                formatInitialized = true;
+            }
 
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
@@ -44,11 +50,13 @@ namespace FFMpegCore.FFMPEG.Pipes
         {
             if (framesEnumerator.Current != null)
             {
+                CheckFrameAndThrow(framesEnumerator.Current);
                 framesEnumerator.Current.Serialize(stream);
             }
 
             while (framesEnumerator.MoveNext())
             {
+                CheckFrameAndThrow(framesEnumerator.Current);
                 framesEnumerator.Current.Serialize(stream);
             }
         }
@@ -66,5 +74,12 @@ namespace FFMpegCore.FFMPEG.Pipes
             }
         }
 
+        private void CheckFrameAndThrow(IVideoFrame frame)
+        {
+            if (frame.Width != Width || frame.Height != Height || frame.Format != StreamFormat)
+                throw new FFMpegException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
+                    $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
+                    $"Stream format: {Width}x{Height} pix_fmt: {StreamFormat}");
+        }
     }
 }
