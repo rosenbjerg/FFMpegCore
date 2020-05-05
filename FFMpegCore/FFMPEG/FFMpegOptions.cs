@@ -12,8 +12,17 @@ namespace FFMpegCore.FFMPEG
 
         public static FFMpegOptions Options { get; private set; } = new FFMpegOptions();
 
+        public static void Configure(Action<FFMpegOptions> optionsAction)
+        {
+            optionsAction?.Invoke(Options);
+        }
+
         public static void Configure(FFMpegOptions options)
         {
+            if (null == options)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
             Options = options;
         }
 
