@@ -94,7 +94,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_AudioCodec_Fluent()
         {
-            var str = GetArgumentsString(new ArgumentContainer().AudioCodec(AudioCodec.Aac, AudioQuality.Normal));
+            var str = GetArgumentsString(new ArgumentContainer().AudioCodec(AudioCodec.Aac));
             Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"");
         }
 
