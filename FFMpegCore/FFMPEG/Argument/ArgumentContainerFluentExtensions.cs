@@ -16,15 +16,14 @@ namespace FFMpegCore.FFMPEG.Argument.Fluent
             return container;
         }
 
-        public static ArgumentContainer AudioCodec(this ArgumentContainer container, AudioCodec codec, AudioQuality bitrate)
+        public static ArgumentContainer AudioBitrate(this ArgumentContainer container, AudioQuality audioQuality)
         {
-            container.Add(new AudioCodecArgument(codec, bitrate));
+            container.Add(new AudioBitrateArgument(audioQuality));
             return container;
         }
-
-        public static ArgumentContainer AudioCodec(this ArgumentContainer container, AudioCodec codec, int bitrate)
+        public static ArgumentContainer AudioBitrate(this ArgumentContainer container, int bitrate)
         {
-            container.Add(new AudioCodecArgument(codec, bitrate));
+            container.Add(new AudioBitrateArgument(bitrate));
             return container;
         }
 
