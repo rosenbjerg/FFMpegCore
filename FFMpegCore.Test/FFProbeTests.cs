@@ -31,5 +31,30 @@ namespace FFMpegCore.Test
             
             Assert.AreEqual(13, info.Duration.Seconds);
         }
+
+        [TestMethod]
+        public void Probe_Success_FromStream()
+        {
+            var output = new FFProbe();
+
+            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
+            {
+                var info = output.ParseVideoInfo(stream);
+                Assert.AreEqual(13, info.Duration.Seconds);
+            }
+        }
+
+        [TestMethod]
+        public void Probe_Success_FromStream_Async()
+        {
+            var output = new FFProbe();
+
+            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
+            {
+                var info = output.ParseVideoInfoAsync(stream).WaitForResult();
+                
+                Assert.AreEqual(13, info.Duration.Seconds);
+            }
+        }
     }
 }

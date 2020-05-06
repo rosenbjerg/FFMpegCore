@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -15,7 +16,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             _args = new Dictionary<Type, Argument>();
 
-            foreach(var argument in arguments)
+            foreach (var argument in arguments)
             {
                 Add(argument);
             }
@@ -28,7 +29,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             if (_args.TryGetValue(typeof(T), out var arg))
             {
-                output = (T) arg;
+                output = (T)arg;
                 return true;
             }
 
@@ -90,7 +91,7 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <param name="value">Argument that should be added to collection</param>
         public void Add(params Argument[] values)
         {
-            foreach(var value in values) 
+            foreach (var value in values)
             {
                 _args.Add(value.GetType(), value);
             }
@@ -102,9 +103,8 @@ namespace FFMpegCore.FFMPEG.Argument
         /// <returns></returns>
         public bool ContainsInputOutput()
         {
-            return ((ContainsKey(typeof(InputArgument)) && !ContainsKey(typeof(ConcatArgument))) ||
-                    (!ContainsKey(typeof(InputArgument)) && ContainsKey(typeof(ConcatArgument))))
-                    && ContainsKey(typeof(OutputArgument));
+            return ContainsOnlyOneOf(typeof(InputArgument), typeof(ConcatArgument), typeof(InputPipeArgument)) &&
+                   ContainsOnlyOneOf(typeof(OutputArgument), typeof(OutputPipeArgument));
         }
 
         /// <summary>
@@ -115,6 +115,11 @@ namespace FFMpegCore.FFMPEG.Argument
         public bool ContainsKey(Type key)
         {
             return _args.ContainsKey(key);
+        }
+
+        public bool ContainsOnlyOneOf(params Type[] types)
+        {
+            return types.Count(t => _args.ContainsKey(t)) == 1;
         }
 
         public void CopyTo(KeyValuePair<Type, Argument>[] array, int arrayIndex)

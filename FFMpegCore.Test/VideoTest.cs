@@ -1,6 +1,8 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Enums;
+using FFMpegCore.FFMPEG.Exceptions;
+using FFMpegCore.FFMPEG.Pipes;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -62,6 +64,109 @@ namespace FFMpegCore.Test
             }
         }
 
+        private void ConvertFromStreamPipe(VideoType type, ArgumentContainer container)
+        {
+            var output = Input.OutputLocation(type);
+
+            try
+            {
+                var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoWebm);
+                using (var inputStream = System.IO.File.OpenRead(input.FullName))
+                {
+                    var pipeSource = new StreamPipeDataWriter(inputStream);
+                    var arguments = new ArgumentContainer { new InputPipeArgument(pipeSource) };
+                    foreach (var arg in container)
+                    {
+                        arguments.Add(arg.Value);
+                    }
+                    arguments.Add(new OutputArgument(output));
+
+                    var scaling = container.Find<ScaleArgument>();
+
+                    Encoder.Convert(arguments);
+
+                    var outputVideo = new VideoInfo(output.FullName);
+
+                    Assert.IsTrue(File.Exists(output.FullName));
+                    Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.FrameRate);
+
+                    if (scaling == null)
+                    {
+                        Assert.AreEqual(outputVideo.Width, input.Width);
+                        Assert.AreEqual(outputVideo.Height, input.Height);
+                    }
+                    else
+                    {
+                        if (scaling.Value.Width != -1)
+                        {
+                            Assert.AreEqual(outputVideo.Width, scaling.Value.Width);
+                        }
+
+                        if (scaling.Value.Height != -1)
+                        {
+                            Assert.AreEqual(outputVideo.Height, scaling.Value.Height);
+                        }
+
+                        Assert.AreNotEqual(outputVideo.Width, input.Width);
+                        Assert.AreNotEqual(outputVideo.Height, input.Height);
+                    }
+                }
+            }
+            finally
+            {
+                if (File.Exists(output.FullName))
+                    File.Delete(output.FullName);
+            }
+        }
+
+        private void ConvertToStreamPipe(VideoType type, ArgumentContainer container)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
+                var arguments = new ArgumentContainer { new InputArgument(input) };
+
+                foreach (var arg in container)
+                {
+                    arguments.Add(arg.Value);
+                }
+
+                var streamPipeDataReader = new StreamPipeDataReader(ms);
+                streamPipeDataReader.BlockSize = streamPipeDataReader.BlockSize * 16;
+                arguments.Add(new OutputPipeArgument(streamPipeDataReader));
+
+                var scaling = container.Find<ScaleArgument>();
+
+                Encoder.Convert(arguments);
+
+                ms.Position = 0;
+                var outputVideo = VideoInfo.FromStream(ms);
+
+                //Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.FrameRate);
+
+                if (scaling == null)
+                {
+                    Assert.AreEqual(outputVideo.Width, input.Width);
+                    Assert.AreEqual(outputVideo.Height, input.Height);
+                }
+                else
+                {
+                    if (scaling.Value.Width != -1)
+                    {
+                        Assert.AreEqual(outputVideo.Width, scaling.Value.Width);
+                    }
+
+                    if (scaling.Value.Height != -1)
+                    {
+                        Assert.AreEqual(outputVideo.Height, scaling.Value.Height);
+                    }
+
+                    Assert.AreNotEqual(outputVideo.Width, input.Width);
+                    Assert.AreNotEqual(outputVideo.Height, input.Height);
+                }
+            }
+        }
+
         public void Convert(VideoType type, ArgumentContainer container)
         {
             var output = Input.OutputLocation(type);
@@ -70,7 +175,7 @@ namespace FFMpegCore.Test
             {
                 var input = VideoInfo.FromFileInfo(Input);
 
-                var arguments = new ArgumentContainer {new InputArgument(input)};
+                var arguments = new ArgumentContainer { new InputArgument(input) };
                 foreach (var arg in container)
                 {
                     arguments.Add(arg.Value);
@@ -114,6 +219,64 @@ namespace FFMpegCore.Test
             }
         }
 
+        public void ConvertFromPipe(VideoType type, ArgumentContainer container)
+        {
+            ConvertFromPipe(type, container, PixelFormat.Format24bppRgb);
+            ConvertFromPipe(type, container, PixelFormat.Format32bppArgb);
+            ConvertFromPipe(type, container, PixelFormat.Format48bppRgb);
+        }
+
+        public void ConvertFromPipe(VideoType type, ArgumentContainer container, PixelFormat fmt)
+        {
+            var output = Input.OutputLocation(type);
+
+            try
+            {
+                var videoFramesSource = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
+                var arguments = new ArgumentContainer { new InputPipeArgument(videoFramesSource) };
+                foreach (var arg in container)
+                {
+                    arguments.Add(arg.Value);
+                }
+                arguments.Add(new OutputArgument(output));
+
+                var scaling = container.Find<ScaleArgument>();
+
+                Encoder.Convert(arguments);
+
+                var outputVideo = new VideoInfo(output.FullName);
+
+                Assert.IsTrue(File.Exists(output.FullName));
+
+                if (scaling == null)
+                {
+                    Assert.AreEqual(outputVideo.Width, videoFramesSource.Width);
+                    Assert.AreEqual(outputVideo.Height, videoFramesSource.Height);
+                }
+                else
+                {
+                    if (scaling.Value.Width != -1)
+                    {
+                        Assert.AreEqual(outputVideo.Width, scaling.Value.Width);
+                    }
+
+                    if (scaling.Value.Height != -1)
+                    {
+                        Assert.AreEqual(outputVideo.Height, scaling.Value.Height);
+                    }
+
+                    Assert.AreNotEqual(outputVideo.Width, videoFramesSource.Width);
+                    Assert.AreNotEqual(outputVideo.Height, videoFramesSource.Height);
+                }
+            }
+            finally
+            {
+                if (File.Exists(output.FullName))
+                    File.Delete(output.FullName);
+            }
+
+        }
+
         [TestMethod]
         public void Video_ToMP4()
         {
@@ -123,8 +286,88 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Args()
         {
-            var container = new ArgumentContainer {new VideoCodecArgument(VideoCodec.LibX264)};
+            var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
             Convert(VideoType.Mp4, container);
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_Pipe()
+        {
+            var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
+            ConvertFromPipe(VideoType.Mp4, container);
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamPipe()
+        {
+            var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
+            ConvertFromStreamPipe(VideoType.Mp4, container);
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
+        {
+            Assert.ThrowsException<FFMpegException>(() =>
+            {
+                using (var ms = new MemoryStream())
+                {
+                    var pipeSource = new StreamPipeDataReader(ms);
+                    var container = new ArgumentContainer
+                    {
+                            new InputArgument(VideoLibrary.LocalVideo),
+                            new VideoCodecArgument(VideoCodec.LibX264),
+                            new ForceFormatArgument("mkv"),
+                            new OutputPipeArgument(pipeSource)
+                    };
+
+                    var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoWebm);
+                    Encoder.ConvertAsync(container).WaitForResult();
+                }
+            });
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamOutputPipe_Failure()
+        {
+            Assert.ThrowsException<FFMpegException>(() =>
+            {
+                var container = new ArgumentContainer
+                {
+                    new ForceFormatArgument("mkv")
+                };
+                ConvertToStreamPipe(VideoType.Mp4, container);
+            });
+        }
+
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamOutputPipe_Async()
+        {
+            using (var ms = new MemoryStream())
+            {
+                var pipeSource = new StreamPipeDataReader(ms);
+                var container = new ArgumentContainer
+                {
+                    new InputArgument(VideoLibrary.LocalVideo),
+                    new VideoCodecArgument(VideoCodec.LibX264),
+                    new ForceFormatArgument("matroska"),
+                    new OutputPipeArgument(pipeSource)
+                };
+
+                var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoWebm);
+                Encoder.ConvertAsync(container).WaitForResult();
+            }
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Args_StreamOutputPipe()
+        {
+            var container = new ArgumentContainer
+            {
+                new VideoCodecArgument(VideoCodec.LibX264),
+                new ForceFormatArgument("matroska")
+            };
+            ConvertToStreamPipe(VideoType.Mp4, container);
         }
 
         [TestMethod]
@@ -145,6 +388,15 @@ namespace FFMpegCore.Test
             Convert(VideoType.Ts, container);
         }
 
+        [TestMethod]
+        public void Video_ToTS_Args_Pipe()
+        {
+            var container = new ArgumentContainer
+            {
+                new ForceFormatArgument(VideoCodec.MpegTs)
+            };
+            ConvertFromPipe(VideoType.Ts, container);
+        }
 
         [TestMethod]
         public void Video_ToOGV_Resize()
@@ -157,10 +409,21 @@ namespace FFMpegCore.Test
         {
             var container = new ArgumentContainer
             {
-                new ScaleArgument(VideoSize.Ed), 
+                new ScaleArgument(VideoSize.Ed),
                 new VideoCodecArgument(VideoCodec.LibTheora)
             };
             Convert(VideoType.Ogv, container);
+        }
+
+        [TestMethod]
+        public void Video_ToOGV_Resize_Args_Pipe()
+        {
+            var container = new ArgumentContainer
+            {
+                new ScaleArgument(VideoSize.Ed),
+                new VideoCodecArgument(VideoCodec.LibTheora)
+            };
+            ConvertFromPipe(VideoType.Ogv, container);
         }
 
         [TestMethod]
@@ -174,10 +437,21 @@ namespace FFMpegCore.Test
         {
             var container = new ArgumentContainer
             {
-                new ScaleArgument(VideoSize.Ld), 
+                new ScaleArgument(VideoSize.Ld),
                 new VideoCodecArgument(VideoCodec.LibX264)
             };
             Convert(VideoType.Mp4, container);
+        }
+
+        [TestMethod]
+        public void Video_ToMP4_Resize_Args_Pipe()
+        {
+            var container = new ArgumentContainer
+            {
+                new ScaleArgument(VideoSize.Ld),
+                new VideoCodecArgument(VideoCodec.LibX264)
+            };
+            ConvertFromPipe(VideoType.Mp4, container);
         }
 
         [TestMethod]
@@ -323,9 +597,10 @@ namespace FFMpegCore.Test
             Assert.AreEqual(79.5, video.Duration.TotalSeconds, 0.5);
             Assert.AreEqual(1.25, video.Size);
         }
-        
+
         [TestMethod]
-        public void Video_Duration() {
+        public void Video_Duration()
+        {
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
             var output = Input.OutputLocation(VideoType.Mp4);
 
@@ -336,7 +611,8 @@ namespace FFMpegCore.Test
                 new OutputArgument(output)
             };
 
-            try {
+            try
+            {
                 Encoder.Convert(arguments);
 
                 Assert.IsTrue(File.Exists(output.FullName));
@@ -346,14 +622,17 @@ namespace FFMpegCore.Test
                 Assert.AreEqual(video.Duration.Hours, outputVideo.Duration.Hours);
                 Assert.AreEqual(video.Duration.Minutes, outputVideo.Duration.Minutes);
                 Assert.AreEqual(video.Duration.Seconds - 5, outputVideo.Duration.Seconds);
-            } finally {
+            }
+            finally
+            {
                 if (File.Exists(output.FullName))
                     output.Delete();
             }
         }
-        
+
         [TestMethod]
-        public void Video_UpdatesProgress() {
+        public void Video_UpdatesProgress()
+        {
             var output = Input.OutputLocation(VideoType.Mp4);
 
             var percentageDone = 0.0;
@@ -367,15 +646,43 @@ namespace FFMpegCore.Test
                 new OutputArgument(output)
             };
 
-            try {
+            try
+            {
                 Encoder.Convert(arguments);
                 Encoder.OnProgress -= OnProgess;
-            
+
                 Assert.IsTrue(File.Exists(output.FullName));
                 Assert.AreNotEqual(0.0, percentageDone);
-            } finally {
+            }
+            finally
+            {
                 if (File.Exists(output.FullName))
                     output.Delete();
+            }
+        }
+
+        [TestMethod]
+        public void Video_TranscodeInMemory()
+        {
+            using (var resStream = new MemoryStream())
+            {
+                var reader = new StreamPipeDataReader(resStream);
+                var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, PixelFormat.Format24bppRgb, 128, 128));
+
+                var container = new ArgumentContainer
+                    {
+                            new InputPipeArgument(writer),
+                            new VideoCodecArgument("vp9"),
+                            new ForceFormatArgument("webm"),
+                            new OutputPipeArgument(reader)
+                    };
+
+                Encoder.Convert(container);
+
+                resStream.Position = 0;
+                var vi = VideoInfo.FromStream(resStream);
+                Assert.AreEqual(vi.Width, 128);
+                Assert.AreEqual(vi.Height, 128);
             }
         }
     }

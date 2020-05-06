@@ -5,6 +5,9 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Instances;
+using FFMpegCore.FFMPEG.Argument;
+using FFMpegCore.FFMPEG.Pipes;
+using System.IO;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -47,7 +50,7 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public VideoInfo ParseVideoInfo(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info.FullName)) {DataBufferCapacity = _outputCapacity};
             instance.BlockUntilFinished();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
@@ -59,20 +62,92 @@ namespace FFMpegCore.FFMPEG
         /// <returns>A video info object containing all details necessary.</returns>
         public async Task<VideoInfo> ParseVideoInfoAsync(VideoInfo info)
         {
-            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info)) {DataBufferCapacity = _outputCapacity};
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(info.FullName)) {DataBufferCapacity = _outputCapacity};
             await instance.FinishedRunning();
             var output = string.Join("", instance.OutputData);
             return ParseVideoInfoInternal(info, output);
         }
 
-        private static string BuildFFProbeArguments(VideoInfo info) =>
-            $"-v quiet -print_format json -show_streams \"{info.FullName}\"";
+        /// <summary>
+        ///     Probes the targeted video stream and retrieves all available details.
+        /// </summary>
+        /// <param name="stream">Encoded video stream.</param>
+        /// <returns>A video info object containing all details necessary.</returns>
+        public VideoInfo ParseVideoInfo(System.IO.Stream stream)
+        {
+            var info = new VideoInfo();
+            var streamPipeSource = new StreamPipeDataWriter(stream);
+            var pipeArgument = new InputPipeArgument(streamPipeSource);
+
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
+            pipeArgument.OpenPipe();
+
+            var task = instance.FinishedRunning();
+            try
+            {
+                pipeArgument.ProcessDataAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                pipeArgument.ClosePipe();
+            }
+            catch(IOException)
+            {
+            }
+            finally
+            {
+                pipeArgument.ClosePipe();
+            }
+            var exitCode = task.ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
+
+            var output = string.Join("", instance.OutputData);
+            return ParseVideoInfoInternal(info, output);
+        }
+
+        /// <summary>
+        ///     Probes the targeted video stream asynchronously and retrieves all available details.
+        /// </summary>
+        /// <param name="stream">Encoded video stream.</param>
+        /// <returns>A video info object containing all details necessary.</returns>
+        public async Task<VideoInfo> ParseVideoInfoAsync(System.IO.Stream stream)
+        {
+            var info = new VideoInfo();
+            var streamPipeSource = new StreamPipeDataWriter(stream);
+            var pipeArgument = new InputPipeArgument(streamPipeSource);
+
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(pipeArgument.PipePath)) { DataBufferCapacity = _outputCapacity };
+            pipeArgument.OpenPipe();
+
+            var task = instance.FinishedRunning();
+            try
+            {
+                await pipeArgument.ProcessDataAsync();
+                pipeArgument.ClosePipe();
+            }
+            catch (IOException)
+            {
+            }
+            finally
+            {
+                pipeArgument.ClosePipe();
+            }
+            var exitCode = await task;
+
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
+
+            var output = string.Join("", instance.OutputData);
+            return ParseVideoInfoInternal(info, output);
+        }
+
+        private static string BuildFFProbeArguments(string fullPath) =>
+            $"-v quiet -print_format json -show_streams \"{fullPath}\"";
         
         private VideoInfo ParseVideoInfoInternal(VideoInfo info, string probeOutput)
         {
             var metadata = JsonConvert.DeserializeObject<FFMpegStreamMetadata>(probeOutput);
 
-            if (metadata.Streams == null || metadata.Streams.Count == 0)
+            if (metadata?.Streams == null || metadata.Streams.Count == 0)
             {
                 throw new FFMpegException(FFMpegExceptionType.File, $"No video or audio streams could be detected. Source: ${info.FullName}");
             }
@@ -133,5 +208,21 @@ namespace FFMpegCore.FFMPEG
 
             return info;
         }
+
+        internal FFMpegStreamMetadata GetMetadata(string path)
+        {
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(path)) { DataBufferCapacity = _outputCapacity };
+            instance.BlockUntilFinished();
+            var output = string.Join("", instance.OutputData);
+            return JsonConvert.DeserializeObject<FFMpegStreamMetadata>(output);
+        }
+
+        internal async Task<FFMpegStreamMetadata> GetMetadataAsync(string path)
+        {
+            var instance = new Instance(_ffprobePath, BuildFFProbeArguments(path)) { DataBufferCapacity = _outputCapacity };
+            await instance.FinishedRunning();
+            var output = string.Join("", instance.OutputData);
+            return JsonConvert.DeserializeObject<FFMpegStreamMetadata>(output);
+        }        
     }
 }
