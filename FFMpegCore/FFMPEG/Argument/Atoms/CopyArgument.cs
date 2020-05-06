@@ -8,7 +8,6 @@ namespace FFMpegCore.FFMPEG.Argument
     /// </summary>
     public class CopyArgument : Argument<Channel>
     {
-        public CopyArgument() : base(Channel.Both) { }
         public CopyArgument(Channel value = Channel.Both) : base(value) { }
 
         /// <inheritdoc/>
