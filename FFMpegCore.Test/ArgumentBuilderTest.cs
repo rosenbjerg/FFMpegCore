@@ -10,10 +10,10 @@ namespace FFMpegCore.Test
     [TestClass]
     public class ArgumentBuilderTest : BaseTest
     {
-        List<string> concatFiles = new List<string>
+        private List<string> concatFiles = new List<string>
         { "1.mp4", "2.mp4", "3.mp4", "4.mp4"};
 
-        FFArgumentBuilder builder;
+        private FFArgumentBuilder builder;
 
         public ArgumentBuilderTest() : base()
         {
@@ -22,7 +22,7 @@ namespace FFMpegCore.Test
 
         private string GetArgumentsString(params Argument[] args)
         {
-            var container = new ArgumentContainer {new InputArgument("input.mp4")};
+            var container = new ArgumentContainer { new InputArgument("input.mp4") };
             foreach (var a in args)
             {
                 container.Add(a);
@@ -43,7 +43,6 @@ namespace FFMpegCore.Test
 
             return builder.BuildArguments(resContainer);
         }
-
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
@@ -73,8 +72,22 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_AudioCodec()
         {
-            var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal));
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"");
+            var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac));
+            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac \"output.mp4\"");
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioBitrate()
+        {
+            var str = GetArgumentsString(new AudioBitrateArgument(AudioQuality.Normal));
+            Assert.AreEqual(str, "-i \"input.mp4\" -b:a 128k \"output.mp4\"");
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Quiet()
+        {
+            var str = GetArgumentsString(new QuietArgument());
+            Assert.AreEqual(str, "-i \"input.mp4\" -hide_banner -loglevel warning \"output.mp4\"");
         }
 
 
@@ -104,8 +117,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_Concat()
         {
-            var container = new ArgumentContainer {new ConcatArgument(concatFiles), new OutputArgument("output.mp4")};
-
+            var container = new ArgumentContainer { new ConcatArgument(concatFiles), new OutputArgument("output.mp4") };
 
             var str = builder.BuildArguments(container);
 
@@ -322,7 +334,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_DrawtextFilter()
         {
-            var str = GetArgumentsString(new DrawTextArgument("Stack Overflow", "/path/to/font.ttf", 
+            var str = GetArgumentsString(new DrawTextArgument("Stack Overflow", "/path/to/font.ttf",
                 ("fontcolor", "white"),
                 ("fontsize", "24"),
                 ("box", "1"),
@@ -376,7 +388,7 @@ namespace FFMpegCore.Test
         public void Builder_BuildString_Threads_1()
         {
             var str = GetArgumentsString(new ThreadsArgument(50));
-            
+
             Assert.AreEqual(str, "-i \"input.mp4\" -threads 50 \"output.mp4\"");
         }
 
@@ -395,7 +407,7 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(str, $"-i \"input.mp4\" -threads {Environment.ProcessorCount} \"output.mp4\"");
         }
-
+        
         [TestMethod]
         public void Builder_BuildString_Threads_2_Fluent()
         {
@@ -403,7 +415,6 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(str, $"-i \"input.mp4\" -threads {Environment.ProcessorCount} \"output.mp4\"");
         }
-
 
         [TestMethod]
         public void Builder_BuildString_Codec()
@@ -439,7 +450,8 @@ namespace FFMpegCore.Test
 
 
         [TestMethod]
-        public void Builder_BuildString_Duration() {
+        public void Builder_BuildString_Duration()
+        {
             var str = GetArgumentsString(new DurationArgument(TimeSpan.FromSeconds(20)));
 
             Assert.AreEqual(str, "-i \"input.mp4\" -t 00:00:20 \"output.mp4\"");
@@ -451,6 +463,16 @@ namespace FFMpegCore.Test
             var str = GetArgumentsString(new ArgumentContainer().Duration(TimeSpan.FromSeconds(20)));
 
             Assert.AreEqual(str, "-i \"input.mp4\" -t 00:00:20 \"output.mp4\"");
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Raw()
+        {
+            var str = GetArgumentsString(new CustomArgument(null));
+            Assert.AreEqual(str, "-i \"input.mp4\"  \"output.mp4\"");
+
+            str = GetArgumentsString(new CustomArgument("-acodec copy"));
+            Assert.AreEqual(str, "-i \"input.mp4\" -acodec copy \"output.mp4\"");
         }
     }
 }

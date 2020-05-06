@@ -358,9 +358,9 @@ public enum VideoCodec
 }
 ```
 ### ArgumentBuilder
-Custom video converting presets could be created with help of `ArgumentsContainer` class:
+Custom video converting presets could be created with help of `ArgumentContainer` class:
 ```csharp
-var container = new ArgumentsContainer();
+var container = new ArgumentContainer();
 container.Add(new VideoCodecArgument(VideoCodec.LibX264));
 container.Add(new ScaleArgument(VideoSize.Hd));
 ```
@@ -377,7 +377,7 @@ var ffmpeg = new FFMpeg();
 var result = ffmpeg.Convert(container, new FileInfo("input.mp4"), new FileInfo("output.mp4"));
 ```
 
-Other availible arguments could be found in `FFMpegCore.FFMPEG.Arguments` namespace.
+Other availible arguments could be found in `FFMpegCore.FFMPEG.Argument` namespace.
 
 If you need to create your custom argument, you just need to create new class, that is inherited from `Argument`, `Argument<T>` or `Argument<T1, T2>`
 For example:
@@ -390,6 +390,42 @@ public class OverrideArgument : Argument
     }
 }
 ```
+### Input piping
+With input piping it is possible to write video frames directly from program memory without saving them to jpeg or png and then passing path to input of ffmpeg. This feature also allows us to convert video on-the-fly while frames are beeing generated/created/processed.
+
+`IPipeSource` interface is used as source of data. It could be represented as encoded video stream or raw frames stream. Currently `IPipeSource` interface has single implementation, `RawVideoPipeSource` that is used for raw stream encoding.
+
+For example:
+
+Method that is generate bitmap frames:
+```csharp
+IEnumerable<IVideoFrame> CreateFrames(int count)
+{
+    for(int i = 0; i < count; i++)
+    {
+        yield return GetNextFrame(); //method of generating new frames
+    }
+}
+```
+Then create `ArgumentsContainer` with `InputPipeArgument`
+```csharp
+var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumerable<IVideoFrame> or IEnumerator<IVideoFrame> to constructor of RawVideoPipeSource
+{
+    FrameRate = 30 //set source frame rate
+};
+var container = new ArgumentsContainer
+{
+    new InputPipeArgument(videoFramesSource),
+    ... //Other encoding arguments
+    new OutputArgument("temporary.mp4")
+};
+
+var ffmpeg = new FFMpeg();
+var result = ffmpeg.Convert(arguments);
+```
+
+if you want to use `System.Drawing.Bitmap` as `IVideoFrame`, there is `BitmapVideoFrameWrapper` wrapper class.
+
 ## Contributors
 
 <a href="https://github.com/vladjerca"><img src="https://avatars.githubusercontent.com/u/6339681?v=4" title="vladjerca" width="80" height="80"></a>

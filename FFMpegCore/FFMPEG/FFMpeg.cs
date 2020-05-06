@@ -15,6 +15,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Instances;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace FFMpegCore.FFMPEG
 {
@@ -65,16 +67,16 @@ namespace FFMpegCore.FFMPEG
             {
                 if (size.Value.Width == 0)
                 {
-                    var ratio = source.Width / (double) size.Value.Width;
+                    var ratio = source.Width / (double)size.Value.Width;
 
-                    size = new Size((int) (source.Width * ratio), (int) (source.Height * ratio));
+                    size = new Size((int)(source.Width * ratio), (int)(source.Height * ratio));
                 }
 
                 if (size.Value.Height == 0)
                 {
-                    var ratio = source.Height / (double) size.Value.Height;
+                    var ratio = source.Height / (double)size.Value.Height;
 
-                    size = new Size((int) (source.Width * ratio), (int) (source.Height * ratio));
+                    size = new Size((int)(source.Width * ratio), (int)(source.Height * ratio));
                 }
             }
 
@@ -96,7 +98,7 @@ namespace FFMpegCore.FFMPEG
             output.Refresh();
 
             Bitmap result;
-            using (var bmp = (Bitmap) Image.FromFile(output.FullName))
+            using (var bmp = (Bitmap)Image.FromFile(output.FullName))
             {
                 using var ms = new MemoryStream();
                 bmp.Save(ms, ImageFormat.Png);
@@ -135,8 +137,8 @@ namespace FFMpegCore.FFMPEG
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.ForType(type));
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
-            var scale = VideoSize.Original == size ? 1 : (double) source.Height / (int) size;
-            var outputSize = new Size((int) (source.Width / scale), (int) (source.Height / scale));
+            var scale = VideoSize.Original == size ? 1 : (double)source.Height / (int)size;
+            var outputSize = new Size((int)(source.Width / scale), (int)(source.Height / scale));
 
             if (outputSize.Width % 2 != 0)
                 outputSize.Width += 1;
@@ -149,7 +151,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibX264, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.Aac, audioQuality),
+                    new AudioCodecArgument(AudioCodec.Aac),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 VideoType.Ogv => Convert(new ArgumentContainer(
                     new InputArgument(source),
@@ -157,7 +160,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibTheora, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new AudioCodecArgument(AudioCodec.LibVorbis),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 VideoType.Ts => Convert(new ArgumentContainer(
                     new InputArgument(source),
@@ -171,7 +175,8 @@ namespace FFMpegCore.FFMPEG
                     new ScaleArgument(outputSize),
                     new VideoCodecArgument(VideoCodec.LibVpx, 2400),
                     new SpeedArgument(speed),
-                    new AudioCodecArgument(AudioCodec.LibVorbis, audioQuality),
+                    new AudioCodecArgument(AudioCodec.LibVorbis),
+                    new AudioBitrateArgument(audioQuality),
                     new OutputArgument(output))),
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
@@ -194,7 +199,8 @@ namespace FFMpegCore.FFMPEG
                 new InputArgument(image.FullName, audio.FullName),
                 new LoopArgument(1),
                 new VideoCodecArgument(VideoCodec.LibX264, 2400),
-                new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Normal),
+                new AudioCodecArgument(AudioCodec.Aac),
+                new AudioBitrateArgument(AudioQuality.Normal),
                 new ShortestArgument(true),
                 new OutputArgument(output)
             );
@@ -279,7 +285,7 @@ namespace FFMpegCore.FFMPEG
                     throw new FFMpegException(FFMpegExceptionType.Operation,
                         "Could not join the provided image sequence.");
                 }
-                
+
                 return new VideoInfo(output);
             }
             finally
@@ -375,43 +381,57 @@ namespace FFMpegCore.FFMPEG
             return Convert(new ArgumentContainer(
                 new InputArgument(source.FullName, audio.FullName),
                 new CopyArgument(),
-                new AudioCodecArgument(AudioCodec.Aac, AudioQuality.Hd),
+                new AudioCodecArgument(AudioCodec.Aac),
+                new AudioBitrateArgument(AudioQuality.Hd),
                 new ShortestArgument(stopAtShortest),
                 new OutputArgument(output)
             ));
         }
-        
+
         public VideoInfo Convert(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
             var (sources, output) = GetInputOutput(arguments);
-            _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
+            if (sources != null)
+                _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
 
             if (!RunProcess(arguments, output, skipExistsCheck))
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
-            return new VideoInfo(output);
+
+            return output != null && output.Exists ? new VideoInfo(output) : null;
         }
         public async Task<VideoInfo> ConvertAsync(ArgumentContainer arguments, bool skipExistsCheck = false)
         {
             var (sources, output) = GetInputOutput(arguments);
-            _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
+            if (sources != null)
+                _totalTime = TimeSpan.FromSeconds(sources.Sum(source => source.Duration.TotalSeconds));
 
             if (!await RunProcessAsync(arguments, output, skipExistsCheck))
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Could not process file without error");
 
             _totalTime = TimeSpan.MinValue;
-            return new VideoInfo(output);
+
+            return output != null && output.Exists ? new VideoInfo(output) : null;
         }
 
         private static (VideoInfo[] Input, FileInfo Output) GetInputOutput(ArgumentContainer arguments)
         {
-            var output = ((OutputArgument) arguments[typeof(OutputArgument)]).GetAsFileInfo();
+            FileInfo output;
+            if (arguments.TryGetArgument<OutputArgument>(out var outputArg))
+                output = outputArg.GetAsFileInfo();
+            else if (arguments.TryGetArgument<OutputPipeArgument>(out var outputPipeArg))
+                output = null;
+            else
+                throw new FFMpegException(FFMpegExceptionType.Operation, "No output argument found");
+
             VideoInfo[] sources;
             if (arguments.TryGetArgument<InputArgument>(out var input))
                 sources = input.GetAsVideoInfo();
             else if (arguments.TryGetArgument<ConcatArgument>(out var concat))
                 sources = concat.GetAsVideoInfo();
+            else if (arguments.TryGetArgument<InputPipeArgument>(out var pipe))
+                sources = null;
             else
                 throw new FFMpegException(FFMpegExceptionType.Operation, "No input or concat argument found");
             return (sources, output);
@@ -442,12 +462,71 @@ namespace FFMpegCore.FFMPEG
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
-            
+            var exitCode = -1;
+
+            if (container.TryGetArgument<InputPipeArgument>(out var inputPipeArgument))
+            {
+                inputPipeArgument.OpenPipe();
+            }
+            if (container.TryGetArgument<OutputPipeArgument>(out var outputPipeArgument))
+            {
+                outputPipeArgument.OpenPipe();
+            }
+
+
             _instance = new Instance(_ffmpegPath, arguments);
             _instance.DataReceived += OutputData;
-            var exitCode = _instance.BlockUntilFinished();
-            
-            if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
+
+            if (inputPipeArgument != null || outputPipeArgument != null)
+            {
+                try
+                {
+                    using (var tokenSource = new CancellationTokenSource())
+                    {
+                        var concurrentTasks = new List<Task>();
+                        concurrentTasks.Add(_instance.FinishedRunning()
+                            .ContinueWith((t =>
+                            {
+                                exitCode = t.Result;
+                                if (exitCode != 0)
+                                    tokenSource.Cancel();
+                            })));
+                        if (inputPipeArgument != null)
+                            concurrentTasks.Add(inputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    inputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+                        if (outputPipeArgument != null)
+                            concurrentTasks.Add(outputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    outputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+
+                        Task.WaitAll(concurrentTasks.ToArray()/*, tokenSource.Token*/);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    inputPipeArgument?.ClosePipe();
+                    outputPipeArgument?.ClosePipe();
+                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData), ex);
+                }
+            }
+            else
+            {
+                exitCode = _instance.BlockUntilFinished();
+            }
+
+            if(exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            if (outputPipeArgument == null && !skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
                 throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
 
             return exitCode == 0;
@@ -456,12 +535,71 @@ namespace FFMpegCore.FFMPEG
         {
             _instance?.Dispose();
             var arguments = ArgumentBuilder.BuildArguments(container);
-            
+            var exitCode = -1;
+
+            if (container.TryGetArgument<InputPipeArgument>(out var inputPipeArgument))
+            {
+                inputPipeArgument.OpenPipe();
+            }
+            if (container.TryGetArgument<OutputPipeArgument>(out var outputPipeArgument))
+            {
+                outputPipeArgument.OpenPipe();
+            }
+
+
             _instance = new Instance(_ffmpegPath, arguments);
             _instance.DataReceived += OutputData;
-            var exitCode = await _instance.FinishedRunning();
-            
-            if (!skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
+
+            if (inputPipeArgument != null || outputPipeArgument != null)
+            {
+                try
+                {
+                    using (var tokenSource = new CancellationTokenSource())
+                    {
+                        var concurrentTasks = new List<Task>();
+                        concurrentTasks.Add(_instance.FinishedRunning()
+                            .ContinueWith((t =>
+                            {
+                                exitCode = t.Result;
+                                if (exitCode != 0)
+                                    tokenSource.Cancel();
+                            })));
+                        if (inputPipeArgument != null)
+                            concurrentTasks.Add(inputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    inputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+                        if (outputPipeArgument != null)
+                            concurrentTasks.Add(outputPipeArgument.ProcessDataAsync(tokenSource.Token)
+                                .ContinueWith((t) =>
+                                {
+                                    outputPipeArgument.ClosePipe();
+                                    if (t.Exception != null)
+                                        throw t.Exception;
+                                }));
+
+                        await Task.WhenAll(concurrentTasks);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    inputPipeArgument?.ClosePipe();
+                    outputPipeArgument?.ClosePipe();
+                    throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData), ex);
+                }
+            }
+            else
+            {
+                exitCode = await _instance.FinishedRunning();
+            }
+
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
+
+            if (outputPipeArgument == null && !skipExistsCheck && (!File.Exists(output.FullName) || new FileInfo(output.FullName).Length == 0))
                 throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\n", _instance.ErrorData));
 
             return exitCode == 0;
@@ -487,7 +625,7 @@ namespace FFMpegCore.FFMPEG
             Trace.WriteLine(msg.Data);
 #endif
             if (OnProgress == null) return;
-            
+
             var match = ProgressRegex.Match(msg.Data);
             if (!match.Success) return;
 
