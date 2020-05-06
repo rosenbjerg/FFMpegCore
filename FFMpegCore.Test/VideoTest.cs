@@ -270,34 +270,34 @@ namespace FFMpegCore.Test
 
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4()
         {
             Convert(VideoType.Mp4);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args()
         {
             var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
             Convert(VideoType.Mp4, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_Pipe()
         {
             var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
             ConvertFromPipe(VideoType.Mp4, container, PixelFormat.Format24bppRgb);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_StreamPipe()
         {
             var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
             ConvertFromStreamPipe(VideoType.Mp4, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>
@@ -319,7 +319,7 @@ namespace FFMpegCore.Test
             });
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>
@@ -333,7 +333,7 @@ namespace FFMpegCore.Test
         }
 
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async()
         {
             using (var ms = new MemoryStream())
@@ -352,7 +352,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Args_StreamOutputPipe()
         {
             var container = new ArgumentContainer
@@ -363,13 +363,13 @@ namespace FFMpegCore.Test
             ConvertToStreamPipe(VideoType.Mp4, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToTS()
         {
             Convert(VideoType.Ts);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToTS_Args()
         {
             var container = new ArgumentContainer
@@ -381,7 +381,7 @@ namespace FFMpegCore.Test
             Convert(VideoType.Ts, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToTS_Args_Pipe()
         {
             var container = new ArgumentContainer
@@ -391,13 +391,13 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Ts, container, PixelFormat.Format32bppArgb);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToOGV_Resize()
         {
             Convert(VideoType.Ogv, true, VideoSize.Ed);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToOGV_Resize_Args()
         {
             var container = new ArgumentContainer
@@ -408,7 +408,7 @@ namespace FFMpegCore.Test
             Convert(VideoType.Ogv, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToOGV_Resize_Args_Pipe()
         {
             var container = new ArgumentContainer
@@ -419,13 +419,13 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Ogv, container, PixelFormat.Format48bppRgb);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Resize()
         {
             Convert(VideoType.Mp4, true, VideoSize.Ed);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Resize_Args()
         {
             var container = new ArgumentContainer
@@ -436,7 +436,7 @@ namespace FFMpegCore.Test
             Convert(VideoType.Mp4, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_Resize_Args_Pipe()
         {
             var container = new ArgumentContainer
@@ -446,31 +446,31 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Mp4, container, PixelFormat.Format24bppRgb);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(30000)]
         public void Video_ToOGV()
         {
             Convert(VideoType.Ogv);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToMP4_MultiThread()
         {
             Convert(VideoType.Mp4, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToTS_MultiThread()
         {
             Convert(VideoType.Ts, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_ToOGV_MultiThread()
         {
             Convert(VideoType.Ogv, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_Snapshot()
         {
             var output = Input.OutputLocation(ImageType.Png);
@@ -491,7 +491,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_Snapshot_PersistSnapshot()
         {
             var output = Input.OutputLocation(ImageType.Png);
@@ -512,7 +512,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_Join()
         {
             var output = Input.OutputLocation(VideoType.Mp4);
@@ -544,7 +544,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_Join_Image_Sequence()
         {
             try
@@ -580,7 +580,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_With_Only_Audio_Should_Extract_Metadata()
         {
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoAudioOnly);
@@ -590,7 +590,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(1.25, video.Size);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_Duration()
         {
             var video = VideoInfo.FromFileInfo(VideoLibrary.LocalVideo);
@@ -622,7 +622,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_UpdatesProgress()
         {
             var output = Input.OutputLocation(VideoType.Mp4);
@@ -653,7 +653,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(15000)]
         public void Video_TranscodeInMemory()
         {
             using (var resStream = new MemoryStream())
