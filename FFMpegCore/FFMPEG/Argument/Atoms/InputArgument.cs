@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -29,4 +30,5 @@ namespace FFMpegCore.FFMPEG.Argument
             return Value.Select(v => new VideoInfo(v)).ToArray();
         }
     }
+
 }

@@ -175,4 +175,20 @@ namespace FFMpegCore.FFMPEG.Argument
             return false;
         }
     }
+
+
+    public class ArgumentBuilder
+    {
+        
+        
+        private ArgumentBuilder()
+        {
+            
+        }
+
+        public static ArgumentBuilder FromInputFile(string file)
+        {
+            
+        }
+    }
 }
