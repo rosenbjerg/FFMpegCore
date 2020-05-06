@@ -219,13 +219,6 @@ namespace FFMpegCore.Test
             }
         }
 
-        public void ConvertFromPipe(VideoType type, ArgumentContainer container)
-        {
-            ConvertFromPipe(type, container, PixelFormat.Format24bppRgb);
-            ConvertFromPipe(type, container, PixelFormat.Format32bppArgb);
-            ConvertFromPipe(type, container, PixelFormat.Format48bppRgb);
-        }
-
         public void ConvertFromPipe(VideoType type, ArgumentContainer container, PixelFormat fmt)
         {
             var output = Input.OutputLocation(type);
@@ -294,7 +287,7 @@ namespace FFMpegCore.Test
         public void Video_ToMP4_Args_Pipe()
         {
             var container = new ArgumentContainer { new VideoCodecArgument(VideoCodec.LibX264) };
-            ConvertFromPipe(VideoType.Mp4, container);
+            ConvertFromPipe(VideoType.Mp4, container, PixelFormat.Format24bppRgb);
         }
 
         [TestMethod]
@@ -395,7 +388,7 @@ namespace FFMpegCore.Test
             {
                 new ForceFormatArgument(VideoCodec.MpegTs)
             };
-            ConvertFromPipe(VideoType.Ts, container);
+            ConvertFromPipe(VideoType.Ts, container, PixelFormat.Format32bppArgb);
         }
 
         [TestMethod]
@@ -423,7 +416,7 @@ namespace FFMpegCore.Test
                 new ScaleArgument(VideoSize.Ed),
                 new VideoCodecArgument(VideoCodec.LibTheora)
             };
-            ConvertFromPipe(VideoType.Ogv, container);
+            ConvertFromPipe(VideoType.Ogv, container, PixelFormat.Format48bppRgb);
         }
 
         [TestMethod]
@@ -448,10 +441,9 @@ namespace FFMpegCore.Test
         {
             var container = new ArgumentContainer
             {
-                new ScaleArgument(VideoSize.Ld),
                 new VideoCodecArgument(VideoCodec.LibX264)
             };
-            ConvertFromPipe(VideoType.Mp4, container);
+            ConvertFromPipe(VideoType.Mp4, container, PixelFormat.Format24bppRgb);
         }
 
         [TestMethod]
