@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <None Remove="ffmpeg.config.json" />
+    <None Update="Resources\input.webm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
