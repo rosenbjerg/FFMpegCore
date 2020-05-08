@@ -1,7 +1,7 @@
-﻿using FFMpegCore.FFMPEG.Pipes;
-using System.IO.Pipes;
+﻿using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
+using FFMpegCore.FFMPEG.Pipes;
 
 namespace FFMpegCore.FFMPEG.Argument
 {

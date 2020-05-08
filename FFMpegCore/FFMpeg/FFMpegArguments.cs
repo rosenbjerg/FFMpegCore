@@ -13,7 +13,7 @@ namespace FFMpegCore.FFMPEG.Argument
     public class FFMpegArguments
     {
         private readonly IInputArgument _inputArgument;
-        private IOutputArgument _outputArgument;
+        private IOutputArgument _outputArgument = null!;
         private readonly List<IArgument> _arguments;
         
         private FFMpegArguments(IInputArgument inputArgument)

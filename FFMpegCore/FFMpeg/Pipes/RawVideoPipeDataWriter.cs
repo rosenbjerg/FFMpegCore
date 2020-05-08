@@ -1,7 +1,7 @@
-﻿using FFMpegCore.FFMPEG.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FFMpegCore.FFMPEG.Exceptions;
 
 namespace FFMpegCore.FFMPEG.Pipes
 {
@@ -10,35 +10,35 @@ namespace FFMpegCore.FFMPEG.Pipes
     /// </summary>
     public class RawVideoPipeDataWriter : IPipeDataWriter
     {
-        public string StreamFormat { get; private set; }
+        public string StreamFormat { get; private set; } = null!;
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int FrameRate { get; set; } = 25;
-        private bool formatInitialized = false;
-        private IEnumerator<IVideoFrame> framesEnumerator;
+        private bool _formatInitialized;
+        private readonly IEnumerator<IVideoFrame> _framesEnumerator;
 
         public RawVideoPipeDataWriter(IEnumerator<IVideoFrame> framesEnumerator)
         {
-            this.framesEnumerator = framesEnumerator;
+            _framesEnumerator = framesEnumerator;
         }
 
         public RawVideoPipeDataWriter(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
         public string GetFormat()
         {
-            if (!formatInitialized)
+            if (!_formatInitialized)
             {
                 //see input format references https://lists.ffmpeg.org/pipermail/ffmpeg-user/2012-July/007742.html
-                if (framesEnumerator.Current == null)
+                if (_framesEnumerator.Current == null)
                 {
-                    if (!framesEnumerator.MoveNext())
+                    if (!_framesEnumerator.MoveNext())
                         throw new InvalidOperationException("Enumerator is empty, unable to get frame");
                 }
-                StreamFormat = framesEnumerator.Current.Format;
-                Width = framesEnumerator.Current.Width;
-                Height = framesEnumerator.Current.Height;
+                StreamFormat = _framesEnumerator.Current!.Format;
+                Width = _framesEnumerator.Current!.Width;
+                Height = _framesEnumerator.Current!.Height;
 
-                formatInitialized = true;
+                _formatInitialized = true;
             }
 
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
@@ -46,29 +46,29 @@ namespace FFMpegCore.FFMPEG.Pipes
 
         public void WriteData(System.IO.Stream stream)
         {
-            if (framesEnumerator.Current != null)
+            if (_framesEnumerator.Current != null)
             {
-                CheckFrameAndThrow(framesEnumerator.Current);
-                framesEnumerator.Current.Serialize(stream);
+                CheckFrameAndThrow(_framesEnumerator.Current);
+                _framesEnumerator.Current.Serialize(stream);
             }
 
-            while (framesEnumerator.MoveNext())
+            while (_framesEnumerator.MoveNext())
             {
-                CheckFrameAndThrow(framesEnumerator.Current);
-                framesEnumerator.Current.Serialize(stream);
+                CheckFrameAndThrow(_framesEnumerator.Current!);
+                _framesEnumerator.Current!.Serialize(stream);
             }
         }
 
         public async Task WriteDataAsync(System.IO.Stream stream)
         {
-            if (framesEnumerator.Current != null)
+            if (_framesEnumerator.Current != null)
             {
-                await framesEnumerator.Current.SerializeAsync(stream);
+                await _framesEnumerator.Current.SerializeAsync(stream);
             }
 
-            while (framesEnumerator.MoveNext())
+            while (_framesEnumerator.MoveNext())
             {
-                await framesEnumerator.Current.SerializeAsync(stream);
+                await _framesEnumerator.Current!.SerializeAsync(stream);
             }
         }
 
