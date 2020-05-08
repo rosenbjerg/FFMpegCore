@@ -1,10 +1,8 @@
 ﻿using System.IO;
-using FFMpegCore.Enums;
+using System.Threading.Tasks;
 using FFMpegCore.FFMPEG;
-using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace FFMpegCore.Test
 {
@@ -14,47 +12,30 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Probe_TooLongOutput()
         {
-            var output = new FFProbe(5);
-
-            Assert.ThrowsException<JsonSerializationException>(() =>
-            {
-                output.ParseVideoInfo(VideoLibrary.LocalVideo.FullName);
-            });
+            Assert.ThrowsException<System.Text.Json.JsonException>(() => FFProbe.Analyse(VideoLibrary.LocalVideo.FullName, 5));
         }
         
         [TestMethod]
         public void Probe_Success()
         {
-            var output = new FFProbe();
-
-            var info = output.ParseVideoInfo(VideoLibrary.LocalVideo.FullName);
-            
+            var info = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
             Assert.AreEqual(13, info.Duration.Seconds);
         }
 
         [TestMethod]
         public void Probe_Success_FromStream()
         {
-            var output = new FFProbe();
-
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
-            {
-                var info = output.ParseVideoInfo(stream);
-                Assert.AreEqual(13, info.Duration.Seconds);
-            }
+            using var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName);
+            var info = FFProbe.Analyse(stream);
+            Assert.AreEqual(13, info.Duration.Seconds);
         }
 
         [TestMethod]
-        public void Probe_Success_FromStream_Async()
+        public async Task Probe_Success_FromStream_Async()
         {
-            var output = new FFProbe();
-
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
-            {
-                var info = output.ParseVideoInfoAsync(stream).WaitForResult();
-                
-                Assert.AreEqual(13, info.Duration.Seconds);
-            }
+            await using var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName);
+            var info = await FFProbe.AnalyseAsync(stream);
+            Assert.AreEqual(13, info.Duration.Seconds);
         }
     }
 }
