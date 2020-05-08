@@ -6,12 +6,10 @@ namespace FFMpegCore.Test
 {
     public class BaseTest
     {
-        protected FFMpeg Encoder;
         protected FileInfo Input;
 
         public BaseTest()
         {
-            Encoder = new FFMpeg();
             Input = VideoLibrary.LocalVideo;
         }
     }

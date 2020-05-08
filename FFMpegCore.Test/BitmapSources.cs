@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
-using System.Text;
 
 namespace FFMpegCore.Test
 {
