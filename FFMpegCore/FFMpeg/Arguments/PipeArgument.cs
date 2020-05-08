@@ -1,8 +1,8 @@
-﻿using FFMpegCore.FFMPEG.Pipes;
-using System;
+﻿using System;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
+using FFMpegCore.FFMPEG.Pipes;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
@@ -11,8 +11,8 @@ namespace FFMpegCore.FFMPEG.Argument
         private string PipeName { get; }
         public string PipePath => PipeHelpers.GetPipePath(PipeName);
 
-        protected NamedPipeServerStream Pipe { get; private set; }
-        private PipeDirection _direction;
+        protected NamedPipeServerStream Pipe { get; private set; } = null!;
+        private readonly PipeDirection _direction;
 
         protected PipeArgument(PipeDirection direction)
         {
@@ -31,12 +31,18 @@ namespace FFMpegCore.FFMPEG.Argument
         public void Post()
         {
             Pipe?.Dispose();
-            Pipe = null;
+            Pipe = null!;
         }
 
-        public Task During(CancellationToken? cancellationToken = null)
+        public async Task During(CancellationToken? cancellationToken = null)
         {
-            return ProcessDataAsync(cancellationToken ?? CancellationToken.None);
+            await ProcessDataAsync(cancellationToken ?? CancellationToken.None)
+                .ContinueWith(task =>
+                {
+                    Post();
+                    if (task.Exception != null)
+                        throw task.Exception;
+                }).ConfigureAwait(false);
         }
 
         public abstract Task ProcessDataAsync(CancellationToken token);

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using FFMpegCore.Helpers;
-using System.Threading.Tasks;
-using Instances;
 using System.Text.Json;
-using System.Threading;
+using System.Threading.Tasks;
 using FFMpegCore.FFMPEG.Argument;
 using FFMpegCore.FFMPEG.Exceptions;
 using FFMpegCore.FFMPEG.Pipes;
+using FFMpegCore.Helpers;
+using Instances;
 
 namespace FFMpegCore.FFMPEG
 {
