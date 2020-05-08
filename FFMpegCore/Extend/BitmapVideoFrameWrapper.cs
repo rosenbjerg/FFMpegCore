@@ -1,10 +1,8 @@
 ﻿using FFMpegCore.FFMPEG.Pipes;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FFMpegCore.Extend

@@ -25,27 +25,27 @@ namespace FFMpegCore.Test.Resources
         public static readonly FileInfo ImageDirectory = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}images");
         public static readonly FileInfo ImageJoinOutput = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}images{Path.DirectorySeparatorChar}output.mp4");
 
-        public static FileInfo OutputLocation(this FileInfo file, VideoType type)
+        public static string OutputLocation(this FileInfo file, VideoType type)
         {
             return OutputLocation(file, type, "_converted");
         }
 
-        public static FileInfo OutputLocation(this FileInfo file, AudioType type)
+        public static string OutputLocation(this FileInfo file, AudioType type)
         {
             return OutputLocation(file, type, "_audio");
         }
 
-        public static FileInfo OutputLocation(this FileInfo file, ImageType type)
+        public static string OutputLocation(this FileInfo file, ImageType type)
         {
             return OutputLocation(file, type, "_screenshot");
         }
 
-        public static FileInfo OutputLocation(this FileInfo file, Enum type, string keyword)
+        public static string OutputLocation(this FileInfo file, Enum type, string keyword)
         {
             string originalLocation = file.Directory.FullName,
                 outputFile = file.Name.Replace(file.Extension, keyword + "." + type.ToString().ToLower());
 
-            return new FileInfo($"{originalLocation}{Path.DirectorySeparatorChar}{outputFile}");
+            return $"{originalLocation}{Path.DirectorySeparatorChar}{outputFile}";
         }
     }
 }
