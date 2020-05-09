@@ -84,10 +84,8 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public void Close()
         {
-            if (!File.Exists(PipePath))
-                throw new IOException($"Could not find pipe to close");
-            
-            File.Delete(PipePath);
+            if (File.Exists(PipePath))
+                File.Delete(PipePath);
         }
 
         public System.IO.Stream GetStream()
