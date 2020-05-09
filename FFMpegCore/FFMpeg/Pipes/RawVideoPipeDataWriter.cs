@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG.Exceptions;
+using FFMpegCore.Exceptions;
 
-namespace FFMpegCore.FFMPEG.Pipes
+namespace FFMpegCore.Pipes
 {
     /// <summary>
     /// Implementation of <see cref="IPipeDataWriter"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 

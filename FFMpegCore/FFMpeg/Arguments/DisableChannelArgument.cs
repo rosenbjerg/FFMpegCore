@@ -1,7 +1,7 @@
-﻿using FFMpegCore.FFMPEG.Enums;
-using FFMpegCore.FFMPEG.Exceptions;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents cpu speed parameter

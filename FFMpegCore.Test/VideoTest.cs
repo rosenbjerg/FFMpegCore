@@ -1,8 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.FFMPEG.Argument;
-using FFMpegCore.FFMPEG.Enums;
-using FFMpegCore.FFMPEG.Exceptions;
-using FFMpegCore.FFMPEG.Pipes;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -11,7 +7,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG;
+using FFMpegCore.Arguments;
+using FFMpegCore.Exceptions;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test
 {

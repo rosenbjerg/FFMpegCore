@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Drawtext video filter argument
@@ -9,9 +9,6 @@ namespace FFMpegCore.FFMPEG.Argument
     public class DrawTextArgument : IArgument
     {
         public readonly DrawTextOptions Options;
-
-        public DrawTextArgument(string text, string fontPath, params (string, string)[] optionalArguments) 
-            : this(DrawTextOptions.Create(text, fontPath, optionalArguments)) { }
         
         public DrawTextArgument(DrawTextOptions options)
         {
@@ -31,7 +28,7 @@ namespace FFMpegCore.FFMPEG.Argument
         {
             return new DrawTextOptions(text, font, new List<(string, string)>());
         }
-        public static DrawTextOptions Create(string text, string font, IEnumerable<(string key, string value)> parameters)
+        public static DrawTextOptions Create(string text, string font, params (string key, string value)[] parameters)
         {
             return new DrawTextOptions(text, font, parameters);
         }

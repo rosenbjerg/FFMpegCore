@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-namespace FFMpegCore.FFMPEG
+namespace FFMpegCore
 {
     public class FFMpegOptions
     {
