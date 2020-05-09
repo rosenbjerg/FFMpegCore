@@ -52,7 +52,6 @@ namespace FFMpegCore.Test
             using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
             {
                 var info = output.ParseVideoInfoAsync(stream).WaitForResult();
-                
                 Assert.AreEqual(13, info.Duration.Seconds);
             }
         }
