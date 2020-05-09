@@ -24,10 +24,8 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public override async Task ProcessDataAsync(CancellationToken token)
         {
-            await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
-            if (!Pipe.IsConnected)
-                throw new TaskCanceledException();
-            await Reader.ReadDataAsync(Pipe).ConfigureAwait(false);
+            await Pipe.During(token).ConfigureAwait(false);
+            await Reader.ReadDataAsync(Pipe.GetStream()).ConfigureAwait(false);
         }
     }
 }
