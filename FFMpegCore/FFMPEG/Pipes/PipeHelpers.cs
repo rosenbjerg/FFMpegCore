@@ -12,7 +12,7 @@ namespace FFMpegCore.FFMPEG.Pipes
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return $@"\\.\pipe\{pipeName}";
             else
-                return $"unix://tmp/CoreFxPipe_{pipeName}"; // dotnet uses unix sockets on unix, for more see https://github.com/dotnet/runtime/issues/24390
+                return $"/tmp/CoreFxPipe_{pipeName}"; // dotnet uses unix sockets on unix, for more see https://github.com/dotnet/runtime/issues/24390
         }
     }
 }
