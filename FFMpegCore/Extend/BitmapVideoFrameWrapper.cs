@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG.Pipes;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Extend
 {
@@ -24,7 +23,7 @@ namespace FFMpegCore.Extend
             Format = ConvertStreamFormat(bitmap.PixelFormat);
         }
 
-        public void Serialize(Stream stream)
+        public void Serialize(System.IO.Stream stream)
         {
             var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
 
@@ -40,7 +39,7 @@ namespace FFMpegCore.Extend
             }
         }
 
-        public async Task SerializeAsync(Stream stream)
+        public async Task SerializeAsync(System.IO.Stream stream)
         {
             var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
 

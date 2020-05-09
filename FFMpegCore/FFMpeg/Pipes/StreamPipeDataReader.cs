@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Pipes
+namespace FFMpegCore.Pipes
 {
     public class StreamPipeDataReader : IPipeDataReader
     {

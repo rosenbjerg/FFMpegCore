@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FFMpegCore.Helpers;
 using Instances;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore
 {
     public class FFMpegArgumentProcessor
     {

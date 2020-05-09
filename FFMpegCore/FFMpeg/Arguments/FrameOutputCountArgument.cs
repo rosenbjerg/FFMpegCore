@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG.Argument
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents frame output count parameter
@@ -6,8 +6,6 @@
     public class FrameOutputCountArgument : IArgument
     {
         public readonly int Frames;
-        public FrameOutputCountArgument() { }
-
         public FrameOutputCountArgument(int frames)
         {
             Frames = frames;

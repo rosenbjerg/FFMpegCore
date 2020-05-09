@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG.Argument
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Remove metadata argument

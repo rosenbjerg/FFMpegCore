@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG.Argument
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Faststart argument - for moving moov atom to the start of file

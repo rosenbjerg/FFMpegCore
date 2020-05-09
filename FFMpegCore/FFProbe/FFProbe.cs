@@ -2,13 +2,13 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG.Argument;
-using FFMpegCore.FFMPEG.Exceptions;
-using FFMpegCore.FFMPEG.Pipes;
+using FFMpegCore.Arguments;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
+using FFMpegCore.Pipes;
 using Instances;
 
-namespace FFMpegCore.FFMPEG
+namespace FFMpegCore
 {
     public static class FFProbe
     {

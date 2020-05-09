@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FFMpegCore.FFMPEG
+namespace FFMpegCore
 {
     public class MediaAnalysis
     {
@@ -41,7 +41,7 @@ namespace FFMpegCore.FFMPEG
                 CodecLongName = stream.CodecLongName,
                 DisplayAspectRatio = ParseRatioInt(stream.DisplayAspectRatio, ':'),
                 Duration = ParseDuration(stream),
-                FrameRate = DivideRatio(ParseRatioDouble(stream.AvgFrameRate, '/')),
+                FrameRate = DivideRatio(ParseRatioDouble(stream.FrameRate, '/')),
                 Height = stream.Height!.Value,
                 Width = stream.Width!.Value,
                 Profile = stream.Profile,
@@ -74,15 +74,15 @@ namespace FFMpegCore.FFMPEG
         private static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
         private static (int, int) ParseRatioInt(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (default, default);
+            if (string.IsNullOrEmpty(input)) return (0, 0);
             var ratio = input.Split(separator);
             return (int.Parse(ratio[0]), int.Parse(ratio[1]));
         }
         private static (double, double) ParseRatioDouble(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (default, default);
+            if (string.IsNullOrEmpty(input)) return (0, 0);
             var ratio = input.Split(separator);
-            return (ratio.Length > 0 ? int.Parse(ratio[0]) : default, ratio.Length > 1 ? int.Parse(ratio[1]) : default);
+            return (ratio.Length > 0 ? double.Parse(ratio[0]) : 0, ratio.Length > 1 ? double.Parse(ratio[1]) : 0);
         }
     }
 }

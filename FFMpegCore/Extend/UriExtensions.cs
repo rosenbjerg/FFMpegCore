@@ -1,5 +1,4 @@
 ﻿using System;
-using FFMpegCore.FFMPEG;
 
 namespace FFMpegCore.Extend
 {

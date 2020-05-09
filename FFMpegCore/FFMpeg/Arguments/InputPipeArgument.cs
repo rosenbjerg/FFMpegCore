@@ -1,9 +1,9 @@
 ﻿using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG.Pipes;
+using FFMpegCore.Pipes;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents input parameter for a named pipe
