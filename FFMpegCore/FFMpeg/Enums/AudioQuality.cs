@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG.Enums
+﻿namespace FFMpegCore.Enums
 {
     public enum AudioQuality
     {

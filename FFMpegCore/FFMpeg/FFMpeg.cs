@@ -5,11 +5,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using FFMpegCore.Enums;
-using FFMpegCore.FFMPEG.Argument;
-using FFMpegCore.FFMPEG.Enums;
 using FFMpegCore.Helpers;
 
-namespace FFMpegCore.FFMPEG
+namespace FFMpegCore
 {
     public static class FFMpeg
     {
@@ -98,7 +96,7 @@ namespace FFMpegCore.FFMPEG
             AudioQuality audioQuality = AudioQuality.Normal,
             bool multithreaded = false)
         {
-            FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.ForType(type));
+            FFMpegHelper.ExtensionExceptionCheck(output, type.Extension());
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
             var scale = VideoSize.Original == size ? 1 : (double)source.PrimaryVideoStream.Height / (int)size;

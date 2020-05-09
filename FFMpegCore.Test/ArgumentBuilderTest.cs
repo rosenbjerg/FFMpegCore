@@ -1,7 +1,7 @@
-﻿using FFMpegCore.FFMPEG.Argument;
-using FFMpegCore.FFMPEG.Enums;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using FFMpegCore.Arguments;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Test
 {
@@ -90,6 +90,76 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public void Builder_BuildString_DisableChannel_Audio()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Audio).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -an \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DisableChannel_Video()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Video).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vn \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DisableChannel_Both()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Both).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioSamplingRate_Default()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioSamplingRate().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -ar 48000 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioSamplingRate()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioSamplingRate(44000).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -ar 44000 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_VariableBitrate()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVariableBitrate(5).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vbr 5 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Faststart()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithFastStart().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -movflags faststart \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Overwrite()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").OverwriteExisting().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -y \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_RemoveMetadata()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithoutMetadata().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -map_metadata -1 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Transpose()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Transpose(Transposition.CounterClockwise90).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vf \"transpose=2\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
         public void Builder_BuildString_CpuSpeed()
         {
             var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithCpuSpeed(10).OutputToFile("output.mp4").Arguments;
@@ -169,6 +239,18 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4").Arguments;
 
             Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DrawtextFilter_Alt()
+        {
+            var str = FFMpegArguments
+                .FromInputFiles(true, "input.mp4")
+                .DrawText(DrawTextOptions
+                    .Create("Stack Overflow", "/path/to/font.ttf", ("fontcolor", "white"), ("fontsize", "24")))
+                .OutputToFile("output.mp4").Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"", str);
         }
         
         [TestMethod]

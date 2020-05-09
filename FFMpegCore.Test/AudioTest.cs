@@ -3,8 +3,6 @@ using FFMpegCore.Enums;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using FFMpegCore.FFMPEG;
-using FFMpegCore.FFMPEG.Argument;
 
 namespace FFMpegCore.Test
 {

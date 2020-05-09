@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Pipes
+namespace FFMpegCore.Pipes
 {
     /// <summary>
     /// Interface for ffmpeg pipe source data IO

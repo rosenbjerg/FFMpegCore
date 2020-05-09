@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents input parameter
@@ -41,19 +41,23 @@ namespace FFMpegCore.FFMPEG.Argument
 
     public interface IArgument
     {
+        /// <summary>
+        /// The textual representation of the argument
+        /// </summary>
         string Text { get; }
+    }    
+    
+    public interface IInputOutputArgument : IArgument
+    {
+        void Pre() {}
+        Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
+        void Post() {}
     }
 
-    public interface IInputArgument : IArgument
+    public interface IInputArgument : IInputOutputArgument
     {
-        void Pre() {}
-        Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
-        void Post() {}
     }
-    public interface IOutputArgument : IArgument
+    public interface IOutputArgument : IInputOutputArgument
     {
-        void Pre() {}
-        Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
-        void Post() {}
     }
 }

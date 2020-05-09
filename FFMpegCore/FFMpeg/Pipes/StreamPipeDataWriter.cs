@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FFMpegCore.FFMPEG.Pipes
+namespace FFMpegCore.Pipes
 {
     /// <summary>
     /// Implementation of <see cref="IPipeDataWriter"/> used for stream redirection

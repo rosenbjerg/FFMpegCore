@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Constant Rate Factor (CRF) argument

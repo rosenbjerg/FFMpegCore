@@ -1,5 +1,4 @@
-﻿using FFMpegCore.FFMPEG;
-using FFMpegCore.Test.Resources;
+﻿using FFMpegCore.Test.Resources;
 using System.IO;
 
 namespace FFMpegCore.Test

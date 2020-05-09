@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using FFMpegCore.FFMPEG.Exceptions;
+using FFMpegCore.Exceptions;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents output parameter

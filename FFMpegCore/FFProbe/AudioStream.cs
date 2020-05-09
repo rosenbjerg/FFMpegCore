@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG
+﻿namespace FFMpegCore
 {
     public class AudioStream : MediaStream
     {

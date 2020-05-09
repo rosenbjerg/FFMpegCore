@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.FFMPEG.Argument
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Audio sampling rate argument. Defaults to 48000 (Hz)

@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
-using FFMpegCore.FFMPEG.Enums;
+using FFMpegCore.Enums;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents scale parameter

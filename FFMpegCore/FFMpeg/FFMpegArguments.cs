@@ -5,10 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FFMpegCore.FFMPEG.Enums;
-using FFMpegCore.FFMPEG.Pipes;
+using FFMpegCore.Arguments;
+using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore
 {
     public class FFMpegArguments
     {
@@ -71,7 +72,7 @@ namespace FFMpegCore.FFMPEG.Argument
         public FFMpegArguments WithCustomArgument(string argument) => WithArgument(new CustomArgument(argument));
         
         public FFMpegArguments Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
-        public FFMpegArguments Transpose(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
+        public FFMpegArguments Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
         public FFMpegArguments Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArguments OverwriteExisting() => WithArgument(new OverwriteArgument());
         public FFMpegArguments Quiet() => WithArgument(new QuietArgument());

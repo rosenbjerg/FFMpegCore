@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace FFMpegCore.FFMPEG
+namespace FFMpegCore
 {
     public class FFProbeAnalysis
     {
@@ -37,9 +37,6 @@ namespace FFMpegCore.FFMPEG
         
         [JsonPropertyName("codec_long_name")]
         public string CodecLongName { get; set; } = null!;
-        
-        [JsonPropertyName("codec_tag_string")]
-        public string CodecTagString { get; set; } = null!;
 
         [JsonPropertyName("display_aspect_ratio")]
         public string DisplayAspectRatio { get; set; } = null!;

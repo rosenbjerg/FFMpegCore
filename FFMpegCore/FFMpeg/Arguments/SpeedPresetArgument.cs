@@ -1,6 +1,6 @@
-﻿using FFMpegCore.FFMPEG.Enums;
+﻿using FFMpegCore.Enums;
 
-namespace FFMpegCore.FFMPEG.Argument
+namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents speed parameter
