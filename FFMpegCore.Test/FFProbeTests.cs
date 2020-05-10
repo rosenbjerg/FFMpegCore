@@ -37,10 +37,10 @@ namespace FFMpegCore.Test
         {
             var output = new FFProbe();
 
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
+            using (var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName))
             {
                 var info = output.ParseVideoInfo(stream);
-                Assert.AreEqual(13, info.Duration.Seconds);
+                Assert.AreEqual(10, info.Duration.Seconds);
             }
         }
 
@@ -49,11 +49,11 @@ namespace FFMpegCore.Test
         {
             var output = new FFProbe();
 
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideo.FullName))
+            using (var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName))
             {
                 var info = output.ParseVideoInfoAsync(stream).WaitForResult();
                 
-                Assert.AreEqual(13, info.Duration.Seconds);
+                Assert.AreEqual(10, info.Duration.Seconds);
             }
         }
     }

@@ -304,7 +304,7 @@ namespace FFMpegCore.Test
             ConvertFromStreamPipe(VideoType.Mp4, container);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(45000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>
@@ -326,7 +326,7 @@ namespace FFMpegCore.Test
             });
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(45000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>

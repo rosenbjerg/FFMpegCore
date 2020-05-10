@@ -121,7 +121,7 @@ namespace FFMpegCore.FFMPEG
             var task = instance.FinishedRunning();
             try
             {
-                await pipeArgument.ProcessDataAsync().ConfigureAwait(false);
+                await pipeArgument.ProcessDataAsync();
                 pipeArgument.ClosePipe();
             }
             catch (IOException)
