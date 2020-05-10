@@ -1,478 +1,309 @@
-﻿using FFMpegCore.FFMPEG.Argument;
-using FFMpegCore.FFMPEG.Argument.Fluent;
-using FFMpegCore.FFMPEG.Enums;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
+using FFMpegCore.Arguments;
+using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Test
 {
     [TestClass]
     public class ArgumentBuilderTest : BaseTest
     {
-        private List<string> concatFiles = new List<string>
-        { "1.mp4", "2.mp4", "3.mp4", "4.mp4"};
+        private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4"};
 
-        private FFArgumentBuilder builder;
-
-        public ArgumentBuilderTest() : base()
-        {
-            builder = new FFArgumentBuilder();
-        }
-
-        private string GetArgumentsString(params Argument[] args)
-        {
-            var container = new ArgumentContainer { new InputArgument("input.mp4") };
-            foreach (var a in args)
-            {
-                container.Add(a);
-            }
-            container.Add(new OutputArgument("output.mp4"));
-
-            return builder.BuildArguments(container);
-        }
-
-        private string GetArgumentsString(ArgumentContainer container)
-        {
-            var resContainer = new ArgumentContainer { new InputArgument("input.mp4") };
-            foreach (var a in container)
-            {
-                resContainer.Add(a.Value);
-            }
-            resContainer.Add(new OutputArgument("output.mp4"));
-
-            return builder.BuildArguments(resContainer);
-        }
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
         {
-            var str = GetArgumentsString();
-
-            Assert.AreEqual(str, "-i \"input.mp4\" \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Scale()
         {
-            var str = GetArgumentsString(new ScaleArgument(VideoSize.Hd));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -vf scale=-1:720 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Scale(VideoSize.Hd).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vf scale=-1:720 \"output.mp4\"", str);
         }
-
-
-        [TestMethod]
-        public void Builder_BuildString_Scale_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Scale(VideoSize.Hd));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -vf scale=-1:720 \"output.mp4\"");
-        }
-
+        
         [TestMethod]
         public void Builder_BuildString_AudioCodec()
         {
-            var str = GetArgumentsString(new AudioCodecArgument(AudioCodec.Aac));
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioCodec(AudioCodec.Aac).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:a aac \"output.mp4\"", str);
         }
         
         [TestMethod]
         public void Builder_BuildString_AudioBitrate()
         {
-            var str = GetArgumentsString(new AudioBitrateArgument(AudioQuality.Normal));
-            Assert.AreEqual(str, "-i \"input.mp4\" -b:a 128k \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioBitrate(AudioQuality.Normal).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -b:a 128k \"output.mp4\"", str);
         }
         
         [TestMethod]
         public void Builder_BuildString_Quiet()
         {
-            var str = GetArgumentsString(new QuietArgument());
-            Assert.AreEqual(str, "-i \"input.mp4\" -hide_banner -loglevel warning \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Quiet().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -hide_banner -loglevel warning \"output.mp4\"", str);
         }
 
 
         [TestMethod]
         public void Builder_BuildString_AudioCodec_Fluent()
         {
-            var str = GetArgumentsString(new ArgumentContainer().AudioCodec(AudioCodec.Aac).AudioBitrate(128));
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioCodec(AudioCodec.Aac).WithAudioBitrate(128).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:a aac -b:a 128k \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_BitStream()
         {
-            var str = GetArgumentsString(new BitStreamFilterArgument(Channel.Audio, Filter.H264_Mp4ToAnnexB));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -bsf:a h264_mp4toannexb \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_BitStream_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().BitStreamFilter(Channel.Audio, Filter.H264_Mp4ToAnnexB));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -bsf:a h264_mp4toannexb \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithBitStreamFilter(Channel.Audio, Filter.H264_Mp4ToAnnexB).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -bsf:a h264_mp4toannexb \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Concat()
         {
-            var container = new ArgumentContainer { new ConcatArgument(concatFiles), new OutputArgument("output.mp4") };
-
-            var str = builder.BuildArguments(container);
-
-            Assert.AreEqual(str, "-i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"");
-        }
-
-
-        [TestMethod]
-        public void Builder_BuildString_Concat_Fluent()
-        {
-            var container = new ArgumentContainer()
-                .Concat(concatFiles)
-                .Output("output.mp4");
-
-
-            var str = builder.BuildArguments(container);
-
-            Assert.AreEqual(str, "-i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"");
+            var str = FFMpegArguments.FromConcatenation(_concatFiles).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Copy_Audio()
         {
-            var str = GetArgumentsString(new CopyArgument(Channel.Audio));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a copy \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Copy_Audio_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Copy(Channel.Audio));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:a copy \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").CopyChannel(Channel.Audio).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:a copy \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Copy_Video()
         {
-            var str = GetArgumentsString(new CopyArgument(Channel.Video));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v copy \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").CopyChannel(Channel.Video).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:v copy \"output.mp4\"", str);
         }
-
-        [TestMethod]
-        public void Builder_BuildString_Copy_Video_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Copy(Channel.Video));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v copy \"output.mp4\"");
-        }
-
 
         [TestMethod]
         public void Builder_BuildString_Copy_Both()
         {
-            var str = GetArgumentsString(new CopyArgument(Channel.Both));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c copy \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").CopyChannel().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\"", str);
         }
 
         [TestMethod]
-        public void Builder_BuildString_Copy_Both_Fluent()
+        public void Builder_BuildString_DisableChannel_Audio()
         {
-            var str = GetArgumentsString(new ArgumentContainer().Copy(Channel.Both));
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Audio).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -an \"output.mp4\"", str);
+        }
 
-            Assert.AreEqual(str, "-i \"input.mp4\" -c copy \"output.mp4\"");
+        [TestMethod]
+        public void Builder_BuildString_DisableChannel_Video()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Video).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vn \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DisableChannel_Both()
+        {
+            Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Both));
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioSamplingRate_Default()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioSamplingRate().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -ar 48000 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_AudioSamplingRate()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithAudioSamplingRate(44000).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -ar 44000 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_VariableBitrate()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVariableBitrate(5).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vbr 5 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Faststart()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithFastStart().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -movflags faststart \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Overwrite()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").OverwriteExisting().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -y \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_RemoveMetadata()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithoutMetadata().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -map_metadata -1 \"output.mp4\"", str);
+        }
+        
+        [TestMethod]
+        public void Builder_BuildString_Transpose()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Transpose(Transposition.CounterClockwise90).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vf \"transpose=2\" \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_CpuSpeed()
         {
-            var str = GetArgumentsString(new CpuSpeedArgument(10));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -quality good -cpu-used 10 -deadline realtime \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_CpuSpeed_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().CpuSpeed(10));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -quality good -cpu-used 10 -deadline realtime \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithCpuSpeed(10).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -quality good -cpu-used 10 -deadline realtime \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_ForceFormat()
         {
-            var str = GetArgumentsString(new ForceFormatArgument(VideoCodec.LibX264));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -f libx264 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_ForceFormat_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().ForceFormat(VideoCodec.LibX264));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -f libx264 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").ForceFormat(VideoCodec.LibX264).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -f libx264 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_FrameOutputCount()
         {
-            var str = GetArgumentsString(new FrameOutputCountArgument(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -vframes 50 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_FrameOutputCount_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().FrameOutputCount(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -vframes 50 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithFrameOutputCount(50).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vframes 50 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_FrameRate()
         {
-            var str = GetArgumentsString(new FrameRateArgument(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -r 50 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_FrameRate_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().FrameRate(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -r 50 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithFramerate(50).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -r 50 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Loop()
         {
-            var str = GetArgumentsString(new LoopArgument(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -loop 50 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Loop_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Loop(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -loop 50 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Loop(50).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -loop 50 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Seek()
         {
-            var str = GetArgumentsString(new SeekArgument(TimeSpan.FromSeconds(10)));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -ss 00:00:10 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Seek_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Seek(TimeSpan.FromSeconds(10)));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -ss 00:00:10 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Seek(TimeSpan.FromSeconds(10)).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -ss 00:00:10 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Shortest()
         {
-            var str = GetArgumentsString(new ShortestArgument(true));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -shortest \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Shortest_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Shortest());
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -shortest \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").UsingShortest().OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -shortest \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Size()
         {
-            var str = GetArgumentsString(new SizeArgument(1920, 1080));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -s 1920x1080 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Size_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Size(1920, 1080));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -s 1920x1080 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Resize(1920, 1080).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -s 1920x1080 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Speed()
         {
-            var str = GetArgumentsString(new SpeedArgument(Speed.Fast));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -preset fast \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Speed_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Speed(Speed.Fast));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -preset fast \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithSpeedPreset(Speed.Fast).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -preset fast \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_DrawtextFilter()
         {
-            var str = GetArgumentsString(new DrawTextArgument("Stack Overflow", "/path/to/font.ttf",
-                ("fontcolor", "white"),
-                ("fontsize", "24"),
-                ("box", "1"),
-                ("boxcolor", "black@0.5"),
-                ("boxborderw", "5"),
-                ("x", "(w-text_w)/2"),
-                ("y", "(h-text_h)/2")));
+            var str = FFMpegArguments
+                .FromInputFiles(true, "input.mp4")
+                .DrawText(DrawTextOptions
+                    .Create("Stack Overflow", "/path/to/font.ttf")
+                    .WithParameter("fontcolor", "white")
+                    .WithParameter("fontsize", "24")
+                    .WithParameter("box", "1")
+                    .WithParameter("boxcolor", "black@0.5")
+                    .WithParameter("boxborderw", "5")
+                    .WithParameter("x", "(w-text_w)/2")
+                    .WithParameter("y", "(h-text_h)/2"))
+                .OutputToFile("output.mp4").Arguments;
 
-            Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow': fontfile=/path/to/font.ttf: fontcolor=white: fontsize=24: box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y=(h-text_h)/2\" \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"", str);
         }
 
         [TestMethod]
-        public void Builder_BuildString_DrawtextFilter_Fluent()
+        public void Builder_BuildString_DrawtextFilter_Alt()
         {
-            var container = new ArgumentContainer().
-                DrawText((options) =>
-                {
-                    options.Text = "Stack Overflow";
-                    options.FontPath = "/path/to/font.ttf";
-                    options.AddParam("fontcolor", "white")
-                        .AddParam("fontsize", "24")
-                        .AddParam("box", "1")
-                        .AddParam("boxcolor", "black@0.5")
-                        .AddParam("boxborderw", "5")
-                        .AddParam("x", "(w-text_w)/2")
-                        .AddParam("y", "(h-text_h)/2");
-                });
-            var str = GetArgumentsString(container);
+            var str = FFMpegArguments
+                .FromInputFiles(true, "input.mp4")
+                .DrawText(DrawTextOptions
+                    .Create("Stack Overflow", "/path/to/font.ttf", ("fontcolor", "white"), ("fontsize", "24")))
+                .OutputToFile("output.mp4").Arguments;
 
-            Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow': fontfile=/path/to/font.ttf: fontcolor=white: fontsize=24: box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y=(h-text_h)/2\" \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"", str);
         }
-
+        
         [TestMethod]
         public void Builder_BuildString_StartNumber()
         {
-            var str = GetArgumentsString(new StartNumberArgument(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -start_number 50 \"output.mp4\"");
-        }
-
-
-        [TestMethod]
-        public void Builder_BuildString_StartNumber_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().StartNumber(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -start_number 50 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithStartNumber(50).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -start_number 50 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Threads_1()
         {
-            var str = GetArgumentsString(new ThreadsArgument(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -threads 50 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Threads_1_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Threads(50));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -threads 50 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").UsingThreads(50).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -threads 50 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Threads_2()
         {
-            var str = GetArgumentsString(new ThreadsArgument(true));
-
-            Assert.AreEqual(str, $"-i \"input.mp4\" -threads {Environment.ProcessorCount} \"output.mp4\"");
-        }
-        
-        [TestMethod]
-        public void Builder_BuildString_Threads_2_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().MultiThreaded());
-
-            Assert.AreEqual(str, $"-i \"input.mp4\" -threads {Environment.ProcessorCount} \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").UsingMultithreading(true).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual($"-i \"input.mp4\" -threads {Environment.ProcessorCount} \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Codec()
         {
-            var str = GetArgumentsString(new VideoCodecArgument(VideoCodec.LibX264));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Codec_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().VideoCodec(VideoCodec.LibX264));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoCodec(VideoCodec.LibX264).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Codec_Override()
         {
-            var str = GetArgumentsString(new VideoCodecArgument(VideoCodec.LibX264), new OverrideArgument());
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p -y \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Codec_Override_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().VideoCodec(VideoCodec.LibX264).Override());
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p -y \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoCodec(VideoCodec.LibX264).OutputToFile("output.mp4", true).Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\" -y", str);
         }
 
 
         [TestMethod]
         public void Builder_BuildString_Duration()
         {
-            var str = GetArgumentsString(new DurationArgument(TimeSpan.FromSeconds(20)));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -t 00:00:20 \"output.mp4\"");
-        }
-
-        [TestMethod]
-        public void Builder_BuildString_Duration_Fluent()
-        {
-            var str = GetArgumentsString(new ArgumentContainer().Duration(TimeSpan.FromSeconds(20)));
-
-            Assert.AreEqual(str, "-i \"input.mp4\" -t 00:00:20 \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithDuration(TimeSpan.FromSeconds(20)).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -t 00:00:20 \"output.mp4\"", str);
         }
         
         [TestMethod]
         public void Builder_BuildString_Raw()
         {
-            var str = GetArgumentsString(new CustomArgument(null));
-            Assert.AreEqual(str, "-i \"input.mp4\"  \"output.mp4\"");
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithCustomArgument(null).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\"  \"output.mp4\"", str);
 
-            str = GetArgumentsString(new CustomArgument("-acodec copy"));
-            Assert.AreEqual(str, "-i \"input.mp4\" -acodec copy \"output.mp4\"");
+            str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithCustomArgument("-acodec copy").OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -acodec copy \"output.mp4\"", str);
         }
     }
 }

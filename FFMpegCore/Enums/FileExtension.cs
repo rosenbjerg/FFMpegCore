@@ -1,11 +1,10 @@
-﻿using FFMpegCore.FFMPEG.Enums;
-using System;
+﻿using System;
 
 namespace FFMpegCore.Enums
 {
     public static class FileExtension
     {
-        public static string ForType(VideoType type)
+        public static string Extension(this VideoType type)
         {
             return type switch
             {
@@ -16,7 +15,7 @@ namespace FFMpegCore.Enums
                 _ => throw new Exception("The extension for this video type is not defined.")
             };
         }
-        public static string ForCodec(VideoCodec type)
+        public static string Extension(this VideoCodec type)
         {
             return type switch
             {

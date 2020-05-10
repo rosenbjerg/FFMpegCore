@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <NeutralLanguage>en</NeutralLanguage>
     <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
@@ -10,18 +10,14 @@
     <Version>1.0.12</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
-    <PackageReleaseNotes>- Streaming input/output support
-- CustomArgument
-- Fluent ArgumentContainer extensions
-- Cleanup and fixes
-Thanks to max619 and WeihanLi 
-</PackageReleaseNotes>
+    <PackageReleaseNotes>Major refactoring</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>1.4.0</PackageVersion>
+    <PackageVersion>2.0.0</PackageVersion>
     <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,8 +28,8 @@ Thanks to max619 and WeihanLi
 
   <ItemGroup>
     <PackageReference Include="Instances" Version="1.5.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using FFMpegCore.FFMPEG.Exceptions;
+﻿using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Helpers
 {

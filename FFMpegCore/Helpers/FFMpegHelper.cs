@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using FFMpegCore.FFMPEG.Exceptions;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Helpers
 {
@@ -12,9 +12,9 @@ namespace FFMpegCore.Helpers
             ConversionSizeExceptionCheck(image.Size);
         }
 
-        public static void ConversionSizeExceptionCheck(VideoInfo info)
+        public static void ConversionSizeExceptionCheck(MediaAnalysis info)
         {
-            ConversionSizeExceptionCheck(new Size(info.Width, info.Height));
+            ConversionSizeExceptionCheck(new Size(info.PrimaryVideoStream.Width, info.PrimaryVideoStream.Height));
         }
 
         public static void ConversionSizeExceptionCheck(Size size)
@@ -28,43 +28,11 @@ namespace FFMpegCore.Helpers
             }
         }
 
-        public static void OutputExistsExceptionCheck(FileInfo output)
+        public static void ExtensionExceptionCheck(string filename, string extension)
         {
-            if (File.Exists(output.FullName))
-            {
+            if (!extension.Equals(Path.GetExtension(filename), StringComparison.OrdinalIgnoreCase))
                 throw new FFMpegException(FFMpegExceptionType.File,
-                    $"The output file: {output} already exists!");
-            }
-        }
-
-        public static void InputExistsExceptionCheck(FileInfo input)
-        {
-            if (!File.Exists(input.FullName))
-            {
-                throw new FFMpegException(FFMpegExceptionType.File,
-                    $"Input {input.FullName} does not exist!");
-            }
-        }
-
-        public static void ConversionExceptionCheck(FileInfo originalVideo, FileInfo convertedPath)
-        {
-            OutputExistsExceptionCheck(convertedPath);
-            InputExistsExceptionCheck(originalVideo);
-        }
-
-        public static void InputsExistExceptionCheck(params FileInfo[] paths)
-        {
-            foreach (var path in paths)
-            {
-                InputExistsExceptionCheck(path);
-            }
-        }
-
-        public static void ExtensionExceptionCheck(FileInfo output, string expected)
-        {
-            if (!expected.Equals(new FileInfo(output.FullName).Extension, StringComparison.OrdinalIgnoreCase))
-                throw new FFMpegException(FFMpegExceptionType.File,
-                    $"Invalid output file. File extension should be '{expected}' required.");
+                    $"Invalid output file. File extension should be '{extension}' required.");
         }
 
         public static void RootExceptionCheck(string root)
