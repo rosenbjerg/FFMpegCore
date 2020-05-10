@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Exceptions;
 
@@ -59,16 +60,16 @@ namespace FFMpegCore.Pipes
             }
         }
 
-        public async Task WriteDataAsync(System.IO.Stream stream)
+        public async Task WriteDataAsync(System.IO.Stream stream, CancellationToken token)
         {
             if (_framesEnumerator.Current != null)
             {
-                await _framesEnumerator.Current.SerializeAsync(stream).ConfigureAwait(false);
+                await _framesEnumerator.Current.SerializeAsync(stream, token).ConfigureAwait(false);
             }
 
             while (_framesEnumerator.MoveNext())
             {
-                await _framesEnumerator.Current!.SerializeAsync(stream).ConfigureAwait(false);
+                await _framesEnumerator.Current!.SerializeAsync(stream, token).ConfigureAwait(false);
             }
         }
 

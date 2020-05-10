@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace FFMpegCore.Pipes
 {
@@ -18,7 +19,7 @@ namespace FFMpegCore.Pipes
 
         public void WriteData(System.IO.Stream pipe) => Source.CopyTo(pipe, BlockSize);
 
-        public Task WriteDataAsync(System.IO.Stream pipe) => Source.CopyToAsync(pipe, BlockSize);
+        public Task WriteDataAsync(System.IO.Stream pipe, CancellationToken token) => Source.CopyToAsync(pipe, BlockSize, token);
 
         public string GetFormat() => StreamFormat;
     }

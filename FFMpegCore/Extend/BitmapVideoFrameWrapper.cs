@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
@@ -39,7 +40,7 @@ namespace FFMpegCore.Extend
             }
         }
 
-        public async Task SerializeAsync(System.IO.Stream stream)
+        public async Task SerializeAsync(System.IO.Stream stream, CancellationToken token)
         {
             var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
 
@@ -47,7 +48,7 @@ namespace FFMpegCore.Extend
             {
                 var buffer = new byte[data.Stride * data.Height];
                 Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                await stream.WriteAsync(buffer, 0, buffer.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length, token);
             }
             finally
             {
