@@ -1,10 +1,7 @@
 ﻿using System.IO;
-using FFMpegCore.Enums;
-using FFMpegCore.FFMPEG;
-using FFMpegCore.FFMPEG.Argument;
+using System.Threading.Tasks;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace FFMpegCore.Test
 {
@@ -14,47 +11,59 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Probe_TooLongOutput()
         {
-            var output = new FFProbe(5);
-
-            Assert.ThrowsException<JsonSerializationException>(() =>
-            {
-                output.ParseVideoInfo(VideoLibrary.LocalVideo.FullName);
-            });
+            Assert.ThrowsException<System.Text.Json.JsonException>(() => FFProbe.Analyse(VideoLibrary.LocalVideo.FullName, 5));
         }
         
         [TestMethod]
         public void Probe_Success()
         {
-            var output = new FFProbe();
-
-            var info = output.ParseVideoInfo(VideoLibrary.LocalVideo.FullName);
+            var info = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
+            Assert.AreEqual(13, info.Duration.Seconds);
+            Assert.AreEqual(".mp4", info.Extension);
+            Assert.AreEqual(VideoLibrary.LocalVideo.FullName, info.Path);
             
+            Assert.AreEqual("5.1", info.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
+            Assert.AreEqual("AAC (Advanced Audio Coding)", info.PrimaryAudioStream.CodecLongName);
+            Assert.AreEqual("aac", info.PrimaryAudioStream.CodecName);
+            Assert.AreEqual(381988, info.PrimaryAudioStream.BitRate);
+            Assert.AreEqual(48000, info.PrimaryAudioStream.SampleRateHz);
+            
+            Assert.AreEqual(862991, info.PrimaryVideoStream.BitRate);
+            Assert.AreEqual(16, info.PrimaryVideoStream.DisplayAspectRatio.Width);
+            Assert.AreEqual(9, info.PrimaryVideoStream.DisplayAspectRatio.Height);
+            Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
+            Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
+            Assert.AreEqual(720, info.PrimaryVideoStream.Height);
+            Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
+            Assert.AreEqual(25, info.PrimaryVideoStream.FrameRate);
+            Assert.AreEqual("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10", info.PrimaryVideoStream.CodecLongName);
+            Assert.AreEqual("h264", info.PrimaryVideoStream.CodecName);
+            Assert.AreEqual(8, info.PrimaryVideoStream.BitsPerRawSample);
+            Assert.AreEqual("Main", info.PrimaryVideoStream.Profile);
+        }
+        
+        [TestMethod]
+        public async Task Probe_Async_Success()
+        {
+            var info = await FFProbe.AnalyseAsync(VideoLibrary.LocalVideo.FullName);
             Assert.AreEqual(13, info.Duration.Seconds);
         }
 
         [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream()
         {
-            var output = new FFProbe();
-
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName))
-            {
-                var info = output.ParseVideoInfo(stream);
-                Assert.AreEqual(10, info.Duration.Seconds);
-            }
+            using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
+            var info = FFProbe.Analyse(stream);
+            Assert.AreEqual(10, info.Duration.Seconds);
         }
 
-        [TestMethod, Timeout(10000)]
-        public void Probe_Success_FromStream_Async()
+        [TestMethod]
+        public async Task Probe_Success_FromStream_Async()
         {
-            var output = new FFProbe();
-
-            using (var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName))
-            {
-                var info = output.ParseVideoInfoAsync(stream).WaitForResult();
-                
-                Assert.AreEqual(10, info.Duration.Seconds);
-            }
+            await using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
+            var info = await FFProbe.AnalyseAsync(stream);
+            Assert.AreEqual(10, info.Duration.Seconds);
         }
     }
 }
