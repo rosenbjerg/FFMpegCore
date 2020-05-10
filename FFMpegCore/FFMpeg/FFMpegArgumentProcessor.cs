@@ -39,7 +39,7 @@ namespace FFMpegCore
         public bool ProcessSynchronously()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            var instance = new Instance(FFMpegOptions.Options.FFmpegBinary, _ffMpegArguments.Text);
+            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary, _ffMpegArguments.Text);
             instance.DataReceived += OutputData;
             var errorCode = -1;
 
@@ -61,7 +61,8 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary, _ffMpegArguments.Text);
-            instance.DataReceived += OutputData;
+            if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+                instance.DataReceived += OutputData;
             var errorCode = -1;
 
             _ffMpegArguments.Pre();
@@ -88,7 +89,6 @@ namespace FFMpegCore
 #if DEBUG
             Trace.WriteLine(msg.Data);
 #endif
-            if (_onTimeProgress == null && (_onPercentageProgress == null || _totalTimespan == null)) return;
 
             var match = ProgressRegex.Match(msg.Data);
             if (!match.Success) return;
