@@ -18,8 +18,8 @@ namespace FFMpegCore.Arguments
 
         public string Text => Channel switch
         {
-            Channel.Audio => $"-bsf:a {Filter.ToString().ToLower()}",
-            Channel.Video => $"-bsf:v {Filter.ToString().ToLower()}",
+            Channel.Audio => $"-bsf:a {Filter.ToString().ToLowerInvariant()}",
+            Channel.Video => $"-bsf:v {Filter.ToString().ToLowerInvariant()}",
             _ => string.Empty
         };
     }

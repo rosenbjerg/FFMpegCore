@@ -16,7 +16,7 @@ namespace FFMpegCore
         /// <param name="fileInfo">Image file information.</param>
         public ImageInfo(FileInfo fileInfo)
         {
-            if (!fileInfo.Extension.ToLower().EndsWith(FileExtension.Png))
+            if (!fileInfo.Extension.ToLowerInvariant().EndsWith(FileExtension.Png))
             {
                 throw new Exception("Image joining currently suppors only .png file types");
             }
