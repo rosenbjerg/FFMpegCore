@@ -5,7 +5,7 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments
 {
-    public class OutputPipeArgument : PipeArgument
+    public class OutputPipeArgument : PipeArgument, IOutputArgument
     {
         public readonly IPipeDataReader Reader;
 
@@ -21,7 +21,7 @@ namespace FFMpegCore.Arguments
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
-            await Reader.ReadDataAsync(Pipe).ConfigureAwait(false);
+            await Reader.ReadDataAsync(Pipe, token).ConfigureAwait(false);
         }
     }
 }

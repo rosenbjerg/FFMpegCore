@@ -6,7 +6,7 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments
 {
-    public abstract class PipeArgument : IInputArgument, IOutputArgument
+    public abstract class PipeArgument
     {
         private string PipeName { get; }
         public string PipePath => PipeHelpers.GetPipePath(PipeName);

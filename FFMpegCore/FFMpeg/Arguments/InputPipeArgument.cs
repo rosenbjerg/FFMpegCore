@@ -8,7 +8,7 @@ namespace FFMpegCore.Arguments
     /// <summary>
     /// Represents input parameter for a named pipe
     /// </summary>
-    public class InputPipeArgument : PipeArgument
+    public class InputPipeArgument : PipeArgument, IInputArgument
     {
         public readonly IPipeDataWriter Writer;
 
@@ -24,7 +24,7 @@ namespace FFMpegCore.Arguments
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
-            await Writer.WriteDataAsync(Pipe).ConfigureAwait(false);
+            await Writer.WriteDataAsync(Pipe, token).ConfigureAwait(false);
         }
     }
 }
