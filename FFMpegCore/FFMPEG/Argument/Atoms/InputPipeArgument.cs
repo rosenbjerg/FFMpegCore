@@ -30,8 +30,10 @@ namespace FFMpegCore.FFMPEG.Argument
 
         public override async Task ProcessDataAsync(CancellationToken token)
         {
-            await Pipe.During(token).ConfigureAwait(false);
-            await Writer.WriteDataAsync(Pipe.GetStream()).ConfigureAwait(false);
+            await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
+            if (!Pipe.IsConnected)
+                throw new TaskCanceledException();
+            await Writer.WriteDataAsync(Pipe).ConfigureAwait(false);
         }
     }
 }
