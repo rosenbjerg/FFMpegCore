@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace FFMpegCore.Pipes
 {
@@ -12,6 +13,6 @@ namespace FFMpegCore.Pipes
         string Format { get; }
 
         void Serialize(System.IO.Stream pipe);
-        Task SerializeAsync(System.IO.Stream pipe);
+        Task SerializeAsync(System.IO.Stream pipe, CancellationToken token);
     }
 }

@@ -102,9 +102,9 @@ namespace FFMpegCore
             _inputArgument.Pre();
             _outputArgument.Pre();
         }
-        internal Task During(CancellationToken? cancellationToken = null)
+        internal async Task During(CancellationToken? cancellationToken = null)
         {
-            return Task.WhenAll(_inputArgument.During(cancellationToken), _outputArgument.During(cancellationToken));
+            await Task.WhenAll(_inputArgument.During(cancellationToken), _outputArgument.During(cancellationToken)).ConfigureAwait(false);
         }
         internal void Post()
         {
