@@ -75,7 +75,7 @@ namespace FFMpegCore
         public FFMpegArguments Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
         public FFMpegArguments Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArguments OverwriteExisting() => WithArgument(new OverwriteArgument());
-        public FFMpegArguments Quiet() => WithArgument(new QuietArgument());
+        public FFMpegArguments WithVerbosityLevel(VerbosityLevel verbosityLevel = VerbosityLevel.Error) => WithArgument(new VerbosityLevelArgument(verbosityLevel));
 
         public FFMpegArguments ForceFormat(VideoCodec videoCodec) => WithArgument(new ForceFormatArgument(videoCodec));
         public FFMpegArguments ForceFormat(string videoCodec) => WithArgument(new ForceFormatArgument(videoCodec));
