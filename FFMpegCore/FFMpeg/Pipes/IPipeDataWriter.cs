@@ -9,7 +9,6 @@ namespace FFMpegCore.Pipes
     public interface IPipeDataWriter
     {
         string GetFormat();
-        void WriteData(System.IO.Stream pipe);
-        Task WriteDataAsync(System.IO.Stream pipe, CancellationToken token);
+        Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);
     }
 }

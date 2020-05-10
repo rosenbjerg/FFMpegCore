@@ -45,31 +45,18 @@ namespace FFMpegCore.Pipes
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
 
-        public void WriteData(System.IO.Stream stream)
+        public async Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken)
         {
             if (_framesEnumerator.Current != null)
             {
                 CheckFrameAndThrow(_framesEnumerator.Current);
-                _framesEnumerator.Current.Serialize(stream);
+                await _framesEnumerator.Current.SerializeAsync(outputStream, cancellationToken).ConfigureAwait(false);
             }
 
             while (_framesEnumerator.MoveNext())
             {
                 CheckFrameAndThrow(_framesEnumerator.Current!);
-                _framesEnumerator.Current!.Serialize(stream);
-            }
-        }
-
-        public async Task WriteDataAsync(System.IO.Stream stream, CancellationToken token)
-        {
-            if (_framesEnumerator.Current != null)
-            {
-                await _framesEnumerator.Current.SerializeAsync(stream, token).ConfigureAwait(false);
-            }
-
-            while (_framesEnumerator.MoveNext())
-            {
-                await _framesEnumerator.Current!.SerializeAsync(stream, token).ConfigureAwait(false);
+                await _framesEnumerator.Current!.SerializeAsync(outputStream, cancellationToken).ConfigureAwait(false);
             }
         }
 

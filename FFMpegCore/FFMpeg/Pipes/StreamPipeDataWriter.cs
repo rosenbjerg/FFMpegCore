@@ -12,14 +12,12 @@ namespace FFMpegCore.Pipes
         public int BlockSize { get; } = 4096;
         public string StreamFormat { get; } = string.Empty;
 
-        public StreamPipeDataWriter(System.IO.Stream stream)
+        public StreamPipeDataWriter(System.IO.Stream source)
         {
-            Source = stream;
+            Source = source;
         }
 
-        public void WriteData(System.IO.Stream pipe) => Source.CopyTo(pipe, BlockSize);
-
-        public Task WriteDataAsync(System.IO.Stream pipe, CancellationToken token) => Source.CopyToAsync(pipe, BlockSize, token);
+        public Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken) => Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
 
         public string GetFormat() => StreamFormat;
     }
