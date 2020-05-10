@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <Nullable>disable</Nullable>
+
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

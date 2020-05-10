@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Enums;
+﻿using System;
+using FFMpegCore.Enums;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -15,14 +16,12 @@ namespace FFMpegCore.Test
 
             try
             {
-                Encoder.Mute(VideoInfo.FromFileInfo(Input), output);
-
-                Assert.IsTrue(File.Exists(output.FullName));
+                FFMpeg.Mute(Input.FullName, output);
+                Assert.IsTrue(File.Exists(output));
             }
             finally
             {
-                if (File.Exists(output.FullName))
-                    output.Delete();
+                if (File.Exists(output)) File.Delete(output);
             }
         }
 
@@ -33,14 +32,12 @@ namespace FFMpegCore.Test
 
             try
             {
-                Encoder.ExtractAudio(VideoInfo.FromFileInfo(Input), output);
-
-                Assert.IsTrue(File.Exists(output.FullName));
+                FFMpeg.ExtractAudio(Input.FullName, output);
+                Assert.IsTrue(File.Exists(output));
             }
             finally
             {
-                if (File.Exists(output.FullName))
-                    output.Delete();
+                if (File.Exists(output)) File.Delete(output);
             }
         }
 
@@ -50,16 +47,17 @@ namespace FFMpegCore.Test
             var output = Input.OutputLocation(VideoType.Mp4);
             try
             {
-                var input = VideoInfo.FromFileInfo(VideoLibrary.LocalVideoNoAudio);
-                Encoder.ReplaceAudio(input, VideoLibrary.LocalAudio, output);
-
-                Assert.AreEqual(input.Duration, VideoInfo.FromFileInfo(output).Duration);
-                Assert.IsTrue(File.Exists(output.FullName));
+                var success = FFMpeg.ReplaceAudio(VideoLibrary.LocalVideoNoAudio.FullName, VideoLibrary.LocalAudio.FullName, output);
+                Assert.IsTrue(success);
+                var audioAnalysis = FFProbe.Analyse(VideoLibrary.LocalVideoNoAudio.FullName);
+                var videoAnalysis = FFProbe.Analyse(VideoLibrary.LocalAudio.FullName);
+                var outputAnalysis = FFProbe.Analyse(output);
+                Assert.AreEqual(Math.Max(videoAnalysis.Duration.TotalSeconds, audioAnalysis.Duration.TotalSeconds), outputAnalysis.Duration.TotalSeconds, 0.15);
+                Assert.IsTrue(File.Exists(output));
             }
             finally
             {
-                if (File.Exists(output.FullName))
-                    output.Delete();
+                if (File.Exists(output)) File.Delete(output);
             }
         }
 
@@ -70,14 +68,14 @@ namespace FFMpegCore.Test
 
             try
             {
-                var result = Encoder.PosterWithAudio(new FileInfo(VideoLibrary.LocalCover.FullName), VideoLibrary.LocalAudio, output);
-                Assert.IsTrue(result.Duration.TotalSeconds > 0);
-                Assert.IsTrue(result.Exists);
+                FFMpeg.PosterWithAudio(VideoLibrary.LocalCover.FullName, VideoLibrary.LocalAudio.FullName, output);
+                var analysis = FFProbe.Analyse(VideoLibrary.LocalAudio.FullName);
+                Assert.IsTrue(analysis.Duration.TotalSeconds > 0);
+                Assert.IsTrue(File.Exists(output));
             }
             finally
             {
-                if (File.Exists(output.FullName))
-                    output.Delete();
+                if (File.Exists(output)) File.Delete(output);
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using FFMpegCore.FFMPEG;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System.IO;
 
