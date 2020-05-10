@@ -5,8 +5,7 @@ namespace FFMpegCore.Pipes
 {
     public interface IPipeDataReader
     {
-        void ReadData(System.IO.Stream stream);
-        Task ReadDataAsync(System.IO.Stream stream, CancellationToken token);
+        Task CopyAsync(System.IO.Stream inputStream, CancellationToken cancellationToken);
         string GetFormat();
     }
 }
