@@ -35,8 +35,8 @@ namespace FFMpegCore
             {
                 Index = stream.Index,
                 AvgFrameRate = DivideRatio(ParseRatioDouble(stream.AvgFrameRate, '/')),
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? int.Parse(stream.BitRate) : default,
-                BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? int.Parse(stream.BitsPerRawSample) : default,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? ParseIntInvariant(stream.BitRate) : default,
+                BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? ParseIntInvariant(stream.BitsPerRawSample) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
                 DisplayAspectRatio = ParseRatioInt(stream.DisplayAspectRatio, ':'),
@@ -52,7 +52,7 @@ namespace FFMpegCore
         private static TimeSpan ParseDuration(Stream stream)
         {
             return stream.Duration != null
-                ? TimeSpan.FromSeconds(double.Parse(stream.Duration))
+                ? TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration))
                 : TimeSpan.Parse(stream.Tags.Duration ?? "0");
         }
 
@@ -61,13 +61,13 @@ namespace FFMpegCore
             return new AudioStream
             {
                 Index = stream.Index,
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? int.Parse(stream.BitRate) : default,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? ParseIntInvariant(stream.BitRate) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
-                Duration = TimeSpan.FromSeconds(double.Parse(stream.Duration ?? stream.Tags.Duration ?? "0")),
-                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? int.Parse(stream.SampleRate) : default
+                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags.Duration ?? "0")),
+                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default
             };
         }
 
@@ -76,13 +76,18 @@ namespace FFMpegCore
         {
             if (string.IsNullOrEmpty(input)) return (0, 0);
             var ratio = input.Split(separator);
-            return (int.Parse(ratio[0]), int.Parse(ratio[1]));
+            return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
         }
         private static (double, double) ParseRatioDouble(string input, char separator)
         {
             if (string.IsNullOrEmpty(input)) return (0, 0);
             var ratio = input.Split(separator);
-            return (ratio.Length > 0 ? double.Parse(ratio[0]) : 0, ratio.Length > 1 ? double.Parse(ratio[1]) : 0);
+            return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
         }
+
+        private static double ParseDoubleInvariant(string line) =>
+            double.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+        private static int ParseIntInvariant(string line) =>
+            int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
     }
 }
