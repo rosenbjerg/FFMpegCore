@@ -30,20 +30,14 @@ namespace FFMpegCore
             {
                 pipeArgument.During().ConfigureAwait(false).GetAwaiter().GetResult();
             }
-            catch (IOException)
-            {
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            catch (IOException) { }
             finally
             {
                 pipeArgument.Post();
             }
             var exitCode = task.ConfigureAwait(false).GetAwaiter().GetResult();
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
+                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}: {string.Join("\n", instance.OutputData)} {string.Join("\n", instance.ErrorData)}");
             
             return ParseOutput(pipeArgument.PipePath, instance);
         }
@@ -74,7 +68,7 @@ namespace FFMpegCore
             }
             var exitCode = await task;
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, "FFProbe process returned exit status " + exitCode);
+                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}: {string.Join("\n", instance.OutputData)} {string.Join("\n", instance.ErrorData)}");
             
             pipeArgument.Post();
             return ParseOutput(pipeArgument.PipePath, instance);
@@ -94,7 +88,7 @@ namespace FFMpegCore
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             var ffprobe = FFMpegOptions.Options.FFProbeBinary;
-            var arguments = $"-v quiet -print_format json -show_streams \"{filePath}\"";
+            var arguments = $"-print_format json -show_streams \"{filePath}\"";
             var instance = new Instance(ffprobe, arguments) {DataBufferCapacity = outputCapacity};
             return instance;
         }
