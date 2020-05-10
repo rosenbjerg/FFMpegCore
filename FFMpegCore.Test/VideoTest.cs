@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
@@ -69,7 +68,7 @@ namespace FFMpegCore.Test
             try
             {
                 var input = FFProbe.Analyse(VideoLibrary.LocalVideoWebm.FullName);
-                using (var inputStream = System.IO.File.OpenRead(input.Path))
+                using (var inputStream = File.OpenRead(input.Path))
                 {
                     var pipeSource = new StreamPipeDataWriter(inputStream);
                     var arguments = FFMpegArguments.FromPipe(pipeSource);
@@ -208,13 +207,6 @@ namespace FFMpegCore.Test
             }
         }
 
-        public void ConvertFromPipe(VideoType type, params IArgument[] inputArguments)
-        {
-            ConvertFromPipe(type, PixelFormat.Format24bppRgb, inputArguments);
-            ConvertFromPipe(type, PixelFormat.Format32bppArgb, inputArguments);
-            ConvertFromPipe(type, PixelFormat.Format48bppRgb, inputArguments);
-        }
-
         public void ConvertFromPipe(VideoType type, PixelFormat fmt, params IArgument[] inputArguments)
         {
             var output = Input.OutputLocation(type);
@@ -275,10 +267,13 @@ namespace FFMpegCore.Test
             Convert(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod]
-        public void Video_ToMP4_Args_Pipe()
+        [DataTestMethod]
+        [DataRow(PixelFormat.Format24bppRgb)]
+        [DataRow(PixelFormat.Format32bppArgb)]
+        // [DataRow(PixelFormat.Format48bppRgb)]
+        public void Video_ToMP4_Args_Pipe(PixelFormat pixelFormat)
         {
-            ConvertFromPipe(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
+            ConvertFromPipe(VideoType.Mp4, pixelFormat, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
         [TestMethod]
@@ -348,10 +343,13 @@ namespace FFMpegCore.Test
                 new ForceFormatArgument(VideoCodec.MpegTs));
         }
 
-        [TestMethod]
-        public void Video_ToTS_Args_Pipe()
+        [DataTestMethod]
+        [DataRow(PixelFormat.Format24bppRgb)]
+        [DataRow(PixelFormat.Format32bppArgb)]
+        // [DataRow(PixelFormat.Format48bppRgb)]
+        public void Video_ToTS_Args_Pipe(PixelFormat pixelFormat)
         {
-            ConvertFromPipe(VideoType.Ts, new ForceFormatArgument(VideoCodec.MpegTs));
+            ConvertFromPipe(VideoType.Ts, pixelFormat, new ForceFormatArgument(VideoCodec.MpegTs));
         }
 
         [TestMethod]
@@ -366,10 +364,13 @@ namespace FFMpegCore.Test
             Convert(VideoType.Ogv, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
 
-        [TestMethod]
-        public void Video_ToOGV_Resize_Args_Pipe()
+        [DataTestMethod]
+        [DataRow(PixelFormat.Format24bppRgb)]
+        [DataRow(PixelFormat.Format32bppArgb)]
+        // [DataRow(PixelFormat.Format48bppRgb)]
+        public void Video_ToOGV_Resize_Args_Pipe(PixelFormat pixelFormat)
         {
-            ConvertFromPipe(VideoType.Ogv, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
+            ConvertFromPipe(VideoType.Ogv, pixelFormat, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
 
         [TestMethod]
@@ -384,10 +385,13 @@ namespace FFMpegCore.Test
             Convert(VideoType.Mp4, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod]
-        public void Video_ToMP4_Resize_Args_Pipe()
+        [DataTestMethod]
+        [DataRow(PixelFormat.Format24bppRgb)]
+        [DataRow(PixelFormat.Format32bppArgb)]
+        // [DataRow(PixelFormat.Format48bppRgb)]
+        public void Video_ToMP4_Resize_Args_Pipe(PixelFormat pixelFormat)
         {
-            ConvertFromPipe(VideoType.Mp4, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
+            ConvertFromPipe(VideoType.Mp4, pixelFormat, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
 
         [TestMethod]
@@ -508,6 +512,7 @@ namespace FFMpegCore.Test
                     });
 
                 var success = FFMpeg.JoinImageSequence(VideoLibrary.ImageJoinOutput.FullName, images: imageSet.ToArray());
+                Assert.IsTrue(success);
                 var result = FFProbe.Analyse(VideoLibrary.ImageJoinOutput.FullName);
 
                 VideoLibrary.ImageJoinOutput.Refresh();

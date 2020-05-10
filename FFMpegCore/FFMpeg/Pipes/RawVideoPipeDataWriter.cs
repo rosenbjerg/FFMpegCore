@@ -63,12 +63,12 @@ namespace FFMpegCore.Pipes
         {
             if (_framesEnumerator.Current != null)
             {
-                await _framesEnumerator.Current.SerializeAsync(stream);
+                await _framesEnumerator.Current.SerializeAsync(stream).ConfigureAwait(false);
             }
 
             while (_framesEnumerator.MoveNext())
             {
-                await _framesEnumerator.Current!.SerializeAsync(stream);
+                await _framesEnumerator.Current!.SerializeAsync(stream).ConfigureAwait(false);
             }
         }
 
