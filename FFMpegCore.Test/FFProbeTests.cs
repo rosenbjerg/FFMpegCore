@@ -50,7 +50,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(13, info.Duration.Seconds);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream()
         {
             using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
