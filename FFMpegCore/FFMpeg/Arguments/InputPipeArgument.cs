@@ -24,7 +24,7 @@ namespace FFMpegCore.Arguments
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
-            await Writer.WriteDataAsync(Pipe, token).ConfigureAwait(false);
+            await Writer.CopyAsync(Pipe, token).ConfigureAwait(false);
         }
     }
 }
