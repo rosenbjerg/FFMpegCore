@@ -282,7 +282,7 @@ namespace FFMpegCore.Test
             ConvertFromStreamPipe(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod, Timeout(45000)]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
             using var ms = new MemoryStream();
@@ -296,7 +296,7 @@ namespace FFMpegCore.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod, Timeout(45000)]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
             using var ms = new MemoryStream();
