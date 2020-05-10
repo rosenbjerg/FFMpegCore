@@ -43,7 +43,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_Quiet()
         {
-            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").Quiet().OutputToFile("output.mp4").Arguments;
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVerbosityLevel().OutputToFile("output.mp4").Arguments;
             Assert.AreEqual("-i \"input.mp4\" -hide_banner -loglevel warning \"output.mp4\"", str);
         }
 
