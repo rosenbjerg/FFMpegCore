@@ -35,9 +35,9 @@ namespace FFMpegCore.FFMPEG.Argument
             Pipe?.Dispose();
             Pipe = null;
         }
-        public Task ProcessDataAsync()
+        public async Task ProcessDataAsync()
         {
-            return ProcessDataAsync(CancellationToken.None);
+            await ProcessDataAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         public abstract Task ProcessDataAsync(CancellationToken token);
