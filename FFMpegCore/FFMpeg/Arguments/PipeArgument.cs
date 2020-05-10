@@ -36,7 +36,13 @@ namespace FFMpegCore.Arguments
 
         public async Task During(CancellationToken? cancellationToken = null)
         {
-            await ProcessDataAsync(cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+            try
+            {
+                await ProcessDataAsync(cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+            }
             Post();
         }
 
