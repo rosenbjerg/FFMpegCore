@@ -43,7 +43,7 @@ namespace FFMpegCore.Test.Resources
         public static string OutputLocation(this FileInfo file, Enum type, string keyword)
         {
             string originalLocation = file.Directory.FullName,
-                outputFile = file.Name.Replace(file.Extension, keyword + "." + type.ToString().ToLower());
+                outputFile = file.Name.Replace(file.Extension, keyword + "." + type.ToString().ToLowerInvariant());
 
             return $"{originalLocation}{Path.DirectorySeparatorChar}{outputFile}";
         }

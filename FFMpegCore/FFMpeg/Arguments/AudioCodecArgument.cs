@@ -13,6 +13,6 @@ namespace FFMpegCore.Arguments
             AudioCodec = audioCodec;
         }
 
-        public string Text => $"-c:a {AudioCodec.ToString().ToLower()}";
+        public string Text => $"-c:a {AudioCodec.ToString().ToLowerInvariant()}";
     }
 }

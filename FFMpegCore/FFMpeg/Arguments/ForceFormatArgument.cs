@@ -13,7 +13,7 @@ namespace FFMpegCore.Arguments
             _format = format;
         }
 
-        public ForceFormatArgument(VideoCodec value) : this(value.ToString().ToLower()) { }
+        public ForceFormatArgument(VideoCodec value) : this(value.ToString().ToLowerInvariant()) { }
 
         public string Text => $"-f {_format}";
     }
