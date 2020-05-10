@@ -314,7 +314,7 @@ namespace FFMpegCore.Test
                     var pipeSource = new StreamPipeDataReader(ms);
                     var container = new ArgumentContainer
                     {
-                            new InputArgument(VideoLibrary.LocalVideo),
+                            new InputArgument(VideoLibrary.LocalVideoWebm),
                             new VideoCodecArgument(VideoCodec.LibX264),
                             new ForceFormatArgument("mkv"),
                             new OutputPipeArgument(pipeSource)
