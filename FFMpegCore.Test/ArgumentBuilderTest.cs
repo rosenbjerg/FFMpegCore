@@ -2,6 +2,7 @@
 using System;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Test
 {
@@ -106,8 +107,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_DisableChannel_Both()
         {
-            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Both).OutputToFile("output.mp4").Arguments;
-            Assert.AreEqual("-i \"input.mp4\" \"output.mp4\"", str);
+            Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromInputFiles(true, "input.mp4").DisableChannel(Channel.Both));
         }
         
         [TestMethod]

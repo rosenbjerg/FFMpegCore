@@ -287,7 +287,7 @@ namespace FFMpegCore.Test
             ConvertFromStreamPipe(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(45000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>
@@ -300,11 +300,10 @@ namespace FFMpegCore.Test
                     .OutputToPipe(pipeSource)
                     .ProcessAsynchronously()
                     .WaitForResult();
-                FFProbe.Analyse(ms);
             });
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(45000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() =>
@@ -317,17 +316,15 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Args_StreamOutputPipe_Async()
         {
-            using (var ms = new MemoryStream())
-            {
-                var pipeSource = new StreamPipeDataReader(ms);
-                FFMpegArguments
-                    .FromInputFiles(VideoLibrary.LocalVideo)
-                    .WithVideoCodec(VideoCodec.LibX264)
-                    .ForceFormat("matroska")
-                    .OutputToPipe(pipeSource)
-                    .ProcessAsynchronously()
-                    .WaitForResult();
-            }
+            using var ms = new MemoryStream();
+            var pipeSource = new StreamPipeDataReader(ms);
+            FFMpegArguments
+                .FromInputFiles(VideoLibrary.LocalVideo)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .ForceFormat("matroska")
+                .OutputToPipe(pipeSource)
+                .ProcessAsynchronously()
+                .WaitForResult();
         }
 
         [TestMethod]
