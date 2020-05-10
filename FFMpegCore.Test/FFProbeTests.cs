@@ -32,7 +32,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(13, info.Duration.Seconds);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream()
         {
             var output = new FFProbe();
@@ -44,7 +44,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream_Async()
         {
             var output = new FFProbe();
