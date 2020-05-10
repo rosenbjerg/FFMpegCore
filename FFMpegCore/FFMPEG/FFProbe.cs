@@ -122,7 +122,6 @@ namespace FFMpegCore.FFMPEG
             try
             {
                 await pipeArgument.ProcessDataAsync();
-                pipeArgument.ClosePipe();
             }
             catch (IOException)
             {
