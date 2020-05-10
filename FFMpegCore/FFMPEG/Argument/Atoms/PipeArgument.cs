@@ -2,40 +2,38 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Pipes;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Mono.Unix;
 
 namespace FFMpegCore.FFMPEG.Argument
 {
     public abstract class PipeArgument : Argument
     {
-        public string PipePath => Pipe.PipePath;
+        public string PipeName { get; private set; }
+        public string PipePath => PipeHelpers.GetPipePath(PipeName);
 
-        protected INamedPipe Pipe { get; private set; }
+        protected NamedPipeServerStream Pipe { get; private set; }
         private PipeDirection direction;
 
         protected PipeArgument(PipeDirection direction)
         {
-            var pipeName = "FFMpegCore_Pipe_" + Guid.NewGuid();
-            Pipe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) switch
-            {
-                true => new WindowsNamedPipe(pipeName),
-                false => new UnixNamedPipe(pipeName)
-            };
+            PipeName = PipeHelpers.GetUnqiuePipeName();
             this.direction = direction;
         }
 
         public void OpenPipe()
         {
-            Pipe.Open(direction);
+            if (Pipe != null)
+                throw new InvalidOperationException("Pipe already has been opened");
+
+            Pipe = new NamedPipeServerStream(PipeName, direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
 
         public void ClosePipe()
         {
-            Pipe.Close();
+            Pipe?.Dispose();
+            Pipe = null;
         }
         public Task ProcessDataAsync()
         {
