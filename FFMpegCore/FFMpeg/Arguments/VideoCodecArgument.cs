@@ -14,7 +14,7 @@ namespace FFMpegCore.Arguments
             Codec = codec;
         }
 
-        public VideoCodecArgument(VideoCodec value) : this(value.ToString().ToLower()) { }
+        public VideoCodecArgument(VideoCodec value) : this(value.ToString().ToLowerInvariant()) { }
 
         public string Text => $"-c:v {Codec} -pix_fmt yuv420p";
     }

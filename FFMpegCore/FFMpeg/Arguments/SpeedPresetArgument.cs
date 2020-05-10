@@ -14,6 +14,6 @@ namespace FFMpegCore.Arguments
             Speed = speed;
         }
 
-        public string Text => $"-preset {Speed.ToString().ToLower()}";
+        public string Text => $"-preset {Speed.ToString().ToLowerInvariant()}";
     }
 }
