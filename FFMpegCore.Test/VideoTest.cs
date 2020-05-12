@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
@@ -296,9 +297,9 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(10000)]
-        public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
+        public async Task Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
-            Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
+            await Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
             {
                 await using var ms = new MemoryStream();
                 var pipeSource = new StreamPipeDataReader(ms);
@@ -635,6 +636,27 @@ namespace FFMpegCore.Test
             var vi = FFProbe.Analyse(resStream);
             Assert.AreEqual(vi.PrimaryVideoStream.Width, 128);
             Assert.AreEqual(vi.PrimaryVideoStream.Height, 128);
+        }
+
+        [TestMethod]
+        public async Task Video_Cancel_Async()
+        {
+            await using var resStream = new MemoryStream();
+            var reader = new StreamPipeDataReader(resStream);
+            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(256, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
+
+            var task = FFMpegArguments
+                .FromPipe(writer)
+                .WithVideoCodec("vp9")
+                .ForceFormat("webm")
+                .OutputToPipe(reader)
+                .CancellableThrough(out var cancel)
+                .ProcessAsynchronously(false);
+            
+            cancel();
+            
+            var result = await task;
+            Assert.IsFalse(result);
         }
     }
 }
