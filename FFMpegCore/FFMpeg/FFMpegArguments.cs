@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Models;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore
@@ -35,7 +36,8 @@ namespace FFMpegCore
         public static FFMpegArguments FromPipe(IPipeDataWriter writer) => new FFMpegArguments(new InputPipeArgument(writer));
 
         
-        public FFMpegArguments WithAudioCodec(AudioCodec audioCodec) => WithArgument(new AudioCodecArgument(audioCodec));
+        public FFMpegArguments WithAudioCodec(Codec audioCodec) => WithArgument(new AudioCodecArgument(audioCodec));
+        public FFMpegArguments WithAudioCodec(string audioCodec) => WithArgument(new AudioCodecArgument(audioCodec));
         public FFMpegArguments WithAudioBitrate(AudioQuality audioQuality) => WithArgument(new AudioBitrateArgument(audioQuality));
         public FFMpegArguments WithAudioBitrate(int bitrate) => WithArgument(new AudioBitrateArgument(bitrate));
         public FFMpegArguments WithAudioSamplingRate(int samplingRate = 48000) => WithArgument(new AudioSamplingRateArgument(samplingRate));
@@ -61,7 +63,7 @@ namespace FFMpegCore
         public FFMpegArguments UsingMultithreading(bool multithread) => WithArgument(new ThreadsArgument(multithread));
         public FFMpegArguments UsingThreads(int threads) => WithArgument(new ThreadsArgument(threads));
         
-        public FFMpegArguments WithVideoCodec(VideoCodec videoCodec) => WithArgument(new VideoCodecArgument(videoCodec));
+        public FFMpegArguments WithVideoCodec(Codec videoCodec) => WithArgument(new VideoCodecArgument(videoCodec));
         public FFMpegArguments WithVideoCodec(string videoCodec) => WithArgument(new VideoCodecArgument(videoCodec));
         public FFMpegArguments WithVideoBitrate(int bitrate) => WithArgument(new VideoBitrateArgument(bitrate));
         public FFMpegArguments WithFramerate(double framerate) => WithArgument(new FrameRateArgument(framerate));
@@ -77,8 +79,11 @@ namespace FFMpegCore
         public FFMpegArguments OverwriteExisting() => WithArgument(new OverwriteArgument());
         public FFMpegArguments WithVerbosityLevel(VerbosityLevel verbosityLevel = VerbosityLevel.Error) => WithArgument(new VerbosityLevelArgument(verbosityLevel));
 
-        public FFMpegArguments ForceFormat(VideoCodec videoCodec) => WithArgument(new ForceFormatArgument(videoCodec));
-        public FFMpegArguments ForceFormat(string videoCodec) => WithArgument(new ForceFormatArgument(videoCodec));
+        public FFMpegArguments ForceFormat(ContainerFormat format) => WithArgument(new ForceFormatArgument(format));
+        public FFMpegArguments ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
+        public FFMpegArguments ForcePixelFormat(string pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
+        public FFMpegArguments ForcePixelFormat(PixelFormat pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
+
         public FFMpegArguments DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
 
         public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = false) => ToProcessor(new OutputArgument(file, overwrite));
