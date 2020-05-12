@@ -9,6 +9,7 @@ namespace FFMpegCore
     {
         private static readonly string ConfigFile = Path.Combine(".", "ffmpeg.config.json");
         private static readonly string DefaultRoot = Path.Combine(".", "FFMPEG", "bin");
+        private static readonly string DefaultTemp = Path.Combine(Path.GetTempPath(), "FFMpegCore");
 
         public static FFMpegOptions Options { get; private set; } = new FFMpegOptions();
 
@@ -29,10 +30,11 @@ namespace FFMpegCore
         }
 
         public string RootDirectory { get; set; } = DefaultRoot;
+        public string TempDirectory { get; set; } = DefaultTemp;
 
-        public string FFmpegBinary => FFBinary("FFMpeg");
+        public string FFmpegBinary() => FFBinary("FFMpeg");
 
-        public string FFProbeBinary => FFBinary("FFProbe");
+        public string FFProbeBinary() => FFBinary("FFProbe");
 
         private static string FFBinary(string name)
         {
