@@ -187,6 +187,7 @@ namespace FFMpegCore
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(video);
                 var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{Path.GetFileNameWithoutExtension(video.Path)}{FileExtension.Ts}");
+                Directory.CreateDirectory(FFMpegOptions.Options.TempDirectory);
                 Convert(video, destinationPath, VideoType.Ts);
                 return destinationPath;
             }).ToArray();
@@ -219,6 +220,7 @@ namespace FFMpegCore
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
                 var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                Directory.CreateDirectory(FFMpegOptions.Options.TempDirectory);
                 File.Copy(image.FullName, destinationPath);
                 return destinationPath;
             }).ToArray();

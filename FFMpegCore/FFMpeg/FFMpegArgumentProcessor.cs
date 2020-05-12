@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using Instances;
 
@@ -36,7 +37,7 @@ namespace FFMpegCore
             _onTimeProgress = onTimeProgress;
             return this;
         }
-        public bool ProcessSynchronously()
+        public bool ProcessSynchronously(bool throwOnError = true)
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
@@ -46,18 +47,34 @@ namespace FFMpegCore
             _ffMpegArguments.Pre();
             
             var cancellationTokenSource = new CancellationTokenSource();
-            Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
+            try
             {
-                errorCode = t.Result;
-                cancellationTokenSource.Cancel();
-            }), _ffMpegArguments.During(cancellationTokenSource.Token));
+                Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
+                {
+                    errorCode = t.Result;
+                    cancellationTokenSource.Cancel();
+                }), _ffMpegArguments.During(cancellationTokenSource.Token));
+            }
+            catch (Exception e)
+            {
+                if (!throwOnError) 
+                    return false;
+                
+                throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
+                    string.Join("\n", instance.ErrorData));
+            }
+            finally
+            {
+                _ffMpegArguments.Post();
+            }
             
-            _ffMpegArguments.Post();
+            if (throwOnError && errorCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
             
             return errorCode == 0;
         }
         
-        public async Task<bool> ProcessAsynchronously()
+        public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
@@ -68,12 +85,29 @@ namespace FFMpegCore
             _ffMpegArguments.Pre();
             
             var cancellationTokenSource = new CancellationTokenSource();
-            await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
+            try
             {
-                errorCode = t.Result;
-                cancellationTokenSource.Cancel();
-            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
-            _ffMpegArguments.Post();
+                await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
+                {
+                    errorCode = t.Result;
+                    cancellationTokenSource.Cancel();
+                }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (!throwOnError) 
+                    return false;
+
+                throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
+                    string.Join("\n", instance.ErrorData));
+            }
+            finally
+            {
+                _ffMpegArguments.Post();
+            }
+            
+            if (throwOnError && errorCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
             
             return errorCode == 0;
         }
