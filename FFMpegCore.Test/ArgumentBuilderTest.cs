@@ -169,8 +169,8 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_ForceFormat()
         {
-            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").ForceFormat(VideoCodec.LibX264).OutputToFile("output.mp4").Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -f libx264 \"output.mp4\"", str);
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").ForceFormat(VideoType.Mp4).OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -f mp4 \"output.mp4\"", str);
         }
 
         [TestMethod]
@@ -278,13 +278,13 @@ namespace FFMpegCore.Test
         public void Builder_BuildString_Codec()
         {
             var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoCodec(VideoCodec.LibX264).OutputToFile("output.mp4").Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -c:v libx264 \"output.mp4\"", str);
         }
 
         [TestMethod]
         public void Builder_BuildString_Codec_Override()
         {
-            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoCodec(VideoCodec.LibX264).OutputToFile("output.mp4", true).Arguments;
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoCodec(VideoCodec.LibX264).ForcePixelFormat("yuv420p").OutputToFile("output.mp4", true).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\" -y", str);
         }
 
@@ -304,6 +304,14 @@ namespace FFMpegCore.Test
 
             str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithCustomArgument("-acodec copy").OutputToFile("output.mp4").Arguments;
             Assert.AreEqual("-i \"input.mp4\" -acodec copy \"output.mp4\"", str);
+        }
+
+
+        [TestMethod]
+        public void Builder_BuildString_ForcePixelFormat()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").ForcePixelFormat("yuv444p").OutputToFile("output.mp4").Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -pix_fmt yuv444p \"output.mp4\"", str);
         }
     }
 }
