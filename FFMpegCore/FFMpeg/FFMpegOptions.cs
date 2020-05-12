@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -9,6 +10,10 @@ namespace FFMpegCore
     {
         private static readonly string ConfigFile = Path.Combine(".", "ffmpeg.config.json");
         private static readonly string DefaultRoot = Path.Combine(".", "FFMPEG", "bin");
+        private static readonly Dictionary<string, string> DefaultExtensionsOverrides = new Dictionary<string, string>
+        {
+            { "mpegts", ".ts" },
+        };
 
         public static FFMpegOptions Options { get; private set; } = new FFMpegOptions();
 
@@ -25,7 +30,11 @@ namespace FFMpegCore
         static FFMpegOptions()
         {
             if (File.Exists(ConfigFile))
+            {
                 Options = JsonSerializer.Deserialize<FFMpegOptions>(File.ReadAllText(ConfigFile));
+                foreach (var kv in DefaultExtensionsOverrides)
+                    if (!Options.ExtensionOverrides.ContainsKey(kv.Key)) Options.ExtensionOverrides.Add(kv.Key, kv.Value);
+            }
         }
 
         public string RootDirectory { get; set; } = DefaultRoot;
@@ -33,6 +42,10 @@ namespace FFMpegCore
         public string FFmpegBinary => FFBinary("FFMpeg");
 
         public string FFProbeBinary => FFBinary("FFProbe");
+
+        public Dictionary<string, string> ExtensionOverrides { get; private set; } = new Dictionary<string, string>();
+
+        public bool UseCache { get; set; } = true;
 
         private static string FFBinary(string name)
         {
