@@ -1,54 +1,154 @@
-﻿namespace FFMpegCore.Enums
+﻿using FFMpegCore.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace FFMpegCore.Enums
 {
-    public enum CodecType
+    public enum FeatureStatus
     {
-        Unknown = 0,
-        Video = 1 << 1,
-        Audio = 1 << 2,
-        Subtitle = 1 << 3,
-        Data = 1 << 4,
+        Unknown,
+        NotSupported,
+        Supported,
     }
 
-    public static class VideoCodec
+    public class Codec
     {
-        public static Codec LibX264 => FFMpeg.GetCodec("libx264");
-        public static Codec LibVpx => FFMpeg.GetCodec("libvpx");
-        public static Codec LibTheora => FFMpeg.GetCodec("libtheora");
-        public static Codec Png => FFMpeg.GetCodec("png");
-        public static Codec MpegTs => FFMpeg.GetCodec("mpegts");
-    }
+        private static readonly Regex _codecsFormatRegex = new Regex(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _decodersEncodersFormatRegex = new Regex(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
 
-    public static class AudioCodec
-    {
-        public static Codec Aac => FFMpeg.GetCodec("aac");
-        public static Codec LibVorbis => FFMpeg.GetCodec("libvorbis");
-        public static Codec LibFdk_Aac => FFMpeg.GetCodec("libfdk_aac");
-        public static Codec Ac3 => FFMpeg.GetCodec("ac3");
-        public static Codec Eac3 => FFMpeg.GetCodec("eac3");
-        public static Codec LibMp3Lame => FFMpeg.GetCodec("libmp3lame");        
-    }
+        public class FeatureLevel
+        {
+            public bool IsExperimental { get; internal set; }
+            public FeatureStatus SupportsFrameLevelMultithreading { get; internal set; }
+            public FeatureStatus SupportsSliceLevelMultithreading { get; internal set; }
+            public FeatureStatus SupportsDrawHorizBand { get; internal set; }
+            public FeatureStatus SupportsDirectRendering { get; internal set; }
 
-    public static class VideoType
-    {
-        public static ContainerFormat MpegTs => FFMpeg.GetContinerFormat("mpegts");
-        public static ContainerFormat Ts => FFMpeg.GetContinerFormat("mpegts");
-        public static ContainerFormat Mp4 => FFMpeg.GetContinerFormat("mp4");
-        public static ContainerFormat Mov => FFMpeg.GetContinerFormat("mov");
-        public static ContainerFormat Avi => FFMpeg.GetContinerFormat("avi");
-        public static ContainerFormat Ogv => FFMpeg.GetContinerFormat("ogv");
-        public static ContainerFormat WebM => FFMpeg.GetContinerFormat("webm");
-    }
+            internal void Merge(FeatureLevel other)
+            {
+                IsExperimental |= other.IsExperimental;
+                SupportsFrameLevelMultithreading = (FeatureStatus)Math.Max((int)SupportsFrameLevelMultithreading, (int)other.SupportsFrameLevelMultithreading);
+                SupportsSliceLevelMultithreading = (FeatureStatus)Math.Max((int)SupportsSliceLevelMultithreading, (int)other.SupportsSliceLevelMultithreading);
+                SupportsDrawHorizBand = (FeatureStatus)Math.Max((int)SupportsDrawHorizBand, (int)other.SupportsDrawHorizBand);
+                SupportsDirectRendering = (FeatureStatus)Math.Max((int)SupportsDirectRendering, (int)other.SupportsDirectRendering);
+            }
+        }
 
-    public enum Filter
-    {
-        H264_Mp4ToAnnexB,
-        Aac_AdtstoAsc
-    }
+        public string Name { get; private set; }
+        public CodecType Type { get; private set; }
+        public bool DecodingSupported { get; private set; }
+        public bool EncodingSupported { get; private set; }
+        public bool IsIntraFrameOnly { get; private set; }
+        public bool IsLossy { get; private set; }
+        public bool IsLossless { get; private set; }
+        public string Description { get; private set; } = null!;
 
-    public enum Channel
-    {
-        Audio,
-        Video,
-        Both
+        public FeatureLevel EncoderFeatureLevel { get; private set; }
+        public FeatureLevel DecoderFeatureLevel { get; private set; }
+
+        internal Codec(string name, CodecType type)
+        {
+            EncoderFeatureLevel = new FeatureLevel();
+            DecoderFeatureLevel = new FeatureLevel();
+            Name = name;
+            Type = type;
+        }
+
+        internal static bool TryParseFromCodecs(string line, out Codec codec)
+        {
+            var match = _codecsFormatRegex.Match(line);
+            if (!match.Success)
+            {
+                codec = null!;
+                return false;
+            }
+
+            var name = match.Groups[7].Value;
+            var type = match.Groups[3].Value switch
+            {
+                "V" => CodecType.Video,
+                "A" => CodecType.Audio,
+                "D" => CodecType.Data,
+                "S" => CodecType.Subtitle,
+                _ => CodecType.Unknown
+            };
+
+            if(type == CodecType.Unknown)
+            {
+                codec = null!;
+                return false;
+            }
+
+            codec = new Codec(name, type);
+
+            codec.DecodingSupported = match.Groups[1].Value != ".";
+            codec.EncodingSupported = match.Groups[2].Value != ".";
+            codec.IsIntraFrameOnly = match.Groups[4].Value != ".";
+            codec.IsLossy = match.Groups[5].Value != ".";
+            codec.IsLossless = match.Groups[6].Value != ".";
+            codec.Description = match.Groups[8].Value;
+
+            return true;
+        }
+        internal static bool TryParseFromEncodersDecoders(string line, out Codec codec, bool isEncoder)
+        {
+            var match = _decodersEncodersFormatRegex.Match(line);
+            if (!match.Success)
+            {
+                codec = null!;
+                return false;
+            }
+
+            var name = match.Groups[7].Value;
+            var type = match.Groups[1].Value switch
+            {
+                "V" => CodecType.Video,
+                "A" => CodecType.Audio,
+                "D" => CodecType.Data,
+                "S" => CodecType.Subtitle,
+                _ => CodecType.Unknown
+            };
+
+            if (type == CodecType.Unknown)
+            {
+                codec = null!;
+                return false;
+            }
+
+            codec = new Codec(name, type);
+
+            var featureLevel = isEncoder ? codec.EncoderFeatureLevel : codec.DecoderFeatureLevel;
+
+            codec.DecodingSupported = !isEncoder;
+            codec.EncodingSupported = isEncoder;
+            featureLevel.SupportsFrameLevelMultithreading = match.Groups[2].Value != "." ? FeatureStatus.Supported : FeatureStatus.NotSupported;
+            featureLevel.SupportsSliceLevelMultithreading = match.Groups[3].Value != "." ? FeatureStatus.Supported : FeatureStatus.NotSupported;
+            featureLevel.IsExperimental = match.Groups[4].Value != ".";
+            featureLevel.SupportsDrawHorizBand = match.Groups[5].Value != "." ? FeatureStatus.Supported : FeatureStatus.NotSupported;
+            featureLevel.SupportsDirectRendering = match.Groups[6].Value != "." ? FeatureStatus.Supported : FeatureStatus.NotSupported;
+            codec.Description = match.Groups[8].Value;
+
+            return true;
+        }
+        internal void Merge(Codec other)
+        {
+            if (Name != other.Name)
+                throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
+
+            Type |= other.Type;
+            DecodingSupported |= other.DecodingSupported;
+            EncodingSupported |= other.EncodingSupported;
+            IsIntraFrameOnly |= other.IsIntraFrameOnly;
+            IsLossy |= other.IsLossy;
+            IsLossless |= other.IsLossless;
+
+            EncoderFeatureLevel.Merge(other.EncoderFeatureLevel);
+            DecoderFeatureLevel.Merge(other.DecoderFeatureLevel);
+
+            if (Description != other.Description)
+                Description += "\r\n" + other.Description;
+        }
     }
 }
