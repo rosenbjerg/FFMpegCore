@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
-using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
+using FFMpegCore.Models;
 using FFMpegCore.Pipes;
 using Instances;
 
@@ -28,7 +28,7 @@ namespace FFMpegCore
             var task = instance.FinishedRunning();
             try
             {
-                pipeArgument.During().ConfigureAwait(false).GetAwaiter().GetResult();
+                pipeArgument.During(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (IOException) { }
             finally
@@ -57,9 +57,9 @@ namespace FFMpegCore
             var task = instance.FinishedRunning();
             try
             {
-                await pipeArgument.During();
+                await pipeArgument.During(CancellationToken.None);
             }
-            catch(IOException)
+            catch (IOException)
             {
             }
             finally

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using FFMpegCore.Enums;
 using FFMpegCore.Helpers;
+using FFMpegCore.Utils;
 
 namespace FFMpegCore
 {

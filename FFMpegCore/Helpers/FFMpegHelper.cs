@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using FFMpegCore.Exceptions;
+using FFMpegCore.Models;
 
 namespace FFMpegCore.Helpers
 {

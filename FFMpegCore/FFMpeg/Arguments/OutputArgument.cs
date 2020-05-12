@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using FFMpegCore.Exceptions;
+using FFMpegCore.Models;
 
 namespace FFMpegCore.Arguments
 {
@@ -11,11 +11,13 @@ namespace FFMpegCore.Arguments
     {
         public readonly string Path;
         public readonly bool Overwrite;
+        public readonly bool VerifyOutputExists;
 
-        public OutputArgument(string path, bool overwrite = false)
+        public OutputArgument(string path, bool overwrite = false, bool verifyOutputExists = true)
         {
             Path = path;
             Overwrite = overwrite;
+            VerifyOutputExists = verifyOutputExists;
         }
 
         public void Pre()
@@ -25,7 +27,7 @@ namespace FFMpegCore.Arguments
         }
         public void Post()
         {
-            if (!File.Exists(Path))
+            if (VerifyOutputExists && !File.Exists(Path))
                 throw new FFMpegException(FFMpegExceptionType.File, "Output file was not created");
         }
 
