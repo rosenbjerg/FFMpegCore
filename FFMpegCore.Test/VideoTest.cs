@@ -3,6 +3,7 @@ using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -427,7 +428,7 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
-        public void Video_Snapshot()
+        public void Video_Snapshot_InMemory()
         {
             var output = Input.OutputLocation(ImageType.Png);
 
@@ -435,7 +436,7 @@ namespace FFMpegCore.Test
             {
                 var input = FFProbe.Analyse(Input.FullName);
 
-                using var bitmap = FFMpeg.Snapshot(input, output);
+                using var bitmap = FFMpeg.Snapshot(input);
                 Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
                 Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
                 Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
@@ -455,11 +456,12 @@ namespace FFMpegCore.Test
             {
                 var input = FFProbe.Analyse(Input.FullName);
 
-                using var bitmap = FFMpeg.Snapshot(input, output, persistSnapshotOnFileSystem: true);
+                FFMpeg.Snapshot(input, output);
+
+                var bitmap = Image.FromFile(output);
                 Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
                 Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
                 Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
-                Assert.IsTrue(File.Exists(output));
             }
             finally
             {

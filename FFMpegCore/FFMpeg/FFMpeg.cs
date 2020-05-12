@@ -7,29 +7,68 @@ using System.Linq;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore
 {
     public static class FFMpeg
     {
         /// <summary>
-        ///     Saves a 'png' thumbnail from the input video.
+        ///     Saves a 'png' thumbnail from the input video to drive
         /// </summary>
-        /// <param name="source">Source video file.</param>
-        /// <param name="output">Output video file</param>
+        /// <param name="source">Source video analysis</param>
+        /// <param name="output">Output video file path</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-        /// <param name="persistSnapshotOnFileSystem">By default, it deletes the created image on disk. If set to true, it won't delete the image</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Bitmap Snapshot(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null,
-            bool persistSnapshotOnFileSystem = false)
+        public static bool Snapshot(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
         {
-            if (captureTime == null)
-                captureTime = TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
+            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
 
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
+            size = PrepareSnapshotSize(source, size);
+
+            return FFMpegArguments
+                .FromInputFiles(source.Path)
+                .WithVideoCodec(VideoCodec.Png)
+                .WithFrameOutputCount(1)
+                .Resize(size)
+                .Seek(captureTime)
+                .OutputToFile(output)
+                .ProcessSynchronously();
+        }
+        /// <summary>
+        ///     Saves a 'png' thumbnail to an in-memory bitmap
+        /// </summary>
+        /// <param name="source">Source video file.</param>
+        /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+        /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <returns>Bitmap with the requested snapshot.</returns>
+        public static Bitmap Snapshot(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        {
+            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
+
+            size = PrepareSnapshotSize(source, size);
+
+            using var ms = new MemoryStream();
+            FFMpegArguments
+                .FromInputFiles(source.Path)
+                .WithVideoCodec(VideoCodec.Png)
+                .WithFrameOutputCount(1)
+                .Resize(size)
+                .Seek(captureTime)
+                .ForceFormat("rawvideo")
+                .OutputToPipe(new StreamPipeDataReader(ms))
+                .ProcessSynchronously();
+
+            ms.Position = 0;
+            return new Bitmap(ms);
+        }
+
+        private static Size? PrepareSnapshotSize(MediaAnalysis source, Size? size)
+        {
             if (size == null || (size.Value.Height == 0 && size.Value.Width == 0))
                 size = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
 
@@ -37,44 +76,22 @@ namespace FFMpegCore
             {
                 if (size.Value.Width == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Width / (double)size.Value.Width;
+                    var ratio = source.PrimaryVideoStream.Width / (double) size.Value.Width;
 
-                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio), (int)(source.PrimaryVideoStream.Height * ratio));
+                    size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
+                        (int) (source.PrimaryVideoStream.Height * ratio));
                 }
 
                 if (size.Value.Height == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Height / (double)size.Value.Height;
+                    var ratio = source.PrimaryVideoStream.Height / (double) size.Value.Height;
 
-                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio), (int)(source.PrimaryVideoStream.Height * ratio));
+                    size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
+                        (int) (source.PrimaryVideoStream.Height * ratio));
                 }
             }
 
-            var success = FFMpegArguments
-                .FromInputFiles(true, source.Path)
-                .WithVideoCodec(VideoCodec.Png)
-                .WithFrameOutputCount(1)
-                .Resize(size)
-                .Seek(captureTime)
-                .OutputToFile(output)
-                .ProcessSynchronously();
-
-
-            if (!success)
-                throw new OperationCanceledException("Could not take snapshot!");
-
-            Bitmap result;
-            using (var bmp = (Bitmap)Image.FromFile(output))
-            {
-                using var ms = new MemoryStream();
-                bmp.Save(ms, ImageFormat.Png);
-                result = new Bitmap(ms);
-            }
-
-            if (File.Exists(output) && !persistSnapshotOnFileSystem)
-                File.Delete(output);
-
-            return result;
+            return size;
         }
 
         /// <summary>
@@ -489,7 +506,7 @@ namespace FFMpegCore
                 return FFMpegCache.ContainerFormats.TryGetValue(name, out fmt);
         }
 
-        public static ContainerFormat GetContinerFormat(string name)
+        public static ContainerFormat GetContainerFormat(string name)
         {
             if (TryGetContainerFormat(name, out var fmt))
                 return fmt;
