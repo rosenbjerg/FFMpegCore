@@ -1,6 +1,7 @@
 ﻿using System;
+using FFMpegCore.Models;
 
-namespace FFMpegCore.Enums
+namespace FFMpegCore.Utils
 {
     public static class FileExtension
     {

@@ -10,10 +10,13 @@ namespace FFMpegCore
         {
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
+            TextStreams = analysis.Streams.Where(stream => stream.CodecTagString == "text").Select(ParseTextStream).ToList();
             PrimaryVideoStream = VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
             PrimaryAudioStream = AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
+            PrimaryTextStream = TextStreams.OrderBy(stream => stream.Index).FirstOrDefault();
             Path = path;
         }
+
 
 
         public string Path { get; }
@@ -22,12 +25,14 @@ namespace FFMpegCore
         public TimeSpan Duration => TimeSpan.FromSeconds(Math.Max(
             PrimaryVideoStream?.Duration.TotalSeconds ?? 0,
             PrimaryAudioStream?.Duration.TotalSeconds ?? 0));
-        public AudioStream PrimaryAudioStream { get; }
 
         public VideoStream PrimaryVideoStream { get; }
+        public AudioStream PrimaryAudioStream { get; }
+        public TextStream PrimaryTextStream { get; }
 
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
+        public List<TextStream> TextStreams { get; set; }
 
         private VideoStream ParseVideoStream(Stream stream)
         {
@@ -45,7 +50,8 @@ namespace FFMpegCore
                 Height = stream.Height!.Value,
                 Width = stream.Width!.Value,
                 Profile = stream.Profile,
-                PixelFormat = stream.PixelFormat
+                PixelFormat = stream.PixelFormat,
+                Language = stream.Tags.Language
             };
         }
 
@@ -67,7 +73,19 @@ namespace FFMpegCore
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
                 Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags.Duration ?? "0")),
-                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default
+                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
+                Language = stream.Tags.Language
+            };
+        }
+        private TextStream ParseTextStream(Stream stream)
+        {
+            return new TextStream
+            {
+                Index = stream.Index,
+                CodecName = stream.CodecName,
+                CodecLongName = stream.CodecLongName,
+                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags.Duration ?? "0")),
+                Language = stream.Tags.Language
             };
         }
 

@@ -49,7 +49,7 @@ namespace FFMpegCore.Test
             var info = await FFProbe.AnalyseAsync(VideoLibrary.LocalVideo.FullName);
             Assert.AreEqual(13, info.Duration.Seconds);
         }
-
+        
         [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream()
         {

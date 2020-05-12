@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace FFMpegCore.Enums
+namespace FFMpegCore.Models
 {
     public class PixelFormat
     {
-        private static readonly Regex _formatRegex = new Regex(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)");
+        private static readonly Regex FormatRegex = new Regex(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)", RegexOptions.Compiled);
 
         public bool InputConversionSupported { get; private set; }
         public bool OutputConversionSupported { get; private set; }
@@ -30,7 +27,7 @@ namespace FFMpegCore.Enums
 
         internal static bool TryParse(string line, out PixelFormat fmt)
         {
-            var match = _formatRegex.Match(line);
+            var match = FormatRegex.Match(line);
             if (!match.Success)
             {
                 fmt = null!;
