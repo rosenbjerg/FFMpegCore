@@ -26,7 +26,7 @@ namespace FFMpegCore
 
         public string Arguments => _ffMpegArguments.Text;
 
-        private event EventHandler _cancelEvent; 
+        private event EventHandler CancelEvent = null!; 
 
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
@@ -41,7 +41,7 @@ namespace FFMpegCore
         }
         public FFMpegArgumentProcessor CancellableThrough(out Action cancel)
         {
-            cancel = () => _cancelEvent?.Invoke(this, EventArgs.Empty);
+            cancel = () => CancelEvent?.Invoke(this, EventArgs.Empty);
             return this;
         }
         public bool ProcessSynchronously(bool throwOnError = true)
@@ -53,7 +53,7 @@ namespace FFMpegCore
                 instance?.SendInput("q");
                 cancellationTokenSource.Cancel();
             }
-            _cancelEvent += OnCancelEvent;
+            CancelEvent += OnCancelEvent;
             
             _ffMpegArguments.Pre();
             try
@@ -70,7 +70,7 @@ namespace FFMpegCore
             }
             finally
             {
-                _cancelEvent -= OnCancelEvent;
+                CancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
             
@@ -92,7 +92,7 @@ namespace FFMpegCore
                 instance?.SendInput("q");
                 cancellationTokenSource.Cancel();
             }
-            _cancelEvent += OnCancelEvent;
+            CancelEvent += OnCancelEvent;
             
             _ffMpegArguments.Pre();
             try
@@ -109,7 +109,7 @@ namespace FFMpegCore
             }
             finally
             {
-                _cancelEvent -= OnCancelEvent;
+                CancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
             
