@@ -6,10 +6,10 @@ namespace FFMpegCore
     public class FFProbeAnalysis
     {
         [JsonPropertyName("streams")]
-        public List<Stream> Streams { get; set; } = null!;
+        public List<FFProbeStream> Streams { get; set; } = null!;
     }
     
-    public class Stream
+    public class FFProbeStream
     {
         [JsonPropertyName("index")]
         public int Index { get; set; }
@@ -70,5 +70,8 @@ namespace FFMpegCore
     {
         [JsonPropertyName("DURATION")]
         public string Duration { get; set; } = null!;
+        
+        [JsonPropertyName("language")]
+        public string Language { get; set; } = null!;
     }
 }

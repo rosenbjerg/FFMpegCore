@@ -8,9 +8,9 @@ namespace FFMpegCore
 {
     public class FFMpegOptions
     {
-        private static readonly string ConfigFile = Path.Combine(".", "ffmpeg.config.json");
-        private static readonly string DefaultRoot = Path.Combine(".", "FFMPEG", "bin");
-        private static readonly string DefaultTemp = Path.Combine(Path.GetTempPath(), "FFMpegCore");
+        private static readonly string ConfigFile = "ffmpeg.config.json";
+        private static readonly string DefaultRoot = "";
+        private static readonly string DefaultTemp = Path.GetTempPath();
         private static readonly Dictionary<string, string> DefaultExtensionsOverrides = new Dictionary<string, string>
         {
             { "mpegts", ".ts" },
@@ -33,8 +33,8 @@ namespace FFMpegCore
             if (File.Exists(ConfigFile))
             {
                 Options = JsonSerializer.Deserialize<FFMpegOptions>(File.ReadAllText(ConfigFile));
-                foreach (var kv in DefaultExtensionsOverrides)
-                    if (!Options.ExtensionOverrides.ContainsKey(kv.Key)) Options.ExtensionOverrides.Add(kv.Key, kv.Value);
+                foreach (var (key, value) in DefaultExtensionsOverrides)
+                    if (!Options.ExtensionOverrides.ContainsKey(key)) Options.ExtensionOverrides.Add(key, value);
             }
         }
 

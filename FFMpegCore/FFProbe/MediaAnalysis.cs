@@ -29,7 +29,7 @@ namespace FFMpegCore
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
 
-        private VideoStream ParseVideoStream(Stream stream)
+        private VideoStream ParseVideoStream(FFProbeStream stream)
         {
             return new VideoStream
             {
@@ -42,21 +42,22 @@ namespace FFMpegCore
                 DisplayAspectRatio = ParseRatioInt(stream.DisplayAspectRatio, ':'),
                 Duration = ParseDuration(stream),
                 FrameRate = DivideRatio(ParseRatioDouble(stream.FrameRate, '/')),
-                Height = stream.Height!.Value,
-                Width = stream.Width!.Value,
+                Height = stream.Height ?? 0,
+                Width = stream.Width ?? 0,
                 Profile = stream.Profile,
-                PixelFormat = stream.PixelFormat
+                PixelFormat = stream.PixelFormat,
+                Language = stream.Tags?.Language
             };
         }
 
-        private static TimeSpan ParseDuration(Stream stream)
+        private static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
-            return stream.Duration != null
-                ? TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration))
-                : TimeSpan.Parse(stream.Tags.Duration ?? "0");
+            return ffProbeStream.Duration != null
+                ? TimeSpan.FromSeconds(ParseDoubleInvariant(ffProbeStream.Duration))
+                : TimeSpan.Parse(ffProbeStream.Tags?.Duration ?? "0");
         }
 
-        private AudioStream ParseAudioStream(Stream stream)
+        private AudioStream ParseAudioStream(FFProbeStream stream)
         {
             return new AudioStream
             {
@@ -67,7 +68,8 @@ namespace FFMpegCore
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
                 Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags.Duration ?? "0")),
-                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default
+                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
+                Language = stream.Tags?.Language
             };
         }
 
