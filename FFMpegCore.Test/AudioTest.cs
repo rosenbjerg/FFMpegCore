@@ -1,8 +1,8 @@
 ﻿using System;
+using FFMpegCore.Enums;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using FFMpegCore.Utils;
 
 namespace FFMpegCore.Test
 {

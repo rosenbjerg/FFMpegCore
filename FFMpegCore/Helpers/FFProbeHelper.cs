@@ -1,4 +1,4 @@
-﻿using FFMpegCore.Models;
+﻿using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Helpers
 {

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
-using FFMpegCore.Models;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore
@@ -86,8 +85,8 @@ namespace FFMpegCore
 
         public FFMpegArguments DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
 
-        public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = false, bool verifyOutputExists = true) => ToProcessor(new OutputArgument(file, overwrite, verifyOutputExists));
-        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = false, bool verifyOutputExists = true) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite, verifyOutputExists));
+        public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = false) => ToProcessor(new OutputArgument(file, overwrite));
+        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = false) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite));
         public FFMpegArgumentProcessor OutputToPipe(IPipeDataReader reader) => ToProcessor(new OutputPipeArgument(reader));
 
         public FFMpegArguments WithArgument(IArgument argument)
@@ -107,7 +106,7 @@ namespace FFMpegCore
             _inputArgument.Pre();
             _outputArgument.Pre();
         }
-        internal async Task During(CancellationToken cancellationToken)
+        internal async Task During(CancellationToken? cancellationToken = null)
         {
             await Task.WhenAll(_inputArgument.During(cancellationToken), _outputArgument.During(cancellationToken)).ConfigureAwait(false);
         }
