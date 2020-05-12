@@ -297,28 +297,22 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
-            using var ms = new MemoryStream();
-            var pipeSource = new StreamPipeDataReader(ms);
-            var result = FFMpegArguments
-                .FromInputFiles(VideoLibrary.LocalVideo)
-                .ForceFormat("mkv")
-                .OutputToPipe(pipeSource)
-                .ProcessAsynchronously()
-                .WaitForResult();
-            Assert.IsFalse(result);
+            Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
+            {
+                await using var ms = new MemoryStream();
+                var pipeSource = new StreamPipeDataReader(ms);
+                await FFMpegArguments
+                    .FromInputFiles(VideoLibrary.LocalVideo)
+                    .ForceFormat("mkv")
+                    .OutputToPipe(pipeSource)
+                    .ProcessAsynchronously();
+            });
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
-            using var ms = new MemoryStream();
-            var pipeSource = new StreamPipeDataReader(ms);
-            var result = FFMpegArguments
-                .FromInputFiles(VideoLibrary.LocalVideo)
-                .ForceFormat("mkv")
-                .OutputToPipe(pipeSource)
-                .ProcessSynchronously();
-            Assert.IsFalse(result);
+            Assert.ThrowsException<FFMpegException>(() => ConvertToStreamPipe(new ForceFormatArgument("mkv")));
         }
 
 
