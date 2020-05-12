@@ -1,7 +1,4 @@
-﻿using FFMpegCore.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FFMpegCore.Enums;
 
 namespace FFMpegCore.Arguments
 {
