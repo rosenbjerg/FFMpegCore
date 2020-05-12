@@ -1,6 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 
-namespace FFMpegCore.Models
+namespace FFMpegCore.Enums
 {
     public class ContainerFormat
     {
