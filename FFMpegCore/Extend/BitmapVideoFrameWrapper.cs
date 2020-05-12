@@ -70,9 +70,9 @@ namespace FFMpegCore.Extend
                 case PixelFormat.Format16bppRgb565:
                     return "bgr565le";
                 case PixelFormat.Format24bppRgb:
-                    return "rgb24";
+                    return "bgr24";
                 case PixelFormat.Format32bppArgb:
-                    return "rgba";
+                    return "bgra";
                 case PixelFormat.Format32bppPArgb:
                     //This is not really same as argb32
                     return "argb";
