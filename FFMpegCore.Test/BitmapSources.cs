@@ -30,12 +30,14 @@ namespace FFMpegCore.Test
             for (int y = 0; y < h; y++)
                 for (int x = 0; x < w; x++)
                 {
+                    var xf = x / (float)w;
+                    var yf = y / (float)h;
                     var nx = x * scaleNoise + offset;
                     var ny = y * scaleNoise + offset;
 
                     var value = (int)((Perlin.Noise(nx, ny) + 1.0f) / 2.0f * 255);
 
-                    var color = Color.FromArgb(value, value, value);
+                    var color = Color.FromArgb((int)(value * xf), (int)(value * yf), value);
 
                     bitmap.SetPixel(x, y, color);
                 }
