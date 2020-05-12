@@ -185,7 +185,7 @@ namespace FFMpegCore
             var temporaryVideoParts = videos.Select(video =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(video);
-                var destinationPath = video.Path.Replace(video.Extension, FileExtension.Ts);
+                var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{Path.GetFileNameWithoutExtension(video.Path)}{FileExtension.Ts}");
                 Convert(video, destinationPath, VideoType.Ts);
                 return destinationPath;
             }).ToArray();
@@ -217,7 +217,7 @@ namespace FFMpegCore
             var temporaryImageFiles = images.Select((image, index) =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
-                var destinationPath = image.FullName.Replace(image.Name, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
                 File.Copy(image.FullName, destinationPath);
                 return destinationPath;
             }).ToArray();
@@ -226,7 +226,7 @@ namespace FFMpegCore
             try
             {
                 return FFMpegArguments
-                    .FromInputFiles(false, Path.Join(firstImage.Directory.FullName, "%09d.png"))
+                    .FromInputFiles(false, Path.Combine(FFMpegOptions.Options.TempDirectory, "%09d.png"))
                     .WithVideoCodec(VideoCodec.LibX264)
                     .Resize(firstImage.Width, firstImage.Height)
                     .WithFrameOutputCount(images.Length)
@@ -251,15 +251,13 @@ namespace FFMpegCore
         {
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
 
-            if (uri.Scheme == "http" || uri.Scheme == "https")
-            {
-                return FFMpegArguments
-                    .FromInputFiles(false, uri)
-                    .OutputToFile(output)
-                    .ProcessSynchronously();
-            }
-
-            throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
+            if (uri.Scheme != "http" && uri.Scheme != "https")
+                throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
+            
+            return FFMpegArguments
+                .FromInputFiles(false, uri)
+                .OutputToFile(output)
+                .ProcessSynchronously();
         }
 
         /// <summary>
@@ -328,11 +326,8 @@ namespace FFMpegCore
             foreach (var path in pathList)
             {
                 if (File.Exists(path))
-                {
                     File.Delete(path);
-                }
             }
         }
-
     }
 }

@@ -87,7 +87,7 @@ namespace FFMpegCore
         private static Instance PrepareInstance(string filePath, int outputCapacity)
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            var ffprobe = FFMpegOptions.Options.FFProbeBinary;
+            var ffprobe = FFMpegOptions.Options.FFProbeBinary();
             var arguments = $"-print_format json -show_streams \"{filePath}\"";
             var instance = new Instance(ffprobe, arguments) {DataBufferCapacity = outputCapacity};
             return instance;

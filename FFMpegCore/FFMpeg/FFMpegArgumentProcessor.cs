@@ -39,7 +39,7 @@ namespace FFMpegCore
         public bool ProcessSynchronously()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary, _ffMpegArguments.Text);
+            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
             instance.DataReceived += OutputData;
             var errorCode = -1;
 
@@ -60,7 +60,7 @@ namespace FFMpegCore
         public async Task<bool> ProcessAsynchronously()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary, _ffMpegArguments.Text);
+            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
             if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
                 instance.DataReceived += OutputData;
             var errorCode = -1;
