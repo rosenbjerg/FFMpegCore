@@ -462,6 +462,7 @@ namespace FFMpegCore.Test
                 Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
                 Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
                 Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+                bitmap.Dispose();
             }
             finally
             {
