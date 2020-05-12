@@ -26,27 +26,36 @@ namespace FFMpegCore
 
         public string Arguments => _ffMpegArguments.Text;
 
-        public FFMpegArgumentProcessor NotifyOnProgress(Action<double>? onPercentageProgress, TimeSpan? totalTimeSpan)
+        private event EventHandler _cancelEvent; 
+
+        public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
             _totalTimespan = totalTimeSpan;
             _onPercentageProgress = onPercentageProgress;
             return this;
         }
-        public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan>? onTimeProgress)
+        public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan> onTimeProgress)
         {
             _onTimeProgress = onTimeProgress;
             return this;
         }
+        public FFMpegArgumentProcessor CancellableThrough(out Action cancel)
+        {
+            cancel = () => _cancelEvent?.Invoke(this, EventArgs.Empty);
+            return this;
+        }
         public bool ProcessSynchronously(bool throwOnError = true)
         {
-            FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
-            instance.DataReceived += OutputData;
-            var errorCode = -1;
+            var instance = PrepareInstance(out var cancellationTokenSource, out var errorCode);
 
-            _ffMpegArguments.Pre();
+            void OnCancelEvent(object sender, EventArgs args)
+            {
+                instance?.SendInput("q");
+                cancellationTokenSource.Cancel();
+            }
+            _cancelEvent += OnCancelEvent;
             
-            var cancellationTokenSource = new CancellationTokenSource();
+            _ffMpegArguments.Pre();
             try
             {
                 Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
@@ -57,34 +66,35 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!throwOnError) 
-                    return false;
-                
-                throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
-                    string.Join("\n", instance.ErrorData));
+                if (!HandleException(throwOnError, e, instance)) return false;
             }
             finally
             {
+                _cancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
             
             if (throwOnError && errorCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
             
+            _onPercentageProgress?.Invoke(100.0);
+            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
+            
             return errorCode == 0;
         }
         
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
         {
-            FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            using var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
-            if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
-                instance.DataReceived += OutputData;
-            var errorCode = -1;
+            using var instance = PrepareInstance(out var cancellationTokenSource, out var errorCode);
 
-            _ffMpegArguments.Pre();
+            void OnCancelEvent(object sender, EventArgs args)
+            {
+                instance?.SendInput("q");
+                cancellationTokenSource.Cancel();
+            }
+            _cancelEvent += OnCancelEvent;
             
-            var cancellationTokenSource = new CancellationTokenSource();
+            _ffMpegArguments.Pre();
             try
             {
                 await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
@@ -95,24 +105,48 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!throwOnError) 
-                    return false;
-
-                throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
-                    string.Join("\n", instance.ErrorData));
+                if (!HandleException(throwOnError, e, instance)) return false;
             }
             finally
             {
+                _cancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
             
             if (throwOnError && errorCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
             
+            _onPercentageProgress?.Invoke(100.0);
+            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
+            
             return errorCode == 0;
         }
+
+        private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource, out int errorCode)
+        {
+            FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
+            var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
+            instance.DataReceived += OutputData;
+            cancellationTokenSource = new CancellationTokenSource();
+
+            if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+                instance.DataReceived += OutputData;
+
+            errorCode = -1;
+            
+            return instance;
+        }
         
-        
+        private static bool HandleException(bool throwOnError, Exception e, Instance instance)
+        {
+            if (!throwOnError)
+                return false;
+
+            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
+                string.Join("\n", instance.ErrorData));
+        }
+
+
         private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
         private Action<double>? _onPercentageProgress;
         private Action<TimeSpan>? _onTimeProgress;
