@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
-using FFMpegCore.Models;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore

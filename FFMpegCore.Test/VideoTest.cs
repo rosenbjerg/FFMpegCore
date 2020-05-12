@@ -212,7 +212,7 @@ namespace FFMpegCore.Test
             Convert(type, null, inputArguments);
         }
 
-        public void ConvertFromPipe(ContainerFormat type, PixelFormat fmt, params IArgument[] inputArguments)
+        public void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] inputArguments)
         {
             var output = Input.OutputLocation(type);
 
@@ -280,10 +280,10 @@ namespace FFMpegCore.Test
         }
 
         [DataTestMethod]
-        [DataRow(PixelFormat.Format24bppRgb)]
-        [DataRow(PixelFormat.Format32bppArgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
-        public void Video_ToMP4_Args_Pipe(PixelFormat pixelFormat)
+        public void Video_ToMP4_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Mp4, pixelFormat, new VideoCodecArgument(VideoCodec.LibX264));
         }
@@ -358,10 +358,10 @@ namespace FFMpegCore.Test
         }
 
         [DataTestMethod]
-        [DataRow(PixelFormat.Format24bppRgb)]
-        [DataRow(PixelFormat.Format32bppArgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
-        public void Video_ToTS_Args_Pipe(PixelFormat pixelFormat)
+        public void Video_ToTS_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Ts, pixelFormat, new ForceFormatArgument(VideoType.Ts));
         }
@@ -379,10 +379,10 @@ namespace FFMpegCore.Test
         }
 
         [DataTestMethod]
-        [DataRow(PixelFormat.Format24bppRgb)]
-        [DataRow(PixelFormat.Format32bppArgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
-        public void Video_ToOGV_Resize_Args_Pipe(PixelFormat pixelFormat)
+        public void Video_ToOGV_Resize_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Ogv, pixelFormat, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
@@ -400,10 +400,10 @@ namespace FFMpegCore.Test
         }
 
         [DataTestMethod]
-        [DataRow(PixelFormat.Format24bppRgb)]
-        [DataRow(PixelFormat.Format32bppArgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
-        public void Video_ToMP4_Resize_Args_Pipe(PixelFormat pixelFormat)
+        public void Video_ToMP4_Resize_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Mp4, pixelFormat, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
@@ -625,7 +625,7 @@ namespace FFMpegCore.Test
         {
             using var resStream = new MemoryStream();
             var reader = new StreamPipeDataReader(resStream);
-            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, PixelFormat.Format24bppRgb, 128, 128));
+            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             FFMpegArguments
                 .FromPipe(writer)

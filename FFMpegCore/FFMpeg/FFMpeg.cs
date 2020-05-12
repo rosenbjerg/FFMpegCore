@@ -7,7 +7,6 @@ using System.Linq;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
-using FFMpegCore.Models;
 
 namespace FFMpegCore
 {
@@ -326,15 +325,15 @@ namespace FFMpegCore
         }
 
         #region PixelFormats
-        internal static IReadOnlyList<Models.PixelFormat> GetPixelFormatsInternal()
+        internal static IReadOnlyList<Enums.PixelFormat> GetPixelFormatsInternal()
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            var list = new List<Models.PixelFormat>();
+            var list = new List<Enums.PixelFormat>();
             using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary, "-pix_fmts");
             instance.DataReceived += (e, args) =>
             {
-                if (Models.PixelFormat.TryParse(args.Data, out var fmt))
+                if (Enums.PixelFormat.TryParse(args.Data, out var fmt))
                     list.Add(fmt);
             };
 
@@ -344,14 +343,14 @@ namespace FFMpegCore
             return list.AsReadOnly();
         }
 
-        public static IReadOnlyList<Models.PixelFormat> GetPixelFormats()
+        public static IReadOnlyList<Enums.PixelFormat> GetPixelFormats()
         {
             if (!FFMpegOptions.Options.UseCache)
                 return GetPixelFormatsInternal();
             return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
         }
 
-        public static bool TryGetPixelFormat(string name, out Models.PixelFormat fmt)
+        public static bool TryGetPixelFormat(string name, out Enums.PixelFormat fmt)
         {
             if (!FFMpegOptions.Options.UseCache)
             {
@@ -362,7 +361,7 @@ namespace FFMpegCore
                 return FFMpegCache.PixelFormats.TryGetValue(name, out fmt);
         }
 
-        public static Models.PixelFormat GetPixelFormat(string name)
+        public static Enums.PixelFormat GetPixelFormat(string name)
         {
             if (TryGetPixelFormat(name, out var fmt))
                 return fmt;
