@@ -29,7 +29,7 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
-        public void Options_Overrided()
+        public void Options_Set_Programmatically()
         {
             var original = FFMpegOptions.Options; 
             try
