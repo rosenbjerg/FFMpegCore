@@ -643,7 +643,7 @@ namespace FFMpegCore.Test
         {
             await using var resStream = new MemoryStream();
             var reader = new StreamPipeDataReader(resStream);
-            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(256, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
+            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(512, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             var task = FFMpegArguments
                 .FromPipe(writer)
@@ -653,7 +653,7 @@ namespace FFMpegCore.Test
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
 
-            await Task.Delay(100);
+            await Task.Delay(300);
             cancel();
             
             var result = await task;
