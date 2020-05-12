@@ -1,4 +1,6 @@
-﻿namespace FFMpegCore
+﻿using FFMpegCore.Enums;
+
+namespace FFMpegCore
 {
     public class VideoStream : MediaStream
     {
@@ -10,5 +12,7 @@
         public int Height { get; internal set; }
         public double FrameRate { get; internal set; }
         public string PixelFormat { get; internal set; } = null!;
+
+        public PixelFormat GetPixelFormatInfo() => FFMpeg.GetPixelFormat(PixelFormat);
     }
 }
