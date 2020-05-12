@@ -1,6 +1,6 @@
-﻿using FFMpegCore.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using FFMpegCore.Models;
 
 namespace FFMpegCore
 {
@@ -18,7 +18,7 @@ namespace FFMpegCore
                 if (_pixelFormats == null) //First check not thread safe
                     lock (_syncObject)
                         if (_pixelFormats == null)//Second check thread safe
-                            _pixelFormats = FFMpeg.GetPixelFormatsInternal().ToDictionary(x => x.Name);
+                            _pixelFormats = FFMpegUtils.GetPixelFormatsInternal().ToDictionary(x => x.Name);
 
                 return _pixelFormats;
             }
@@ -31,7 +31,7 @@ namespace FFMpegCore
                 if (_codecs == null) //First check not thread safe
                     lock (_syncObject)
                         if (_codecs == null)//Second check thread safe
-                            _codecs = FFMpeg.GetCodecsInternal();
+                            _codecs = FFMpegUtils.GetCodecsInternal();
 
                 return _codecs;
             }
@@ -44,7 +44,7 @@ namespace FFMpegCore
                 if (_containers == null) //First check not thread safe
                     lock (_syncObject)
                         if (_containers == null)//Second check thread safe
-                            _containers = FFMpeg.GetContainersFormatsInternal().ToDictionary(x => x.Name);
+                            _containers = FFMpegUtils.GetContainersFormatsInternal().ToDictionary(x => x.Name);
 
                 return _containers;
             }
