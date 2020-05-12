@@ -652,7 +652,8 @@ namespace FFMpegCore.Test
                 .OutputToPipe(reader)
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
-            
+
+            await Task.Delay(100);
             cancel();
             
             var result = await task;
