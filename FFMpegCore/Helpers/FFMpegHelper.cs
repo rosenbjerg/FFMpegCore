@@ -17,12 +17,9 @@ namespace FFMpegCore.Helpers
             ConversionSizeExceptionCheck(new Size(info.PrimaryVideoStream.Width, info.PrimaryVideoStream.Height));
         }
 
-        public static void ConversionSizeExceptionCheck(Size size)
+        private static void ConversionSizeExceptionCheck(Size size)
         {
-            if (
-                size.Height % 2 != 0 ||
-                size.Width % 2 != 0
-                )
+            if (size.Height % 2 != 0 || size.Width % 2 != 0 )
             {
                 throw new ArgumentException("FFMpeg yuv420p encoding requires the width and height to be a multiple of 2!");
             }
