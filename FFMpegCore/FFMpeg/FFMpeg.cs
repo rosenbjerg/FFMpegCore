@@ -328,7 +328,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
             var list = new List<Enums.PixelFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary, "-pix_fmts");
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), "-pix_fmts");
             instance.DataReceived += (e, args) =>
             {
                 if (Enums.PixelFormat.TryParse(args.Data, out var fmt))
@@ -372,7 +372,7 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary, arguments);
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), arguments);
             instance.DataReceived += (e, args) =>
             {
                 var codec = parser(args.Data);
@@ -456,7 +456,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
             var list = new List<ContainerFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary, "-formats");
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), "-formats");
             instance.DataReceived += (e, args) =>
             {
                 if (ContainerFormat.TryParse(args.Data, out var fmt))
