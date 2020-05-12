@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FFMpegCore.Models;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Pipes
 {

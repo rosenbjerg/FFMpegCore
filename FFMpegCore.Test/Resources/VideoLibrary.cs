@@ -1,5 +1,6 @@
-﻿using System.IO;
-using FFMpegCore.Models;
+﻿using System;
+using System.IO;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Test.Resources
 {

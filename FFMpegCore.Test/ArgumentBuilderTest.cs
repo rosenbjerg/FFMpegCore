@@ -2,8 +2,7 @@
 using System;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
-using FFMpegCore.Models;
-using FFMpegCore.Utils;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Test
 {

@@ -1,13 +1,22 @@
-﻿using System;
+﻿using FFMpegCore.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
-using FFMpegCore.Enums;
 
-namespace FFMpegCore.Models
+namespace FFMpegCore.Enums
 {
+    public enum FeatureStatus
+    {
+        Unknown,
+        NotSupported,
+        Supported,
+    }
+
     public class Codec
     {
-        private static readonly Regex CodecsFormatRegex = new Regex(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)", RegexOptions.Compiled);
-        private static readonly Regex DecodersEncodersFormatRegex = new Regex(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)", RegexOptions.Compiled);
+        private static readonly Regex _codecsFormatRegex = new Regex(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _decodersEncodersFormatRegex = new Regex(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
 
         public class FeatureLevel
         {
@@ -49,7 +58,7 @@ namespace FFMpegCore.Models
 
         internal static bool TryParseFromCodecs(string line, out Codec codec)
         {
-            var match = CodecsFormatRegex.Match(line);
+            var match = _codecsFormatRegex.Match(line);
             if (!match.Success)
             {
                 codec = null!;
@@ -72,21 +81,20 @@ namespace FFMpegCore.Models
                 return false;
             }
 
-            codec = new Codec(name, type)
-            {
-                DecodingSupported = match.Groups[1].Value != ".",
-                EncodingSupported = match.Groups[2].Value != ".",
-                IsIntraFrameOnly = match.Groups[4].Value != ".",
-                IsLossy = match.Groups[5].Value != ".",
-                IsLossless = match.Groups[6].Value != ".",
-                Description = match.Groups[8].Value
-            };
-            
+            codec = new Codec(name, type);
+
+            codec.DecodingSupported = match.Groups[1].Value != ".";
+            codec.EncodingSupported = match.Groups[2].Value != ".";
+            codec.IsIntraFrameOnly = match.Groups[4].Value != ".";
+            codec.IsLossy = match.Groups[5].Value != ".";
+            codec.IsLossless = match.Groups[6].Value != ".";
+            codec.Description = match.Groups[8].Value;
+
             return true;
         }
         internal static bool TryParseFromEncodersDecoders(string line, out Codec codec, bool isEncoder)
         {
-            var match = DecodersEncodersFormatRegex.Match(line);
+            var match = _decodersEncodersFormatRegex.Match(line);
             if (!match.Success)
             {
                 codec = null!;
@@ -127,7 +135,7 @@ namespace FFMpegCore.Models
         internal void Merge(Codec other)
         {
             if (Name != other.Name)
-                throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs unable to merge");
+                throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
 
             Type |= other.Type;
             DecodingSupported |= other.DecodingSupported;

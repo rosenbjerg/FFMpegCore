@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FFMpegCore.Models
+namespace FFMpegCore.Exceptions
 {
     public enum FFMpegExceptionType
     {

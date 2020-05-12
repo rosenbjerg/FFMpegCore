@@ -7,9 +7,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using FFMpegCore.Arguments;
-using FFMpegCore.Models;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
-using FFMpegCore.Utils;
 
 namespace FFMpegCore.Test
 {
@@ -128,8 +127,7 @@ namespace FFMpegCore.Test
 
             var scaling = arguments.Find<ScaleArgument>();
 
-            var result = processor.ProcessSynchronously();
-            Assert.IsTrue(result);
+            processor.ProcessSynchronously();
 
             ms.Position = 0;
             var outputVideo = FFProbe.Analyse(ms);
@@ -159,7 +157,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        private void Convert(ContainerFormat type, Action<MediaAnalysis> validationMethod, params IArgument[] inputArguments)
+        public void Convert(ContainerFormat type, Action<MediaAnalysis> validationMethod, params IArgument[] inputArguments)
         {
             var output = Input.OutputLocation(type);
 
@@ -208,8 +206,13 @@ namespace FFMpegCore.Test
                     File.Delete(output);
             }
         }
-        
-        private void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] inputArguments)
+
+        public void Convert(ContainerFormat type, params IArgument[] inputArguments)
+        {
+            Convert(type, null, inputArguments);
+        }
+
+        public void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] inputArguments)
         {
             var output = Input.OutputLocation(type);
 
@@ -273,7 +276,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Args()
         {
-            Convert(VideoType.Mp4, null, new VideoCodecArgument(VideoCodec.LibX264));
+            Convert(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
         [DataTestMethod]
@@ -318,14 +321,13 @@ namespace FFMpegCore.Test
         {
             using var ms = new MemoryStream();
             var pipeSource = new StreamPipeDataReader(ms);
-            var result = FFMpegArguments
+            FFMpegArguments
                 .FromInputFiles(VideoLibrary.LocalVideo)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .ForceFormat("matroska")
                 .OutputToPipe(pipeSource)
                 .ProcessAsynchronously()
                 .WaitForResult();
-            Assert.IsTrue(result);
         }
 
         [TestMethod]
@@ -343,7 +345,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToTS_Args()
         {
-            Convert(VideoType.Ts, null,
+            Convert(VideoType.Ts,
                 new CopyArgument(),
                 new BitStreamFilterArgument(Channel.Video, Filter.H264_Mp4ToAnnexB),
                 new ForceFormatArgument(VideoType.MpegTs));
@@ -367,7 +369,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToOGV_Resize_Args()
         {
-            Convert(VideoType.Ogv, null, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
+            Convert(VideoType.Ogv, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
 
         [DataTestMethod]
@@ -388,7 +390,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Video_ToMP4_Resize_Args()
         {
-            Convert(VideoType.Mp4, null, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
+            Convert(VideoType.Mp4, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
 
         [DataTestMethod]
@@ -545,6 +547,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(null, video.PrimaryVideoStream);
             Assert.AreEqual("aac", video.PrimaryAudioStream.CodecName);
             Assert.AreEqual(79.5, video.Duration.TotalSeconds, 0.5);
+            // Assert.AreEqual(1.25, video.Size);
         }
 
         [TestMethod]
@@ -618,14 +621,13 @@ namespace FFMpegCore.Test
             var reader = new StreamPipeDataReader(resStream);
             var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
-            var result = FFMpegArguments
+            FFMpegArguments
                 .FromPipe(writer)
                 .WithVideoCodec("vp9")
                 .ForceFormat("webm")
                 .OutputToPipe(reader)
                 .ProcessSynchronously();
-            Assert.IsTrue(result);
-            
+
             resStream.Position = 0;
             var vi = FFProbe.Analyse(resStream);
             Assert.AreEqual(vi.PrimaryVideoStream.Width, 128);
