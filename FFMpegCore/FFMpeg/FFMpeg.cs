@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Pipes;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace FFMpegCore
 {
