@@ -76,7 +76,7 @@ namespace FFMpegCore
             {
                 if (size.Value.Width == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Width / (double) size.Value.Width;
+                    var ratio = source.PrimaryVideoStream.Height / (double) size.Value.Height;
 
                     size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
                         (int) (source.PrimaryVideoStream.Height * ratio));
@@ -84,7 +84,7 @@ namespace FFMpegCore
 
                 if (size.Value.Height == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Height / (double) size.Value.Height;
+                    var ratio = source.PrimaryVideoStream.Width / (double) size.Value.Width;
 
                     size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
                         (int) (source.PrimaryVideoStream.Height * ratio));
