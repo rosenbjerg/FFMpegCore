@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Pipes;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace FFMpegCore
 {
@@ -76,18 +75,18 @@ namespace FFMpegCore
             {
                 if (size.Value.Width == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Width / (double) size.Value.Width;
+                    var ratio = (double)size.Value.Height / source.PrimaryVideoStream.Height;
 
-                    size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
-                        (int) (source.PrimaryVideoStream.Height * ratio));
+                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio),
+                        (int)(source.PrimaryVideoStream.Height * ratio));
                 }
 
                 if (size.Value.Height == 0)
                 {
-                    var ratio = source.PrimaryVideoStream.Height / (double) size.Value.Height;
+                    var ratio = (double)size.Value.Width / source.PrimaryVideoStream.Width;
 
-                    size = new Size((int) (source.PrimaryVideoStream.Width * ratio),
-                        (int) (source.PrimaryVideoStream.Height * ratio));
+                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio),
+                        (int)(source.PrimaryVideoStream.Height * ratio));
                 }
             }
 
