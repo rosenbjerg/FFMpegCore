@@ -72,7 +72,7 @@ namespace FFMpegCore.Test
                 var input = FFProbe.Analyse(VideoLibrary.LocalVideoWebm.FullName);
                 using (var inputStream = File.OpenRead(input.Path))
                 {
-                    var pipeSource = new StreamPipeDataWriter(inputStream);
+                    var pipeSource = new StreamPipeSource(inputStream);
                     var arguments = FFMpegArguments.FromPipe(pipeSource);
                     foreach (var arg in inputArguments)
                         arguments.WithArgument(arg);
@@ -124,7 +124,7 @@ namespace FFMpegCore.Test
             foreach (var arg in inputArguments)
                 arguments.WithArgument(arg);
 
-            var streamPipeDataReader = new StreamPipeDataReader(ms);
+            var streamPipeDataReader = new StreamPipeSink(ms);
             var processor = arguments.OutputToPipe(streamPipeDataReader);
 
             var scaling = arguments.Find<ScaleArgument>();
@@ -220,7 +220,7 @@ namespace FFMpegCore.Test
 
             try
             {
-                var videoFramesSource = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
+                var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
                 var arguments = FFMpegArguments.FromPipe(videoFramesSource);
                 foreach (var arg in inputArguments)
                     arguments.WithArgument(arg);
@@ -302,7 +302,7 @@ namespace FFMpegCore.Test
             await Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
             {
                 await using var ms = new MemoryStream();
-                var pipeSource = new StreamPipeDataReader(ms);
+                var pipeSource = new StreamPipeSink(ms);
                 await FFMpegArguments
                     .FromInputFiles(VideoLibrary.LocalVideo)
                     .ForceFormat("mkv")
@@ -322,7 +322,7 @@ namespace FFMpegCore.Test
         public void Video_ToMP4_Args_StreamOutputPipe_Async()
         {
             using var ms = new MemoryStream();
-            var pipeSource = new StreamPipeDataReader(ms);
+            var pipeSource = new StreamPipeSink(ms);
             FFMpegArguments
                 .FromInputFiles(VideoLibrary.LocalVideo)
                 .WithVideoCodec(VideoCodec.LibX264)
@@ -622,8 +622,8 @@ namespace FFMpegCore.Test
         public void Video_TranscodeInMemory()
         {
             using var resStream = new MemoryStream();
-            var reader = new StreamPipeDataReader(resStream);
-            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
+            var reader = new StreamPipeSink(resStream);
+            var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             FFMpegArguments
                 .FromPipe(writer)
@@ -642,8 +642,8 @@ namespace FFMpegCore.Test
         public async Task Video_Cancel_Async()
         {
             await using var resStream = new MemoryStream();
-            var reader = new StreamPipeDataReader(resStream);
-            var writer = new RawVideoPipeDataWriter(BitmapSource.CreateBitmaps(512, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
+            var reader = new StreamPipeSink(resStream);
+            var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(512, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             var task = FFMpegArguments
                 .FromPipe(writer)

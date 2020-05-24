@@ -20,7 +20,7 @@ namespace FFMpegCore
         }
         public static MediaAnalysis Analyse(System.IO.Stream stream, int outputCapacity = int.MaxValue)
         {
-            var streamPipeSource = new StreamPipeDataWriter(stream);
+            var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
             using var instance = PrepareInstance(pipeArgument.PipePath, outputCapacity);
             pipeArgument.Pre();
@@ -49,7 +49,7 @@ namespace FFMpegCore
         }
         public static async Task<MediaAnalysis> AnalyseAsync(System.IO.Stream stream, int outputCapacity = int.MaxValue)
         {
-            var streamPipeSource = new StreamPipeDataWriter(stream);
+            var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
             using var instance = PrepareInstance(pipeArgument.PipePath, outputCapacity);
             pipeArgument.Pre();

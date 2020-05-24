@@ -4,15 +4,15 @@ using System.Threading.Tasks;
 namespace FFMpegCore.Pipes
 {
     /// <summary>
-    /// Implementation of <see cref="IPipeDataWriter"/> used for stream redirection
+    /// Implementation of <see cref="IPipeSource"/> used for stream redirection
     /// </summary>
-    public class StreamPipeDataWriter : IPipeDataWriter
+    public class StreamPipeSource : IPipeSource
     {
         public System.IO.Stream Source { get; }
         public int BlockSize { get; } = 4096;
         public string StreamFormat { get; } = string.Empty;
 
-        public StreamPipeDataWriter(System.IO.Stream source)
+        public StreamPipeSource(System.IO.Stream source)
         {
             Source = source;
         }
