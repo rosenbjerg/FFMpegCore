@@ -6,7 +6,7 @@ namespace FFMpegCore.Pipes
     /// <summary>
     /// Interface for ffmpeg pipe source data IO
     /// </summary>
-    public interface IPipeDataWriter
+    public interface IPipeSource
     {
         string GetFormat();
         Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);

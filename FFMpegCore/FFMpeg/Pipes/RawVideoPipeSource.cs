@@ -7,9 +7,9 @@ using FFMpegCore.Exceptions;
 namespace FFMpegCore.Pipes
 {
     /// <summary>
-    /// Implementation of <see cref="IPipeDataWriter"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 
+    /// Implementation of <see cref="IPipeSource"/> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}"/> 
     /// </summary>
-    public class RawVideoPipeDataWriter : IPipeDataWriter
+    public class RawVideoPipeSource : IPipeSource
     {
         public string StreamFormat { get; private set; } = null!;
         public int Width { get; private set; }
@@ -18,12 +18,12 @@ namespace FFMpegCore.Pipes
         private bool _formatInitialized;
         private readonly IEnumerator<IVideoFrame> _framesEnumerator;
 
-        public RawVideoPipeDataWriter(IEnumerator<IVideoFrame> framesEnumerator)
+        public RawVideoPipeSource(IEnumerator<IVideoFrame> framesEnumerator)
         {
             _framesEnumerator = framesEnumerator;
         }
 
-        public RawVideoPipeDataWriter(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
+        public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
         public string GetFormat()
         {

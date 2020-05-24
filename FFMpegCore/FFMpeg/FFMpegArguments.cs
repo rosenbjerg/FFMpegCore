@@ -32,7 +32,7 @@ namespace FFMpegCore
         public static FFMpegArguments FromInputFiles(params FileInfo[] files) => new FFMpegArguments(new InputArgument(false, files));
         public static FFMpegArguments FromInputFiles(bool verifyExists, params FileInfo[] files) => new FFMpegArguments(new InputArgument(verifyExists, files));
         public static FFMpegArguments FromConcatenation(params string[] files) => new FFMpegArguments(new ConcatArgument(files));
-        public static FFMpegArguments FromPipe(IPipeDataWriter writer) => new FFMpegArguments(new InputPipeArgument(writer));
+        public static FFMpegArguments FromPipe(IPipeSource writer) => new FFMpegArguments(new InputPipeArgument(writer));
 
         
         public FFMpegArguments WithAudioCodec(Codec audioCodec) => WithArgument(new AudioCodecArgument(audioCodec));
@@ -87,7 +87,7 @@ namespace FFMpegCore
 
         public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = false) => ToProcessor(new OutputArgument(file, overwrite));
         public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = false) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite));
-        public FFMpegArgumentProcessor OutputToPipe(IPipeDataReader reader) => ToProcessor(new OutputPipeArgument(reader));
+        public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader) => ToProcessor(new OutputPipeArgument(reader));
 
         public FFMpegArguments WithArgument(IArgument argument)
         {

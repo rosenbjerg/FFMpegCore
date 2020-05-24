@@ -10,9 +10,9 @@ namespace FFMpegCore.Arguments
     /// </summary>
     public class InputPipeArgument : PipeArgument, IInputArgument
     {
-        public readonly IPipeDataWriter Writer;
+        public readonly IPipeSource Writer;
 
-        public InputPipeArgument(IPipeDataWriter writer) : base(PipeDirection.Out)
+        public InputPipeArgument(IPipeSource writer) : base(PipeDirection.Out)
         {
             Writer = writer;
         }

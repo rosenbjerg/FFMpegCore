@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 
 namespace FFMpegCore.Pipes
 {
-    public class StreamPipeDataReader : IPipeDataReader
+    public class StreamPipeSink : IPipeSink
     {
         public System.IO.Stream Destination { get; }
         public int BlockSize { get; set; } = 4096;
         public string Format { get; set; } = string.Empty;
 
-        public StreamPipeDataReader(System.IO.Stream destination)
+        public StreamPipeSink(System.IO.Stream destination)
         {
             Destination = destination;
         }
