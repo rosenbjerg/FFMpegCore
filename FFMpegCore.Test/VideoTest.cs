@@ -480,10 +480,9 @@ namespace FFMpegCore.Test
             try
             {
                 var input = FFProbe.Analyse(Input.FullName);
-                File.Copy(input.Path, newInput);
-                var input2 = FFProbe.Analyse(newInput);
+                File.Copy(Input.FullName, newInput);
 
-                var success = FFMpeg.Join(output, input, input2);
+                var success = FFMpeg.Join(output, Input.FullName, newInput);
                 Assert.IsTrue(success);
 
                 Assert.IsTrue(File.Exists(output));
@@ -504,6 +503,7 @@ namespace FFMpegCore.Test
                 if (File.Exists(newInput))
                     File.Delete(newInput);
             }
+            
         }
 
         [TestMethod]

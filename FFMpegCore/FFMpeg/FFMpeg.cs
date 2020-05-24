@@ -222,6 +222,16 @@ namespace FFMpegCore
                 Cleanup(temporaryVideoParts);
             }
         }
+        /// <summary>
+        ///     Joins a list of video files.
+        /// </summary>
+        /// <param name="output">Output video file.</param>
+        /// <param name="videos">List of vides that need to be joined together.</param>
+        /// <returns>Output video information.</returns>
+        public static bool Join(string output, params string[] videos)
+        {
+            return Join(output, videos.Select(videoPath => FFProbe.Analyse(videoPath)).ToArray());
+        }
 
         /// <summary>
         /// Converts an image sequence to a video.
