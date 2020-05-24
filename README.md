@@ -1,6 +1,6 @@
 # FFMpegCore 
 [![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
-![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)
+[![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions?query=workflow%3ACI)
 
 # Setup
 
