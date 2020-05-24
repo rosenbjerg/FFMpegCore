@@ -7,9 +7,9 @@ namespace FFMpegCore.Arguments
 {
     public class OutputPipeArgument : PipeArgument, IOutputArgument
     {
-        public readonly IPipeDataReader Reader;
+        public readonly IPipeSink Reader;
 
-        public OutputPipeArgument(IPipeDataReader reader) : base(PipeDirection.In)
+        public OutputPipeArgument(IPipeSink reader) : base(PipeDirection.In)
         {
             Reader = reader;
         }

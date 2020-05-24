@@ -12,7 +12,11 @@ namespace FFMpegCore
 {
     public class FFMpegArgumentProcessor
     {
+        private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
         private readonly FFMpegArguments _ffMpegArguments;
+        private Action<double>? _onPercentageProgress;
+        private Action<TimeSpan>? _onTimeProgress;
+        private TimeSpan? _totalTimespan;
 
         internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
         {
@@ -74,15 +78,20 @@ namespace FFMpegCore
                 _ffMpegArguments.Post();
             }
             
+            return HandleCompletion(throwOnError, errorCode, instance);
+        }
+
+        private bool HandleCompletion(bool throwOnError, int errorCode, Instance instance)
+        {
             if (throwOnError && errorCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
-            
+
             _onPercentageProgress?.Invoke(100.0);
             if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
-            
+
             return errorCode == 0;
         }
-        
+
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
         {
             using var instance = PrepareInstance(out var cancellationTokenSource, out var errorCode);
@@ -113,13 +122,7 @@ namespace FFMpegCore
                 _ffMpegArguments.Post();
             }
             
-            if (throwOnError && errorCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
-            
-            _onPercentageProgress?.Invoke(100.0);
-            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
-            
-            return errorCode == 0;
+            return HandleCompletion(throwOnError, errorCode, instance);
         }
 
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource, out int errorCode)
@@ -146,18 +149,8 @@ namespace FFMpegCore
                 string.Join("\n", instance.ErrorData));
         }
 
-
-        private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
-        private Action<double>? _onPercentageProgress;
-        private Action<TimeSpan>? _onTimeProgress;
-        private TimeSpan? _totalTimespan;
-
         private void OutputData(object sender, (DataType Type, string Data) msg)
         {
-#if DEBUG
-            Trace.WriteLine(msg.Data);
-#endif
-
             var match = ProgressRegex.Match(msg.Data);
             if (!match.Success) return;
 

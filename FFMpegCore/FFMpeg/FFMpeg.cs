@@ -59,7 +59,7 @@ namespace FFMpegCore
                 .Resize(size)
                 .Seek(captureTime)
                 .ForceFormat("rawvideo")
-                .OutputToPipe(new StreamPipeDataReader(ms))
+                .OutputToPipe(new StreamPipeSink(ms))
                 .ProcessSynchronously();
 
             ms.Position = 0;
