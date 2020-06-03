@@ -67,7 +67,7 @@ namespace FFMpegCore
                 CodecLongName = stream.CodecLongName,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
-                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags.Duration ?? "0")),
+                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags?.Duration ?? "0")),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
                 Language = stream.Tags?.Language
             };
