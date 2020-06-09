@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
@@ -81,7 +83,7 @@ namespace FFMpegCore
             {
                 PropertyNameCaseInsensitive = true
             });
-            return new MediaAnalysis(filePath, ffprobeAnalysis);
+            return new MediaAnalysis(filePath, ffprobeAnalysis, GetMainDuration(instance.ErrorData));
         }
 
         private static Instance PrepareInstance(string filePath, int outputCapacity)
@@ -91,6 +93,38 @@ namespace FFMpegCore
             var arguments = $"-print_format json -show_streams \"{filePath}\"";
             var instance = new Instance(ffprobe, arguments) {DataBufferCapacity = outputCapacity};
             return instance;
+        }
+
+        private static TimeSpan? GetMainDuration(IReadOnlyList<string> mainOutput)
+        {
+	        const string durationPattern = "Duration:";
+	        var durationLine = mainOutput.FirstOrDefault(x => x.Contains(durationPattern));
+			if (string.IsNullOrWhiteSpace(durationLine))
+			{
+				return null;
+			}
+
+			var durationPos = durationLine.IndexOf(durationPattern, StringComparison.InvariantCulture);
+            if(durationPos < 0)
+            {
+	            return null;
+            }
+
+            durationLine = durationLine.Substring(durationPos + durationPattern.Length);
+
+            var commaPos = durationLine.IndexOf(',');
+            if (commaPos < 0)
+            {
+	            return null;
+            }
+            durationLine = durationLine.Substring(0, commaPos);
+
+            if(TimeSpan.TryParse(durationLine, out var mainDuration))
+            {
+	            return mainDuration;
+            }
+
+            return null;
         }
     }
 }

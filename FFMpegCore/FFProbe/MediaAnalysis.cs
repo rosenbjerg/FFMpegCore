@@ -6,22 +6,28 @@ namespace FFMpegCore
 {
     public class MediaAnalysis
     {
-        internal MediaAnalysis(string path, FFProbeAnalysis analysis)
+	    private readonly TimeSpan? _mainDuration;
+
+        internal MediaAnalysis(string path, FFProbeAnalysis analysis, TimeSpan? mainDuration)
         {
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             PrimaryVideoStream = VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
             PrimaryAudioStream = AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
             Path = path;
+
+            _mainDuration = mainDuration;
         }
 
 
         public string Path { get; }
         public string Extension => System.IO.Path.GetExtension(Path);
 
-        public TimeSpan Duration => TimeSpan.FromSeconds(Math.Max(
-            PrimaryVideoStream?.Duration.TotalSeconds ?? 0,
-            PrimaryAudioStream?.Duration.TotalSeconds ?? 0));
+        public TimeSpan Duration => TimeSpan.FromSeconds(
+	        new [] { PrimaryVideoStream?.Duration.TotalSeconds ?? 0,
+	            PrimaryAudioStream?.Duration.TotalSeconds ?? 0,
+	            _mainDuration?.TotalSeconds ?? 0}
+		        .Max());
         public AudioStream PrimaryAudioStream { get; }
 
         public VideoStream PrimaryVideoStream { get; }
