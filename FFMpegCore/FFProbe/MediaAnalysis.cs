@@ -54,7 +54,7 @@ namespace FFMpegCore
         {
             return ffProbeStream.Duration != null
                 ? TimeSpan.FromSeconds(ParseDoubleInvariant(ffProbeStream.Duration))
-                : TimeSpan.Parse(ffProbeStream.Tags?.Duration ?? "0");
+                : TimeSpan.Parse(FixTimeSpanString(ffProbeStream.Tags?.Duration ?? "0"));
         }
 
         private AudioStream ParseAudioStream(FFProbeStream stream)
@@ -67,7 +67,7 @@ namespace FFMpegCore
                 CodecLongName = stream.CodecLongName,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
-                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags?.Duration ?? "0")),
+                Duration = ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
                 Language = stream.Tags?.Language
             };
@@ -91,5 +91,23 @@ namespace FFMpegCore
             double.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
         private static int ParseIntInvariant(string line) =>
             int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+
+        private static string FixTimeSpanString(string line)
+        {
+			const int maxFractionDigits = 7;
+			var dotPosition = line.LastIndexOf('.');
+			if (dotPosition < 0 || dotPosition == line.Length - 1)
+			{
+				return line;
+			}
+			
+			var lastPart = line.Substring(dotPosition + 1);
+            if(lastPart.Contains(':') || lastPart.Length <= maxFractionDigits)
+            {
+                return line;
+            }
+
+            return line.Substring(0, dotPosition + 1) + lastPart.Substring(0, maxFractionDigits);			
+        }	        
     }
 }
