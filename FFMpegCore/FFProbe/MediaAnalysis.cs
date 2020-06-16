@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FFMpegCore
 {
     public class MediaAnalysis
     {
+        private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
         internal MediaAnalysis(string path, FFProbeAnalysis analysis)
         {
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
@@ -54,7 +56,12 @@ namespace FFMpegCore
         {
             return ffProbeStream.Duration != null
                 ? TimeSpan.FromSeconds(ParseDoubleInvariant(ffProbeStream.Duration))
-                : TimeSpan.Parse(ffProbeStream.Tags?.Duration ?? "0");
+                : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.Tags?.Duration) ?? "0");
+        }
+        private static string? TrimTimeSpan(string? durationTag)
+        {
+            var durationMatch = DurationRegex.Match(durationTag ?? "");
+            return durationMatch.Success ? durationMatch.Groups[1].Value : null;
         }
 
         private AudioStream ParseAudioStream(FFProbeStream stream)
@@ -67,7 +74,7 @@ namespace FFMpegCore
                 CodecLongName = stream.CodecLongName,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
-                Duration = TimeSpan.FromSeconds(ParseDoubleInvariant(stream.Duration ?? stream.Tags?.Duration ?? "0")),
+                Duration = ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
                 Language = stream.Tags?.Language
             };
