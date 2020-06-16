@@ -70,7 +70,7 @@ namespace FFMpegCore.Test
             try
             {
                 var input = FFProbe.Analyse(VideoLibrary.LocalVideoWebm.FullName);
-                using (var inputStream = File.OpenRead(input.Path))
+                using (var inputStream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName))
                 {
                     var pipeSource = new StreamPipeSource(inputStream);
                     var arguments = FFMpegArguments.FromPipe(pipeSource);
