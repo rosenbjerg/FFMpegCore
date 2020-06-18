@@ -11,9 +11,10 @@
     <FileVersion>1.1.0.0</FileVersion>
     <PackageReleaseNotes>- Support for .NET Standard 2.0
 - Minor fixes
-- DemuxConcatArgument</PackageReleaseNotes>
+- DemuxConcatArgument
+- Fix error in static Convert</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>2.1.0</PackageVersion>
+    <PackageVersion>2.1.1</PackageVersion>
     <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
