@@ -5,8 +5,8 @@ namespace FFMpegCore.Arguments
 {
     public interface IInputOutputArgument : IArgument
     {
-        void Pre() {}
-        Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
-        void Post() {}
+        void Pre();
+        Task During(CancellationToken? cancellationToken = null);
+        void Post();
     }
 }
