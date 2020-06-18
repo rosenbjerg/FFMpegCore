@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments
@@ -23,6 +25,7 @@ namespace FFMpegCore.Arguments
             if (!Overwrite && File.Exists(Path))
                 throw new FFMpegException(FFMpegExceptionType.File, "Output file already exists and overwrite is disabled");
         }
+        public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
         public void Post()
         {
             if (!File.Exists(Path))

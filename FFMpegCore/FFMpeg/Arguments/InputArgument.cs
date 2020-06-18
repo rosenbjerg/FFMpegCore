@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FFMpegCore.Arguments
 {
@@ -34,6 +36,9 @@ namespace FFMpegCore.Arguments
             }
         }
 
+        public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
+        public void Post() { }
+        
         public string Text => string.Join(" ", FilePaths.Select(v => $"-i \"{v}\""));
     }
 }

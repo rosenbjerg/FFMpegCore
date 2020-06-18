@@ -33,8 +33,8 @@ namespace FFMpegCore
             if (File.Exists(ConfigFile))
             {
                 Options = JsonSerializer.Deserialize<FFMpegOptions>(File.ReadAllText(ConfigFile));
-                foreach (var (key, value) in DefaultExtensionsOverrides)
-                    if (!Options.ExtensionOverrides.ContainsKey(key)) Options.ExtensionOverrides.Add(key, value);
+                foreach (var pair in DefaultExtensionsOverrides)
+                    if (!Options.ExtensionOverrides.ContainsKey(pair.Key)) Options.ExtensionOverrides.Add(pair.Key, pair.Value);
             }
         }
 
