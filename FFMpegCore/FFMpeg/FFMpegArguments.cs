@@ -32,7 +32,7 @@ namespace FFMpegCore
         public static FFMpegArguments FromInputFiles(params FileInfo[] files) => new FFMpegArguments(new InputArgument(false, files));
         public static FFMpegArguments FromInputFiles(bool verifyExists, params FileInfo[] files) => new FFMpegArguments(new InputArgument(verifyExists, files));
         public static FFMpegArguments FromConcatenation(params string[] files) => new FFMpegArguments(new ConcatArgument(files));
-        public static FFMpegArguments FromDemuxConcatenation(params string[] files) => new FFMpegArguments(new ConcatArgument(files));
+        public static FFMpegArguments FromDemuxConcatenation(params string[] files) => new FFMpegArguments(new DemuxConcatArgument(files));
         public static FFMpegArguments FromPipe(IPipeSource writer) => new FFMpegArguments(new InputPipeArgument(writer));
 
         
@@ -117,7 +117,7 @@ namespace FFMpegCore
             _outputArgument.Post();
         }
 
-        public TArgument? Find<TArgument>() where TArgument : class, IArgument
+        public TArgument Find<TArgument>() where TArgument : class, IArgument
         {
             return _arguments.FirstOrDefault(arg => arg is TArgument) as TArgument;
         }
