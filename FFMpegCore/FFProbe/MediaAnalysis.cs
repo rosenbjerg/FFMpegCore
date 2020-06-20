@@ -10,6 +10,7 @@ namespace FFMpegCore
         private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
         internal MediaAnalysis(string path, FFProbeAnalysis analysis)
         {
+            Format = ParseFormat(analysis.Format);
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             PrimaryVideoStream = VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
@@ -17,13 +18,30 @@ namespace FFMpegCore
             Path = path;
         }
 
+        private MediaFormat ParseFormat(Format analysisFormat)
+        {
+            return new MediaFormat
+            {
+                Duration = TimeSpan.Parse(analysisFormat.Duration),
+                FormatName = analysisFormat.FormatName,
+                FormatLongName = analysisFormat.FormatLongName,
+                StreamCount = analysisFormat.NbStreams,
+                ProbeScore = analysisFormat.ProbeScore,
+                BitRate = long.Parse(analysisFormat.BitRate ?? "0")
+            };
+        }
 
         public string Path { get; }
         public string Extension => System.IO.Path.GetExtension(Path);
 
-        public TimeSpan Duration => TimeSpan.FromSeconds(Math.Max(
-            PrimaryVideoStream?.Duration.TotalSeconds ?? 0,
-            PrimaryAudioStream?.Duration.TotalSeconds ?? 0));
+        public TimeSpan Duration => new []
+        {
+            Format.Duration,
+            PrimaryVideoStream?.Duration ?? TimeSpan.Zero,
+            PrimaryAudioStream?.Duration ?? TimeSpan.Zero
+        }.Max();
+
+        public MediaFormat Format { get; }
         public AudioStream PrimaryAudioStream { get; }
 
         public VideoStream PrimaryVideoStream { get; }
@@ -54,8 +72,8 @@ namespace FFMpegCore
 
         private static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
-            return ffProbeStream.Duration != null
-                ? TimeSpan.FromSeconds(ParseDoubleInvariant(ffProbeStream.Duration))
+            return !string.IsNullOrEmpty(ffProbeStream.Duration)
+                ? TimeSpan.Parse(ffProbeStream.Duration)
                 : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.Tags?.Duration) ?? "0");
         }
         private static string? TrimTimeSpan(string? durationTag)

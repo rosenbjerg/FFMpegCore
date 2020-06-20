@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace FFMpegCore
@@ -7,6 +8,9 @@ namespace FFMpegCore
     {
         [JsonPropertyName("streams")]
         public List<FFProbeStream> Streams { get; set; } = null!;
+        
+        [JsonPropertyName("format")]
+        public Format Format { get; set; } = null!;
     }
     
     public class FFProbeStream
@@ -73,5 +77,43 @@ namespace FFMpegCore
         
         [JsonPropertyName("language")]
         public string Language { get; set; } = null!;
+        
+        [JsonPropertyName("encoder")]
+        public string Encoder { get; set; } = null!;
+    }
+    public class Format
+    {
+        [JsonPropertyName("filename")]
+        public string Filename { get; set; }
+
+        [JsonPropertyName("nb_streams")]
+        public int NbStreams { get; set; }
+
+        [JsonPropertyName("nb_programs")]
+        public int NbPrograms { get; set; }
+
+        [JsonPropertyName("format_name")]
+        public string FormatName { get; set; }
+
+        [JsonPropertyName("format_long_name")]
+        public string FormatLongName { get; set; }
+
+        [JsonPropertyName("start_time")]
+        public string StartTime { get; set; }
+
+        [JsonPropertyName("duration")]
+        public string Duration { get; set; }
+
+        [JsonPropertyName("size")]
+        public string Size { get; set; }
+
+        [JsonPropertyName("bit_rate")]
+        public string BitRate { get; set; }
+
+        [JsonPropertyName("probe_score")]
+        public int ProbeScore { get; set; }
+
+        [JsonPropertyName("tags")]
+        public Tags Tags { get; set; }
     }
 }

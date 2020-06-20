@@ -119,7 +119,7 @@ namespace FFMpegCore
 
         public TArgument Find<TArgument>() where TArgument : class, IArgument
         {
-            return _arguments.FirstOrDefault(arg => arg is TArgument) as TArgument;
+            return _arguments.OfType<TArgument>().FirstOrDefault();
         }
     }
 }
