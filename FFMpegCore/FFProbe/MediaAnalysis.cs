@@ -22,7 +22,7 @@ namespace FFMpegCore
         {
             return new MediaFormat
             {
-                Duration = TimeSpan.Parse(analysisFormat.Duration),
+                Duration = TimeSpan.Parse(analysisFormat.Duration ?? "0"),
                 FormatName = analysisFormat.FormatName,
                 FormatLongName = analysisFormat.FormatLongName,
                 StreamCount = analysisFormat.NbStreams,
