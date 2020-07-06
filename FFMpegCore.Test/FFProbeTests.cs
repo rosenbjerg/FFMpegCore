@@ -26,6 +26,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
             Assert.AreEqual("AAC (Advanced Audio Coding)", info.PrimaryAudioStream.CodecLongName);
             Assert.AreEqual("aac", info.PrimaryAudioStream.CodecName);
+            Assert.AreEqual("LC", info.PrimaryAudioStream.Profile);
             Assert.AreEqual(381988, info.PrimaryAudioStream.BitRate);
             Assert.AreEqual(48000, info.PrimaryAudioStream.SampleRateHz);
             
