@@ -94,6 +94,7 @@ namespace FFMpegCore
                 ChannelLayout = stream.ChannelLayout,
                 Duration = ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
+                Profile = stream.Profile,
                 Language = stream.Tags?.Language
             };
         }
