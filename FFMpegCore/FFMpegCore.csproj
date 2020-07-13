@@ -9,9 +9,9 @@
     <Version>1.0.12</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
-    <PackageReleaseNotes>- Fix NullReferenceException from parsing Format property on MediaAnalysis with information from show_format</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fix for TS file extension difference between ffmpeg builds </PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>2.2.1</PackageVersion>
+    <PackageVersion>2.2.2</PackageVersion>
     <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>

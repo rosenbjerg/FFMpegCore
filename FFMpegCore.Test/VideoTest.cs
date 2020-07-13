@@ -333,6 +333,20 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public async Task TestDuplicateRun()
+        {
+            FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo)
+                .OutputToFile("temporary.mp4", true)
+                .ProcessSynchronously();
+            
+            await FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo)
+                .OutputToFile("temporary.mp4", true)
+                .ProcessAsynchronously();
+            
+            File.Delete("temporary.mp4");
+        }
+
+        [TestMethod]
         public void Video_ToMP4_Args_StreamOutputPipe()
         {
             ConvertToStreamPipe(new VideoCodecArgument(VideoCodec.LibX264), new ForceFormatArgument("matroska"));
