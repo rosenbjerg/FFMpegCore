@@ -84,7 +84,7 @@ namespace FFMpegCore
     public class Format
     {
         [JsonPropertyName("filename")]
-        public string Filename { get; set; }
+        public string Filename { get; set; } = null!;
 
         [JsonPropertyName("nb_streams")]
         public int NbStreams { get; set; }
@@ -93,27 +93,27 @@ namespace FFMpegCore
         public int NbPrograms { get; set; }
 
         [JsonPropertyName("format_name")]
-        public string FormatName { get; set; }
+        public string FormatName { get; set; } = null!;
 
         [JsonPropertyName("format_long_name")]
-        public string FormatLongName { get; set; }
+        public string FormatLongName { get; set; } = null!;
 
         [JsonPropertyName("start_time")]
-        public string StartTime { get; set; }
+        public string StartTime { get; set; } = null!;
 
         [JsonPropertyName("duration")]
-        public string Duration { get; set; }
+        public string Duration { get; set; } = null!;
 
         [JsonPropertyName("size")]
-        public string Size { get; set; }
+        public string Size { get; set; } = null!;
 
         [JsonPropertyName("bit_rate")]
-        public string BitRate { get; set; }
+        public string BitRate { get; set; } = null!;
 
         [JsonPropertyName("probe_score")]
         public int ProbeScore { get; set; }
 
         [JsonPropertyName("tags")]
-        public Tags Tags { get; set; }
+        public Tags Tags { get; set; } = null!;
     }
 }
