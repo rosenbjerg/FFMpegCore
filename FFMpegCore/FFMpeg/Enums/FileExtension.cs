@@ -16,11 +16,11 @@ namespace FFMpegCore.Enums
                 _ => throw new Exception("The extension for this video type is not defined.")
             };
         }
-        public static readonly string Mp4 = ".mp4";
-        public static readonly string Mp3 = ".mp3";
-        public static readonly string Ts = ".ts";
-        public static readonly string Ogv = ".ogv";
+        public static readonly string Mp4 = VideoType.Mp4.Extension;
+        public static readonly string Ts = VideoType.MpegTs.Extension;
+        public static readonly string Ogv = VideoType.Ogv.Extension;
+        public static readonly string WebM = VideoType.WebM.Extension;
         public static readonly string Png = ".png";
-        public static readonly string WebM = ".webm";
+        public static readonly string Mp3 = ".mp3";
     }
 }

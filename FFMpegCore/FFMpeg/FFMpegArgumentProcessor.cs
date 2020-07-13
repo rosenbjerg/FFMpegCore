@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +52,8 @@ namespace FFMpegCore
         }
         public bool ProcessSynchronously(bool throwOnError = true)
         {
-            var instance = PrepareInstance(out var cancellationTokenSource, out var errorCode);
+            var instance = PrepareInstance(out var cancellationTokenSource);
+            var errorCode = -1;
 
             void OnCancelEvent(object sender, EventArgs args)
             {
@@ -70,7 +73,7 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
@@ -78,13 +81,13 @@ namespace FFMpegCore
                 _ffMpegArguments.Post();
             }
             
-            return HandleCompletion(throwOnError, errorCode, instance);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private bool HandleCompletion(bool throwOnError, int errorCode, Instance instance)
+        private bool HandleCompletion(bool throwOnError, int errorCode, IReadOnlyList<string> errorData)
         {
             if (throwOnError && errorCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", instance.ErrorData));
+                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", errorData));
 
             _onPercentageProgress?.Invoke(100.0);
             if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
@@ -94,7 +97,8 @@ namespace FFMpegCore
 
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
         {
-            using var instance = PrepareInstance(out var cancellationTokenSource, out var errorCode);
+            using var instance = PrepareInstance(out var cancellationTokenSource);
+            var errorCode = -1;
 
             void OnCancelEvent(object sender, EventArgs args)
             {
@@ -114,18 +118,18 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
                 CancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
-            
-            return HandleCompletion(throwOnError, errorCode, instance);
+
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource, out int errorCode)
+        private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
@@ -135,18 +139,16 @@ namespace FFMpegCore
             if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
                 instance.DataReceived += OutputData;
 
-            errorCode = -1;
-            
             return instance;
         }
         
-        private static bool HandleException(bool throwOnError, Exception e, Instance instance)
+        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
                 return false;
 
             throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
-                string.Join("\n", instance.ErrorData));
+                string.Join("\n", errorData));
         }
 
         private void OutputData(object sender, (DataType Type, string Data) msg)
