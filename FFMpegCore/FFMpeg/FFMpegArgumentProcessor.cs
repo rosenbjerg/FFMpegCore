@@ -132,7 +132,16 @@ namespace FFMpegCore
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
-            var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            { 
+                Arguments = _ffMpegArguments.Text,
+                CreateNoWindow = true,
+                FileName = FFMpegOptions.Options.FFmpegBinary(),
+                WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
+
+            var instance = new Instance(startInfo);
             instance.DataReceived += OutputData;
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -154,14 +163,20 @@ namespace FFMpegCore
         private void OutputData(object sender, (DataType Type, string Data) msg)
         {
             var match = ProgressRegex.Match(msg.Data);
-            if (!match.Success) return;
+            if (match.Success)
+            {
 
-            var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            _onTimeProgress?.Invoke(processed);
+                var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                _onTimeProgress?.Invoke(processed);
 
-            if (_onPercentageProgress == null || _totalTimespan == null) return;
-            var percentage = Math.Round(processed.TotalSeconds / _totalTimespan.Value.TotalSeconds * 100, 2);
-            _onPercentageProgress(percentage);
+                if (_onPercentageProgress != null && _totalTimespan != null)
+                {
+                    var percentage = Math.Round(processed.TotalSeconds / _totalTimespan.Value.TotalSeconds * 100, 2);
+                    _onPercentageProgress(percentage);
+                }
+            }
+
+            Debug.WriteLine(msg.Data);
         }
     }
 }
