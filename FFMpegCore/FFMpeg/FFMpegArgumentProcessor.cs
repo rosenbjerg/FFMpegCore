@@ -137,6 +137,7 @@ namespace FFMpegCore
             { 
                 Arguments = _ffMpegArguments.Text,
                 CreateNoWindow = true,
+                UseShellExecute = false,
                 FileName = FFMpegOptions.Options.FFmpegBinary(),
                 WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
