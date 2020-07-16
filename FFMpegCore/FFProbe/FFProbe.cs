@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -89,7 +90,10 @@ namespace FFMpegCore
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             var ffprobe = FFMpegOptions.Options.FFProbeBinary();
             var arguments = $"-print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
-            var instance = new Instance(ffprobe, arguments) {DataBufferCapacity = outputCapacity};
+
+            var startInfo = FFMpegOptions.GetProcessStartInfo(ffprobe, arguments);
+
+            var instance = new Instance(startInfo) {DataBufferCapacity = outputCapacity};
             return instance;
         }
     }

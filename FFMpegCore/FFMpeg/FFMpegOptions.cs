@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -60,6 +61,18 @@ namespace FFMpegCore
                 ffName = Path.Combine(target, ffName);
 
             return Path.Combine(Options.RootDirectory, ffName);
+        }
+
+        internal static ProcessStartInfo GetProcessStartInfo(string path, string arguments)
+        {
+            return new ProcessStartInfo
+            {
+                Arguments = arguments,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                FileName = path,
+                WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
         }
     }
 }

@@ -32,7 +32,7 @@ namespace FFMpegCore
 
         public string Arguments => _ffMpegArguments.Text;
 
-        private event EventHandler CancelEvent = null!; 
+        private event EventHandler CancelEvent = null!;
 
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
@@ -61,7 +61,7 @@ namespace FFMpegCore
                 cancellationTokenSource.Cancel();
             }
             CancelEvent += OnCancelEvent;
-            
+
             _ffMpegArguments.Pre();
             try
             {
@@ -80,7 +80,7 @@ namespace FFMpegCore
                 CancelEvent -= OnCancelEvent;
                 _ffMpegArguments.Post();
             }
-            
+
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
@@ -106,7 +106,7 @@ namespace FFMpegCore
                 cancellationTokenSource.Cancel();
             }
             CancelEvent += OnCancelEvent;
-            
+
             _ffMpegArguments.Pre();
             try
             {
@@ -133,14 +133,7 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
 
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            { 
-                Arguments = _ffMpegArguments.Text,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                FileName = FFMpegOptions.Options.FFmpegBinary(),
-                WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
-            };
+            var startInfo = FFMpegOptions.GetProcessStartInfo(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
 
             var instance = new Instance(startInfo);
             instance.DataReceived += OutputData;
@@ -151,7 +144,7 @@ namespace FFMpegCore
 
             return instance;
         }
-        
+
         private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
