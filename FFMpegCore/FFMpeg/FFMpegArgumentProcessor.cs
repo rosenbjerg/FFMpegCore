@@ -154,6 +154,7 @@ namespace FFMpegCore
         private void OutputData(object sender, (DataType Type, string Data) msg)
         {
             var match = ProgressRegex.Match(msg.Data);
+            Debug.WriteLine(msg.Data);
             if (!match.Success) return;
 
             var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
