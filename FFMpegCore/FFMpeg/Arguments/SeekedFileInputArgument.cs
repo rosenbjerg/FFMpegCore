@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,22 +8,24 @@ namespace FFMpegCore.Arguments
 {
     public class SeekedFileInputArgument : IInputArgument
     {
-        public readonly string FilePath;
-        public readonly TimeSpan StartTime;
+        public readonly (string FilePath, TimeSpan StartTime)[] SeekedFiles;
 
-        public SeekedFileInputArgument(string filePath, TimeSpan startTime)
+        public SeekedFileInputArgument((string file, TimeSpan startTime)[] seekedFiles)
         {
-            FilePath = filePath;
-            StartTime = startTime;
+            SeekedFiles = seekedFiles;
         }
+
         public void Pre()
         {
-            if (!File.Exists(FilePath))
-                throw new FileNotFoundException("Input file not found", FilePath);
+            foreach (var (seekedFile, _) in SeekedFiles)
+            {
+                if (!File.Exists(seekedFile))
+                    throw new FileNotFoundException("Input file not found", seekedFile);
+            }
         }
         public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
         public void Post() { }
         
-        public string Text => $"-ss {StartTime} -i \"{FilePath}\"";
+        public string Text => string.Join(" ", SeekedFiles.Select(seekedFile => $"-ss {seekedFile.StartTime} -i \"{seekedFile.FilePath}\""));
     }
 }
