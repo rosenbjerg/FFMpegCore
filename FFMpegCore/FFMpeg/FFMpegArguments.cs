@@ -25,6 +25,7 @@ namespace FFMpegCore
 
         public string Text => string.Join(" ", _arguments.Select(arg => arg.Text));
         
+        public static FFMpegArguments FromSeekedFile(string file, TimeSpan startTime) => new FFMpegArguments(new SeekedFileInputArgument(file, startTime));
         public static FFMpegArguments FromInputFiles(params string[] files) => new FFMpegArguments(new InputArgument(true, files));
         public static FFMpegArguments FromInputFiles(bool verifyExists, params string[] files) => new FFMpegArguments(new InputArgument(verifyExists, files));
         public static FFMpegArguments FromInputFiles(params Uri[] uris) => new FFMpegArguments(new InputArgument(false, uris));
@@ -86,8 +87,8 @@ namespace FFMpegCore
 
         public FFMpegArguments DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
 
-        public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = false) => ToProcessor(new OutputArgument(file, overwrite));
-        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = false) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite));
+        public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = true) => ToProcessor(new OutputArgument(file, overwrite));
+        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = true) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite));
         public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader) => ToProcessor(new OutputPipeArgument(reader));
 
         public FFMpegArguments WithArgument(IArgument argument)

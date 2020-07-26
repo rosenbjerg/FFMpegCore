@@ -24,11 +24,6 @@ namespace FFMpegCore
             _ffMpegArguments = ffMpegArguments;
         }
 
-        /// <summary>
-        /// Returns the percentage of the current conversion progress.
-        /// </summary>
-        // public event ConversionHandler OnProgress;
-
         public string Arguments => _ffMpegArguments.Text;
 
         private event EventHandler CancelEvent = null!; 
