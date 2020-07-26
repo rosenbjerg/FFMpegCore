@@ -25,7 +25,7 @@ namespace FFMpegCore
 
         public string Text => string.Join(" ", _arguments.Select(arg => arg.Text));
         
-        public static FFMpegArguments FromSeekedFile(string file, TimeSpan startTime) => new FFMpegArguments(new SeekedFileInputArgument(file, startTime));
+        public static FFMpegArguments FromSeekedFiles(params (string file, TimeSpan startTime)[] seekedFiles) => new FFMpegArguments(new SeekedFileInputArgument(seekedFiles));
         public static FFMpegArguments FromInputFiles(params string[] files) => new FFMpegArguments(new InputArgument(true, files));
         public static FFMpegArguments FromInputFiles(bool verifyExists, params string[] files) => new FFMpegArguments(new InputArgument(verifyExists, files));
         public static FFMpegArguments FromInputFiles(params Uri[] uris) => new FFMpegArguments(new InputArgument(false, uris));
