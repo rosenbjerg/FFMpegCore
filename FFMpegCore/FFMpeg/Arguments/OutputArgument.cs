@@ -14,7 +14,7 @@ namespace FFMpegCore.Arguments
         public readonly string Path;
         public readonly bool Overwrite;
 
-        public OutputArgument(string path, bool overwrite = false)
+        public OutputArgument(string path, bool overwrite = true)
         {
             Path = path;
             Overwrite = overwrite;

@@ -30,7 +30,7 @@ namespace FFMpegCore
             size = PrepareSnapshotSize(source, size);
 
             return FFMpegArguments
-                .FromInputFiles(source.Path)
+                .FromSeekedFile(source.Path, captureTime ?? TimeSpan.Zero)
                 .WithVideoCodec(VideoCodec.Png)
                 .WithFrameOutputCount(1)
                 .Resize(size)
