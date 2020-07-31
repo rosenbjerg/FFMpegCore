@@ -16,7 +16,7 @@ namespace FFMpegCore.Arguments
         public readonly IEnumerable<string> Values;
         public DemuxConcatArgument(IEnumerable<string> values)
         {
-            Values = values.Select(value => $"'file '{value}'");
+            Values = values.Select(value => $"file '{value}'");
         }
         private readonly string _tempFileName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid() + ".txt");
 
