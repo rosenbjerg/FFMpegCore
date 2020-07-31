@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace FFMpegCore.Arguments
         public readonly IEnumerable<string> Values;
         public DemuxConcatArgument(IEnumerable<string> values)
         {
-            Values = values;
+            Values = values.Select(value => $"'file '{value}'");
         }
         private readonly string _tempFileName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid() + ".txt");
 
