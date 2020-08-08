@@ -10,9 +10,10 @@
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
     <PackageReleaseNotes>- Add SeekedFileInputArgument and .FromSeekedFile which seeks efficiently
-- Snapshot utilises SeekedFileInput for improved performance</PackageReleaseNotes>
+- Added async overloads to snapshot
+- Fix DemuxConcatArgument (thanks xxbiohazrdxx)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>2.2.4</PackageVersion>
+    <PackageVersion>2.2.5</PackageVersion>
     <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
