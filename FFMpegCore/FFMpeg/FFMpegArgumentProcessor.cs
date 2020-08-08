@@ -46,7 +46,7 @@ namespace FFMpegCore
         }
         public bool ProcessSynchronously(bool throwOnError = true)
         {
-            var instance = PrepareInstance(out var cancellationTokenSource);
+            using var instance = PrepareInstance(out var cancellationTokenSource);
             var errorCode = -1;
 
             void OnCancelEvent(object sender, EventArgs args)
