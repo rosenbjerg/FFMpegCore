@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FFMpegCore
 {
@@ -22,21 +23,33 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static bool Snapshot(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
         {
-            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
-
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
-            size = PrepareSnapshotSize(source, size);
-
-            return FFMpegArguments
-                .FromSeekedFiles((source.Path, captureTime ?? TimeSpan.Zero))
-                .WithVideoCodec(VideoCodec.Png)
-                .WithFrameOutputCount(1)
-                .Resize(size)
-                .Seek(captureTime)
+            var arguments = BuildSnapshotArguments(source, size, captureTime);
+            
+            return arguments
                 .OutputToFile(output)
                 .ProcessSynchronously();
+        }
+        /// <summary>
+        ///     Saves a 'png' thumbnail from the input video to drive
+        /// </summary>
+        /// <param name="source">Source video analysis</param>
+        /// <param name="output">Output video file path</param>
+        /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+        /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <returns>Bitmap with the requested snapshot.</returns>
+        public static Task<bool> SnapshotAsync(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
+        {
+            if (Path.GetExtension(output) != FileExtension.Png)
+                output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
+
+            var arguments = BuildSnapshotArguments(source, size, captureTime);
+            
+            return arguments
+                .OutputToFile(output)
+                .ProcessAsynchronously();
         }
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
@@ -47,23 +60,48 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static Bitmap Snapshot(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
         {
-            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
-
-            size = PrepareSnapshotSize(source, size);
-
+            var arguments = BuildSnapshotArguments(source, size, captureTime);
             using var ms = new MemoryStream();
-            FFMpegArguments
-                .FromInputFiles(source.Path)
-                .WithVideoCodec(VideoCodec.Png)
-                .WithFrameOutputCount(1)
-                .Resize(size)
-                .Seek(captureTime)
+            
+            arguments
                 .ForceFormat("rawvideo")
                 .OutputToPipe(new StreamPipeSink(ms))
                 .ProcessSynchronously();
 
             ms.Position = 0;
             return new Bitmap(ms);
+        }
+        /// <summary>
+        ///     Saves a 'png' thumbnail to an in-memory bitmap
+        /// </summary>
+        /// <param name="source">Source video file.</param>
+        /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+        /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <returns>Bitmap with the requested snapshot.</returns>
+        public static async Task<Bitmap> SnapshotAsync(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        {
+            var arguments = BuildSnapshotArguments(source, size, captureTime);
+            using var ms = new MemoryStream();
+            
+            await arguments
+                .ForceFormat("rawvideo")
+                .OutputToPipe(new StreamPipeSink(ms))
+                .ProcessAsynchronously();
+
+            ms.Position = 0;
+            return new Bitmap(ms);
+        }
+
+        private static FFMpegArguments BuildSnapshotArguments(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        {
+            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
+            size = PrepareSnapshotSize(source, size);
+
+            return FFMpegArguments
+                .FromSeekedFiles((source.Path, captureTime ?? TimeSpan.Zero))
+                .WithVideoCodec(VideoCodec.Png)
+                .WithFrameOutputCount(1)
+                .Resize(size);
         }
 
         private static Size? PrepareSnapshotSize(MediaAnalysis source, Size? size)
