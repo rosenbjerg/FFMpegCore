@@ -12,6 +12,7 @@ namespace FFMpegCore
         public int Height { get; internal set; }
         public double FrameRate { get; internal set; }
         public string PixelFormat { get; internal set; } = null!;
+        public int Rotation { get; set; }
 
         public PixelFormat GetPixelFormatInfo() => FFMpeg.GetPixelFormat(PixelFormat);
     }
