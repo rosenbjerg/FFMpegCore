@@ -104,31 +104,31 @@ namespace FFMpegCore
                 .Resize(size);
         }
 
-        private static Size? PrepareSnapshotSize(MediaAnalysis source, Size? size)
+        private static Size? PrepareSnapshotSize(MediaAnalysis source, Size? wantedSize)
         {
-            if (size == null || (size.Value.Height == 0 && size.Value.Width == 0))
-                size = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
-
-            if (size.Value.Width != size.Value.Height)
+            if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0))
+                return null;
+            
+            var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
+            if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
+                currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
+            
+            if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
             {
-                if (size.Value.Width == 0)
+                if (wantedSize.Value.Width <= 0 && wantedSize.Value.Height > 0)
                 {
-                    var ratio = (double)size.Value.Height / source.PrimaryVideoStream.Height;
-
-                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio),
-                        (int)(source.PrimaryVideoStream.Height * ratio));
+                    var ratio = (double)wantedSize.Value.Height / currentSize.Height;
+                    return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
                 }
-
-                if (size.Value.Height == 0)
+                if (wantedSize.Value.Height <= 0 && wantedSize.Value.Width > 0)
                 {
-                    var ratio = (double)size.Value.Width / source.PrimaryVideoStream.Width;
-
-                    size = new Size((int)(source.PrimaryVideoStream.Width * ratio),
-                        (int)(source.PrimaryVideoStream.Height * ratio));
+                    var ratio = (double)wantedSize.Value.Width / currentSize.Width;
+                    return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
                 }
+                return wantedSize;
             }
 
-            return size;
+            return null;
         }
 
         /// <summary>
