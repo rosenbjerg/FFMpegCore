@@ -12,7 +12,7 @@ namespace FFMpegCore
         public Format Format { get; set; } = null!;
     }
     
-    public class FFProbeStream
+    public class FFProbeStream : ITagsContainer
     {
         [JsonPropertyName("index")]
         public int Index { get; set; }
@@ -66,21 +66,9 @@ namespace FFMpegCore
         public string SampleRate { get; set; } = null!;
 
         [JsonPropertyName("tags")]
-        public Tags Tags { get; set; } = null!;
+        public Dictionary<string, string> Tags { get; set; } = null!;
     }
-
-    public class Tags
-    {
-        [JsonPropertyName("DURATION")]
-        public string Duration { get; set; } = null!;
-        
-        [JsonPropertyName("language")]
-        public string Language { get; set; } = null!;
-        
-        [JsonPropertyName("encoder")]
-        public string Encoder { get; set; } = null!;
-    }
-    public class Format
+    public class Format : ITagsContainer
     {
         [JsonPropertyName("filename")]
         public string Filename { get; set; } = null!;
@@ -113,6 +101,26 @@ namespace FFMpegCore
         public int ProbeScore { get; set; }
 
         [JsonPropertyName("tags")]
-        public Tags Tags { get; set; } = null!;
+        public Dictionary<string, string> Tags { get; set; } = null!;
+    }
+
+    public interface ITagsContainer
+    {
+        Dictionary<string, string> Tags { get; set; }
+    }
+    public static class TagExtensions
+    {
+        private static string? TryGetTagValue(ITagsContainer tagsContainer, string key)
+        {
+            if (tagsContainer.Tags != null && tagsContainer.Tags.TryGetValue(key, out var tagValue))
+                return tagValue;
+            return null;
+        }
+        
+        public static string? GetLanguage(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "language");
+        public static string? GetRotate(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "rotate");
+        public static string? GetDuration(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "duration");
+        
+        
     }
 }

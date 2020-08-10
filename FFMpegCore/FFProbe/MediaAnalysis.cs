@@ -66,7 +66,8 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
-                Language = stream.Tags?.Language
+                Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
+                Language = stream.GetLanguage()
             };
         }
 
@@ -74,7 +75,7 @@ namespace FFMpegCore
         {
             return !string.IsNullOrEmpty(ffProbeStream.Duration)
                 ? TimeSpan.Parse(ffProbeStream.Duration)
-                : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.Tags?.Duration) ?? "0");
+                : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.GetDuration()) ?? "0");
         }
         private static string? TrimTimeSpan(string? durationTag)
         {
@@ -95,7 +96,7 @@ namespace FFMpegCore
                 Duration = ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
-                Language = stream.Tags?.Language
+                Language = stream.GetLanguage()
             };
         }
 
