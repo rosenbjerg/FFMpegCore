@@ -159,7 +159,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        public void Convert(ContainerFormat type, Action<MediaAnalysis> validationMethod, params IArgument[] inputArguments)
+        public void Convert(ContainerFormat type, Action<IMediaAnalysis> validationMethod, params IArgument[] inputArguments)
         {
             var output = Input.OutputLocation(type);
 
