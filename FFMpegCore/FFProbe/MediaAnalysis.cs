@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace FFMpegCore
 {
-    public class MediaAnalysis : IMediaAnalysis
+    internal class MediaAnalysis : IMediaAnalysis
     {
         private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
         internal MediaAnalysis(string path, FFProbeAnalysis analysis)
