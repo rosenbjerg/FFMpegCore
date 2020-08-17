@@ -12,7 +12,7 @@ namespace FFMpegCore.Helpers
             ConversionSizeExceptionCheck(image.Size);
         }
 
-        public static void ConversionSizeExceptionCheck(MediaAnalysis info)
+        public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
         {
             ConversionSizeExceptionCheck(new Size(info.PrimaryVideoStream.Width, info.PrimaryVideoStream.Height));
         }
