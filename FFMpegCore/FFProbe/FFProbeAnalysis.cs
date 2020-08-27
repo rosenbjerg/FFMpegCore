@@ -118,6 +118,7 @@ namespace FFMpegCore
         }
         
         public static string? GetLanguage(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "language");
+        public static string? GetCreationTime(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "creation_time ");
         public static string? GetRotate(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "rotate");
         public static string? GetDuration(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "duration");
         
