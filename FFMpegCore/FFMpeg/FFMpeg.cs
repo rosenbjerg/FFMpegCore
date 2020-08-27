@@ -21,7 +21,7 @@ namespace FFMpegCore
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static bool Snapshot(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
+        public static bool Snapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
@@ -40,7 +40,7 @@ namespace FFMpegCore
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Task<bool> SnapshotAsync(MediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
+        public static Task<bool> SnapshotAsync(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
@@ -58,7 +58,7 @@ namespace FFMpegCore
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Bitmap Snapshot(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        public static Bitmap Snapshot(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
         {
             var arguments = BuildSnapshotArguments(source, size, captureTime);
             using var ms = new MemoryStream();
@@ -78,7 +78,7 @@ namespace FFMpegCore
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static async Task<Bitmap> SnapshotAsync(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        public static async Task<Bitmap> SnapshotAsync(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
         {
             var arguments = BuildSnapshotArguments(source, size, captureTime);
             using var ms = new MemoryStream();
@@ -92,7 +92,7 @@ namespace FFMpegCore
             return new Bitmap(ms);
         }
 
-        private static FFMpegArguments BuildSnapshotArguments(MediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
+        private static FFMpegArguments BuildSnapshotArguments(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null)
         {
             captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
             size = PrepareSnapshotSize(source, size);
@@ -104,7 +104,7 @@ namespace FFMpegCore
                 .Resize(size);
         }
 
-        private static Size? PrepareSnapshotSize(MediaAnalysis source, Size? wantedSize)
+        private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
         {
             if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0))
                 return null;
@@ -143,7 +143,7 @@ namespace FFMpegCore
         /// <param name="multithreaded">Is encoding multithreaded.</param>
         /// <returns>Output video information.</returns>
         public static bool Convert(
-            MediaAnalysis source,
+            IMediaAnalysis source,
             string output,
             ContainerFormat format,
             Speed speed = Speed.SuperFast,
@@ -235,7 +235,7 @@ namespace FFMpegCore
         /// <param name="output">Output video file.</param>
         /// <param name="videos">List of vides that need to be joined together.</param>
         /// <returns>Output video information.</returns>
-        public static bool Join(string output, params MediaAnalysis[] videos)
+        public static bool Join(string output, params IMediaAnalysis[] videos)
         {
             var temporaryVideoParts = videos.Select(video =>
             {
