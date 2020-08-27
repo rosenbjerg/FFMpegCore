@@ -64,6 +64,7 @@ namespace FFMpegCore
                     errorCode = t.Result;
                     cancellationTokenSource.Cancel();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token));
+                _ffMpegArguments.Post();
             }
             catch (Exception e)
             {
@@ -72,7 +73,6 @@ namespace FFMpegCore
             finally
             {
                 CancelEvent -= OnCancelEvent;
-                _ffMpegArguments.Post();
             }
             
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
