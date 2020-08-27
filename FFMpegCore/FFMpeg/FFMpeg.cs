@@ -280,11 +280,12 @@ namespace FFMpegCore
         /// <returns>Output video information.</returns>
         public static bool JoinImageSequence(string output, double frameRate = 30, params ImageInfo[] images)
         {
+            var tempFolderName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid().ToString());
             var temporaryImageFiles = images.Select((image, index) =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
-                var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
-                Directory.CreateDirectory(FFMpegOptions.Options.TempDirectory);
+                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                Directory.CreateDirectory(tempFolderName);
                 File.Copy(image.FullName, destinationPath);
                 return destinationPath;
             }).ToArray();
@@ -293,11 +294,8 @@ namespace FFMpegCore
             try
             {
                 return FFMpegArguments
-                    .FromInputFiles(false, Path.Combine(FFMpegOptions.Options.TempDirectory, "%09d.png"))
-                    .WithVideoCodec(VideoCodec.LibX264)
+                    .FromInputFiles(false, Path.Combine(tempFolderName, "%09d.png"))
                     .Resize(firstImage.Width, firstImage.Height)
-                    .WithFrameOutputCount(images.Length)
-                    .WithStartNumber(0)
                     .WithFramerate(frameRate)
                     .OutputToFile(output)
                     .ProcessSynchronously();
@@ -305,6 +303,7 @@ namespace FFMpegCore
             finally
             {
                 Cleanup(temporaryImageFiles);
+                Directory.Delete(tempFolderName);
             }
         }
 
