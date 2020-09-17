@@ -181,6 +181,13 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public void Builder_BuildString_VideoStreamNumber()
+        {
+            var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithVideoStream(1).OutputToFile("output.mp4", false).Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -map 0:1 \"output.mp4\"", str);
+        }
+
+        [TestMethod]
         public void Builder_BuildString_FrameRate()
         {
             var str = FFMpegArguments.FromInputFiles(true, "input.mp4").WithFramerate(50).OutputToFile("output.mp4", false).Arguments;
