@@ -59,7 +59,8 @@ namespace FFMpegCore
         public FFMpegArguments WithDuration(TimeSpan? duration) => WithArgument(new DurationArgument(duration));
         public FFMpegArguments WithFastStart() => WithArgument(new FaststartArgument());
         public FFMpegArguments WithFrameOutputCount(int frames) => WithArgument(new FrameOutputCountArgument(frames));
-        
+        public FFMpegArguments WithVideoStream(int videoStreamNumber) => WithArgument(new MapStreamArgument(videoStreamNumber));
+
         public FFMpegArguments UsingShortest(bool shortest = true) => WithArgument(new ShortestArgument(shortest));
         public FFMpegArguments UsingMultithreading(bool multithread) => WithArgument(new ThreadsArgument(multithread));
         public FFMpegArguments UsingThreads(int threads) => WithArgument(new ThreadsArgument(threads));
