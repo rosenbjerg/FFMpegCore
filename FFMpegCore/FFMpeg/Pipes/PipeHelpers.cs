@@ -8,7 +8,7 @@ namespace FFMpegCore.Pipes
     {
         static readonly string PipePrefix = Path.Combine(Path.GetTempPath(), "CoreFxPipe_");
         
-        public static string GetUnqiuePipeName() => $"FFMpegCore_{Guid.NewGuid("N").Substring(0, 5)}";
+        public static string GetUnqiuePipeName() => $"FFMpegCore_{Guid.NewGuid().ToString("N").Substring(0, 5)}";
 
         public static string GetPipePath(string pipeName)
         {
