@@ -4,7 +4,7 @@ namespace FFMpegCore.Arguments
 {
     public class ForcePixelFormat : IArgument
     {
-        public string PixelFormat { get; private set; }
+        public string PixelFormat { get; }
         public string Text => $"-pix_fmt {PixelFormat}";
 
         public ForcePixelFormat(string format)
