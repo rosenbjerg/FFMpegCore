@@ -34,20 +34,20 @@ Easily build your FFMpeg arguments using the fluent argument builder:
 Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
 ```csharp
 FFMpegArguments
-    .FromInputFiles(inputFilePath)
-    .WithVideoCodec(VideoCodec.LibX264)
-    .WithConstantRateFactor(21)
-    .WithAudioCodec(AudioCodec.Aac)
-    .WithVariableBitrate(4)
-    .WithFastStart()
-    .Scale(VideoSize.Hd)
-    .OutputToFile(output)
-    .ProcessSynchronously(),
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, false, options => options
+        .WithVideoCodec(VideoCodec.LibX264)
+        .WithConstantRateFactor(21)
+        .WithAudioCodec(AudioCodec.Aac)
+        .WithVariableBitrate(4)
+        .WithFastStart()
+        .Scale(VideoSize.Hd))
+    .ProcessSynchronously();
 ```
 
 Easily capture screens from your videos:
 ```csharp
-var mediaFileAnalysis = FFProbe.Analyse(inputFilePath);
+var mediaFileAnalysis = FFProbe.Analyse(inputPath);
 
 // process the snapshot in-memory and use the Bitmap directly
 var bitmap = FFMpeg.Snapshot(mediaFileAnalysis, new Size(200, 400), TimeSpan.FromMinutes(1));
@@ -59,10 +59,10 @@ FFMpeg.Snapshot(mediaFileAnalysis, outputPath, new Size(200, 400), TimeSpan.From
 Convert to and/or from streams
 ```csharp
 await FFMpegArguments
-    .FromPipe(new StreamPipeDataWriter(inputStream))
-    .WithVideoCodec("vp9")
-    .ForceFormat("webm")
-    .OutputToPipe(new StreamPipeDataReader(outputStream))
+    .FromPipeInput(new StreamPipeSource(inputStream))
+    .OutputToPipe(new StreamPipeSink(outputStream), options => options
+        .WithVideoCodec("vp9")
+        .ForceFormat("webm"))
     .ProcessAsynchronously();
 ```
 
@@ -133,9 +133,8 @@ var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumera
     FrameRate = 30 //set source frame rate
 };
 FFMpegArguments
-    .FromPipe(videoFramesSource)
-    // ... other encoding arguments
-    .OutputToFile("temporary.mp4")
+    .FromPipeInput(videoFramesSource, <input_stream_options>)
+    .OutputToFile("temporary.mp4", false, <output_options>)
     .ProcessSynchronously();
 ```
 
