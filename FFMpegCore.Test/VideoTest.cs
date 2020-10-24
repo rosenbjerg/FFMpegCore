@@ -63,51 +63,51 @@ namespace FFMpegCore.Test
             }
         }
 
-        private void ConvertFromStreamPipe(ContainerFormat type, params IArgument[] inputArguments)
+        private void ConvertFromStreamPipe(ContainerFormat type, params IArgument[] arguments)
         {
             var output = Input.OutputLocation(type);
 
             try
             {
                 var input = FFProbe.Analyse(VideoLibrary.LocalVideoWebm.FullName);
-                using (var inputStream = File.OpenRead(input.Path))
+                using var inputStream = File.OpenRead(input.Path);
+                var processor = FFMpegArguments
+                    .FromPipeInput(new StreamPipeSource(inputStream))
+                    .OutputToFile(output, false, opt =>
+                    {
+                        foreach (var arg in arguments)
+                            opt.WithArgument(arg);
+                    });
+
+                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
+
+                var success = processor.ProcessSynchronously();
+
+                var outputVideo = FFProbe.Analyse(output);
+
+                Assert.IsTrue(success);
+                Assert.IsTrue(File.Exists(output));
+                Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.PrimaryVideoStream.FrameRate);
+
+                if (scaling?.Size == null)
                 {
-                    var pipeSource = new StreamPipeSource(inputStream);
-                    var arguments = FFMpegArguments.FromPipe(pipeSource);
-                    foreach (var arg in inputArguments)
-                        arguments.WithArgument(arg);
-                    var processor = arguments.OutputToFile(output);
-
-                    var scaling = arguments.Find<ScaleArgument>();
-
-                    var success = processor.ProcessSynchronously();
-
-                    var outputVideo = FFProbe.Analyse(output);
-
-                    Assert.IsTrue(success);
-                    Assert.IsTrue(File.Exists(output));
-                    Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.PrimaryVideoStream.FrameRate);
-
-                    if (scaling?.Size == null)
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+                }
+                else
+                {
+                    if (scaling.Size.Value.Width != -1)
                     {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
                     }
-                    else
+
+                    if (scaling.Size.Value.Height != -1)
                     {
-                        if (scaling.Size.Value.Width != -1)
-                        {
-                            Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
-                        }
-
-                        if (scaling.Size.Value.Height != -1)
-                        {
-                            Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
-                        }
-
-                        Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                        Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
                     }
+
+                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
                 }
             }
             finally
@@ -117,17 +117,18 @@ namespace FFMpegCore.Test
             }
         }
 
-        private void ConvertToStreamPipe(params IArgument[] inputArguments)
+        private void ConvertToStreamPipe(params IArgument[] arguments)
         {
             using var ms = new MemoryStream();
-            var arguments = FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo);
-            foreach (var arg in inputArguments)
-                arguments.WithArgument(arg);
+            var processor = FFMpegArguments
+                .FromFileInput(VideoLibrary.LocalVideo)
+                .OutputToPipe(new StreamPipeSink(ms), opt =>
+                {
+                    foreach (var arg in arguments)
+                        opt.WithArgument(arg);
+                });
 
-            var streamPipeDataReader = new StreamPipeSink(ms);
-            var processor = arguments.OutputToPipe(streamPipeDataReader);
-
-            var scaling = arguments.Find<ScaleArgument>();
+            var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
 
             processor.ProcessSynchronously();
 
@@ -159,7 +160,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        public void Convert(ContainerFormat type, Action<IMediaAnalysis> validationMethod, params IArgument[] inputArguments)
+        public void Convert(ContainerFormat type, Action<IMediaAnalysis> validationMethod, params IArgument[] arguments)
         {
             var output = Input.OutputLocation(type);
 
@@ -167,13 +168,15 @@ namespace FFMpegCore.Test
             {
                 var input = FFProbe.Analyse(Input.FullName);
 
-                var arguments = FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo.FullName);
-                foreach (var arg in inputArguments)
-                    arguments.WithArgument(arg);
+                var processor = FFMpegArguments
+                    .FromFileInput(VideoLibrary.LocalVideo)
+                    .OutputToFile(output, false, opt =>
+                {
+                    foreach (var arg in arguments)
+                        opt.WithArgument(arg);
+                });
 
-                var processor = arguments.OutputToFile(output);
-
-                var scaling = arguments.Find<ScaleArgument>();
+                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
                 processor.ProcessSynchronously();
 
                 var outputVideo = FFProbe.Analyse(output);
@@ -214,19 +217,19 @@ namespace FFMpegCore.Test
             Convert(type, null, inputArguments);
         }
 
-        public void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] inputArguments)
+        public void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] arguments)
         {
             var output = Input.OutputLocation(type);
 
             try
             {
                 var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
-                var arguments = FFMpegArguments.FromPipe(videoFramesSource);
-                foreach (var arg in inputArguments)
-                    arguments.WithArgument(arg);
-                var processor = arguments.OutputToFile(output);
-
-                var scaling = arguments.Find<ScaleArgument>();
+                var processor = FFMpegArguments.FromPipeInput(videoFramesSource).OutputToFile(output, false, opt =>
+                {
+                    foreach (var arg in arguments)
+                        opt.WithArgument(arg);
+                });
+                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
                 processor.ProcessSynchronously();
 
                 var outputVideo = FFProbe.Analyse(output);
@@ -304,9 +307,8 @@ namespace FFMpegCore.Test
                 await using var ms = new MemoryStream();
                 var pipeSource = new StreamPipeSink(ms);
                 await FFMpegArguments
-                    .FromInputFiles(VideoLibrary.LocalVideo)
-                    .ForceFormat("mkv")
-                    .OutputToPipe(pipeSource)
+                    .FromFileInput(VideoLibrary.LocalVideo)
+                    .OutputToPipe(pipeSource, opt => opt.ForceFormat("mkv"))
                     .ProcessAsynchronously();
             });
         }
@@ -324,10 +326,10 @@ namespace FFMpegCore.Test
             using var ms = new MemoryStream();
             var pipeSource = new StreamPipeSink(ms);
             FFMpegArguments
-                .FromInputFiles(VideoLibrary.LocalVideo)
-                .WithVideoCodec(VideoCodec.LibX264)
-                .ForceFormat("matroska")
-                .OutputToPipe(pipeSource)
+                .FromFileInput(VideoLibrary.LocalVideo)
+                .OutputToPipe(pipeSource, opt => opt
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .ForceFormat("matroska"))
                 .ProcessAsynchronously()
                 .WaitForResult();
         }
@@ -335,12 +337,12 @@ namespace FFMpegCore.Test
         [TestMethod]
         public async Task TestDuplicateRun()
         {
-            FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo)
-                .OutputToFile("temporary.mp4", true)
+            FFMpegArguments.FromFileInput(VideoLibrary.LocalVideo)
+                .OutputToFile("temporary.mp4")
                 .ProcessSynchronously();
             
-            await FFMpegArguments.FromInputFiles(VideoLibrary.LocalVideo)
-                .OutputToFile("temporary.mp4", true)
+            await FFMpegArguments.FromFileInput(VideoLibrary.LocalVideo)
+                .OutputToFile("temporary.mp4")
                 .ProcessAsynchronously();
             
             File.Delete("temporary.mp4");
@@ -577,9 +579,8 @@ namespace FFMpegCore.Test
             try
             {
                 FFMpegArguments
-                    .FromInputFiles(VideoLibrary.LocalVideo)
-                    .WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5))
-                    .OutputToFile(output)
+                    .FromFileInput(VideoLibrary.LocalVideo)
+                    .OutputToFile(output, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5)))
                     .ProcessSynchronously();
 
                 Assert.IsTrue(File.Exists(output));
@@ -613,8 +614,8 @@ namespace FFMpegCore.Test
             try
             {
                 var success = FFMpegArguments
-                    .FromInputFiles(VideoLibrary.LocalVideo)
-                    .WithDuration(TimeSpan.FromSeconds(8))
+                    .FromFileInput(VideoLibrary.LocalVideo, opt => opt
+                        .WithDuration(TimeSpan.FromSeconds(8)))
                     .OutputToFile(output)
                     .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
                     .NotifyOnProgress(OnTimeProgess)
@@ -640,10 +641,10 @@ namespace FFMpegCore.Test
             var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             FFMpegArguments
-                .FromPipe(writer)
-                .WithVideoCodec("vp9")
-                .ForceFormat("webm")
-                .OutputToPipe(reader)
+                .FromPipeInput(writer)
+                .OutputToPipe(reader, opt => opt
+                    .WithVideoCodec("vp9")
+                    .ForceFormat("webm"))
                 .ProcessSynchronously();
 
             resStream.Position = 0;
@@ -660,10 +661,10 @@ namespace FFMpegCore.Test
             var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(512, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
 
             var task = FFMpegArguments
-                .FromPipe(writer)
-                .WithVideoCodec("vp9")
-                .ForceFormat("webm")
-                .OutputToPipe(reader)
+                .FromPipeInput(writer)
+                .OutputToPipe(reader, opt => opt
+                    .WithVideoCodec("vp9")
+                    .ForceFormat("webm"))
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
 
