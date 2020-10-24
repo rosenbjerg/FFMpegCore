@@ -10,7 +10,7 @@
 Install-Package FFMpegCore
 ```
 
-A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to popular web formats, such as Mp4, WebM, Ogv, TS, and methods for capturing screenshots from videos, among other.
+A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your C# applications. Support both synchronous and asynchronous use
 
 # API
 
