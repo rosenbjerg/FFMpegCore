@@ -34,14 +34,14 @@ Easily build your FFMpeg arguments using the fluent argument builder:
 Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
 ```csharp
 FFMpegArguments
-    .FromFileInput(inputPath, true, options => options
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, false, options => options
         .WithVideoCodec(VideoCodec.LibX264)
         .WithConstantRateFactor(21)
         .WithAudioCodec(AudioCodec.Aac)
         .WithVariableBitrate(4)
         .WithFastStart()
         .Scale(VideoSize.Hd))
-    .OutputToFile(outputPath)
     .ProcessSynchronously();
 ```
 
