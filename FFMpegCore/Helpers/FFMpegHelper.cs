@@ -2,11 +2,14 @@
 using System.Drawing;
 using System.IO;
 using FFMpegCore.Exceptions;
+using Instances;
 
 namespace FFMpegCore.Helpers
 {
     public static class FFMpegHelper
     {
+        private static bool _ffmpegVerified;
+
         public static void ConversionSizeExceptionCheck(Image image)
         {
             ConversionSizeExceptionCheck(image.Size);
@@ -32,11 +35,19 @@ namespace FFMpegCore.Helpers
                     $"Invalid output file. File extension should be '{extension}' required.");
         }
 
-        public static void RootExceptionCheck(string root)
+        public static void RootExceptionCheck()
         {
-            if (root == null)
+            if (FFMpegOptions.Options.RootDirectory == null)
                 throw new FFMpegException(FFMpegExceptionType.Dependency,
                     "FFMpeg root is not configured in app config. Missing key 'ffmpegRoot'.");
+        }
+        
+        public static void VerifyFFMpegExists()
+        {
+            if (_ffmpegVerified) return;
+            var (exitCode, _) = Instance.Finish(FFMpegOptions.Options.FFmpegBinary(), "-version");
+            _ffmpegVerified = exitCode == 0;
+            if (!_ffmpegVerified) throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
         }
     }
 }

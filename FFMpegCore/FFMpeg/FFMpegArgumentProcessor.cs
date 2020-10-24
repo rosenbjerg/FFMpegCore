@@ -126,6 +126,7 @@ namespace FFMpegCore
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
+            FFMpegHelper.VerifyFFMpegExists();
             var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
             instance.DataReceived += OutputData;
             cancellationTokenSource = new CancellationTokenSource();
