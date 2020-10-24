@@ -61,6 +61,19 @@ namespace FFMpegCore.Test
             var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithBitStreamFilter(Channel.Audio, Filter.H264_Mp4ToAnnexB)).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -bsf:a h264_mp4toannexb \"output.mp4\"", str);
         }
+        
+        [TestMethod]
+        public void Builder_BuildString_HardwareAcceleration_Auto()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithHardwareAcceleration()).Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -hwaccel \"output.mp4\"", str);
+        }
+        [TestMethod]
+        public void Builder_BuildString_HardwareAcceleration_Specific()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithHardwareAcceleration(HardwareAccelerationDevice.CUVID)).Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -hwaccel cuvid \"output.mp4\"", str);
+        }
 
         [TestMethod]
         public void Builder_BuildString_Concat()
