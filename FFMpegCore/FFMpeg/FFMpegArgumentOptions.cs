@@ -31,6 +31,7 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithDuration(TimeSpan? duration) => WithArgument(new DurationArgument(duration));
         public FFMpegArgumentOptions WithFastStart() => WithArgument(new FaststartArgument());
         public FFMpegArgumentOptions WithFrameOutputCount(int frames) => WithArgument(new FrameOutputCountArgument(frames));
+        public FFMpegArgumentOptions WithHardwareAcceleration(HardwareAccelerationDevice hardwareAccelerationDevice = HardwareAccelerationDevice.Auto) => WithArgument(new HardwareAccelerationArgument(hardwareAccelerationDevice));
         
         public FFMpegArgumentOptions UsingShortest(bool shortest = true) => WithArgument(new ShortestArgument(shortest));
         public FFMpegArgumentOptions UsingMultithreading(bool multithread) => WithArgument(new ThreadsArgument(multithread));
