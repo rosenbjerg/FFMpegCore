@@ -28,8 +28,6 @@ namespace FFMpegCore.Arguments
         public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
         public void Post()
         {
-            if (!File.Exists(Path))
-                throw new FFMpegException(FFMpegExceptionType.File, "Output file was not created");
         }
 
         public OutputArgument(FileInfo value) : this(value.FullName) { }
