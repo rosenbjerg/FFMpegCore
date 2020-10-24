@@ -87,6 +87,7 @@ namespace FFMpegCore
         {
             FFProbeHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
             var ffprobe = FFMpegOptions.Options.FFProbeBinary();
+            FFProbeHelper.VerifyFFProbeExists();
             var arguments = $"-print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
             var instance = new Instance(ffprobe, arguments) {DataBufferCapacity = outputCapacity};
             return instance;
