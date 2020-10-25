@@ -293,13 +293,13 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Mp4, pixelFormat, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamPipe()
         {
             ConvertFromStreamPipe(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        // [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
             await Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
@@ -313,7 +313,7 @@ namespace FFMpegCore.Test
             });
         }
 
-        // [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
             Assert.ThrowsException<FFMpegException>(() => ConvertToStreamPipe(new ForceFormatArgument("mkv")));
@@ -633,7 +633,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_TranscodeInMemory()
         {
             using var resStream = new MemoryStream();
@@ -653,7 +653,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(vi.PrimaryVideoStream.Height, 128);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async()
         {
             await using var resStream = new MemoryStream();
