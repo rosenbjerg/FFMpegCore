@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FFMpegCore.Enums;
 
 namespace FFMpegCore.Test.Resources
@@ -44,7 +45,7 @@ namespace FFMpegCore.Test.Resources
             string originalLocation = file.Directory.FullName,
                 outputFile = file.Name.Replace(file.Extension, keyword + "." + type.ToLowerInvariant());
 
-            return $"{originalLocation}{Path.DirectorySeparatorChar}{outputFile}";
+            return $"{originalLocation}{Path.DirectorySeparatorChar}{Guid.NewGuid()}_{outputFile}";
         }
     }
 }
