@@ -265,26 +265,26 @@ namespace FFMpegCore.Test
 
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4()
         {
             Convert(VideoType.Mp4);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_YUV444p()
         {
             Convert(VideoType.Mp4, (a) => Assert.IsTrue(a.VideoStreams.First().PixelFormat == "yuv444p"), 
                 new ForcePixelFormat("yuv444p"));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args()
         {
             Convert(VideoType.Mp4, new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [DataTestMethod]
+        [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -334,7 +334,7 @@ namespace FFMpegCore.Test
                 .WaitForResult();
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public async Task TestDuplicateRun()
         {
             FFMpegArguments.FromFileInput(VideoLibrary.LocalVideo)
@@ -354,13 +354,13 @@ namespace FFMpegCore.Test
             ConvertToStreamPipe(new VideoCodecArgument(VideoCodec.LibX264), new ForceFormatArgument("matroska"));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToTS()
         {
             Convert(VideoType.Ts);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToTS_Args()
         {
             Convert(VideoType.Ts,
@@ -378,13 +378,13 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Ts, pixelFormat, new ForceFormatArgument(VideoType.Ts));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToOGV_Resize()
         {
             Convert(VideoType.Ogv, true, VideoSize.Ed);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToOGV_Resize_Args()
         {
             Convert(VideoType.Ogv, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
@@ -399,13 +399,13 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Ogv, pixelFormat, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Resize()
         {
             Convert(VideoType.Mp4, true, VideoSize.Ed);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Resize_Args()
         {
             Convert(VideoType.Mp4, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
@@ -420,31 +420,31 @@ namespace FFMpegCore.Test
             ConvertFromPipe(VideoType.Mp4, pixelFormat, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToOGV()
         {
             Convert(VideoType.Ogv);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_MultiThread()
         {
             Convert(VideoType.Mp4, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToTS_MultiThread()
         {
             Convert(VideoType.Ts, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToOGV_MultiThread()
         {
             Convert(VideoType.Ogv, true);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_Snapshot_InMemory()
         {
             var output = Input.OutputLocation(ImageType.Png);
@@ -465,7 +465,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_Snapshot_PersistSnapshot()
         {
             var output = Input.OutputLocation(ImageType.Png);
@@ -488,7 +488,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_Join()
         {
             var output = Input.OutputLocation(VideoType.Mp4);
@@ -522,7 +522,7 @@ namespace FFMpegCore.Test
             
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_Join_Image_Sequence()
         {
             try
@@ -560,7 +560,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_With_Only_Audio_Should_Extract_Metadata()
         {
             var video = FFProbe.Analyse(VideoLibrary.LocalVideoAudioOnly.FullName);
@@ -570,7 +570,7 @@ namespace FFMpegCore.Test
             // Assert.AreEqual(1.25, video.Size);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_Duration()
         {
             var video = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
@@ -598,7 +598,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_UpdatesProgress()
         {
             var output = Input.OutputLocation(VideoType.Mp4);
@@ -614,9 +614,9 @@ namespace FFMpegCore.Test
             try
             {
                 var success = FFMpegArguments
-                    .FromFileInput(VideoLibrary.LocalVideo, opt => opt
-                        .WithDuration(TimeSpan.FromSeconds(8)))
-                    .OutputToFile(output)
+                    .FromFileInput(VideoLibrary.LocalVideo)
+                    .OutputToFile(output, false, opt => opt
+                        .WithDuration(TimeSpan.FromSeconds(2)))
                     .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
                     .NotifyOnProgress(OnTimeProgess)
                     .ProcessSynchronously();
