@@ -18,7 +18,7 @@ namespace FFMpegCore.Test
         public void Probe_Success()
         {
             var info = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
-            Assert.AreEqual(13, info.Duration.Seconds);
+            Assert.AreEqual(3, info.Duration.Seconds);
             Assert.AreEqual(".mp4", info.Extension);
             Assert.AreEqual(VideoLibrary.LocalVideo.FullName, info.Path);
             
@@ -27,10 +27,10 @@ namespace FFMpegCore.Test
             Assert.AreEqual("AAC (Advanced Audio Coding)", info.PrimaryAudioStream.CodecLongName);
             Assert.AreEqual("aac", info.PrimaryAudioStream.CodecName);
             Assert.AreEqual("LC", info.PrimaryAudioStream.Profile);
-            Assert.AreEqual(381988, info.PrimaryAudioStream.BitRate);
+            Assert.AreEqual(377351, info.PrimaryAudioStream.BitRate);
             Assert.AreEqual(48000, info.PrimaryAudioStream.SampleRateHz);
             
-            Assert.AreEqual(862991, info.PrimaryVideoStream.BitRate);
+            Assert.AreEqual(1471810, info.PrimaryVideoStream.BitRate);
             Assert.AreEqual(16, info.PrimaryVideoStream.DisplayAspectRatio.Width);
             Assert.AreEqual(9, info.PrimaryVideoStream.DisplayAspectRatio.Height);
             Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
@@ -48,7 +48,7 @@ namespace FFMpegCore.Test
         public async Task Probe_Async_Success()
         {
             var info = await FFProbe.AnalyseAsync(VideoLibrary.LocalVideo.FullName);
-            Assert.AreEqual(13, info.Duration.Seconds);
+            Assert.AreEqual(3, info.Duration.Seconds);
         }
 
         [TestMethod, Timeout(10000)]
@@ -56,7 +56,7 @@ namespace FFMpegCore.Test
         {
             using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
             var info = FFProbe.Analyse(stream);
-            Assert.AreEqual(10, info.Duration.Seconds);
+            Assert.AreEqual(3, info.Duration.Seconds);
         }
 
         [TestMethod]
@@ -64,7 +64,7 @@ namespace FFMpegCore.Test
         {
             await using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
             var info = await FFProbe.AnalyseAsync(stream);
-            Assert.AreEqual(10, info.Duration.Seconds);
+            Assert.AreEqual(3, info.Duration.Seconds);
         }
     }
 }
