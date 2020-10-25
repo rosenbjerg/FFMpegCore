@@ -44,7 +44,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual("Main", info.PrimaryVideoStream.Profile);
         }
         
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public async Task Probe_Async_Success()
         {
             var info = await FFProbe.AnalyseAsync(VideoLibrary.LocalVideo.FullName);
@@ -59,7 +59,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(3, info.Duration.Seconds);
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public async Task Probe_Success_FromStream_Async()
         {
             await using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
