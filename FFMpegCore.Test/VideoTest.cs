@@ -566,7 +566,7 @@ namespace FFMpegCore.Test
             var video = FFProbe.Analyse(VideoLibrary.LocalVideoAudioOnly.FullName);
             Assert.AreEqual(null, video.PrimaryVideoStream);
             Assert.AreEqual("aac", video.PrimaryAudioStream.CodecName);
-            Assert.AreEqual(79.5, video.Duration.TotalSeconds, 0.5);
+            Assert.AreEqual(3, video.Duration.TotalSeconds, 0.5);
             // Assert.AreEqual(1.25, video.Size);
         }
 
