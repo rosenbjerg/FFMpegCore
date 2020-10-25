@@ -320,7 +320,7 @@ namespace FFMpegCore.Test
         }
 
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Async()
         {
             using var ms = new MemoryStream();
@@ -348,7 +348,7 @@ namespace FFMpegCore.Test
             File.Delete("temporary.mp4");
         }
 
-        [TestMethod]
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe()
         {
             ConvertToStreamPipe(new VideoCodecArgument(VideoCodec.LibX264), new ForceFormatArgument("matroska"));
@@ -369,7 +369,7 @@ namespace FFMpegCore.Test
                 new ForceFormatArgument(VideoType.MpegTs));
         }
 
-        [DataTestMethod]
+        [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -390,7 +390,7 @@ namespace FFMpegCore.Test
             Convert(VideoType.Ogv, new ScaleArgument(VideoSize.Ed), new VideoCodecArgument(VideoCodec.LibTheora));
         }
 
-        [DataTestMethod]
+        [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -411,7 +411,7 @@ namespace FFMpegCore.Test
             Convert(VideoType.Mp4, new ScaleArgument(VideoSize.Ld), new VideoCodecArgument(VideoCodec.LibX264));
         }
 
-        [DataTestMethod]
+        [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
