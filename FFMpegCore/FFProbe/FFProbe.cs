@@ -14,6 +14,9 @@ namespace FFMpegCore
     {
         public static IMediaAnalysis Analyse(string filePath, int outputCapacity = int.MaxValue)
         {
+            if (!File.Exists(filePath)) 
+                throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
+            
             using var instance = PrepareInstance(filePath, outputCapacity);
             instance.BlockUntilFinished();
             return ParseOutput(filePath, instance);
@@ -24,7 +27,7 @@ namespace FFMpegCore
             instance.BlockUntilFinished();
             return ParseOutput(uri.AbsoluteUri, instance);
         }
-        public static IMediaAnalysis Analyse(System.IO.Stream stream, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis Analyse(Stream stream, int outputCapacity = int.MaxValue)
         {
             var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -49,6 +52,9 @@ namespace FFMpegCore
         }
         public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, int outputCapacity = int.MaxValue)
         {
+            if (!File.Exists(filePath)) 
+                throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
+            
             using var instance = PrepareInstance(filePath, outputCapacity);
             await instance.FinishedRunning();
             return ParseOutput(filePath, instance);
