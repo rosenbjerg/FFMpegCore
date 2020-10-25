@@ -566,7 +566,7 @@ namespace FFMpegCore.Test
             var video = FFProbe.Analyse(VideoLibrary.LocalVideoAudioOnly.FullName);
             Assert.AreEqual(null, video.PrimaryVideoStream);
             Assert.AreEqual("aac", video.PrimaryAudioStream.CodecName);
-            Assert.AreEqual(3, video.Duration.TotalSeconds, 0.5);
+            Assert.AreEqual(10, video.Duration.TotalSeconds, 0.5);
             // Assert.AreEqual(1.25, video.Size);
         }
 
@@ -580,7 +580,7 @@ namespace FFMpegCore.Test
             {
                 FFMpegArguments
                     .FromFileInput(VideoLibrary.LocalVideo)
-                    .OutputToFile(output, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 5)))
+                    .OutputToFile(output, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 2)))
                     .ProcessSynchronously();
 
                 Assert.IsTrue(File.Exists(output));
@@ -589,7 +589,7 @@ namespace FFMpegCore.Test
                 Assert.AreEqual(video.Duration.Days, outputVideo.Duration.Days);
                 Assert.AreEqual(video.Duration.Hours, outputVideo.Duration.Hours);
                 Assert.AreEqual(video.Duration.Minutes, outputVideo.Duration.Minutes);
-                Assert.AreEqual(video.Duration.Seconds - 5, outputVideo.Duration.Seconds);
+                Assert.AreEqual(video.Duration.Seconds - 2, outputVideo.Duration.Seconds);
             }
             finally
             {
