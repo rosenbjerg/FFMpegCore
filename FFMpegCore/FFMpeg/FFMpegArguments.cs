@@ -67,7 +67,7 @@ namespace FFMpegCore
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
                 argument.Pre();
         }
-        internal async Task During(CancellationToken? cancellationToken = null)
+        internal async Task During(CancellationToken cancellationToken = default)
         {
             var inputOutputArguments = Arguments.OfType<IInputOutputArgument>();
             await Task.WhenAll(inputOutputArguments.Select(io => io.During(cancellationToken))).ConfigureAwait(false);
