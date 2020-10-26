@@ -63,9 +63,8 @@ namespace FFMpegCore
                 Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
+                    _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token));
-                _ffMpegArguments.Post();
             }
             catch (Exception e)
             {
@@ -108,7 +107,7 @@ namespace FFMpegCore
                 await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
+                    _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -118,7 +117,6 @@ namespace FFMpegCore
             finally
             {
                 CancelEvent -= OnCancelEvent;
-                _ffMpegArguments.Post();
             }
 
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);

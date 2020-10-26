@@ -38,12 +38,12 @@ namespace FFMpegCore.Arguments
         {
             try
             {
-                await ProcessDataAsync(cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+                await ProcessDataAsync(cancellationToken);
             }
             catch (TaskCanceledException)
             {
             }
-            Post();
+            Pipe.Disconnect();
         }
 
         protected abstract Task ProcessDataAsync(CancellationToken token);
