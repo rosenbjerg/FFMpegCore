@@ -34,7 +34,7 @@ namespace FFMpegCore.Arguments
             Pipe = null!;
         }
 
-        public async Task During(CancellationToken? cancellationToken = null)
+        public async Task During(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace FFMpegCore.Arguments
             Post();
         }
 
-        public abstract Task ProcessDataAsync(CancellationToken token);
+        protected abstract Task ProcessDataAsync(CancellationToken token);
         public abstract string Text { get; }
     }
 }
