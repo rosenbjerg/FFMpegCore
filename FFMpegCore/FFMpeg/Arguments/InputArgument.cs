@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,7 +26,7 @@ namespace FFMpegCore.Arguments
                 throw new FileNotFoundException("Input file not found", FilePath);
         }
 
-        public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
+        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Post() { }
         
         public string Text => $"-i \"{FilePath}\"";

@@ -21,7 +21,7 @@ namespace FFMpegCore.Arguments
         private readonly string _tempFileName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid() + ".txt");
 
         public void Pre() => File.WriteAllLines(_tempFileName, Values);
-        public Task During(CancellationToken? cancellationToken = null) => Task.CompletedTask;
+        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Post() => File.Delete(_tempFileName);
 
         public string Text => $"-f concat -safe 0 -i \"{_tempFileName}\"";
