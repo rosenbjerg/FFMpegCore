@@ -19,5 +19,5 @@ jobs:
     - name: Run unit tests
       run: dotnet test
     - name: Publish NuGet package
-      run: NUPKG=`find . -type f -name FFMpegCore*.nupkg` && dotnet nuget push $NUPKG -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "FFMpegCore/bin/Release/*.nupkg" --skip-duplicate
       
