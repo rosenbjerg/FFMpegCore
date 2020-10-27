@@ -1,143 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <NeutralLanguage>en</NeutralLanguage>
     <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
-    <Description>A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to all web formats: MP4, OGV, TS and methods of capturing screens from the videos.</Description>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <PackageReleaseNotes>Minor fixes and refactoring</PackageReleaseNotes>
+    <Copyright></Copyright>
+    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your C# applications</Description>
+    <Version>3.0.0.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <PackageReleaseNotes>- Fix hanging pipes on unix sockets
+- Internal API cleanup</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>1.1.0</PackageVersion>
-    <Authors>Vlad Jerca, Malte Rosenbjerg</Authors>
+    <PackageVersion>3.1.0</PackageVersion>
+    <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Nullable>enable</Nullable>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="FFMPEG\bin\presets\ffprobe.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-1080p.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-1080p50_60.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-360p.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-720p.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-720p50_60.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libvpx-ultrafast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-baseline.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-fast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-faster.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-faster_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-fast_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-ipod320.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-ipod640.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_fast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_max.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_medium.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_slow.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_slower.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-lossless_ultrafast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-main.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-medium.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-medium_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-placebo.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-placebo_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-slow.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-slower.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-slower_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-slow_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-superfast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-superfast_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-ultrafast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-ultrafast_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-veryfast.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-veryfast_firstpass.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-veryslow.ffpreset">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FFMPEG\bin\presets\libx264-veryslow_firstpass.ffpreset">
+    <Content Include="FFMPEG\bin\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Instances" Version="1.4.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="RunProcessAsTask" Version="1.2.4" />
-    <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+    <PackageReference Include="Instances" Version="1.6.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
 </Project>
