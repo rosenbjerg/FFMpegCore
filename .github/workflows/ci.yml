@@ -1,8 +1,9 @@
 name: CI
-on: push
+on: [push, pull_request]
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v1
     - name: Prepare FFMpeg
@@ -11,7 +12,5 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
-    - name: Build with dotnet
-      run: dotnet build
     - name: Test with dotnet
-      run: dotnet test
+      run: dotnet test --logger GitHubActions

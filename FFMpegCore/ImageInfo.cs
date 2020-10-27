@@ -1,8 +1,8 @@
-﻿using FFMpegCore.Enums;
-using FFMpegCore.Helpers;
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
+using FFMpegCore.Enums;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore
 {
@@ -16,21 +16,21 @@ namespace FFMpegCore
         /// <param name="fileInfo">Image file information.</param>
         public ImageInfo(FileInfo fileInfo)
         {
-            if (!fileInfo.Extension.ToLower().EndsWith(FileExtension.Png))
+            if (!fileInfo.Extension.ToLowerInvariant().EndsWith(FileExtension.Png))
             {
                 throw new Exception("Image joining currently suppors only .png file types");
             }
 
             fileInfo.Refresh();
 
-            this.Size = fileInfo.Length / (1024 * 1024);
+            Size = fileInfo.Length / (1024 * 1024);
 
             using (var image = Image.FromFile(fileInfo.FullName))
             {
-                this.Width = image.Width;
-                this.Height = image.Height;
-                var cd = FFProbeHelper.Gcd(this.Width, this.Height);
-                this.Ratio = $"{this.Width / cd}:{this.Height / cd}";
+                Width = image.Width;
+                Height = image.Height;
+                var cd = FFProbeHelper.Gcd(Width, Height);
+                Ratio = $"{Width / cd}:{Height / cd}";
             }
 
 
@@ -46,9 +46,7 @@ namespace FFMpegCore
         /// Create a image information object from a target path.
         /// </summary>
         /// <param name="path">Path to image.</param>
-        public ImageInfo(string path) : this(new FileInfo(path))
-        {
-        }
+        public ImageInfo(string path) : this(new FileInfo(path)) { }
 
         /// <summary>
         /// Aspect ratio.
