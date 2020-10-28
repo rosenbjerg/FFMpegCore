@@ -15,5 +15,5 @@ jobs:
     - name: Build solution
       run: dotnet build --output build
     - name: Publish NuGet package
-      run: ls && dotnet nuget push "*.nupkg" --source $GITHUB_WORKSPACE/build --skip-duplicate
+      run: dotnet nuget push "build/*.nupkg" --skip-duplicate
       
