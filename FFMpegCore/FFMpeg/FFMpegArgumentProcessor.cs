@@ -51,18 +51,20 @@ namespace FFMpegCore
 
             void OnCancelEvent(object sender, EventArgs args)
             {
-                instance?.SendInput("q");
+                instance.SendInput("q");
                 cancellationTokenSource.Cancel();
+                instance.Started = false;
             }
             CancelEvent += OnCancelEvent;
             instance.Exited += delegate { cancellationTokenSource.Cancel(); };
             
-            _ffMpegArguments.Pre();
             try
             {
+                _ffMpegArguments.Pre();
                 Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
+                    cancellationTokenSource.Cancel();
                     _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token));
             }
@@ -98,15 +100,17 @@ namespace FFMpegCore
             {
                 instance?.SendInput("q");
                 cancellationTokenSource.Cancel();
+                instance.Started = false;
             }
             CancelEvent += OnCancelEvent;
             
-            _ffMpegArguments.Pre();
             try
             {
+                _ffMpegArguments.Pre();
                 await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
+                    cancellationTokenSource.Cancel();
                     _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
             }
