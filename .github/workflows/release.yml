@@ -14,10 +14,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1
-    - name: Build solution -c Release
+    - name: Build solution
       run: dotnet build --output build
-    - name: Run unit tests
-      run: dotnet test
     - name: Publish NuGet package
-      run: dotnet nuget push "*.nupkg" --source build --skip-duplicate
+      run: ls && dotnet nuget push "*.nupkg" --source build --skip-duplicate
       
