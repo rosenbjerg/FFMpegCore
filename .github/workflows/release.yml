@@ -19,5 +19,5 @@ jobs:
     - name: Run unit tests
       run: dotnet test
     - name: Publish NuGet package
-      run: dotnet nuget push "FFMpegCore/bin/Release/*.nupkg" --skip-duplicate
+      run: dotnet nuget push "*.nupkg" --source FFMpegCore/bin/Release --skip-duplicate
       
