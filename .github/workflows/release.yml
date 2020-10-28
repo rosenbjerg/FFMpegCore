@@ -15,5 +15,5 @@ jobs:
     - name: Build solution
       run: dotnet build --output build
     - name: Publish NuGet package
-      run: dotnet nuget push "build/*.nupkg" --skip-duplicate --source nuget.org
+      run: dotnet nuget push "build/*.nupkg" --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       
