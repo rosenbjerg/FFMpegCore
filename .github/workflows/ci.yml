@@ -1,9 +1,18 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches-ignore:
+      - release
+  pull_request:
+    branches:
+      - master
+      - release
+
 jobs:
   ci:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 7
     steps:
     - uses: actions/checkout@v1
     - name: Prepare FFMpeg
