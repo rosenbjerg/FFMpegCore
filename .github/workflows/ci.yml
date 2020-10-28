@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
     branches-ignore:
       - release
   pull_request:
