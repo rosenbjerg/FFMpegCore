@@ -656,23 +656,33 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async()
         {
-            await using var resStream = new MemoryStream();
-            var reader = new StreamPipeSink(resStream);
-            var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(512, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
-
+            var output = Input.OutputLocation(VideoType.Mp4);
+            
             var task = FFMpegArguments
-                .FromPipeInput(writer)
-                .OutputToPipe(reader, opt => opt
-                    .WithVideoCodec("vp9")
-                    .ForceFormat("webm"))
+                .FromFileInput(VideoLibrary.LocalVideo)
+                .OutputToFile(output, false, opt => opt
+                    .Resize(new Size(1000, 1000))
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithConstantRateFactor(14)
+                    .WithSpeedPreset(Speed.VerySlow)
+                    .Loop(3))
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
-
-            await Task.Delay(300);
-            cancel();
             
-            var result = await task;
-            Assert.IsFalse(result);
+            try
+            {
+                await Task.Delay(300);
+                cancel();
+            
+                var result = await task;
+                Assert.IsFalse(result);
+            }
+            finally
+            {
+                if (File.Exists(output))
+                    File.Delete(output);
+            }
         }
     }
 }
