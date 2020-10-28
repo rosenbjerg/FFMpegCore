@@ -15,5 +15,5 @@ jobs:
     - name: Build solution
       run: dotnet build --output build
     - name: Publish NuGet package
-      run: ls && ls FFMpegCore &&  dotnet nuget push "*.nupkg" --source FFMpegCore/build --skip-duplicate
+      run: ls && dotnet nuget push "*.nupkg" --source ./build --skip-duplicate
       
