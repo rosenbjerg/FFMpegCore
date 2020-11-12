@@ -5,13 +5,13 @@
     /// </summary>
     public class MapStreamArgument : IArgument
     {
-        public readonly int VideoStream;
+        private readonly int _streamIndex;
 
-        public MapStreamArgument(int videoStreamNum)
+        public MapStreamArgument(int index)
         {
-            VideoStream = videoStreamNum;
+            _streamIndex = index;
         }
 
-        public string Text => $"-map 0:{VideoStream}";
+        public string Text => $"-map 0:{_streamIndex}";
     }
 }
