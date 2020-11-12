@@ -51,20 +51,22 @@ namespace FFMpegCore
 
             void OnCancelEvent(object sender, EventArgs args)
             {
-                instance?.SendInput("q");
+                instance.SendInput("q");
                 cancellationTokenSource.Cancel();
+                instance.Started = false;
             }
             CancelEvent += OnCancelEvent;
+            instance.Exited += delegate { cancellationTokenSource.Cancel(); };
             
-            _ffMpegArguments.Pre();
             try
             {
+                _ffMpegArguments.Pre();
                 Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
                     cancellationTokenSource.Cancel();
+                    _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token));
-                _ffMpegArguments.Post();
             }
             catch (Exception e)
             {
@@ -98,16 +100,18 @@ namespace FFMpegCore
             {
                 instance?.SendInput("q");
                 cancellationTokenSource.Cancel();
+                instance.Started = false;
             }
             CancelEvent += OnCancelEvent;
             
-            _ffMpegArguments.Pre();
             try
             {
+                _ffMpegArguments.Pre();
                 await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
                 {
                     errorCode = t.Result;
                     cancellationTokenSource.Cancel();
+                    _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -117,7 +121,6 @@ namespace FFMpegCore
             finally
             {
                 CancelEvent -= OnCancelEvent;
-                _ffMpegArguments.Post();
             }
 
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
@@ -125,9 +128,9 @@ namespace FFMpegCore
 
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
         {
-            FFMpegHelper.RootExceptionCheck(FFMpegOptions.Options.RootDirectory);
+            FFMpegHelper.RootExceptionCheck();
+            FFMpegHelper.VerifyFFMpegExists();
             var instance = new Instance(FFMpegOptions.Options.FFmpegBinary(), _ffMpegArguments.Text);
-            instance.DataReceived += OutputData;
             cancellationTokenSource = new CancellationTokenSource();
 
             if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
@@ -135,6 +138,7 @@ namespace FFMpegCore
 
             return instance;
         }
+
         
         private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {

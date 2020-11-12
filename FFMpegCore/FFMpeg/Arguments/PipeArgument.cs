@@ -34,19 +34,19 @@ namespace FFMpegCore.Arguments
             Pipe = null!;
         }
 
-        public async Task During(CancellationToken? cancellationToken = null)
+        public async Task During(CancellationToken cancellationToken = default)
         {
             try
             {
-                await ProcessDataAsync(cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+                await ProcessDataAsync(cancellationToken);
             }
             catch (TaskCanceledException)
             {
             }
-            Post();
+            Pipe.Disconnect();
         }
 
-        public abstract Task ProcessDataAsync(CancellationToken token);
+        protected abstract Task ProcessDataAsync(CancellationToken token);
         public abstract string Text { get; }
     }
 }

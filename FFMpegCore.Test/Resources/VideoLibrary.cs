@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FFMpegCore.Enums;
 
 namespace FFMpegCore.Test.Resources
@@ -15,10 +16,10 @@ namespace FFMpegCore.Test.Resources
 
     public static class VideoLibrary
     {
-        public static readonly FileInfo LocalVideo = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input.mp4");
-        public static readonly FileInfo LocalVideoWebm = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input.webm");
-        public static readonly FileInfo LocalVideoAudioOnly = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}audio_only.mp4");
-        public static readonly FileInfo LocalVideoNoAudio = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}mute.mp4");
+        public static readonly FileInfo LocalVideo = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_3sec.mp4");
+        public static readonly FileInfo LocalVideoWebm = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_3sec.webm");
+        public static readonly FileInfo LocalVideoAudioOnly = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_audio_only_10sec.mp4");
+        public static readonly FileInfo LocalVideoNoAudio = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_video_only_3sec.mp4");
         public static readonly FileInfo LocalAudio = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}audio.mp3");
         public static readonly FileInfo LocalCover = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}cover.png");
         public static readonly FileInfo ImageDirectory = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}images");
@@ -44,7 +45,7 @@ namespace FFMpegCore.Test.Resources
             string originalLocation = file.Directory.FullName,
                 outputFile = file.Name.Replace(file.Extension, keyword + "." + type.ToLowerInvariant());
 
-            return $"{originalLocation}{Path.DirectorySeparatorChar}{outputFile}";
+            return $"{originalLocation}{Path.DirectorySeparatorChar}{Guid.NewGuid()}_{outputFile}";
         }
     }
 }

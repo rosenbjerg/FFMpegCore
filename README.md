@@ -1,6 +1,9 @@
 # FFMpegCore 
-[![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions?query=workflow%3ACI)
+[![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
+[![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
+[![GitHub stars](https://img.shields.io/github/stars/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/stargazers)
+[![GitHub](https://img.shields.io/github/license/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
 
 # Setup
 
@@ -10,7 +13,7 @@
 Install-Package FFMpegCore
 ```
 
-A great way to use FFMpeg encoding when writing video applications, client-side and server-side. It has wrapper methods that allow conversion to popular web formats, such as Mp4, WebM, Ogv, TS, and methods for capturing screenshots from videos, among other.
+A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your C# applications. Support both synchronous and asynchronous use
 
 # API
 
@@ -34,20 +37,20 @@ Easily build your FFMpeg arguments using the fluent argument builder:
 Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
 ```csharp
 FFMpegArguments
-    .FromInputFiles(inputFilePath)
-    .WithVideoCodec(VideoCodec.LibX264)
-    .WithConstantRateFactor(21)
-    .WithAudioCodec(AudioCodec.Aac)
-    .WithVariableBitrate(4)
-    .WithFastStart()
-    .Scale(VideoSize.Hd)
-    .OutputToFile(output)
-    .ProcessSynchronously(),
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, false, options => options
+        .WithVideoCodec(VideoCodec.LibX264)
+        .WithConstantRateFactor(21)
+        .WithAudioCodec(AudioCodec.Aac)
+        .WithVariableBitrate(4)
+        .WithFastStart()
+        .Scale(VideoSize.Hd))
+    .ProcessSynchronously();
 ```
 
 Easily capture screens from your videos:
 ```csharp
-var mediaFileAnalysis = FFProbe.Analyse(inputFilePath);
+var mediaFileAnalysis = FFProbe.Analyse(inputPath);
 
 // process the snapshot in-memory and use the Bitmap directly
 var bitmap = FFMpeg.Snapshot(mediaFileAnalysis, new Size(200, 400), TimeSpan.FromMinutes(1));
@@ -59,10 +62,10 @@ FFMpeg.Snapshot(mediaFileAnalysis, outputPath, new Size(200, 400), TimeSpan.From
 Convert to and/or from streams
 ```csharp
 await FFMpegArguments
-    .FromPipe(new StreamPipeDataWriter(inputStream))
-    .WithVideoCodec("vp9")
-    .ForceFormat("webm")
-    .OutputToPipe(new StreamPipeDataReader(outputStream))
+    .FromPipeInput(new StreamPipeSource(inputStream))
+    .OutputToPipe(new StreamPipeSink(outputStream), options => options
+        .WithVideoCodec("vp9")
+        .ForceFormat("webm"))
     .ProcessAsynchronously();
 ```
 
@@ -133,9 +136,8 @@ var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumera
     FrameRate = 30 //set source frame rate
 };
 FFMpegArguments
-    .FromPipe(videoFramesSource)
-    // ... other encoding arguments
-    .OutputToFile("temporary.mp4")
+    .FromPipeInput(videoFramesSource, <input_stream_options>)
+    .OutputToFile("temporary.mp4", false, <output_options>)
     .ProcessSynchronously();
 ```
 
@@ -210,6 +212,7 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 <a href="https://github.com/devlev"><img src="https://avatars3.githubusercontent.com/u/2109995?v=4" title="devlev" width="80" height="80"></a>
 <a href="https://github.com/tugrulelmas"><img src="https://avatars3.githubusercontent.com/u/3829187?v=4" title="tugrulelmas" width="80" height="80"></a>
 <a href="https://github.com/rosenbjerg"><img src="https://avatars3.githubusercontent.com/u/11181960?v=4" title="rosenbjerg" width="80" height="80"></a>
+<a href="https://github.com/WeihanLi"><img src="https://avatars3.githubusercontent.com/u/7604648?v=4" title="weihanli" width="80" height="80"></a>
 
 ### License
 
