@@ -16,7 +16,7 @@ namespace FFMpegCore.Arguments
 
         public override string Text => $"\"{PipePath}\" -y";
 
-        public override async Task ProcessDataAsync(CancellationToken token)
+        protected override async Task ProcessDataAsync(CancellationToken token)
         {
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
