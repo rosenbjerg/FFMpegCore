@@ -12,6 +12,6 @@
             Framerate = framerate;
         }
 
-        public string Text => $"-r {Framerate}";
+        public string Text => $"-r {Framerate.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
     }
 }

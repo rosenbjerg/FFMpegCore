@@ -8,16 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Prepare FFMpeg
-      run: sudo apt-get update && sudo apt-get install -y ffmpeg
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1
-    - name: Build solution -c Release
-      run: dotnet build
-    - name: Run unit tests
-      run: dotnet test
+    - name: Build solution
+      run: dotnet build --output build
     - name: Publish NuGet package
-      run: NUPKG=`find . -type f -name FFMpegCore*.nupkg` && dotnet nuget push $NUPKG -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "build/*.nupkg" --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       
