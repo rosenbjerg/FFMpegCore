@@ -20,15 +20,15 @@ namespace FFMpegCore
         /// <param name="output">Output video file path</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-        /// <param name="videoStreamNumber">Number of video stream in input file. Default it is 0.</param>
+        /// <param name="streamIndex">Index of video stream in input file. Default it is 0.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static bool Snapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null, int videoStreamNumber = 0)
+        public static bool Snapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
-            
-            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, videoStreamNumber);
-            
+
+            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, streamIndex);
+
             return arguments
                 .OutputToFile(output, true, outputOptions)
                 .ProcessSynchronously();
@@ -40,15 +40,15 @@ namespace FFMpegCore
         /// <param name="output">Output video file path</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-        /// <param name="videoStreamNumber">Number of video stream in input file. Default it is 0.</param>
+        /// <param name="streamIndex">Index of video stream in input file. Default it is 0.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Task<bool> SnapshotAsync(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null, int videoStreamNumber = 0)
+        public static Task<bool> SnapshotAsync(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
-            
-            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, videoStreamNumber);
-            
+
+            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, streamIndex);
+
             return arguments
                 .OutputToFile(output, true, outputOptions)
                 .ProcessAsynchronously();
@@ -59,13 +59,13 @@ namespace FFMpegCore
         /// <param name="source">Source video file.</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-        /// <param name="videoStreamNumber">Number of video stream in input file. Default it is 0.</param>
+        /// <param name="streamIndex">Index of video stream in input file. Default it is 0.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Bitmap Snapshot(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int videoStreamNumber = 0)
-        {            
-            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, videoStreamNumber);
+        public static Bitmap Snapshot(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        {
+            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, streamIndex);
             using var ms = new MemoryStream();
-            
+
             arguments
                 .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                     .ForceFormat("rawvideo")))
@@ -80,13 +80,13 @@ namespace FFMpegCore
         /// <param name="source">Source video file.</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-        /// <param name="videoStreamNumber">Number of video stream in input file. Default it is 0.</param>
+        /// <param name="streamIndex">Index of video stream in input file. Default it is 0.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static async Task<Bitmap> SnapshotAsync(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int videoStreamNumber = 0)
+        public static async Task<Bitmap> SnapshotAsync(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
         {
-            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, videoStreamNumber);
+            var (arguments, outputOptions) = BuildSnapshotArguments(source, size, captureTime, streamIndex);
             using var ms = new MemoryStream();
-            
+
             await arguments
                 .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                     .ForceFormat("rawvideo")))
@@ -95,17 +95,26 @@ namespace FFMpegCore
             ms.Position = 0;
             return new Bitmap(ms);
         }
-            
-        private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int videoStreamNumber = 0)
+
+        private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
         {
             captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
             size = PrepareSnapshotSize(source, size);
-            
+
+            // If user will know about numeration of streams (user passes index of necessary video stream)            
+            int index = source.VideoStreams.Where(videoStream => videoStream.Index == streamIndex).FirstOrDefault().Index;
+
+            // User passes number of video stream
+            // E.g: user can pass 0, but index of first video stream will be 1 
+            /*int index = 0;
+            try { index = source.VideoStreams[streamIndex].Index; }
+            catch { };*/
+
             return (FFMpegArguments
                 .FromFileInput(source, options => options
-                    .Seek(captureTime)), 
+                    .Seek(captureTime)),
                 options => options
-                    .SelectStream(videoStreamNumber)
+                    .SelectStream(index)
                     .WithVideoCodec(VideoCodec.Png)
                     .WithFrameOutputCount(1)
                     .Resize(size));
@@ -115,11 +124,11 @@ namespace FFMpegCore
         {
             if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0))
                 return null;
-            
+
             var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
             if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
                 currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
-            
+
             if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
             {
                 if (wantedSize.Value.Width <= 0 && wantedSize.Value.Height > 0)
@@ -327,7 +336,7 @@ namespace FFMpegCore
 
             if (uri.Scheme != "http" && uri.Scheme != "https")
                 throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
-            
+
             return FFMpegArguments
                 .FromUrlInput(uri)
                 .OutputToFile(output)
@@ -451,7 +460,7 @@ namespace FFMpegCore
             instance.DataReceived += (e, args) =>
             {
                 var codec = parser(args.Data);
-                if(codec != null)
+                if (codec != null)
                     if (codecs.TryGetValue(codec.Name, out var parentCodec))
                         parentCodec.Merge(codec);
                     else
@@ -498,7 +507,7 @@ namespace FFMpegCore
         {
             if (!FFMpegOptions.Options.UseCache)
                 return GetCodecsInternal().Values.Where(x => x.Type == type).ToList().AsReadOnly();
-            return FFMpegCache.Codecs.Values.Where(x=>x.Type == type).ToList().AsReadOnly();
+            return FFMpegCache.Codecs.Values.Where(x => x.Type == type).ToList().AsReadOnly();
         }
 
         public static IReadOnlyList<Codec> GetVideoCodecs() => GetCodecs(CodecType.Video);
