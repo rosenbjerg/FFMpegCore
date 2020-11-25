@@ -13,6 +13,7 @@
 - Additional StreamPipeSink constructor</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
     <PackageVersion>3.2.0</PackageVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
