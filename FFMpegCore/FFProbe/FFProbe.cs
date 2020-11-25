@@ -98,7 +98,7 @@ namespace FFMpegCore
             var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            });
+            })!;
             return new MediaAnalysis(filePath, ffprobeAnalysis);
         }
 

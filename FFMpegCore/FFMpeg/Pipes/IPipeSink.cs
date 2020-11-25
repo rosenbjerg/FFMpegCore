@@ -5,7 +5,7 @@ namespace FFMpegCore.Pipes
 {
     public interface IPipeSink
     {
-        Task CopyAsync(System.IO.Stream inputStream, CancellationToken cancellationToken);
+        Task ReadAsync(System.IO.Stream inputStream, CancellationToken cancellationToken);
         string GetFormat();
     }
 }
