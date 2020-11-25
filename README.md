@@ -1,6 +1,9 @@
 # FFMpegCore 
-[![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions?query=workflow%3ACI)
+[![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
+[![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
+[![GitHub stars](https://img.shields.io/github/stars/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/stargazers)
+[![GitHub](https://img.shields.io/github/license/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
 
 # Setup
 
@@ -209,6 +212,7 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 <a href="https://github.com/devlev"><img src="https://avatars3.githubusercontent.com/u/2109995?v=4" title="devlev" width="80" height="80"></a>
 <a href="https://github.com/tugrulelmas"><img src="https://avatars3.githubusercontent.com/u/3829187?v=4" title="tugrulelmas" width="80" height="80"></a>
 <a href="https://github.com/rosenbjerg"><img src="https://avatars3.githubusercontent.com/u/11181960?v=4" title="rosenbjerg" width="80" height="80"></a>
+<a href="https://github.com/WeihanLi"><img src="https://avatars3.githubusercontent.com/u/7604648?v=4" title="weihanli" width="80" height="80"></a>
 
 ### License
 

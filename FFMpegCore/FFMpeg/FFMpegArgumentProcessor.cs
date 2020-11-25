@@ -98,7 +98,7 @@ namespace FFMpegCore
 
             void OnCancelEvent(object sender, EventArgs args)
             {
-                instance?.SendInput("q");
+                instance.SendInput("q");
                 cancellationTokenSource.Cancel();
                 instance.Started = false;
             }
