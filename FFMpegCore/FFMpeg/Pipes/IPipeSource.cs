@@ -9,6 +9,6 @@ namespace FFMpegCore.Pipes
     public interface IPipeSource
     {
         string GetFormat();
-        Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);
+        Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);
     }
 }
