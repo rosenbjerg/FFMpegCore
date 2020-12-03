@@ -65,8 +65,8 @@ namespace FFMpegCore
                 {
                     errorCode = t.Result;
                     cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token));
+                    // _ffMpegArguments.Post();
+                }), _ffMpegArguments.During(cancellationTokenSource.Token).ContinueWith(t => _ffMpegArguments.Post()));
             }
             catch (Exception e)
             {
@@ -111,8 +111,8 @@ namespace FFMpegCore
                 {
                     errorCode = t.Result;
                     cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+                    // _ffMpegArguments.Post();
+                }), _ffMpegArguments.During(cancellationTokenSource.Token).ContinueWith(t => _ffMpegArguments.Post())).ConfigureAwait(false);
             }
             catch (Exception e)
             {

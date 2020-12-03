@@ -312,6 +312,23 @@ namespace FFMpegCore.Test
                     .ProcessAsynchronously();
             });
         }
+        [TestMethod, Timeout(10000)]
+        public void Video_StreamFile_OutputToMemoryStream()
+        {
+            // using var input = File.OpenRead(VideoLibrary.LocalVideo.FullName);
+            var output = new MemoryStream();
+
+            FFMpegArguments
+                // .FromFileInput(VideoLibrary.LocalVideo.FullName)
+                .FromPipeInput(new StreamPipeSource(File.OpenRead(VideoLibrary.LocalVideoWebm.FullName)), options => options.ForceFormat("webm"))
+                .OutputToPipe(new StreamPipeSink(output), options => options
+                    .ForceFormat("mp4"))
+                .ProcessSynchronously();
+
+            output.Position = 0;
+            var result = FFProbe.Analyse(output);
+            Console.WriteLine(result.Duration);
+        }
 
         [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
