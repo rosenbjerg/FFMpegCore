@@ -22,6 +22,7 @@ namespace FFMpegCore.Arguments
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
             await Reader.ReadAsync(Pipe, token).ConfigureAwait(false);
+            Pipe.Disconnect();
         }
     }
 }

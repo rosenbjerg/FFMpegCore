@@ -17,7 +17,7 @@ namespace FFMpegCore.Arguments
             Writer = writer;
         }
 
-        public override string Text => $"-y {Writer.GetFormat()} -i \"{PipePath}\"";
+        public override string Text => $"{(!string.IsNullOrEmpty(Writer.Format) ? $"-f {Writer.Format} " : string.Empty)}-i \"{PipePath}\"";
 
         protected override async Task ProcessDataAsync(CancellationToken token)
         {
@@ -25,6 +25,7 @@ namespace FFMpegCore.Arguments
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
             await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
+            Pipe.Disconnect();
         }
     }
 }
