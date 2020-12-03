@@ -43,7 +43,6 @@ namespace FFMpegCore.Arguments
             catch (TaskCanceledException)
             {
             }
-            Pipe.Disconnect();
         }
 
         protected abstract Task ProcessDataAsync(CancellationToken token);
