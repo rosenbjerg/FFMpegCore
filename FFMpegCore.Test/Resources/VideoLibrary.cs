@@ -21,6 +21,7 @@ namespace FFMpegCore.Test.Resources
         public static readonly FileInfo LocalVideoAudioOnly = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_audio_only_10sec.mp4");
         public static readonly FileInfo LocalVideoNoAudio = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}input_video_only_3sec.mp4");
         public static readonly FileInfo LocalAudio = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}audio.mp3");
+        public static readonly FileInfo LocalAudioRaw = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}audio.raw");
         public static readonly FileInfo LocalCover = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}cover.png");
         public static readonly FileInfo ImageDirectory = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}images");
         public static readonly FileInfo ImageJoinOutput = new FileInfo($".{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}images{Path.DirectorySeparatorChar}output.mp4");
