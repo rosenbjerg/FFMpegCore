@@ -6,7 +6,7 @@ using FFMpegCore.Enums;
 namespace FFMpegCore.Test
 {
     [TestClass]
-    public class ArgumentBuilderTest : BaseTest
+    public class ArgumentBuilderTest
     {
         private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4"};
 
