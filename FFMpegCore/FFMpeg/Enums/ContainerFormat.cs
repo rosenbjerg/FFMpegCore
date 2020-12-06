@@ -4,7 +4,7 @@ namespace FFMpegCore.Enums
 {
     public class ContainerFormat
     {
-        private static readonly Regex _formatRegex = new Regex(@"([D ])([E ])\s+([a-z0-9_]+)\s+(.+)");
+        private static readonly Regex FormatRegex = new Regex(@"([D ])([E ])\s+([a-z0-9_]+)\s+(.+)");
 
         public string Name { get; private set; }
         public bool DemuxingSupported { get; private set; }
@@ -27,17 +27,19 @@ namespace FFMpegCore.Enums
 
         internal static bool TryParse(string line, out ContainerFormat fmt)
         {
-            var match = _formatRegex.Match(line);
+            var match = FormatRegex.Match(line);
             if (!match.Success)
             {
                 fmt = null!;
                 return false;
             }
 
-            fmt = new ContainerFormat(match.Groups[3].Value);
-            fmt.DemuxingSupported = match.Groups[1].Value == " ";
-            fmt.MuxingSupported = match.Groups[2].Value == " ";
-            fmt.Description = match.Groups[4].Value;
+            fmt = new ContainerFormat(match.Groups[3].Value)
+            {
+                DemuxingSupported = match.Groups[1].Value == " ",
+                MuxingSupported = match.Groups[2].Value == " ",
+                Description = match.Groups[4].Value
+            };
             return true;
         }
     }
