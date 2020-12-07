@@ -19,9 +19,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Prepare .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v1-beta
-    - name: FFMpeg formats
-      run: ffmpeg -formats
     - name: Test with dotnet
       run: dotnet test --logger GitHubActions
