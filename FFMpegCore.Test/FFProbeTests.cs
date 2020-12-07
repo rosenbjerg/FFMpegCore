@@ -11,16 +11,26 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Probe_TooLongOutput()
         {
-            Assert.ThrowsException<System.Text.Json.JsonException>(() => FFProbe.Analyse(VideoLibrary.LocalVideo.FullName, 5));
+            Assert.ThrowsException<System.Text.Json.JsonException>(() => FFProbe.Analyse(TestResources.Mp4Video, 5));
+        }
+        
+
+        [TestMethod]
+        public async Task Audio_FromStream_Duration()
+        {
+            var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo);
+            await using var inputStream = File.OpenRead(TestResources.WebmVideo);
+            var streamAnalysis = await FFProbe.AnalyseAsync(inputStream);
+            Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
         }
         
         [TestMethod]
         public void Probe_Success()
         {
-            var info = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
+            var info = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
             Assert.AreEqual(".mp4", info.Extension);
-            Assert.AreEqual(VideoLibrary.LocalVideo.FullName, info.Path);
+            Assert.AreEqual(TestResources.Mp4Video, info.Path);
             
             Assert.AreEqual("5.1", info.PrimaryAudioStream.ChannelLayout);
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
@@ -47,14 +57,14 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Probe_Async_Success()
         {
-            var info = await FFProbe.AnalyseAsync(VideoLibrary.LocalVideo.FullName);
+            var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
         }
 
         [TestMethod, Timeout(10000)]
         public void Probe_Success_FromStream()
         {
-            using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
+            using var stream = File.OpenRead(TestResources.WebmVideo);
             var info = FFProbe.Analyse(stream);
             Assert.AreEqual(3, info.Duration.Seconds);
         }
@@ -62,7 +72,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Probe_Success_FromStream_Async()
         {
-            await using var stream = File.OpenRead(VideoLibrary.LocalVideoWebm.FullName);
+            await using var stream = File.OpenRead(TestResources.WebmVideo);
             var info = await FFProbe.AnalyseAsync(stream);
             Assert.AreEqual(3, info.Duration.Seconds);
         }
