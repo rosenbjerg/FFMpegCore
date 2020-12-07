@@ -106,7 +106,7 @@ namespace FFMpegCore
         {
             FFProbeHelper.RootExceptionCheck();
             FFProbeHelper.VerifyFFProbeExists();
-            var arguments = $"-print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
+            var arguments = $"-loglevel error -print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
             var instance = new Instance(FFMpegOptions.Options.FFProbeBinary(), arguments) {DataBufferCapacity = outputCapacity};
             return instance;
         }

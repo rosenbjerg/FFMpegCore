@@ -8,7 +8,7 @@ namespace FFMpegCore.Pipes
     /// </summary>
     public interface IPipeSource
     {
-        string GetFormat();
+        string GetStreamArguments();
         Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);
     }
 }

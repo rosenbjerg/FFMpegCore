@@ -69,7 +69,8 @@ namespace FFMpegCore
                 .ProcessSynchronously();
 
             ms.Position = 0;
-            return new Bitmap(ms);
+            using var bitmap = new Bitmap(ms);
+            return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
         }
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
