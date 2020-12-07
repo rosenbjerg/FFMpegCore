@@ -25,7 +25,6 @@ namespace FFMpegCore.Arguments
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
             await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
-            Pipe.Disconnect();
         }
     }
 }
