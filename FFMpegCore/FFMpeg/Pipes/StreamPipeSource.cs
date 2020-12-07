@@ -10,13 +10,15 @@ namespace FFMpegCore.Pipes
     {
         public System.IO.Stream Source { get; }
         public int BlockSize { get; } = 4096;
-
-        public string Format { get; }
+        public string StreamFormat { get; } = string.Empty;
 
         public StreamPipeSource(System.IO.Stream source)
         {
             Source = source;
         }
+
+        public string GetStreamArguments() => StreamFormat;
+
         public Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken) => Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
     }
 }
