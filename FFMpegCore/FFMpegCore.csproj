@@ -9,9 +9,9 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Fix NullReferenceException on Disconnect after Dispose</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fix snapshot in memory dispose exception</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>3.2.1</PackageVersion>
+    <PackageVersion>3.2.2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
