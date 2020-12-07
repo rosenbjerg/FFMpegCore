@@ -18,8 +18,8 @@ namespace FFMpegCore.Test
         [TestMethod]
         public async Task Audio_FromStream_Duration()
         {
-            var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
-            await using var inputStream = File.OpenRead(TestResources.Mp4Video);
+            var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo);
+            await using var inputStream = File.OpenRead(TestResources.WebmVideo);
             var streamAnalysis = await FFProbe.AnalyseAsync(inputStream);
             Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
         }
