@@ -15,105 +15,90 @@ using FFMpegCore.Pipes;
 namespace FFMpegCore.Test
 {
     [TestClass]
-    public class VideoTest : BaseTest
+    public class VideoTest
     {
         public bool Convert(ContainerFormat type, bool multithreaded = false, VideoSize size = VideoSize.Original)
         {
-            var output = Input.OutputLocation(type);
+            using var outputFile = new TemporaryFile($"out{type.Extension}");
 
-            try
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+            FFMpeg.Convert(input, outputFile, type, size: size, multithreaded: multithreaded);
+            var outputVideo = FFProbe.Analyse(outputFile);
+
+            Assert.IsTrue(File.Exists(outputFile));
+            Assert.AreEqual(outputVideo.Duration.TotalSeconds, input.Duration.TotalSeconds, 0.1);
+            if (size == VideoSize.Original)
             {
-                var input = FFProbe.Analyse(Input.FullName);
-                FFMpeg.Convert(input, output, type, size: size, multithreaded: multithreaded);
-                var outputVideo = FFProbe.Analyse(output);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+            }
+            else
+            {
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, (int)size);
+            }
 
-                Assert.IsTrue(File.Exists(output));
-                Assert.AreEqual(outputVideo.Duration.TotalSeconds, input.Duration.TotalSeconds, 0.1);
-                if (size == VideoSize.Original)
-                {
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                }
-                else
-                {
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, (int)size);
-                }
-                return File.Exists(output) &&
-                       outputVideo.Duration == input.Duration &&
+            return File.Exists(outputFile) && 
+                   outputVideo.Duration == input.Duration &&
+                   (
                        (
-                           (
                            size == VideoSize.Original &&
                            outputVideo.PrimaryVideoStream.Width == input.PrimaryVideoStream.Width &&
                            outputVideo.PrimaryVideoStream.Height == input.PrimaryVideoStream.Height
-                           ) ||
-                           (
+                       ) ||
+                       (
                            size != VideoSize.Original &&
                            outputVideo.PrimaryVideoStream.Width != input.PrimaryVideoStream.Width &&
                            outputVideo.PrimaryVideoStream.Height != input.PrimaryVideoStream.Height &&
                            outputVideo.PrimaryVideoStream.Height == (int)size
-                           )
-                       );
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+                       )
+                   );
         }
 
         private void ConvertFromStreamPipe(ContainerFormat type, params IArgument[] arguments)
         {
-            var output = Input.OutputLocation(type);
+            using var outputFile = new TemporaryFile($"out{type.Extension}");
+            
+            var input = FFProbe.Analyse(TestResources.WebmVideo);
+            using var inputStream = File.OpenRead(input.Path);
+            var processor = FFMpegArguments
+                .FromPipeInput(new StreamPipeSource(inputStream))
+                .OutputToFile(outputFile, false, opt =>
+                {
+                    foreach (var arg in arguments)
+                        opt.WithArgument(arg);
+                });
 
-            try
+            var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
+
+            var success = processor.ProcessSynchronously();
+
+            var outputVideo = FFProbe.Analyse(outputFile);
+
+            Assert.IsTrue(success);
+            Assert.IsTrue(File.Exists(outputFile));
+            Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.PrimaryVideoStream.FrameRate);
+
+            if (scaling?.Size == null)
             {
-                var input = FFProbe.Analyse(VideoLibrary.LocalVideoWebm.FullName);
-                using var inputStream = File.OpenRead(input.Path);
-                var processor = FFMpegArguments
-                    .FromPipeInput(new StreamPipeSource(inputStream))
-                    .OutputToFile(output, false, opt =>
-                    {
-                        foreach (var arg in arguments)
-                            opt.WithArgument(arg);
-                    });
-
-                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
-
-                var success = processor.ProcessSynchronously();
-
-                var outputVideo = FFProbe.Analyse(output);
-
-                Assert.IsTrue(success);
-                Assert.IsTrue(File.Exists(output));
-                Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.PrimaryVideoStream.FrameRate);
-
-                if (scaling?.Size == null)
-                {
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                }
-                else
-                {
-                    if (scaling.Size.Value.Width != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
-                    }
-
-                    if (scaling.Size.Value.Height != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
-                    }
-
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                }
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
             }
-            finally
+            else
             {
-                if (File.Exists(output))
-                    File.Delete(output);
+                if (scaling.Size.Value.Width != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
+                }
+
+                if (scaling.Size.Value.Height != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
+                }
+
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
             }
         }
 
@@ -121,7 +106,7 @@ namespace FFMpegCore.Test
         {
             using var ms = new MemoryStream();
             var processor = FFMpegArguments
-                .FromFileInput(VideoLibrary.LocalVideo)
+                .FromFileInput(TestResources.Mp4Video)
                 .OutputToPipe(new StreamPipeSink(ms), opt =>
                 {
                     foreach (var arg in arguments)
@@ -135,7 +120,7 @@ namespace FFMpegCore.Test
             ms.Position = 0;
             var outputVideo = FFProbe.Analyse(ms);
 
-            var input = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
             // Assert.IsTrue(Math.Abs((outputVideo.Duration - input.Duration).TotalMilliseconds) < 1000.0 / input.PrimaryVideoStream.FrameRate);
 
             if (scaling?.Size == null)
@@ -162,53 +147,45 @@ namespace FFMpegCore.Test
 
         public void Convert(ContainerFormat type, Action<IMediaAnalysis> validationMethod, params IArgument[] arguments)
         {
-            var output = Input.OutputLocation(type);
+            using var outputFile = new TemporaryFile($"out{type.Extension}");
 
-            try
-            {
-                var input = FFProbe.Analyse(Input.FullName);
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-                var processor = FFMpegArguments
-                    .FromFileInput(VideoLibrary.LocalVideo)
-                    .OutputToFile(output, false, opt =>
+            var processor = FFMpegArguments
+                .FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, false, opt =>
                 {
                     foreach (var arg in arguments)
                         opt.WithArgument(arg);
                 });
 
-                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
-                processor.ProcessSynchronously();
+            var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
+            processor.ProcessSynchronously();
 
-                var outputVideo = FFProbe.Analyse(output);
+            var outputVideo = FFProbe.Analyse(outputFile);
 
-                Assert.IsTrue(File.Exists(output));
-                Assert.AreEqual(outputVideo.Duration.TotalSeconds, input.Duration.TotalSeconds, 0.1);
-                validationMethod?.Invoke(outputVideo);
-                if (scaling?.Size == null)
-                {
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                }
-                else
-                {
-                    if (scaling.Size.Value.Width != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
-                    }
-
-                    if (scaling.Size.Value.Height != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
-                    }
-
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
-                }
-            }
-            finally
+            Assert.IsTrue(File.Exists(outputFile));
+            Assert.AreEqual(outputVideo.Duration.TotalSeconds, input.Duration.TotalSeconds, 0.1);
+            validationMethod?.Invoke(outputVideo);
+            if (scaling?.Size == null)
             {
-                if (File.Exists(output))
-                    File.Delete(output);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
+            }
+            else
+            {
+                if (scaling.Size.Value.Width != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
+                }
+
+                if (scaling.Size.Value.Height != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
+                }
+
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, input.PrimaryVideoStream.Width);
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, input.PrimaryVideoStream.Height);
             }
         }
 
@@ -219,50 +196,41 @@ namespace FFMpegCore.Test
 
         public void ConvertFromPipe(ContainerFormat type, System.Drawing.Imaging.PixelFormat fmt, params IArgument[] arguments)
         {
-            var output = Input.OutputLocation(type);
+            using var outputFile = new TemporaryFile($"out{type.Extension}");
 
-            try
+            var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
+            var processor = FFMpegArguments.FromPipeInput(videoFramesSource).OutputToFile(outputFile, false, opt =>
             {
-                var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, fmt, 256, 256));
-                var processor = FFMpegArguments.FromPipeInput(videoFramesSource).OutputToFile(output, false, opt =>
-                {
-                    foreach (var arg in arguments)
-                        opt.WithArgument(arg);
-                });
-                var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
-                processor.ProcessSynchronously();
+                foreach (var arg in arguments)
+                    opt.WithArgument(arg);
+            });
+            var scaling = arguments.OfType<ScaleArgument>().FirstOrDefault();
+            processor.ProcessSynchronously();
 
-                var outputVideo = FFProbe.Analyse(output);
+            var outputVideo = FFProbe.Analyse(outputFile);
 
-                Assert.IsTrue(File.Exists(output));
+            Assert.IsTrue(File.Exists(outputFile));
 
-                if (scaling?.Size == null)
-                {
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, videoFramesSource.Width);
-                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, videoFramesSource.Height);
-                }
-                else
-                {
-                    if (scaling.Size.Value.Width != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
-                    }
-
-                    if (scaling.Size.Value.Height != -1)
-                    {
-                        Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
-                    }
-
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, videoFramesSource.Width);
-                    Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, videoFramesSource.Height);
-                }
-            }
-            finally
+            if (scaling?.Size == null)
             {
-                if (File.Exists(output))
-                    File.Delete(output);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, videoFramesSource.Width);
+                Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, videoFramesSource.Height);
             }
+            else
+            {
+                if (scaling.Size.Value.Width != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Width, scaling.Size.Value.Width);
+                }
 
+                if (scaling.Size.Value.Height != -1)
+                {
+                    Assert.AreEqual(outputVideo.PrimaryVideoStream.Height, scaling.Size.Value.Height);
+                }
+
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Width, videoFramesSource.Width);
+                Assert.AreNotEqual(outputVideo.PrimaryVideoStream.Height, videoFramesSource.Height);
+            }
         }
 
         [TestMethod, Timeout(10000)]
@@ -287,7 +255,6 @@ namespace FFMpegCore.Test
         [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        // [DataRow(PixelFormat.Format48bppRgb)]
         public void Video_ToMP4_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Mp4, pixelFormat, new VideoCodecArgument(VideoCodec.LibX264));
@@ -307,10 +274,25 @@ namespace FFMpegCore.Test
                 await using var ms = new MemoryStream();
                 var pipeSource = new StreamPipeSink(ms);
                 await FFMpegArguments
-                    .FromFileInput(VideoLibrary.LocalVideo)
+                    .FromFileInput(TestResources.Mp4Video)
                     .OutputToPipe(pipeSource, opt => opt.ForceFormat("mkv"))
                     .ProcessAsynchronously();
             });
+        }
+        [TestMethod, Timeout(10000)]
+        public void Video_StreamFile_OutputToMemoryStream()
+        {
+            var output = new MemoryStream();
+
+            FFMpegArguments
+                .FromPipeInput(new StreamPipeSource(File.OpenRead(TestResources.WebmVideo)), options => options.ForceFormat("webm"))
+                .OutputToPipe(new StreamPipeSink(output), options => options
+                    .ForceFormat("mpegts"))
+                .ProcessSynchronously();
+
+            output.Position = 0;
+            var result = FFProbe.Analyse(output);
+            Console.WriteLine(result.Duration);
         }
 
         [TestMethod, Timeout(10000)]
@@ -326,7 +308,7 @@ namespace FFMpegCore.Test
             using var ms = new MemoryStream();
             var pipeSource = new StreamPipeSink(ms);
             FFMpegArguments
-                .FromFileInput(VideoLibrary.LocalVideo)
+                .FromFileInput(TestResources.Mp4Video)
                 .OutputToPipe(pipeSource, opt => opt
                     .WithVideoCodec(VideoCodec.LibX264)
                     .ForceFormat("matroska"))
@@ -337,11 +319,11 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task TestDuplicateRun()
         {
-            FFMpegArguments.FromFileInput(VideoLibrary.LocalVideo)
+            FFMpegArguments.FromFileInput(TestResources.Mp4Video)
                 .OutputToFile("temporary.mp4")
                 .ProcessSynchronously();
             
-            await FFMpegArguments.FromFileInput(VideoLibrary.LocalVideo)
+            await FFMpegArguments.FromFileInput(TestResources.Mp4Video)
                 .OutputToFile("temporary.mp4")
                 .ProcessAsynchronously();
             
@@ -372,7 +354,6 @@ namespace FFMpegCore.Test
         [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        // [DataRow(PixelFormat.Format48bppRgb)]
         public void Video_ToTS_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             ConvertFromPipe(VideoType.Ts, pixelFormat, new ForceFormatArgument(VideoType.Ts));
@@ -447,190 +428,126 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Snapshot_InMemory()
         {
-            var output = Input.OutputLocation(ImageType.Png);
-
-            try
-            {
-                var input = FFProbe.Analyse(Input.FullName);
-
-                using var bitmap = FFMpeg.Snapshot(input);
-                Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
-                Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-                Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+            using var bitmap = FFMpeg.Snapshot(input);
+            
+            Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+            Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_Snapshot_PersistSnapshot()
         {
-            var output = Input.OutputLocation(ImageType.Png);
-            try
-            {
-                var input = FFProbe.Analyse(Input.FullName);
+            var outputPath = new TemporaryFile("out.png");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-                FFMpeg.Snapshot(input, output);
+            FFMpeg.Snapshot(input, outputPath);
 
-                var bitmap = Image.FromFile(output);
-                Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
-                Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-                Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
-                bitmap.Dispose();
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+            using var bitmap = Image.FromFile(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream.Width, bitmap.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+            Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_Join()
         {
-            var output = Input.OutputLocation(VideoType.Mp4);
-            var newInput = Input.OutputLocation(VideoType.Mp4.Name, "duplicate");
-            try
-            {
-                var input = FFProbe.Analyse(Input.FullName);
-                File.Copy(Input.FullName, newInput);
-
-                var success = FFMpeg.Join(output, Input.FullName, newInput);
-                Assert.IsTrue(success);
-
-                Assert.IsTrue(File.Exists(output));
-                var expectedDuration = input.Duration * 2;
-                var result = FFProbe.Analyse(output);
-                Assert.AreEqual(expectedDuration.Days, result.Duration.Days);
-                Assert.AreEqual(expectedDuration.Hours, result.Duration.Hours);
-                Assert.AreEqual(expectedDuration.Minutes, result.Duration.Minutes);
-                Assert.AreEqual(expectedDuration.Seconds, result.Duration.Seconds);
-                Assert.AreEqual(input.PrimaryVideoStream.Height, result.PrimaryVideoStream.Height);
-                Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-
-                if (File.Exists(newInput))
-                    File.Delete(newInput);
-            }
+            var inputCopy = new TemporaryFile("copy-input.mp4");
+            File.Copy(TestResources.Mp4Video, inputCopy);
             
+            var outputPath = new TemporaryFile("out.mp4");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+            var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy);
+            Assert.IsTrue(success);
+            Assert.IsTrue(File.Exists(outputPath));
+            
+            var expectedDuration = input.Duration * 2;
+            var result = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(expectedDuration.Days, result.Duration.Days);
+            Assert.AreEqual(expectedDuration.Hours, result.Duration.Hours);
+            Assert.AreEqual(expectedDuration.Minutes, result.Duration.Minutes);
+            Assert.AreEqual(expectedDuration.Seconds, result.Duration.Seconds);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, result.PrimaryVideoStream.Height);
+            Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_Join_Image_Sequence()
         {
-            try
-            {
-                var imageSet = new List<ImageInfo>();
-                Directory.EnumerateFiles(VideoLibrary.ImageDirectory.FullName)
-                    .Where(file => file.ToLower().EndsWith(".png"))
-                    .ToList()
-                    .ForEach(file =>
-                    {
-                        for (var i = 0; i < 15; i++)
-                        {
-                            imageSet.Add(new ImageInfo(file));
-                        }
-                    });
-
-                var success = FFMpeg.JoinImageSequence(VideoLibrary.ImageJoinOutput.FullName, images: imageSet.ToArray());
-                Assert.IsTrue(success);
-                var result = FFProbe.Analyse(VideoLibrary.ImageJoinOutput.FullName);
-
-                VideoLibrary.ImageJoinOutput.Refresh();
-
-                Assert.IsTrue(VideoLibrary.ImageJoinOutput.Exists);
-                Assert.AreEqual(3, result.Duration.Seconds);
-                Assert.AreEqual(imageSet.First().Width, result.PrimaryVideoStream.Width);
-                Assert.AreEqual(imageSet.First().Height, result.PrimaryVideoStream.Height);
-            }
-            finally
-            {
-                VideoLibrary.ImageJoinOutput.Refresh();
-                if (VideoLibrary.ImageJoinOutput.Exists)
+            var imageSet = new List<ImageInfo>();
+            Directory.EnumerateFiles(TestResources.ImageCollection)
+                .Where(file => file.ToLower().EndsWith(".png"))
+                .ToList()
+                .ForEach(file =>
                 {
-                    VideoLibrary.ImageJoinOutput.Delete();
-                }
-            }
+                    for (var i = 0; i < 15; i++)
+                    {
+                        imageSet.Add(new ImageInfo(file));
+                    }
+                });
+
+            var outputFile = new TemporaryFile("out.mp4");
+            var success = FFMpeg.JoinImageSequence(outputFile, images: imageSet.ToArray());
+            Assert.IsTrue(success);
+            var result = FFProbe.Analyse(outputFile);
+            Assert.AreEqual(3, result.Duration.Seconds);
+            Assert.AreEqual(imageSet.First().Width, result.PrimaryVideoStream.Width);
+            Assert.AreEqual(imageSet.First().Height, result.PrimaryVideoStream.Height);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_With_Only_Audio_Should_Extract_Metadata()
         {
-            var video = FFProbe.Analyse(VideoLibrary.LocalVideoAudioOnly.FullName);
+            var video = FFProbe.Analyse(TestResources.Mp4WithoutVideo);
             Assert.AreEqual(null, video.PrimaryVideoStream);
             Assert.AreEqual("aac", video.PrimaryAudioStream.CodecName);
             Assert.AreEqual(10, video.Duration.TotalSeconds, 0.5);
-            // Assert.AreEqual(1.25, video.Size);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_Duration()
         {
-            var video = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
-            var output = Input.OutputLocation(VideoType.Mp4);
+            var video = FFProbe.Analyse(TestResources.Mp4Video);
+            var outputFile = new TemporaryFile("out.mp4");
 
-            try
-            {
-                FFMpegArguments
-                    .FromFileInput(VideoLibrary.LocalVideo)
-                    .OutputToFile(output, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 2)))
-                    .ProcessSynchronously();
+            FFMpegArguments
+                .FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 2)))
+                .ProcessSynchronously();
 
-                Assert.IsTrue(File.Exists(output));
-                var outputVideo = FFProbe.Analyse(output);
+            Assert.IsTrue(File.Exists(outputFile));
+            var outputVideo = FFProbe.Analyse(outputFile);
 
-                Assert.AreEqual(video.Duration.Days, outputVideo.Duration.Days);
-                Assert.AreEqual(video.Duration.Hours, outputVideo.Duration.Hours);
-                Assert.AreEqual(video.Duration.Minutes, outputVideo.Duration.Minutes);
-                Assert.AreEqual(video.Duration.Seconds - 2, outputVideo.Duration.Seconds);
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+            Assert.AreEqual(video.Duration.Days, outputVideo.Duration.Days);
+            Assert.AreEqual(video.Duration.Hours, outputVideo.Duration.Hours);
+            Assert.AreEqual(video.Duration.Minutes, outputVideo.Duration.Minutes);
+            Assert.AreEqual(video.Duration.Seconds - 2, outputVideo.Duration.Seconds);
         }
 
         [TestMethod, Timeout(10000)]
         public void Video_UpdatesProgress()
         {
-            var output = Input.OutputLocation(VideoType.Mp4);
+            var outputFile = new TemporaryFile("out.mp4");
 
             var percentageDone = 0.0;
             var timeDone = TimeSpan.Zero;
             void OnPercentageProgess(double percentage) => percentageDone = percentage;
             void OnTimeProgess(TimeSpan time) => timeDone = time;
 
-            var analysis = FFProbe.Analyse(VideoLibrary.LocalVideo.FullName);
+            var analysis = FFProbe.Analyse(TestResources.Mp4Video);
+            var success = FFMpegArguments
+                .FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithDuration(TimeSpan.FromSeconds(2)))
+                .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
+                .NotifyOnProgress(OnTimeProgess)
+                .ProcessSynchronously();
 
-
-            try
-            {
-                var success = FFMpegArguments
-                    .FromFileInput(VideoLibrary.LocalVideo)
-                    .OutputToFile(output, false, opt => opt
-                        .WithDuration(TimeSpan.FromSeconds(2)))
-                    .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
-                    .NotifyOnProgress(OnTimeProgess)
-                    .ProcessSynchronously();
-
-                Assert.IsTrue(success);
-                Assert.IsTrue(File.Exists(output));
-                Assert.AreNotEqual(0.0, percentageDone);
-                Assert.AreNotEqual(TimeSpan.Zero, timeDone);
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+            Assert.IsTrue(success);
+            Assert.IsTrue(File.Exists(outputFile));
+            Assert.AreNotEqual(0.0, percentageDone);
+            Assert.AreNotEqual(TimeSpan.Zero, timeDone);
         }
 
         [TestMethod, Timeout(10000)]
@@ -656,11 +573,11 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async()
         {
-            var output = Input.OutputLocation(VideoType.Mp4);
+            var outputFile = new TemporaryFile("out.mp4");
             
             var task = FFMpegArguments
-                .FromFileInput(VideoLibrary.LocalVideo)
-                .OutputToFile(output, false, opt => opt
+                .FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, false, opt => opt
                     .Resize(new Size(1000, 1000))
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithVideoCodec(VideoCodec.LibX264)
@@ -670,19 +587,11 @@ namespace FFMpegCore.Test
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
             
-            try
-            {
-                await Task.Delay(300);
-                cancel();
+            await Task.Delay(300);
+            cancel();
             
-                var result = await task;
-                Assert.IsFalse(result);
-            }
-            finally
-            {
-                if (File.Exists(output))
-                    File.Delete(output);
-            }
+            var result = await task;
+            Assert.IsFalse(result);
         }
     }
 }

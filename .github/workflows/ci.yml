@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - release
+    branches:
+      - master
   pull_request:
     branches:
       - master
@@ -19,6 +19,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Prepare .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v1-beta
     - name: Test with dotnet
