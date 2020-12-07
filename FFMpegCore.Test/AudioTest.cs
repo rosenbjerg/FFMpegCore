@@ -38,7 +38,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public async Task Audio_FromRaw()
         {
-            await using var file = File.Open(VideoLibrary.LocalAudioRaw.FullName, FileMode.Open);
+            await using var file = File.Open(TestResources.RawAudio, FileMode.Open);
             var memoryStream = new MemoryStream();
             await FFMpegArguments
                 .FromPipeInput(new StreamPipeSource(file), options => options.ForceFormat("s16le"))
