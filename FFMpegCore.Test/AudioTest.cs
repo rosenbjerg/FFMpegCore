@@ -4,6 +4,8 @@ using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test
 {
@@ -33,7 +35,23 @@ namespace FFMpegCore.Test
             Assert.IsTrue(!analysis.VideoStreams.Any());
             Assert.IsTrue(analysis.AudioStreams.Any());
         }
-
+        [TestMethod]
+        public async Task Audio_FromRaw()
+        {
+            await using var file = File.Open(VideoLibrary.LocalAudioRaw.FullName, FileMode.Open);
+            var memoryStream = new MemoryStream();
+            await FFMpegArguments
+                .FromPipeInput(new StreamPipeSource(file), options => options.ForceFormat("s16le"))
+                .OutputToPipe(new StreamPipeSink(memoryStream), options =>
+                {
+                    options.WithAudioSamplingRate(48000);
+                    options.WithAudioCodec("libopus");
+                    options.WithCustomArgument("-ac 2");
+                    options.ForceFormat("opus");
+                })
+                .ProcessAsynchronously();
+        }
+        
         [TestMethod]
         public void Audio_Add()
         {
