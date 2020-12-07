@@ -42,13 +42,7 @@ namespace FFMpegCore.Test
             var memoryStream = new MemoryStream();
             await FFMpegArguments
                 .FromPipeInput(new StreamPipeSource(file), options => options.ForceFormat("s16le"))
-                .OutputToPipe(new StreamPipeSink(memoryStream), options =>
-                {
-                    options.WithAudioSamplingRate(48000);
-                    options.WithAudioCodec("libopus");
-                    options.WithCustomArgument("-ac 2");
-                    options.ForceFormat("opus");
-                })
+                .OutputToPipe(new StreamPipeSink(memoryStream), options => options.ForceFormat("mp3"))
                 .ProcessAsynchronously();
         }
         
