@@ -11,10 +11,9 @@ namespace FFMpegCore.Pipes
     /// </summary>
     public class RawVideoPipeSource : IPipeSource
     {
+        public string StreamFormat { get; private set; } = null!;
         public int Width { get; private set; }
         public int Height { get; private set; }
-
-        public string Format { get; private set; }
         public int FrameRate { get; set; } = 25;
         private bool _formatInitialized;
         private readonly IEnumerator<IVideoFrame> _framesEnumerator;
@@ -26,7 +25,7 @@ namespace FFMpegCore.Pipes
 
         public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
-        public string GetFormat()
+        public string GetStreamArguments()
         {
             if (!_formatInitialized)
             {
@@ -36,14 +35,14 @@ namespace FFMpegCore.Pipes
                     if (!_framesEnumerator.MoveNext())
                         throw new InvalidOperationException("Enumerator is empty, unable to get frame");
                 }
-                Format = _framesEnumerator.Current!.Format;
+                StreamFormat = _framesEnumerator.Current!.Format;
                 Width = _framesEnumerator.Current!.Width;
                 Height = _framesEnumerator.Current!.Height;
 
                 _formatInitialized = true;
             }
 
-            return $"-f rawvideo -r {FrameRate} -pix_fmt {Format} -s {Width}x{Height}";
+            return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
 
         public async Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken)
@@ -63,10 +62,10 @@ namespace FFMpegCore.Pipes
 
         private void CheckFrameAndThrow(IVideoFrame frame)
         {
-            if (frame.Width != Width || frame.Height != Height || frame.Format != Format)
+            if (frame.Width != Width || frame.Height != Height || frame.Format != StreamFormat)
                 throw new FFMpegException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
                     $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
-                    $"Stream format: {Width}x{Height} pix_fmt: {Format}");
+                    $"Stream format: {Width}x{Height} pix_fmt: {StreamFormat}");
         }
     }
 }
