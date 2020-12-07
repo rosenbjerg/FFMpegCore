@@ -25,7 +25,7 @@ namespace FFMpegCore.Pipes
 
         public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
-        public string GetFormat()
+        public string GetStreamArguments()
         {
             if (!_formatInitialized)
             {
