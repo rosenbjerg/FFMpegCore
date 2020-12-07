@@ -17,7 +17,7 @@ namespace FFMpegCore.Arguments
             Writer = writer;
         }
 
-        public override string Text => $"-y {Writer.GetFormat()} -i \"{PipePath}\"";
+        public override string Text => $"-y {Writer.GetStreamArguments()} -i \"{PipePath}\"";
 
         protected override async Task ProcessDataAsync(CancellationToken token)
         {
