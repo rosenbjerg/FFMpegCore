@@ -70,7 +70,7 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
             }
             finally
             {
@@ -116,7 +116,7 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
             }
             finally
             {
@@ -140,13 +140,12 @@ namespace FFMpegCore
         }
 
         
-        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
+        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
         {
             if (!throwOnError)
                 return false;
 
-            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e,
-                string.Join("\n", errorData));
+            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData), string.Join("\n", outputData));
         }
 
         private void OutputData(object sender, (DataType Type, string Data) msg)
