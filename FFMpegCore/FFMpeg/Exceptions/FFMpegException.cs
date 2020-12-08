@@ -14,14 +14,16 @@ namespace FFMpegCore.Exceptions
     public class FFMpegException : Exception
     {
 
-        public FFMpegException(FFMpegExceptionType type, string? message = null, Exception? innerException = null, string ffMpegErrorOutput = "")
+        public FFMpegException(FFMpegExceptionType type, string? message = null, Exception? innerException = null, string ffmpegErrorOutput = "", string ffmpegOutput = "")
             : base(message, innerException)
         {
-            FFMpegErrorOutput = ffMpegErrorOutput;
+            FfmpegOutput = ffmpegOutput;
+            FfmpegErrorOutput = ffmpegErrorOutput;
             Type = type;
         }
 
         public FFMpegExceptionType Type { get; }
-        public string FFMpegErrorOutput { get; }
+        public string FfmpegOutput { get; }
+        public string FfmpegErrorOutput { get; }
     }
 }
