@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - release
+    branches:
+      - master
   pull_request:
     branches:
       - master
@@ -11,15 +11,19 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
-    timeout-minutes: 7
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    timeout-minutes: 6
     steps:
-    - uses: actions/checkout@v1
-    - name: Prepare FFMpeg
-      run: sudo apt-get update && sudo apt-get install -y ffmpeg
-    - name: Setup .NET Core
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Prepare .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: '5.0.x'
+    - name: Prepare FFMpeg
+      uses: FedericoCarboni/setup-ffmpeg@v1-beta
     - name: Test with dotnet
       run: dotnet test --logger GitHubActions
