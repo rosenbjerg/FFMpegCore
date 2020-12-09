@@ -77,13 +77,13 @@ namespace FFMpegCore
                 CancelEvent -= OnCancelEvent;
             }
             
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
         }
 
-        private bool HandleCompletion(bool throwOnError, int errorCode, IReadOnlyList<string> errorData)
+        private bool HandleCompletion(bool throwOnError, int errorCode, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
         {
             if (throwOnError && errorCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Conversion, string.Join("\n", errorData));
+                throw new FFMpegException(FFMpegExceptionType.Conversion, "FFMpeg exited with non-zero exitcode.", null, string.Join("\n", errorData), string.Join("\n", outputData));
 
             _onPercentageProgress?.Invoke(100.0);
             if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
@@ -123,7 +123,7 @@ namespace FFMpegCore
                 CancelEvent -= OnCancelEvent;
             }
 
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
         }
 
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
