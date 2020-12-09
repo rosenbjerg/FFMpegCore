@@ -13,7 +13,6 @@ namespace FFMpegCore.Exceptions
 
     public class FFMpegException : Exception
     {
-
         public FFMpegException(FFMpegExceptionType type, string? message = null, Exception? innerException = null, string ffmpegErrorOutput = "", string ffmpegOutput = "")
             : base(message, innerException)
         {
