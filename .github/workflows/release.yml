@@ -7,13 +7,14 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Prepare .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1
+        dotnet-version: '5.0.x'
     - name: Build solution
-      run: dotnet build --output build
+      run: dotnet build --output build -c Release
     - name: Publish NuGet package
-      run: dotnet nuget push "build/*.nupkg" --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
+      run: dotnet nuget push "build/*.nupkg" --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       

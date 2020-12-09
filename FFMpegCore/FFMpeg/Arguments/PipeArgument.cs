@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace FFMpegCore.Arguments
 
         public void Post()
         {
+            Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
             Pipe?.Dispose();
             Pipe = null!;
         }
@@ -39,11 +41,13 @@ namespace FFMpegCore.Arguments
             try
             {
                 await ProcessDataAsync(cancellationToken);
+                Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
+                Pipe?.Disconnect();
             }
             catch (TaskCanceledException)
             {
+                Debug.WriteLine($"ProcessDataAsync on {GetType().Name} cancelled");
             }
-            Pipe.Disconnect();
         }
 
         protected abstract Task ProcessDataAsync(CancellationToken token);
