@@ -25,7 +25,7 @@ namespace FFMpegCore.Pipes
 
         public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
-        public string GetFormat()
+        public string GetStreamArguments()
         {
             if (!_formatInitialized)
             {
@@ -45,7 +45,7 @@ namespace FFMpegCore.Pipes
             return $"-f rawvideo -r {FrameRate} -pix_fmt {StreamFormat} -s {Width}x{Height}";
         }
 
-        public async Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken)
+        public async Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken)
         {
             if (_framesEnumerator.Current != null)
             {

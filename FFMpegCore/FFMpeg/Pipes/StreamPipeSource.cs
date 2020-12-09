@@ -17,8 +17,8 @@ namespace FFMpegCore.Pipes
             Source = source;
         }
 
-        public Task CopyAsync(System.IO.Stream outputStream, CancellationToken cancellationToken) => Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
+        public string GetStreamArguments() => StreamFormat;
 
-        public string GetFormat() => StreamFormat;
+        public Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken) => Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
     }
 }

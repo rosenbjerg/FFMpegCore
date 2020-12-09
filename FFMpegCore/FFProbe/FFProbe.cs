@@ -46,7 +46,7 @@ namespace FFMpegCore
             }
             var exitCode = task.ConfigureAwait(false).GetAwaiter().GetResult();
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}: {string.Join("\n", instance.OutputData)} {string.Join("\n", instance.ErrorData)}");
+                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData), string.Join("\n", instance.OutputData));
             
             return ParseOutput(pipeArgument.PipePath, instance);
         }
@@ -86,7 +86,7 @@ namespace FFMpegCore
             }
             var exitCode = await task;
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}: {string.Join("\n", instance.OutputData)} {string.Join("\n", instance.ErrorData)}");
+                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData), string.Join("\n", instance.OutputData));
             
             pipeArgument.Post();
             return ParseOutput(pipeArgument.PipePath, instance);
@@ -98,7 +98,7 @@ namespace FFMpegCore
             var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            });
+            })!;
             return new MediaAnalysis(filePath, ffprobeAnalysis);
         }
 
@@ -106,7 +106,7 @@ namespace FFMpegCore
         {
             FFProbeHelper.RootExceptionCheck();
             FFProbeHelper.VerifyFFProbeExists();
-            var arguments = $"-print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
+            var arguments = $"-loglevel error -print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
             var instance = new Instance(FFMpegOptions.Options.FFProbeBinary(), arguments) {DataBufferCapacity = outputCapacity};
             return instance;
         }

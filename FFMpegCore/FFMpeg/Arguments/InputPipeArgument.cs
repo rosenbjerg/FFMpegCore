@@ -17,14 +17,14 @@ namespace FFMpegCore.Arguments
             Writer = writer;
         }
 
-        public override string Text => $"-y {Writer.GetFormat()} -i \"{PipePath}\"";
+        public override string Text => $"-y {Writer.GetStreamArguments()} -i \"{PipePath}\"";
 
         protected override async Task ProcessDataAsync(CancellationToken token)
         {
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
                 throw new TaskCanceledException();
-            await Writer.CopyAsync(Pipe, token).ConfigureAwait(false);
+            await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
         }
     }
 }
