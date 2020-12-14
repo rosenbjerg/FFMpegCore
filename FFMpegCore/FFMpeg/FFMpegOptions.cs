@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace FFMpegCore
@@ -48,6 +49,7 @@ namespace FFMpegCore
         public Dictionary<string, string> ExtensionOverrides { get; private set; } = new Dictionary<string, string>();
 
         public bool UseCache { get; set; } = true;
+        public Encoding Encoding { get; set; } = Encoding.Default;
 
         private static string FFBinary(string name)
         {
