@@ -17,6 +17,7 @@ namespace FFMpegCore
         private readonly FFMpegArguments _ffMpegArguments;
         private Action<double>? _onPercentageProgress;
         private Action<TimeSpan>? _onTimeProgress;
+        private Action<string, DataType>? _onOutput;
         private TimeSpan? _totalTimespan;
 
         internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
@@ -37,6 +38,11 @@ namespace FFMpegCore
         public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan> onTimeProgress)
         {
             _onTimeProgress = onTimeProgress;
+            return this;
+        }
+        public FFMpegArgumentProcessor NotifyOnOutput(Action<string, DataType> onOutput)
+        {
+            _onOutput = onOutput;
             return this;
         }
         public FFMpegArgumentProcessor CancellableThrough(out Action cancel)
@@ -140,7 +146,7 @@ namespace FFMpegCore
             var instance = new Instance(startInfo);
             cancellationTokenSource = new CancellationTokenSource();
 
-            if (_onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+            if (_onOutput != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
                 instance.DataReceived += OutputData;
 
             return instance;
@@ -157,8 +163,10 @@ namespace FFMpegCore
 
         private void OutputData(object sender, (DataType Type, string Data) msg)
         {
-            var match = ProgressRegex.Match(msg.Data);
             Debug.WriteLine(msg.Data);
+            _onOutput?.Invoke(msg.Data, msg.Type);
+
+            var match = ProgressRegex.Match(msg.Data);
             if (!match.Success) return;
 
             var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
