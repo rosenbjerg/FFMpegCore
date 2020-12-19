@@ -9,9 +9,10 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Also include ffmpeg output data on non-zero exit code</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for changing encoding used for parsing ffmpeg/ffprobe output
+- Support for registrering action to invoke on ffmpeg output</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>3.2.4</PackageVersion>
+    <PackageVersion>3.3.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
