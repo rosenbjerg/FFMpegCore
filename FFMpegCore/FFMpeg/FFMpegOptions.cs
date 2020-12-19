@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace FFMpegCore
@@ -40,14 +41,14 @@ namespace FFMpegCore
 
         public string RootDirectory { get; set; } = DefaultRoot;
         public string TempDirectory { get; set; } = DefaultTemp;
+        public bool UseCache { get; set; } = true;
+        public Encoding Encoding { get; set; } = Encoding.Default;
 
         public string FFmpegBinary() => FFBinary("FFMpeg");
 
         public string FFProbeBinary() => FFBinary("FFProbe");
 
         public Dictionary<string, string> ExtensionOverrides { get; private set; } = new Dictionary<string, string>();
-
-        public bool UseCache { get; set; } = true;
 
         private static string FFBinary(string name)
         {

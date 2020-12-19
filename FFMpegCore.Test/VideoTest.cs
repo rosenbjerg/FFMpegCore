@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
@@ -548,6 +549,27 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
             Assert.AreNotEqual(0.0, percentageDone);
             Assert.AreNotEqual(TimeSpan.Zero, timeDone);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Video_OutputsData()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+            var dataReceived = false;
+            
+            FFMpegOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
+            var success = FFMpegArguments
+                .FromFileInput(TestResources.Mp4Video)
+                .WithGlobalOptions(options => options
+                    .WithVerbosityLevel(VerbosityLevel.Info))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithDuration(TimeSpan.FromSeconds(2)))
+                .NotifyOnOutput((_, _) => dataReceived = true)
+                .ProcessSynchronously();
+
+            Assert.IsTrue(dataReceived);
+            Assert.IsTrue(success);
+            Assert.IsTrue(File.Exists(outputFile));
         }
 
         [TestMethod, Timeout(10000)]
