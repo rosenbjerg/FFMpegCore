@@ -1,5 +1,7 @@
 ﻿using FFMpegCore.Enums;
+
 using System;
+using System.Collections.Generic;
 
 namespace FFMpegCore
 {
@@ -11,6 +13,7 @@ namespace FFMpegCore
         public int BitRate { get; internal set; }
         public TimeSpan Duration { get; internal set; }
         public string? Language { get; internal set; }
+        public Dictionary<string, string>? Tags { get; internal set; }
 
         public Codec GetCodecInfo() => FFMpeg.GetCodec(CodecName);
     }
