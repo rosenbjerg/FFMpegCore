@@ -10,6 +10,7 @@ namespace FFMpegCore.Enums
         public bool DemuxingSupported { get; private set; }
         public bool MuxingSupported { get; private set; }
         public string Description { get; private set; } = null!;
+
         public string Extension
         {
             get
@@ -36,8 +37,8 @@ namespace FFMpegCore.Enums
 
             fmt = new ContainerFormat(match.Groups[3].Value)
             {
-                DemuxingSupported = match.Groups[1].Value == " ",
-                MuxingSupported = match.Groups[2].Value == " ",
+                DemuxingSupported = match.Groups[1].Value != " ",
+                MuxingSupported = match.Groups[2].Value != " ",
                 Description = match.Groups[4].Value
             };
             return true;
