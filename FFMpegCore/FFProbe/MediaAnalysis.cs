@@ -8,6 +8,7 @@ namespace FFMpegCore
     internal class MediaAnalysis : IMediaAnalysis
     {
         private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
+
         internal MediaAnalysis(string path, FFProbeAnalysis analysis)
         {
             Format = ParseFormat(analysis.Format);
@@ -27,14 +28,15 @@ namespace FFMpegCore
                 FormatLongName = analysisFormat.FormatLongName,
                 StreamCount = analysisFormat.NbStreams,
                 ProbeScore = analysisFormat.ProbeScore,
-                BitRate = long.Parse(analysisFormat.BitRate ?? "0")
+                BitRate = long.Parse(analysisFormat.BitRate ?? "0"),
+                Tags = analysisFormat.Tags,
             };
         }
 
         public string Path { get; }
         public string Extension => System.IO.Path.GetExtension(Path);
 
-        public TimeSpan Duration => new []
+        public TimeSpan Duration => new[]
         {
             Format.Duration,
             PrimaryVideoStream?.Duration ?? TimeSpan.Zero,
@@ -67,7 +69,8 @@ namespace FFMpegCore
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
                 Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
-                Language = stream.GetLanguage()
+                Language = stream.GetLanguage(),
+                Tags = stream.Tags,
             };
         }
 
@@ -77,6 +80,7 @@ namespace FFMpegCore
                 ? TimeSpan.Parse(ffProbeStream.Duration)
                 : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.GetDuration()) ?? "0");
         }
+
         private static string? TrimTimeSpan(string? durationTag)
         {
             var durationMatch = DurationRegex.Match(durationTag ?? "");
@@ -96,17 +100,20 @@ namespace FFMpegCore
                 Duration = ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
-                Language = stream.GetLanguage()
+                Language = stream.GetLanguage(),
+                Tags = stream.Tags,
             };
         }
 
         private static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
+
         private static (int, int) ParseRatioInt(string input, char separator)
         {
             if (string.IsNullOrEmpty(input)) return (0, 0);
             var ratio = input.Split(separator);
             return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
         }
+
         private static (double, double) ParseRatioDouble(string input, char separator)
         {
             if (string.IsNullOrEmpty(input)) return (0, 0);
@@ -116,6 +123,7 @@ namespace FFMpegCore
 
         private static double ParseDoubleInvariant(string line) =>
             double.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+
         private static int ParseIntInvariant(string line) =>
             int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
     }
