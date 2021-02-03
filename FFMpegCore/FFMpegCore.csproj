@@ -9,10 +9,10 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Support for changing encoding used for parsing ffmpeg/ffprobe output
-- Support for registrering action to invoke on ffmpeg output</PackageReleaseNotes>
+    <PackageReleaseNotes>- return null from FFProbe.Analyse* when no media format was detected
+- Expose tags as string dictionary on IMediaAnalysis (thanks hey-red)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>3.3.0</PackageVersion>
+    <PackageVersion>3.4.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
@@ -31,7 +31,7 @@
   <ItemGroup>
     <PackageReference Include="Instances" Version="1.6.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
 </Project>
