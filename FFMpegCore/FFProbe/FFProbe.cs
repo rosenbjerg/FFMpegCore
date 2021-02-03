@@ -12,7 +12,7 @@ namespace FFMpegCore
 {
     public static class FFProbe
     {
-        public static IMediaAnalysis Analyse(string filePath, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis? Analyse(string filePath, int outputCapacity = int.MaxValue)
         {
             if (!File.Exists(filePath)) 
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
@@ -21,13 +21,13 @@ namespace FFMpegCore
             instance.BlockUntilFinished();
             return ParseOutput(filePath, instance);
         }
-        public static IMediaAnalysis Analyse(Uri uri, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis? Analyse(Uri uri, int outputCapacity = int.MaxValue)
         {
             using var instance = PrepareInstance(uri.AbsoluteUri, outputCapacity);
             instance.BlockUntilFinished();
             return ParseOutput(uri.AbsoluteUri, instance);
         }
-        public static IMediaAnalysis Analyse(Stream stream, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis? Analyse(Stream stream, int outputCapacity = int.MaxValue)
         {
             var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -50,7 +50,7 @@ namespace FFMpegCore
             
             return ParseOutput(pipeArgument.PipePath, instance);
         }
-        public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis?> AnalyseAsync(string filePath, int outputCapacity = int.MaxValue)
         {
             if (!File.Exists(filePath)) 
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
@@ -59,13 +59,13 @@ namespace FFMpegCore
             await instance.FinishedRunning();
             return ParseOutput(filePath, instance);
         }
-        public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis?> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue)
         {
             using var instance = PrepareInstance(uri.AbsoluteUri, outputCapacity);
             await instance.FinishedRunning();
             return ParseOutput(uri.AbsoluteUri, instance);
         }
-        public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis?> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue)
         {
             var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -92,13 +92,14 @@ namespace FFMpegCore
             return ParseOutput(pipeArgument.PipePath, instance);
         }
 
-        private static IMediaAnalysis ParseOutput(string filePath, Instance instance)
+        private static IMediaAnalysis? ParseOutput(string filePath, Instance instance)
         {
             var json = string.Join(string.Empty, instance.OutputData);
             var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             })!;
+            if (ffprobeAnalysis?.Format == null) return null;
             return new MediaAnalysis(filePath, ffprobeAnalysis);
         }
 

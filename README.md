@@ -213,6 +213,7 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 <a href="https://github.com/tugrulelmas"><img src="https://avatars3.githubusercontent.com/u/3829187?v=4" title="tugrulelmas" width="80" height="80"></a>
 <a href="https://github.com/rosenbjerg"><img src="https://avatars3.githubusercontent.com/u/11181960?v=4" title="rosenbjerg" width="80" height="80"></a>
 <a href="https://github.com/WeihanLi"><img src="https://avatars3.githubusercontent.com/u/7604648?v=4" title="weihanli" width="80" height="80"></a>
+<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
 
 ### License
 
