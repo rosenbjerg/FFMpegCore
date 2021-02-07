@@ -7,7 +7,7 @@ namespace FFMpegCore
 {
     internal class MediaAnalysis : IMediaAnalysis
     {
-        private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
+        private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
         internal MediaAnalysis(string path, FFProbeAnalysis analysis)
         {
@@ -23,7 +23,7 @@ namespace FFMpegCore
         {
             return new MediaFormat
             {
-                Duration = TimeSpan.Parse(analysisFormat.Duration ?? "0"),
+                Duration = ParseDuration(analysisFormat.Duration),
                 FormatName = analysisFormat.FormatName,
                 FormatLongName = analysisFormat.FormatLongName,
                 StreamCount = analysisFormat.NbStreams,
@@ -74,17 +74,41 @@ namespace FFMpegCore
             };
         }
 
-        private static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
+        internal static TimeSpan ParseDuration(string duration)
         {
-            return !string.IsNullOrEmpty(ffProbeStream.Duration)
-                ? TimeSpan.Parse(ffProbeStream.Duration)
-                : TimeSpan.Parse(TrimTimeSpan(ffProbeStream.GetDuration()) ?? "0");
+            if (!string.IsNullOrEmpty(duration))
+            {
+                var match = DurationRegex.Match(duration);
+                if (match.Success)
+                {
+                    // ffmpeg may provide < 3-digit number of milliseconds (omitting trailing zeros), which won't simply parse correctly
+                    // e.g. 00:12:02.11 -> 12 minutes 2 seconds and 110 milliseconds
+                    var millisecondsPart = match.Groups[4].Value;
+                    if (millisecondsPart.Length < 3)
+                    {
+                        millisecondsPart = millisecondsPart.PadRight(3, '0');
+                    }
+
+                    var hours = int.Parse(match.Groups[1].Value);
+                    var minutes = int.Parse(match.Groups[2].Value);
+                    var seconds = int.Parse(match.Groups[3].Value);
+                    var milliseconds = int.Parse(millisecondsPart);
+                    return new TimeSpan(0, hours, minutes, seconds, milliseconds);
+                }
+                else
+                {
+                    return TimeSpan.Zero;
+                }
+            }
+            else
+            {
+                return TimeSpan.Zero;
+            }
         }
 
-        private static string? TrimTimeSpan(string? durationTag)
+        internal static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
-            var durationMatch = DurationRegex.Match(durationTag ?? "");
-            return durationMatch.Success ? durationMatch.Groups[1].Value : null;
+            return ParseDuration(ffProbeStream.Duration);
         }
 
         private AudioStream ParseAudioStream(FFProbeStream stream)
