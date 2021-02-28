@@ -23,6 +23,7 @@ namespace FFMpegCore
         public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public static FFMpegArguments FromFileInput(IMediaAnalysis mediaAnalysis, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(mediaAnalysis.Path, false), addArguments);
         public static FFMpegArguments FromUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+        public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
         
