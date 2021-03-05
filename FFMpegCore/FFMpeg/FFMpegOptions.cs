@@ -44,7 +44,7 @@ namespace FFMpegCore
         public bool UseCache { get; set; } = true;
         public Encoding Encoding { get; set; } = Encoding.Default;
 
-        public string FFmpegBinary() => FFBinary("FFMpeg");
+        public string FFMpegBinary() => FFBinary("FFMpeg");
 
         public string FFProbeBinary() => FFBinary("FFProbe");
 

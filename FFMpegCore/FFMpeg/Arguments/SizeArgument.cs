@@ -6,14 +6,21 @@ namespace FFMpegCore.Arguments
     /// <summary>
     /// Represents size parameter
     /// </summary>
-    public class SizeArgument : ScaleArgument
+    public class SizeArgument : IArgument
     {
-        public SizeArgument(Size? value) : base(value) { }
+        public readonly Size? Size;
+        public SizeArgument(Size? size)
+        {
+            Size = size;
+        }
 
-        public SizeArgument(VideoSize videosize) : base(videosize) { }
+        public SizeArgument(int width, int height) : this(new Size(width, height)) { }
 
-        public SizeArgument(int width, int height) : base(width, height) { }
+        public SizeArgument(VideoSize videosize)
+        {
+            Size = videosize == VideoSize.Original ? new Size(-1, -1) : new Size(-1, (int)videosize);
+        }
 
-        public override string Text => Size.HasValue ? $"-s {Size.Value.Width}x{Size.Value.Height}" : string.Empty;
+        public string Text => Size == null ? string.Empty : $"-s {Size.Value.Width}x{Size.Value.Height}";
     }
 }
