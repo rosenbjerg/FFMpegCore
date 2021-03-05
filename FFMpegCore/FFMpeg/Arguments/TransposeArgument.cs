@@ -9,7 +9,7 @@ namespace FFMpegCore.Arguments
     /// 2 = 90CounterClockwise
     /// 3 = 90Clockwise and Vertical Flip
     /// </summary>
-    public class TransposeArgument : IArgument
+    public class TransposeArgument : IVideoFilterArgument
     {
         public readonly Transposition Transposition;
         public TransposeArgument(Transposition transposition)
@@ -17,6 +17,7 @@ namespace FFMpegCore.Arguments
             Transposition = transposition;
         }
 
-        public string Text => $"-vf \"transpose={(int)Transposition}\"";
+        public string Key { get; } = "transpose";
+        public string Value => ((int)Transposition).ToString();
     }
 }

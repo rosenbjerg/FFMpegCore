@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FFMpegCore.Arguments;
 
 namespace FFMpegCore
 {
@@ -171,7 +172,8 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibX264)
                         .WithVideoBitrate(2400)
-                        .Scale(outputSize)
+                        .WithVideoFilters(filterOptions => filterOptions 
+                            .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.Aac)
                         .WithAudioBitrate(audioQuality))
@@ -182,7 +184,8 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibTheora)
                         .WithVideoBitrate(2400)
-                        .Scale(outputSize)
+                        .WithVideoFilters(filterOptions => filterOptions 
+                            .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.LibVorbis)
                         .WithAudioBitrate(audioQuality))
@@ -200,7 +203,8 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibVpx)
                         .WithVideoBitrate(2400)
-                        .Scale(outputSize)
+                        .WithVideoFilters(filterOptions => filterOptions 
+                            .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.LibVorbis)
                         .WithAudioBitrate(audioQuality))
@@ -398,7 +402,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<PixelFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), "-pix_fmts");
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), "-pix_fmts");
             instance.DataReceived += (e, args) =>
             {
                 if (PixelFormat.TryParse(args.Data, out var format))
@@ -443,7 +447,7 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck();
 
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), arguments);
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), arguments);
             instance.DataReceived += (e, args) =>
             {
                 var codec = parser(args.Data);
@@ -527,7 +531,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<ContainerFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFmpegBinary(), "-formats");
+            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), "-formats");
             instance.DataReceived += (e, args) =>
             {
                 if (ContainerFormat.TryParse(args.Data, out var fmt))

@@ -6,7 +6,7 @@ namespace FFMpegCore.Arguments
     /// <summary>
     /// Represents scale parameter
     /// </summary>
-    public class ScaleArgument : IArgument
+    public class ScaleArgument : IVideoFilterArgument
     {
         public readonly Size? Size;
         public ScaleArgument(Size? size)
@@ -18,9 +18,10 @@ namespace FFMpegCore.Arguments
 
         public ScaleArgument(VideoSize videosize)
         {
-            Size = videosize == VideoSize.Original ? new Size(-1, -1) : new Size(-1, (int)videosize);
+            Size = videosize == VideoSize.Original ? null : (Size?)new Size(-1, (int)videosize);
         }
 
-        public virtual string Text => Size.HasValue ? $"-vf scale={Size.Value.Width}:{Size.Value.Height}" : string.Empty;
+        public string Key { get; } = "scale";
+        public string Value => Size == null ? string.Empty : $"{Size.Value.Width}:{Size.Value.Height}";
     }
 }

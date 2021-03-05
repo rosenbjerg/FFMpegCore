@@ -83,18 +83,18 @@ namespace FFMpegCore
                 CancelEvent -= OnCancelEvent;
             }
             
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private bool HandleCompletion(bool throwOnError, int errorCode, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
+        private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
         {
-            if (throwOnError && errorCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Conversion, "FFMpeg exited with non-zero exitcode.", null, string.Join("\n", errorData), string.Join("\n", outputData));
+            if (throwOnError && exitCode != 0)
+                throw new FFMpegProcessException(exitCode, string.Join("\n", errorData));
 
             _onPercentageProgress?.Invoke(100.0);
             if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
 
-            return errorCode == 0;
+            return exitCode == 0;
         }
 
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
@@ -122,14 +122,14 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
                 CancelEvent -= OnCancelEvent;
             }
 
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
@@ -138,7 +138,7 @@ namespace FFMpegCore
             FFMpegHelper.VerifyFFMpegExists();
             var startInfo = new ProcessStartInfo
             {
-                FileName = FFMpegOptions.Options.FFmpegBinary(),
+                FileName = FFMpegOptions.Options.FFMpegBinary(),
                 Arguments = _ffMpegArguments.Text,
                 StandardOutputEncoding = FFMpegOptions.Options.Encoding,
                 StandardErrorEncoding = FFMpegOptions.Options.Encoding,
@@ -153,12 +153,13 @@ namespace FFMpegCore
         }
 
         
-        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
+        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
                 return false;
 
-            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData), string.Join("\n", outputData));
+            throw new FFMpegProcessException(exitCode, string.Join("\n", errorData));
+            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData));
         }
 
         private void OutputData(object sender, (DataType Type, string Data) msg)

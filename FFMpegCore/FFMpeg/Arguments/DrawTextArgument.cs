@@ -6,7 +6,7 @@ namespace FFMpegCore.Arguments
     /// <summary>
     /// Drawtext video filter argument
     /// </summary>
-    public class DrawTextArgument : IArgument
+    public class DrawTextArgument : IVideoFilterArgument
     {
         public readonly DrawTextOptions Options;
         
@@ -15,7 +15,8 @@ namespace FFMpegCore.Arguments
             Options = options;
         }
         
-        public string Text => $"-vf drawtext=\"{Options.TextInternal}\"";
+        public string Key { get; } = "drawtext";
+        public string Value => Options.TextInternal;
     }
     
     public class DrawTextOptions
