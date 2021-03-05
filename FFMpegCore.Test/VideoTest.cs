@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
+using System.Threading;
 
 namespace FFMpegCore.Test
 {
@@ -596,24 +597,55 @@ namespace FFMpegCore.Test
         public async Task Video_Cancel_Async()
         {
             var outputFile = new TemporaryFile("out.mp4");
-            
+
             var task = FFMpegArguments
-                .FromFileInput(TestResources.Mp4Video)
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
                 .OutputToFile(outputFile, false, opt => opt
-                    .Resize(new Size(1000, 1000))
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithVideoCodec(VideoCodec.LibX264)
-                    .WithConstantRateFactor(14)
-                    .WithSpeedPreset(Speed.VerySlow)
-                    .Loop(3))
+                    .WithSpeedPreset(Speed.VeryFast))
                 .CancellableThrough(out var cancel)
                 .ProcessAsynchronously(false);
-            
+
             await Task.Delay(300);
             cancel();
-            
+
             var result = await task;
+
             Assert.IsFalse(result);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_Cancel_Async_With_Timeout()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(out var cancel, 10000)
+                .ProcessAsynchronously(false);
+
+            await Task.Delay(300);
+            cancel();
+
+            var result = await task;
+
+            var outputInfo = FFProbe.Analyse(outputFile);
+
+            Assert.IsTrue(result);
+            Assert.IsNotNull(outputInfo);
+            Assert.AreEqual(320, outputInfo.PrimaryVideoStream.Width);
+            Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
+            Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
+            Assert.AreEqual("aac", outputInfo.PrimaryAudioStream.CodecName);
         }
     }
 }
