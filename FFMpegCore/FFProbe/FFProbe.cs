@@ -12,22 +12,28 @@ namespace FFMpegCore
 {
     public static class FFProbe
     {
-        public static IMediaAnalysis? Analyse(string filePath, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis Analyse(string filePath, int outputCapacity = int.MaxValue)
         {
             if (!File.Exists(filePath)) 
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
             
             using var instance = PrepareInstance(filePath, outputCapacity);
-            instance.BlockUntilFinished();
-            return ParseOutput(filePath, instance);
+            var exitCode = instance.BlockUntilFinished();
+            if (exitCode != 0)
+                throw new FFProbeProcessException(exitCode, string.Join("\n", instance.ErrorData));
+            
+            return ParseOutput(instance);
         }
-        public static IMediaAnalysis? Analyse(Uri uri, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis Analyse(Uri uri, int outputCapacity = int.MaxValue)
         {
             using var instance = PrepareInstance(uri.AbsoluteUri, outputCapacity);
-            instance.BlockUntilFinished();
-            return ParseOutput(uri.AbsoluteUri, instance);
+            var exitCode = instance.BlockUntilFinished();
+            if (exitCode != 0)
+                throw new FFProbeProcessException(exitCode, string.Join("\n", instance.ErrorData));
+
+            return ParseOutput(instance);
         }
-        public static IMediaAnalysis? Analyse(Stream stream, int outputCapacity = int.MaxValue)
+        public static IMediaAnalysis Analyse(Stream stream, int outputCapacity = int.MaxValue)
         {
             var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -46,26 +52,26 @@ namespace FFMpegCore
             }
             var exitCode = task.ConfigureAwait(false).GetAwaiter().GetResult();
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData), string.Join("\n", instance.OutputData));
+                throw new FFProbeProcessException(exitCode, string.Join("\n", instance.ErrorData));
             
-            return ParseOutput(pipeArgument.PipePath, instance);
+            return ParseOutput(instance);
         }
-        public static async Task<IMediaAnalysis?> AnalyseAsync(string filePath, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, int outputCapacity = int.MaxValue)
         {
             if (!File.Exists(filePath)) 
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
             
             using var instance = PrepareInstance(filePath, outputCapacity);
             await instance.FinishedRunning();
-            return ParseOutput(filePath, instance);
+            return ParseOutput(instance);
         }
-        public static async Task<IMediaAnalysis?> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue)
         {
             using var instance = PrepareInstance(uri.AbsoluteUri, outputCapacity);
             await instance.FinishedRunning();
-            return ParseOutput(uri.AbsoluteUri, instance);
+            return ParseOutput(instance);
         }
-        public static async Task<IMediaAnalysis?> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue)
+        public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue)
         {
             var streamPipeSource = new StreamPipeSource(stream);
             var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -86,21 +92,24 @@ namespace FFMpegCore
             }
             var exitCode = await task;
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData), string.Join("\n", instance.OutputData));
+                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData));
             
             pipeArgument.Post();
-            return ParseOutput(pipeArgument.PipePath, instance);
+            return ParseOutput(instance);
         }
 
-        private static IMediaAnalysis? ParseOutput(string filePath, Instance instance)
+        private static IMediaAnalysis ParseOutput(Instance instance)
         {
             var json = string.Join(string.Empty, instance.OutputData);
             var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            })!;
-            if (ffprobeAnalysis?.Format == null) return null;
-            return new MediaAnalysis(filePath, ffprobeAnalysis);
+            });
+            
+            if (ffprobeAnalysis?.Format == null)
+                throw new Exception();
+            
+            return new MediaAnalysis(ffprobeAnalysis);
         }
 
         private static Instance PrepareInstance(string filePath, int outputCapacity)
