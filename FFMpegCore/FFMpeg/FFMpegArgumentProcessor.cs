@@ -27,7 +27,7 @@ namespace FFMpegCore
 
         public string Arguments => _ffMpegArguments.Text;
 
-        private event EventHandler CancelEvent = null!; 
+        private event EventHandler<int> CancelEvent = null!; 
 
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
@@ -45,9 +45,9 @@ namespace FFMpegCore
             _onOutput = onOutput;
             return this;
         }
-        public FFMpegArgumentProcessor CancellableThrough(out Action cancel)
+        public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
         {
-            cancel = () => CancelEvent?.Invoke(this, EventArgs.Empty);
+            cancel = () => CancelEvent?.Invoke(this, timeout);
             return this;
         }
         public bool ProcessSynchronously(bool throwOnError = true)
@@ -55,11 +55,15 @@ namespace FFMpegCore
             using var instance = PrepareInstance(out var cancellationTokenSource);
             var errorCode = -1;
 
-            void OnCancelEvent(object sender, EventArgs args)
+            void OnCancelEvent(object sender, int timeout)
             {
                 instance.SendInput("q");
-                cancellationTokenSource.Cancel();
-                instance.Started = false;
+
+                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                {
+                    cancellationTokenSource.Cancel();
+                    instance.Started = false;
+                }
             }
             CancelEvent += OnCancelEvent;
             instance.Exited += delegate { cancellationTokenSource.Cancel(); };
@@ -102,11 +106,15 @@ namespace FFMpegCore
             using var instance = PrepareInstance(out var cancellationTokenSource);
             var errorCode = -1;
 
-            void OnCancelEvent(object sender, EventArgs args)
+            void OnCancelEvent(object sender, int timeout)
             {
                 instance.SendInput("q");
-                cancellationTokenSource.Cancel();
-                instance.Started = false;
+
+                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                {
+                    cancellationTokenSource.Cancel();
+                    instance.Started = false;
+                }
             }
             CancelEvent += OnCancelEvent;
             
