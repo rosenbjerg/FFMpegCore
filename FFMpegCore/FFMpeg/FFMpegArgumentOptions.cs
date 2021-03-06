@@ -15,8 +15,6 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithAudioBitrate(int bitrate) => WithArgument(new AudioBitrateArgument(bitrate));
         public FFMpegArgumentOptions WithAudioSamplingRate(int samplingRate = 48000) => WithArgument(new AudioSamplingRateArgument(samplingRate));
         public FFMpegArgumentOptions WithVariableBitrate(int vbr) => WithArgument(new VariableBitRateArgument(vbr));
-        
-        public FFMpegArgumentOptions Resize(VideoSize videoSize) => WithArgument(new SizeArgument(videoSize));
         public FFMpegArgumentOptions Resize(int width, int height) => WithArgument(new SizeArgument(width, height));
         public FFMpegArgumentOptions Resize(Size? size) => WithArgument(new SizeArgument(size));
         

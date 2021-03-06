@@ -16,11 +16,6 @@ namespace FFMpegCore.Arguments
 
         public SizeArgument(int width, int height) : this(new Size(width, height)) { }
 
-        public SizeArgument(VideoSize videosize)
-        {
-            Size = videosize == VideoSize.Original ? new Size(-1, -1) : new Size(-1, (int)videosize);
-        }
-
         public string Text => Size == null ? string.Empty : $"-s {Size.Value.Width}x{Size.Value.Height}";
     }
 }
