@@ -104,7 +104,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
         {
-            await Assert.ThrowsExceptionAsync<FFMpegProcessException>(async () =>
+            await Assert.ThrowsExceptionAsync<FFMpegException>(async () =>
             {
                 await using var ms = new MemoryStream();
                 var pipeSource = new StreamPipeSink(ms);
@@ -134,7 +134,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamOutputPipe_Failure()
         {
-            Assert.ThrowsException<FFMpegProcessException>(() =>
+            Assert.ThrowsException<FFMpegException>(() =>
             {
                 using var ms = new MemoryStream();
                 FFMpegArguments
@@ -435,7 +435,7 @@ namespace FFMpegCore.Test
             var outputFile = new TemporaryFile("out.mp4");
             var dataReceived = false;
             
-            FFMpegOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
+            GlobalFFOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .WithGlobalOptions(options => options

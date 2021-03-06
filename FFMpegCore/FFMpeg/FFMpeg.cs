@@ -254,8 +254,8 @@ namespace FFMpegCore
             {
                 var video = FFProbe.Analyse(videoPath);
                 FFMpegHelper.ConversionSizeExceptionCheck(video);
-                var destinationPath = Path.Combine(FFMpegOptions.Options.TempDirectory, $"{Path.GetFileNameWithoutExtension(videoPath)}{FileExtension.Ts}");
-                Directory.CreateDirectory(FFMpegOptions.Options.TempDirectory);
+                var destinationPath = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"{Path.GetFileNameWithoutExtension(videoPath)}{FileExtension.Ts}");
+                Directory.CreateDirectory(GlobalFFOptions.Current.TemporaryFilesFolder);
                 Convert(videoPath, destinationPath, VideoType.Ts);
                 return destinationPath;
             }).ToArray();
@@ -284,7 +284,7 @@ namespace FFMpegCore
         /// <returns>Output video information.</returns>
         public static bool JoinImageSequence(string output, double frameRate = 30, params ImageInfo[] images)
         {
-            var tempFolderName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid().ToString());
+            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
             var temporaryImageFiles = images.Select((image, index) =>
             {
                 FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
@@ -398,7 +398,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<PixelFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), "-pix_fmts");
+            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
             instance.DataReceived += (e, args) =>
             {
                 if (PixelFormat.TryParse(args.Data, out var format))
@@ -413,14 +413,14 @@ namespace FFMpegCore
 
         public static IReadOnlyList<PixelFormat> GetPixelFormats()
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
                 return GetPixelFormatsInternal();
             return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
         }
 
         public static bool TryGetPixelFormat(string name, out PixelFormat fmt)
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
             {
                 fmt = GetPixelFormatsInternal().FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
                 return fmt != null;
@@ -443,7 +443,7 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck();
 
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), arguments);
+            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
             instance.DataReceived += (e, args) =>
             {
                 var codec = parser(args.Data);
@@ -485,14 +485,14 @@ namespace FFMpegCore
 
         public static IReadOnlyList<Codec> GetCodecs()
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
                 return GetCodecsInternal().Values.ToList().AsReadOnly();
             return FFMpegCache.Codecs.Values.ToList().AsReadOnly();
         }
 
         public static IReadOnlyList<Codec> GetCodecs(CodecType type)
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
                 return GetCodecsInternal().Values.Where(x => x.Type == type).ToList().AsReadOnly();
             return FFMpegCache.Codecs.Values.Where(x=>x.Type == type).ToList().AsReadOnly();
         }
@@ -504,7 +504,7 @@ namespace FFMpegCore
 
         public static bool TryGetCodec(string name, out Codec codec)
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
             {
                 codec = GetCodecsInternal().Values.FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
                 return codec != null;
@@ -527,7 +527,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<ContainerFormat>();
-            using var instance = new Instances.Instance(FFMpegOptions.Options.FFMpegBinary(), "-formats");
+            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
             instance.DataReceived += (e, args) =>
             {
                 if (ContainerFormat.TryParse(args.Data, out var fmt))
@@ -542,14 +542,14 @@ namespace FFMpegCore
 
         public static IReadOnlyList<ContainerFormat> GetContainerFormats()
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
                 return GetContainersFormatsInternal();
             return FFMpegCache.ContainerFormats.Values.ToList().AsReadOnly();
         }
 
         public static bool TryGetContainerFormat(string name, out ContainerFormat fmt)
         {
-            if (!FFMpegOptions.Options.UseCache)
+            if (!GlobalFFOptions.Current.UseCache)
             {
                 fmt = GetContainersFormatsInternal().FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
                 return fmt != null;
