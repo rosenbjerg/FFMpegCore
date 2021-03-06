@@ -31,17 +31,17 @@ namespace FFMpegCore.Helpers
 
         public static void RootExceptionCheck()
         {
-            if (FFMpegOptions.Options.RootDirectory == null)
-                throw new FFMpegException(FFMpegExceptionType.Dependency,
-                    "FFMpeg root is not configured in app config. Missing key 'ffmpegRoot'.");
+            if (GlobalFFOptions.Current.BinaryFolder == null)
+                throw new FFOptionsException("FFMpeg root is not configured in app config. Missing key 'BinaryFolder'.");
         }
         
-        public static void VerifyFFMpegExists()
+        public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
         {
             if (_ffmpegVerified) return;
-            var (exitCode, _) = Instance.Finish(FFMpegOptions.Options.FFMpegBinary(), "-version");
+            var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
             _ffmpegVerified = exitCode == 0;
-            if (!_ffmpegVerified) throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
+            if (!_ffmpegVerified) 
+                throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
         }
     }
 }

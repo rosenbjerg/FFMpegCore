@@ -5,7 +5,7 @@ using FFMpegCore.Enums;
 
 namespace FFMpegCore
 {
-    public class FFMpegArgumentOptions : FFMpegOptionsBase
+    public class FFMpegArgumentOptions : FFMpegArgumentsBase
     {
         internal FFMpegArgumentOptions() { }
         
