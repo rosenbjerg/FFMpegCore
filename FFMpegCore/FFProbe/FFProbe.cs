@@ -62,13 +62,13 @@ namespace FFMpegCore
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
             
             using var instance = PrepareInstance(filePath, outputCapacity);
-            await instance.FinishedRunning();
+            await instance.FinishedRunning().ConfigureAwait(false);
             return ParseOutput(instance);
         }
         public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue)
         {
             using var instance = PrepareInstance(uri.AbsoluteUri, outputCapacity);
-            await instance.FinishedRunning();
+            await instance.FinishedRunning().ConfigureAwait(false);
             return ParseOutput(instance);
         }
         public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue)
@@ -81,7 +81,7 @@ namespace FFMpegCore
             var task = instance.FinishedRunning();
             try
             {
-                await pipeArgument.During();
+                await pipeArgument.During().ConfigureAwait(false);
             }
             catch(IOException)
             {
@@ -90,7 +90,7 @@ namespace FFMpegCore
             {
                 pipeArgument.Post();
             }
-            var exitCode = await task;
+            var exitCode = await task.ConfigureAwait(false);
             if (exitCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData));
             
