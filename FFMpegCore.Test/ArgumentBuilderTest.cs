@@ -26,7 +26,7 @@ namespace FFMpegCore.Test
                     .WithVideoFilters(filterOptions => filterOptions
                         .Scale(VideoSize.Hd)))
                 .Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -vf scale=-1:720 \"output.mp4\" -y", str);
+            Assert.AreEqual("-i \"input.mp4\" -vf \"scale=-1:720\" \"output.mp4\" -y", str);
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@ namespace FFMpegCore.Test
                 .Arguments;
 
             Assert.AreEqual(
-                "-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"",
+                "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"",
                 str);
         }
 
@@ -303,7 +303,7 @@ namespace FFMpegCore.Test
                 .Arguments;
 
             Assert.AreEqual(
-                "-i \"input.mp4\" -vf drawtext=\"text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"",
+                "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"",
                 str);
         }
 
