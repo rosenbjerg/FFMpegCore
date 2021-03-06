@@ -80,7 +80,7 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
@@ -166,7 +166,6 @@ namespace FFMpegCore
             if (!throwOnError)
                 return false;
 
-            throw new FFMpegProcessException(exitCode, string.Join("\n", errorData));
             throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData));
         }
 
