@@ -18,7 +18,7 @@ namespace FFMpegCore.Arguments
         {
             Values = values.Select(value => $"file '{value}'");
         }
-        private readonly string _tempFileName = Path.Combine(FFMpegOptions.Options.TempDirectory, Guid.NewGuid() + ".txt");
+        private readonly string _tempFileName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"concat_{Guid.NewGuid()}.txt");
 
         public void Pre() => File.WriteAllLines(_tempFileName, Values);
         public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;

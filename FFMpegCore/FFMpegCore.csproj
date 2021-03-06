@@ -9,10 +9,12 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- return null from FFProbe.Analyse* when no media format was detected
-- Expose tags as string dictionary on IMediaAnalysis (thanks hey-red)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Video filter args refactored to support multiple arguments
+- Cancel improved with timeout (thanks TFleury)
+- Basic support for webcam/mic input through InputDeviceArgument (thanks TFleury)
+- Other fixes and improvements</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>3.4.0</PackageVersion>
+    <PackageVersion>4.0.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>

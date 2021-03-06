@@ -3,7 +3,7 @@ using FFMpegCore.Arguments;
 
 namespace FFMpegCore
 {
-    public abstract class FFMpegOptionsBase
+    public abstract class FFMpegArgumentsBase
     {
         internal readonly List<IArgument> Arguments = new List<IArgument>();
     }
