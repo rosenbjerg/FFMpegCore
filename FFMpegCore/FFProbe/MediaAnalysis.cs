@@ -9,14 +9,11 @@ namespace FFMpegCore
     {
         private static readonly Regex DurationRegex = new Regex("^(\\d{1,2}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
 
-        internal MediaAnalysis(string path, FFProbeAnalysis analysis)
+        internal MediaAnalysis(FFProbeAnalysis analysis)
         {
             Format = ParseFormat(analysis.Format);
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
-            PrimaryVideoStream = VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-            PrimaryAudioStream = AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-            Path = path;
         }
 
         private MediaFormat ParseFormat(Format analysisFormat)
@@ -33,9 +30,6 @@ namespace FFMpegCore
             };
         }
 
-        public string Path { get; }
-        public string Extension => System.IO.Path.GetExtension(Path);
-
         public TimeSpan Duration => new[]
         {
             Format.Duration,
@@ -44,9 +38,9 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
-        public AudioStream PrimaryAudioStream { get; }
+        public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
-        public VideoStream PrimaryVideoStream { get; }
+        public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
