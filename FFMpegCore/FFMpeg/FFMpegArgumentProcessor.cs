@@ -90,17 +90,6 @@ namespace FFMpegCore
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
-        {
-            if (throwOnError && exitCode != 0)
-                throw new FFMpegProcessException(exitCode, string.Join("\n", errorData));
-
-            _onPercentageProgress?.Invoke(100.0);
-            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
-
-            return exitCode == 0;
-        }
-
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
         {
             using var instance = PrepareInstance(out var cancellationTokenSource);
@@ -138,6 +127,17 @@ namespace FFMpegCore
             }
 
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
+        }
+
+        private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
+        {
+            if (throwOnError && exitCode != 0)
+                throw new FFMpegProcessException(exitCode, string.Join("\n", errorData));
+
+            _onPercentageProgress?.Invoke(100.0);
+            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
+
+            return exitCode == 0;
         }
 
         private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
