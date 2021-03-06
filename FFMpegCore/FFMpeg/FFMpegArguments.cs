@@ -9,13 +9,13 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore
 {
-    public sealed class FFMpegArguments : FFMpegOptionsBase
+    public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
-        private readonly FFMpegGlobalOptions _globalOptions = new FFMpegGlobalOptions();
+        private readonly FFMpegGlobalArguments _globalArguments = new FFMpegGlobalArguments();
         
         private FFMpegArguments() { }
 
-        public string Text => string.Join(" ", _globalOptions.Arguments.Concat(Arguments).Select(arg => arg.Text));
+        public string Text => string.Join(" ", _globalArguments.Arguments.Concat(Arguments).Select(arg => arg.Text));
 
         public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
@@ -26,9 +26,9 @@ namespace FFMpegCore
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
         
-        public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalOptions> configureOptions)
+        public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
         {
-            configureOptions(_globalOptions);
+            configureOptions(_globalArguments);
             return this;
         }
 
