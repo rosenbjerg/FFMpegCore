@@ -184,7 +184,7 @@ The default value (`\\FFMPEG\\bin`) can be overwritten via the `FFMpegOptions` c
 ```c#
 public Startup() 
 {
-    FFMpegOptions.Configure(new FFMpegOptions { RootDirectory = "./bin", TempDirectory = "/tmp" });
+       GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 }
 ```
 
@@ -194,8 +194,8 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 
 ```json
 {
-  "RootDirectory": "./bin",
-  "TempDirectory": "/tmp"
+  "BinaryFolder": "./bin",
+  "TemporaryFilesFolder": "/tmp"
 }
 ```
 
