@@ -49,7 +49,8 @@ namespace FFMpegCore
         }
 
         public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputArgument(file, overwrite), addArguments);
-        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite), addArguments);
+        public FFMpegArgumentProcessor OutputToUrl(string uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri), addArguments);
+        public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri.ToString()), addArguments);
         public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputPipeArgument(reader), addArguments);
 
         private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
