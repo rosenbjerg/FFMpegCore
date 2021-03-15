@@ -4,15 +4,16 @@ using System.Threading.Tasks;
 namespace FFMpegCore.Arguments
 {
     /// <summary>
-    /// Represents output stream parameter
+    /// Represents outputting to url using supported protocols
+    /// See http://ffmpeg.org/ffmpeg-protocols.html
     /// </summary>
-    public class OutputStreamArgument : IOutputArgument
+    public class OutputUrlArgument : IOutputArgument
     {
-        public readonly string Stream;
+        public readonly string Url;
 
-        public OutputStreamArgument(string stream)
+        public OutputUrlArgument(string url)
         {
-            Stream = stream;
+            Url = url;
         }
 
         public void Post() { }
@@ -21,6 +22,6 @@ namespace FFMpegCore.Arguments
 
         public void Pre() { }
 
-        public string Text => Stream;
+        public string Text => Url;
     }
 }
