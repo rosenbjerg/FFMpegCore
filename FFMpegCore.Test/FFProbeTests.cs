@@ -26,6 +26,22 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public void MediaAnalysis_ParseDuration()
+        {
+            var durationHHMMSS = new FFProbeStream { Duration = "05:12:59.177" };
+            var longDuration = new FFProbeStream { Duration = "149:07:50.911750" };
+            var shortDuration = new FFProbeStream { Duration = "00:00:00.83" };
+
+            var testdurationHHMMSS = MediaAnalysis.ParseDuration(durationHHMMSS);
+            var testlongDuration = MediaAnalysis.ParseDuration(longDuration);
+            var testshortDuration = MediaAnalysis.ParseDuration(shortDuration);
+
+            Assert.IsTrue(testdurationHHMMSS.Days == 0 && testdurationHHMMSS.Hours == 5 && testdurationHHMMSS.Minutes == 12 && testdurationHHMMSS.Seconds == 59 && testdurationHHMMSS.Milliseconds == 177);
+            Assert.IsTrue(testlongDuration.Days == 6 && testlongDuration.Hours == 5 && testlongDuration.Minutes == 7 && testlongDuration.Seconds == 50 && testlongDuration.Milliseconds == 911);
+            Assert.IsTrue(testdurationHHMMSS.Days == 0 && testshortDuration.Hours == 0 && testshortDuration.Minutes == 0 && testshortDuration.Seconds == 0 && testshortDuration.Milliseconds == 830);
+        }
+
+        [TestMethod]
         public async Task Uri_Duration()
         {
             var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"));
