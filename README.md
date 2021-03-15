@@ -22,11 +22,11 @@ A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and
 FFProbe is used to gather media information:
 
 ```csharp
-var mediaInfo = FFProbe.Analyse(inputFile);
+var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 or 
 ```csharp
-var mediaInfo = await FFProbe.AnalyseAsync(inputFile);
+var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
 ```
 
 
@@ -43,20 +43,19 @@ FFMpegArguments
         .WithConstantRateFactor(21)
         .WithAudioCodec(AudioCodec.Aac)
         .WithVariableBitrate(4)
-        .WithFastStart()
-        .Scale(VideoSize.Hd))
+        .WithVideoFilters(filterOptions => filterOptions
+            .Scale(VideoSize.Hd))
+        .WithFastStart())
     .ProcessSynchronously();
 ```
 
 Easily capture screens from your videos:
 ```csharp
-var mediaFileAnalysis = FFProbe.Analyse(inputPath);
-
 // process the snapshot in-memory and use the Bitmap directly
-var bitmap = FFMpeg.Snapshot(mediaFileAnalysis, new Size(200, 400), TimeSpan.FromMinutes(1));
+var bitmap = FFMpeg.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 
 // or persists the image on the drive
-FFMpeg.Snapshot(mediaFileAnalysis, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1))
+FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 ```
 
 Convert to and/or from streams
@@ -89,25 +88,25 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
 
 Mute videos:
 ```csharp
-FFMpeg.Mute(inputFilePath, outputFilePath);
+FFMpeg.Mute(inputPath, outputPath);
 ```
 
 Save audio track from video:
 ```csharp
-FFMpeg.ExtractAudio(inputVideoFilePath, outputAudioFilePath);
+FFMpeg.ExtractAudio(inputPath, outputPath);
 ```
 
 Add or replace audio track on video:
 ```csharp
-FFMpeg.ReplaceAudio(inputVideoFilePath, inputAudioFilePath, outputVideoFilePath);
+FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath);
 ```
 
 Add poster image to audio file (good for youtube videos):
 ```csharp
-FFMpeg.PosterWithAudio(inputImageFilePath, inputAudioFilePath, outputVideoFilePath);
+FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
 // or
-var image = Image.FromFile(inputImageFile);
-image.AddAudio(inputAudioFilePath, outputVideoFilePath);
+var image = Image.FromFile(inputImagePath);
+image.AddAudio(inputAudioPath, outputPath);
 ```
 
 Other available arguments could be found in `FFMpegCore.Arguments` namespace.
@@ -135,10 +134,11 @@ var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumera
 {
     FrameRate = 30 //set source frame rate
 };
-FFMpegArguments
-    .FromPipeInput(videoFramesSource, <input_stream_options>)
-    .OutputToFile("temporary.mp4", false, <output_options>)
-    .ProcessSynchronously();
+await FFMpegArguments
+    .FromPipeInput(videoFramesSource)
+    .OutputToFile(outputPath, false, options => options
+        .WithVideoCodec(VideoCodec.LibVpx))
+    .ProcessAsynchronously();
 ```
 
 if you want to use `System.Drawing.Bitmap` as `IVideoFrame`, there is a `BitmapVideoFrameWrapper` wrapper class.
@@ -179,13 +179,19 @@ If these folders are not defined, it will try to find the binaries in `/root/(ff
 
 #### Option 1
 
-The default value (`\\FFMPEG\\bin`) can be overwritten via the `FFMpegOptions` class:
+The default value of an empty string (expecting ffmpeg to be found through PATH) can be overwritten via the `FFOptions` class:
 
 ```c#
-public Startup() 
-{
-       GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
-}
+// setting global options
+GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
+// or
+GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
+
+// or individual, per-run options
+await FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath)
+    .ProcessAsynchronously(true, new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 ```
 
 #### Option 2
@@ -217,6 +223,6 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 
 ### License
 
-Copyright © 2020 
+Copyright © 2021
 
 Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
