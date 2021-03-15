@@ -25,6 +25,24 @@ namespace FFMpegCore.Test
             Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
         }
 
+        [DataTestMethod]
+        [DataRow("0:00:03.008000", 0, 0, 0, 3, 8)]
+        [DataRow("05:12:59.177", 0, 5, 12, 59, 177)]
+        [DataRow("149:07:50.911750", 6, 5, 7, 50, 911)]
+        [DataRow("00:00:00.83", 0, 0, 0, 0, 830)]
+        public void MediaAnalysis_ParseDuration(string duration, int expectedDays, int expectedHours, int expectedMinutes, int expectedSeconds, int expectedMilliseconds)
+        {
+            var ffprobeStream = new FFProbeStream { Duration = duration };
+
+            var parsedDuration = MediaAnalysisUtils.ParseDuration(ffprobeStream);
+
+            Assert.AreEqual(expectedDays, parsedDuration.Days);
+            Assert.AreEqual(expectedHours, parsedDuration.Hours);
+            Assert.AreEqual(expectedMinutes, parsedDuration.Minutes);
+            Assert.AreEqual(expectedSeconds, parsedDuration.Seconds);
+            Assert.AreEqual(expectedMilliseconds, parsedDuration.Milliseconds);
+        }
+
         [TestMethod]
         public async Task Uri_Duration()
         {

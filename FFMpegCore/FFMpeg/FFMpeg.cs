@@ -163,8 +163,8 @@ namespace FFMpegCore
             var source = FFProbe.Analyse(input);
             FFMpegHelper.ConversionSizeExceptionCheck(source);
 
-            var scale = VideoSize.Original == size ? 1 : (double)source.PrimaryVideoStream.Height / (int)size;
-            var outputSize = new Size((int)(source.PrimaryVideoStream.Width / scale), (int)(source.PrimaryVideoStream.Height / scale));
+            var scale = VideoSize.Original == size ? 1 : (double)source.PrimaryVideoStream!.Height / (int)size;
+            var outputSize = new Size((int)(source.PrimaryVideoStream!.Width / scale), (int)(source.PrimaryVideoStream.Height / scale));
 
             if (outputSize.Width % 2 != 0)
                 outputSize.Width += 1;
