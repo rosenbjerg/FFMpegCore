@@ -10,7 +10,8 @@
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
     <PackageReleaseNotes>- Fixes for RawVideoPipeSource hanging (thanks to max619)
-- Added .OutputToUrl(..) method for outputting to url using supported protocol (thanks to TFleury) </PackageReleaseNotes>
+- Added .OutputToUrl(..) method for outputting to url using supported protocol (thanks to TFleury) 
+Improved timespan parsing (thanks to test-in-prod)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
     <PackageVersion>4.1.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
