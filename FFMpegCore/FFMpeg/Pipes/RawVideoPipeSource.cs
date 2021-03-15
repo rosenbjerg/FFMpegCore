@@ -64,7 +64,7 @@ namespace FFMpegCore.Pipes
         private void CheckFrameAndThrow(IVideoFrame frame)
         {
             if (frame.Width != Width || frame.Height != Height || frame.Format != StreamFormat)
-                throw new FFMpegException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
+                throw new FFMpegStreamFormatException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
                     $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
                     $"Stream format: {Width}x{Height} pix_fmt: {StreamFormat}");
         }
