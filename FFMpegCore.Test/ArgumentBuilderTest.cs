@@ -239,9 +239,8 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_Seek()
         {
-            var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.Seek(TimeSpan.FromSeconds(10)))
-                .OutputToFile("output.mp4", false, opt => opt.Seek(TimeSpan.FromSeconds(10))).Arguments;
-            Assert.AreEqual("-ss 00:00:10 -i \"input.mp4\" -ss 00:00:10 \"output.mp4\"", str);
+            var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.Seek(TimeSpan.FromSeconds(10))).OutputToFile("output.mp4", false, opt => opt.Seek(TimeSpan.FromSeconds(10))).Arguments;
+            Assert.AreEqual("-ss 00:00:10.000 -i \"input.mp4\" -ss 00:00:10.000 \"output.mp4\"", str);
         }
 
         [TestMethod]
