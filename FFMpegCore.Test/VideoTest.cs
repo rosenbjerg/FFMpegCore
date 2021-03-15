@@ -88,6 +88,92 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(10000)]
+        public void Video_ToMP4_Args_Pipe_DifferentImageSizes()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var frames = new List<IVideoFrame> 
+            {
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 256, 256, 1, 0)
+            };
+
+            var videoFramesSource = new RawVideoPipeSource(frames);
+            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+              .FromPipeInput(videoFramesSource)
+              .OutputToFile(outputFile, false, opt => opt
+                  .WithVideoCodec(VideoCodec.LibX264))
+              .ProcessSynchronously());
+
+            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
+        }
+
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Async()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var frames = new List<IVideoFrame>
+            {
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 256, 256, 1, 0)
+            };
+
+            var videoFramesSource = new RawVideoPipeSource(frames);
+            var ex = await Assert.ThrowsExceptionAsync<FFMpegException>(() => FFMpegArguments
+              .FromPipeInput(videoFramesSource)
+              .OutputToFile(outputFile, false, opt => opt
+                  .WithVideoCodec(VideoCodec.LibX264))
+              .ProcessAsynchronously());
+
+            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Video_ToMP4_Args_Pipe_DifferentPixelFormats()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var frames = new List<IVideoFrame>
+            {
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format32bppRgb, 255, 255, 1, 0)
+            };
+
+            var videoFramesSource = new RawVideoPipeSource(frames);
+            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+              .FromPipeInput(videoFramesSource)
+              .OutputToFile(outputFile, false, opt => opt
+                  .WithVideoCodec(VideoCodec.LibX264))
+              .ProcessSynchronously());
+
+            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
+        }
+
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Async()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var frames = new List<IVideoFrame>
+            {
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format32bppRgb, 255, 255, 1, 0)
+            };
+
+            var videoFramesSource = new RawVideoPipeSource(frames);
+            var ex = await Assert.ThrowsExceptionAsync<FFMpegException>(() => FFMpegArguments
+              .FromPipeInput(videoFramesSource)
+              .OutputToFile(outputFile, false, opt => opt
+                  .WithVideoCodec(VideoCodec.LibX264))
+              .ProcessAsynchronously());
+
+            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
+        }
+
+        [TestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_StreamPipe()
         {
             using var input = File.OpenRead(TestResources.WebmVideo);
@@ -114,6 +200,8 @@ namespace FFMpegCore.Test
                     .ProcessAsynchronously();
             });
         }
+
+
         [TestMethod, Timeout(10000)]
         public void Video_StreamFile_OutputToMemoryStream()
         {

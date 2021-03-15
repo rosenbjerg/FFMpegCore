@@ -21,7 +21,7 @@ namespace FFMpegCore.Test
             }
         }
 
-        private static BitmapVideoFrameWrapper CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
+        public static BitmapVideoFrameWrapper CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
         {
             var bitmap = new Bitmap(w, h, fmt);
 
