@@ -9,26 +9,26 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore
 {
-    public sealed class FFMpegArguments : FFMpegOptionsBase
+    public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
-        private readonly FFMpegGlobalOptions _globalOptions = new FFMpegGlobalOptions();
+        private readonly FFMpegGlobalArguments _globalArguments = new FFMpegGlobalArguments();
         
         private FFMpegArguments() { }
 
-        public string Text => string.Join(" ", _globalOptions.Arguments.Concat(Arguments).Select(arg => arg.Text));
+        public string Text => string.Join(" ", _globalArguments.Arguments.Concat(Arguments).Select(arg => arg.Text));
 
         public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(verifyExists, filePath), addArguments);
         public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
-        public static FFMpegArguments FromFileInput(IMediaAnalysis mediaAnalysis, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(mediaAnalysis.Path, false), addArguments);
         public static FFMpegArguments FromUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+        public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
         
-        public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalOptions> configureOptions)
+        public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
         {
-            configureOptions(_globalOptions);
+            configureOptions(_globalArguments);
             return this;
         }
 
@@ -36,7 +36,6 @@ namespace FFMpegCore
         public FFMpegArguments AddDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new DemuxConcatArgument(filePaths), addArguments);
         public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(verifyExists, filePath), addArguments);
         public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
-        public FFMpegArguments AddFileInput(IMediaAnalysis mediaAnalysis, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(mediaAnalysis.Path, false), addArguments);
         public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
         public FFMpegArguments AddPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
@@ -50,7 +49,8 @@ namespace FFMpegCore
         }
 
         public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputArgument(file, overwrite), addArguments);
-        public FFMpegArgumentProcessor OutputToFile(Uri uri, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputArgument(uri.AbsolutePath, overwrite), addArguments);
+        public FFMpegArgumentProcessor OutputToUrl(string uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri), addArguments);
+        public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri.ToString()), addArguments);
         public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputPipeArgument(reader), addArguments);
 
         private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
