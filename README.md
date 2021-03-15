@@ -223,6 +223,6 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 
 ### License
 
-Copyright © 2020 
+Copyright © 2021
 
 Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
