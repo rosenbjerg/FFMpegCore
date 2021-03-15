@@ -40,8 +40,7 @@ namespace FFMpegCore.Arguments
         {
             try
             {
-                await ProcessDataAsync(cancellationToken);
-                Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");                
+                await ProcessDataAsync(cancellationToken);           
             }
             catch (TaskCanceledException)
             {
@@ -49,6 +48,7 @@ namespace FFMpegCore.Arguments
             }
             finally
             {
+                Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
                 Pipe?.Disconnect();
             }
         }
