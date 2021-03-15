@@ -5,7 +5,7 @@ using FFMpegCore.Enums;
 
 namespace FFMpegCore
 {
-    public class FFMpegArgumentOptions : FFMpegOptionsBase
+    public class FFMpegArgumentOptions : FFMpegArgumentsBase
     {
         internal FFMpegArgumentOptions() { }
         
@@ -15,14 +15,10 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithAudioBitrate(int bitrate) => WithArgument(new AudioBitrateArgument(bitrate));
         public FFMpegArgumentOptions WithAudioSamplingRate(int samplingRate = 48000) => WithArgument(new AudioSamplingRateArgument(samplingRate));
         public FFMpegArgumentOptions WithVariableBitrate(int vbr) => WithArgument(new VariableBitRateArgument(vbr));
-        
-        public FFMpegArgumentOptions Resize(VideoSize videoSize) => WithArgument(new SizeArgument(videoSize));
         public FFMpegArgumentOptions Resize(int width, int height) => WithArgument(new SizeArgument(width, height));
         public FFMpegArgumentOptions Resize(Size? size) => WithArgument(new SizeArgument(size));
         
-        public FFMpegArgumentOptions Scale(VideoSize videoSize) => WithArgument(new ScaleArgument(videoSize));
-        public FFMpegArgumentOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
-        public FFMpegArgumentOptions Scale(Size size) => WithArgument(new ScaleArgument(size));
+
         
         public FFMpegArgumentOptions WithBitStreamFilter(Channel channel, Filter filter) => WithArgument(new BitStreamFilterArgument(channel, filter));
         public FFMpegArgumentOptions WithConstantRateFactor(int crf) => WithArgument(new ConstantRateFactorArgument(crf));
@@ -40,6 +36,13 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithVideoCodec(Codec videoCodec) => WithArgument(new VideoCodecArgument(videoCodec));
         public FFMpegArgumentOptions WithVideoCodec(string videoCodec) => WithArgument(new VideoCodecArgument(videoCodec));
         public FFMpegArgumentOptions WithVideoBitrate(int bitrate) => WithArgument(new VideoBitrateArgument(bitrate));
+        public FFMpegArgumentOptions WithVideoFilters(Action<VideoFilterOptions> videoFilterOptions)
+        {
+            var videoFilterOptionsObj = new VideoFilterOptions();
+            videoFilterOptions(videoFilterOptionsObj);
+            return WithArgument(new VideoFiltersArgument(videoFilterOptionsObj));
+        }
+
         public FFMpegArgumentOptions WithFramerate(double framerate) => WithArgument(new FrameRateArgument(framerate));
         public FFMpegArgumentOptions WithoutMetadata() => WithArgument(new RemoveMetadataArgument());
         public FFMpegArgumentOptions WithSpeedPreset(Speed speed) => WithArgument(new SpeedPresetArgument(speed));
@@ -47,7 +50,6 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithCustomArgument(string argument) => WithArgument(new CustomArgument(argument));
         
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
-        public FFMpegArgumentOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
 
@@ -55,8 +57,6 @@ namespace FFMpegCore
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForcePixelFormat(string pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
         public FFMpegArgumentOptions ForcePixelFormat(PixelFormat pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
-
-        public FFMpegArgumentOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
 
         public FFMpegArgumentOptions WithArgument(IArgument argument)
         {

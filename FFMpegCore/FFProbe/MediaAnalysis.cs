@@ -7,16 +7,11 @@ namespace FFMpegCore
 {
     internal class MediaAnalysis : IMediaAnalysis
     {
-        private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
-
-        internal MediaAnalysis(string path, FFProbeAnalysis analysis)
+        internal MediaAnalysis(FFProbeAnalysis analysis)
         {
             Format = ParseFormat(analysis.Format);
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
-            PrimaryVideoStream = VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-            PrimaryAudioStream = AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-            Path = path;
         }
 
         private MediaFormat ParseFormat(Format analysisFormat)
@@ -33,9 +28,6 @@ namespace FFMpegCore
             };
         }
 
-        public string Path { get; }
-        public string Extension => System.IO.Path.GetExtension(Path);
-
         public TimeSpan Duration => new[]
         {
             Format.Duration,
@@ -44,9 +36,9 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
-        public AudioStream PrimaryAudioStream { get; }
+        public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
-        public VideoStream PrimaryVideoStream { get; }
+        public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
@@ -56,14 +48,14 @@ namespace FFMpegCore
             return new VideoStream
             {
                 Index = stream.Index,
-                AvgFrameRate = DivideRatio(ParseRatioDouble(stream.AvgFrameRate, '/')),
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? ParseIntInvariant(stream.BitRate) : default,
-                BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? ParseIntInvariant(stream.BitsPerRawSample) : default,
+                AvgFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.AvgFrameRate, '/')),
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitsPerRawSample) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
-                DisplayAspectRatio = ParseRatioInt(stream.DisplayAspectRatio, ':'),
-                Duration = ParseDuration(stream),
-                FrameRate = DivideRatio(ParseRatioDouble(stream.FrameRate, '/')),
+                DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
+                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
                 Height = stream.Height ?? 0,
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
@@ -74,7 +66,55 @@ namespace FFMpegCore
             };
         }
 
-        internal static TimeSpan ParseDuration(string duration)
+        private AudioStream ParseAudioStream(FFProbeStream stream)
+        {
+            return new AudioStream
+            {
+                Index = stream.Index,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                CodecName = stream.CodecName,
+                CodecLongName = stream.CodecLongName,
+                Channels = stream.Channels ?? default,
+                ChannelLayout = stream.ChannelLayout,
+                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
+                Profile = stream.Profile,
+                Language = stream.GetLanguage(),
+                Tags = stream.Tags,
+            };
+        }
+
+
+    }
+
+    public static class MediaAnalysisUtils
+    {
+        private static readonly Regex DurationRegex = new Regex("^(\\d{1,5}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
+
+        public static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
+
+        public static (int, int) ParseRatioInt(string input, char separator)
+        {
+            if (string.IsNullOrEmpty(input)) return (0, 0);
+            var ratio = input.Split(separator);
+            return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
+        }
+
+        public static (double, double) ParseRatioDouble(string input, char separator)
+        {
+            if (string.IsNullOrEmpty(input)) return (0, 0);
+            var ratio = input.Split(separator);
+            return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
+        }
+
+        public static double ParseDoubleInvariant(string line) =>
+            double.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+
+        public static int ParseIntInvariant(string line) =>
+            int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+        
+        
+        public static TimeSpan ParseDuration(string duration)
         {
             if (!string.IsNullOrEmpty(duration))
             {
@@ -106,49 +146,15 @@ namespace FFMpegCore
             }
         }
 
-        internal static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
+        public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
         }
 
-        private AudioStream ParseAudioStream(FFProbeStream stream)
+        private static string? TrimTimeSpan(string? durationTag)
         {
-            return new AudioStream
-            {
-                Index = stream.Index,
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? ParseIntInvariant(stream.BitRate) : default,
-                CodecName = stream.CodecName,
-                CodecLongName = stream.CodecLongName,
-                Channels = stream.Channels ?? default,
-                ChannelLayout = stream.ChannelLayout,
-                Duration = ParseDuration(stream),
-                SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? ParseIntInvariant(stream.SampleRate) : default,
-                Profile = stream.Profile,
-                Language = stream.GetLanguage(),
-                Tags = stream.Tags,
-            };
+            var durationMatch = DurationRegex.Match(durationTag ?? "");
+            return durationMatch.Success ? durationMatch.Groups[1].Value : null;
         }
-
-        private static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
-
-        private static (int, int) ParseRatioInt(string input, char separator)
-        {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
-            var ratio = input.Split(separator);
-            return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
-        }
-
-        private static (double, double) ParseRatioDouble(string input, char separator)
-        {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
-            var ratio = input.Split(separator);
-            return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
-        }
-
-        private static double ParseDoubleInvariant(string line) =>
-            double.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-
-        private static int ParseIntInvariant(string line) =>
-            int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
     }
 }
