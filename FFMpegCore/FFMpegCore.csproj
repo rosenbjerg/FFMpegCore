@@ -5,18 +5,16 @@
     <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
     <Copyright></Copyright>
-    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your C# applications</Description>
+    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Video filter args refactored to support multiple arguments
-- Cancel improved with timeout (thanks TFleury)
-- Basic support for webcam/mic input through InputDeviceArgument (thanks TFleury)
-- Other fixes and improvements</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixes for RawVideoPipeSource hanging (thanks to max619)
+- Added .OutputToUrl(..) method for outputting to url using supported protocol (thanks to TFleury) </PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.0.0</PackageVersion>
+    <PackageVersion>4.1.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
+    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
