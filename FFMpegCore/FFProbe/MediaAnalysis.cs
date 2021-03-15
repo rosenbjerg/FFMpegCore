@@ -18,7 +18,7 @@ namespace FFMpegCore
         {
             return new MediaFormat
             {
-                Duration = ParseDuration(analysisFormat.Duration),
+                Duration = MediaAnalysisUtils.ParseDuration(analysisFormat.Duration),
                 FormatName = analysisFormat.FormatName,
                 FormatLongName = analysisFormat.FormatLongName,
                 StreamCount = analysisFormat.NbStreams,
@@ -89,7 +89,7 @@ namespace FFMpegCore
 
     public static class MediaAnalysisUtils
     {
-        private static readonly Regex DurationRegex = new Regex("^(\\d{1,5}:\\d{1,2}:\\d{1,2}(.\\d{1,7})?)", RegexOptions.Compiled);
+        private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
         public static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
 
@@ -149,12 +149,6 @@ namespace FFMpegCore
         public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
-        }
-
-        private static string? TrimTimeSpan(string? durationTag)
-        {
-            var durationMatch = DurationRegex.Match(durationTag ?? "");
-            return durationMatch.Success ? durationMatch.Groups[1].Value : null;
         }
     }
 }

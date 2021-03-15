@@ -25,20 +25,22 @@ namespace FFMpegCore.Test
             Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
         }
 
-        [TestMethod]
-        public void MediaAnalysis_ParseDuration()
+        [DataTestMethod]
+        [DataRow("0:00:03.008000", 0, 0, 0, 3, 8)]
+        [DataRow("05:12:59.177", 0, 5, 12, 59, 177)]
+        [DataRow("149:07:50.911750", 6, 5, 7, 50, 911750)]
+        [DataRow("00:00:00.83", 0, 0, 0, 0, 830)]
+        public void MediaAnalysis_ParseDuration(string duration, int expectedDays, int expectedHours, int expectedMinutes, int expectedSeconds, int expectedMilliseconds)
         {
-            var durationHHMMSS = new FFProbeStream { Duration = "05:12:59.177" };
-            var longDuration = new FFProbeStream { Duration = "149:07:50.911750" };
-            var shortDuration = new FFProbeStream { Duration = "00:00:00.83" };
+            var ffprobeStream = new FFProbeStream { Duration = duration };
 
-            var testdurationHHMMSS = MediaAnalysis.ParseDuration(durationHHMMSS);
-            var testlongDuration = MediaAnalysis.ParseDuration(longDuration);
-            var testshortDuration = MediaAnalysis.ParseDuration(shortDuration);
+            var parsedDuration = MediaAnalysisUtils.ParseDuration(ffprobeStream);
 
-            Assert.IsTrue(testdurationHHMMSS.Days == 0 && testdurationHHMMSS.Hours == 5 && testdurationHHMMSS.Minutes == 12 && testdurationHHMMSS.Seconds == 59 && testdurationHHMMSS.Milliseconds == 177);
-            Assert.IsTrue(testlongDuration.Days == 6 && testlongDuration.Hours == 5 && testlongDuration.Minutes == 7 && testlongDuration.Seconds == 50 && testlongDuration.Milliseconds == 911);
-            Assert.IsTrue(testdurationHHMMSS.Days == 0 && testshortDuration.Hours == 0 && testshortDuration.Minutes == 0 && testshortDuration.Seconds == 0 && testshortDuration.Milliseconds == 830);
+            Assert.AreEqual(parsedDuration.Days, expectedDays);
+            Assert.AreEqual(parsedDuration.Hours, expectedHours);
+            Assert.AreEqual(parsedDuration.Minutes, expectedMinutes);
+            Assert.AreEqual(parsedDuration.Seconds, expectedSeconds);
+            Assert.AreEqual(parsedDuration.Milliseconds, expectedMilliseconds);
         }
 
         [TestMethod]
