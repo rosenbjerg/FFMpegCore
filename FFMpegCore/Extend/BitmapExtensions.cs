@@ -6,7 +6,7 @@ namespace FFMpegCore.Extend
 {
     public static class BitmapExtensions
     {
-        public static bool AddAudio(this Bitmap poster, string audio, string output)
+        public static bool AddAudio(this Image poster, string audio, string output)
         {
             var destination = $"{Environment.TickCount}.png";
             poster.Save(destination);

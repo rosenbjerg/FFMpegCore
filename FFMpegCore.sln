@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore", "FFMpegCore\FF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Test", "FFMpegCore.Test\FFMpegCore.Test.csproj", "{F20C8353-72D9-454B-9F16-3624DBAD2328}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.Examples", "FFMpegCore.Examples\FFMpegCore.Examples.csproj", "{3125CF91-FFBD-4E4E-8930-247116AFE772}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F20C8353-72D9-454B-9F16-3624DBAD2328}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3125CF91-FFBD-4E4E-8930-247116AFE772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3125CF91-FFBD-4E4E-8930-247116AFE772}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3125CF91-FFBD-4E4E-8930-247116AFE772}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3125CF91-FFBD-4E4E-8930-247116AFE772}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
