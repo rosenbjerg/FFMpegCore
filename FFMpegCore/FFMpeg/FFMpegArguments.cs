@@ -57,6 +57,12 @@ namespace FFMpegCore
         {
             var args = new FFMpegArgumentOptions();
             addArguments?.Invoke(args);
+
+            if (argument is OutputPipeArgument && !Arguments.Any(x => x is ForceFormatArgument))
+            {
+                args.ForceFormat("matroska");
+            }
+
             Arguments.AddRange(args.Arguments);
             Arguments.Add(argument);
             return new FFMpegArgumentProcessor(this);
