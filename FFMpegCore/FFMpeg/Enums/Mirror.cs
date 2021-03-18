@@ -4,9 +4,9 @@ using System.Text;
 
 namespace FFMpegCore.Enums
 {
-    public enum Mirror : byte
+    public enum Mirror
     {
-        Verticall = 1,
-        Horizontall = 2
+        Verticall,
+        Horizontall
     }
 }
