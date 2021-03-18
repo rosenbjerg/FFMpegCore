@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FFMpegCore.Arguments
 {
-    public class SetMirrorVideo : IArgument
+    public class SetMirrorVideo : IVideoFilterArgument
     {
         public SetMirrorVideo(Mirror value)
         {
@@ -14,16 +14,18 @@ namespace FFMpegCore.Arguments
 
         public Mirror _value { get; set; }
 
-        public string Text
+        public string Key => string.Empty;
+
+        public string Value
         {
             get
             {
                 switch (_value)
                 {
                     case Mirror.Horizontall:
-                        return "-vf \"hflip\"";
+                        return "hflip";
                     case Mirror.Verticall:
-                        return "-vf \"vflip\"";
+                        return "vflip";
                     default:
                         throw new Exception("SetMirrorVideo: argument not found");
                 }
