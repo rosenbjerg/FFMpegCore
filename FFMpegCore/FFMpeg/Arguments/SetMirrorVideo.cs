@@ -22,12 +22,12 @@ namespace FFMpegCore.Arguments
             {
                 switch (_value)
                 {
-                    case Mirror.Horizontall:
+                    case Mirror.Horizontal:
                         return "hflip";
-                    case Mirror.Verticall:
+                    case Mirror.Vertical:
                         return "vflip";
                     default:
-                        throw new Exception("SetMirrorVideo: argument not found");
+                        throw new ArgumentOutOfRangeException("SetMirrorVideo: argument not found");
                 }
 
             }
