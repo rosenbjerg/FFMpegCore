@@ -375,5 +375,19 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt.ForcePixelFormat("yuv444p")).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -pix_fmt yuv444p \"output.mp4\"", str);
         }
+		
+		[TestMethod]
+		public void Builder_BuildEmptyString_FromEmpty()
+		{
+			var str = FFMpegArguments.FromEmpty().OutputToFile("", false).Arguments;
+			Assert.AreEqual("\"\"", str);
+		}
+
+		[TestMethod]
+		public void Builder_BuildLoop_FromEmpty()
+		{
+			var str = FFMpegArguments.FromEmpty(options => options.Loop(1)).OutputToFile("", false).Arguments;
+			Assert.AreEqual("-loop 1 \"\"", str);
+		}
     }
 }
