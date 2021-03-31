@@ -16,7 +16,8 @@ namespace FFMpegCore
         private FFMpegArguments() { }
 
         public string Text => string.Join(" ", _globalArguments.Arguments.Concat(Arguments).Select(arg => arg.Text));
-
+        
+	    public static FFMpegArguments FromEmpty(Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithArguments(addArguments);
         public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(verifyExists, filePath), addArguments);
@@ -47,7 +48,15 @@ namespace FFMpegCore
             Arguments.Add(inputArgument);
             return this;
         }
-
+        
+        private FFMpegArguments WithArguments(Action<FFMpegArgumentOptions>? addArguments)
+		{
+			var arguments = new FFMpegArgumentOptions();
+			addArguments?.Invoke(arguments);
+			Arguments.AddRange(arguments.Arguments);
+			return this;
+		}
+        
         public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputArgument(file, overwrite), addArguments);
         public FFMpegArgumentProcessor OutputToUrl(string uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri), addArguments);
         public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri.ToString()), addArguments);
