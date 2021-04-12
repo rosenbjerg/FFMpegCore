@@ -20,7 +20,7 @@ namespace FFMpegCore.Pipes
             Writer = (inputStream, cancellationToken) => inputStream.CopyToAsync(destination, BlockSize, cancellationToken);
         }
 
-        public Task ReadAsync(System.IO.Stream inputStream, CancellationToken cancellationToken) 
+        public Task ReadAsync(Stream inputStream, CancellationToken cancellationToken) 
             => Writer(inputStream, cancellationToken);
 
         public string GetFormat() => Format;
