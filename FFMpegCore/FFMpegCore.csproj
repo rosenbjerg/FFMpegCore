@@ -9,11 +9,9 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Fixes for RawVideoPipeSource hanging (thanks to max619)
-- Added .OutputToUrl(..) method for outputting to url using supported protocol (thanks to TFleury) 
-- Improved timespan parsing (thanks to test-in-prod)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added support for mirroring video filter (thanks gorobvictor)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.1.0</PackageVersion>
+    <PackageVersion>4.2.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
