@@ -193,6 +193,17 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public void Builder_BuildString_Mirroring()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .Mirror(Mirroring.Horizontal)))
+                .Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -vf \"hflip\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
         public void Builder_BuildString_TransposeScale()
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
