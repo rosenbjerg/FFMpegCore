@@ -1,6 +1,6 @@
 ﻿namespace FFMpegCore.Enums
 {
-    public enum Mirror
+    public enum Mirroring
     {
         Vertical,
         Horizontal
