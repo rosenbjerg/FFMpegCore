@@ -17,12 +17,20 @@ namespace FFMpegCore.Arguments
 
         public string Text => GetText();
 
-        public string GetText()
+        private string GetText()
         {
             if (!Options.Arguments.Any())
                 throw new FFMpegArgumentException("No video-filter arguments provided");
 
-            return $"-vf \"{string.Join(", ", Options.Arguments.Where(arg => !string.IsNullOrEmpty(arg.Value)).Select(arg => $"{arg.Key}={arg.Value.Replace(",", "\\,")}"))}\"";
+            var arguments = Options.Arguments
+                .Where(arg => !string.IsNullOrEmpty(arg.Value))
+                .Select(arg =>
+                {
+                    var escapedValue = arg.Value.Replace(",", "\\,");
+                    return string.IsNullOrEmpty(arg.Key) ? escapedValue : $"{arg.Key}={escapedValue}";
+                });
+
+            return $"-vf \"{string.Join(", ", arguments)}\"";
         }
     }
 
@@ -40,6 +48,7 @@ namespace FFMpegCore.Arguments
         public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
         public VideoFilterOptions Scale(Size size) => WithArgument(new ScaleArgument(size));
         public VideoFilterOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
+        public VideoFilterOptions Mirror(Mirroring mirroring) => WithArgument(new SetMirroringArgument(mirroring));
         public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
 
         private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
