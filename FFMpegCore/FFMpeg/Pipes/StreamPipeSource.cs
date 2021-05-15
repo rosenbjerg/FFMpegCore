@@ -9,11 +9,11 @@ namespace FFMpegCore.Pipes
     /// </summary>
     public class StreamPipeSource : IPipeSource
     {
-        public System.IO.Stream Source { get; }
+        public Stream Source { get; }
         public int BlockSize { get; } = 4096;
         public string StreamFormat { get; } = string.Empty;
 
-        public StreamPipeSource(System.IO.Stream source)
+        public StreamPipeSource(Stream source)
         {
             Source = source;
         }
