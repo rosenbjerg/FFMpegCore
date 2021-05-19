@@ -1,0 +1,45 @@
+ffprobe code to detect black frames:
+
+ffprobe -f lavfi -i movie="input.mp4,blackdetect[out0]" -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1
+
+Output displays line by line as each black frame is found.
+
+TAG:lavfi.black_start=35.7691
+TAG:lavfi.black_start=35.7691
+TAG:lavfi.black_end=37.0704
+TAG:lavfi.black_end=37.0704
+TAG:lavfi.black_start=53.9205
+TAG:lavfi.black_start=53.9205
+TAG:lavfi.black_end=54.1207
+TAG:lavfi.black_end=54.1207
+TAG:lavfi.black_start=68.9689
+TAG:lavfi.black_start=68.9689
+TAG:lavfi.black_end=69.4694
+TAG:lavfi.black_end=69.4694
+TAG:lavfi.black_start=75.7423
+TAG:lavfi.black_start=75.7423
+TAG:lavfi.black_end=76.2095
+TAG:lavfi.black_end=76.2095
+TAG:lavfi.black_start=1617.95
+TAG:lavfi.black_start=1617.95
+TAG:lavfi.black_end=1618.25
+TAG:lavfi.black_end=1618.25
+TAG:lavfi.black_start=1635.1
+TAG:lavfi.black_start=1635.1
+TAG:lavfi.black_end=1635.33
+TAG:lavfi.black_end=1635.33
+TAG:lavfi.black_start=1650.18
+TAG:lavfi.black_start=1650.18
+TAG:lavfi.black_end=1650.68
+TAG:lavfi.black_end=1650.68
+TAG:lavfi.black_start=1656.96
+TAG:lavfi.black_start=1656.96
+TAG:lavfi.black_end=1657.76
+TAG:lavfi.black_end=1657.76
+TAG:lavfi.black_start=1660.03
+TAG:lavfi.black_start=1660.03
+[Parsed_movie_0 @ 0000020c41f67b00] EOF timestamp not reliable
+[blackdetect @ 0000020c41f470c0] black_start:1660.03 black_end:1980.48 black_duration:320.453
+
+
+errors in the file can appear such as the "EOF timestamp not reliable" error seen above. The processing time would almost necessitate using await as the file in its entirety is scanned and can take multiple minutes to complete. 
