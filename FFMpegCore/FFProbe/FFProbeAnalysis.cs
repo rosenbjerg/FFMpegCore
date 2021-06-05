@@ -61,7 +61,16 @@ namespace FFMpegCore
         
         [JsonPropertyName("pix_fmt")]
         public string PixelFormat { get; set; } = null!;
-        
+
+        [JsonPropertyName("color_space")]           
+        public string ColorSpace { get; set; } = null!;
+
+        [JsonPropertyName("color_primaries")]       
+        public string ColorPrimaries { get; set; } = null!;
+
+        [JsonPropertyName("color_transfer")]       
+        public string ColorTransfer { get; set; } = null!;
+
         [JsonPropertyName("sample_rate")]
         public string SampleRate { get; set; } = null!;
 
