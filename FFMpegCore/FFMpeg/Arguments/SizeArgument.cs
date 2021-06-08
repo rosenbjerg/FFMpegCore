@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using FFMpegCore.Enums;
 
 namespace FFMpegCore.Arguments
 {
