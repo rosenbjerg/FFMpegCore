@@ -9,9 +9,10 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Added support for mirroring video filter (thanks gorobvictor)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added support for PCM audio through RawAudioPipeSource (thanks to Namaneo)
+- Removed -y in InputPipeArgument due to reported problems</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.2.0</PackageVersion>
+    <PackageVersion>4.3.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
