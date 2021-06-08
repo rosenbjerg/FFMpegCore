@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FFMpegCore.Pipes
@@ -9,6 +10,6 @@ namespace FFMpegCore.Pipes
     public interface IPipeSource
     {
         string GetStreamArguments();
-        Task WriteAsync(System.IO.Stream outputStream, CancellationToken cancellationToken);
+        Task WriteAsync(Stream outputStream, CancellationToken cancellationToken);
     }
 }
