@@ -68,6 +68,8 @@ namespace FFMpegCore.Extend
             {
                 case PixelFormat.Format16bppGrayScale:
                     return "gray16le";
+                case PixelFormat.Format16bppRgb555:
+                    return "bgr555le";
                 case PixelFormat.Format16bppRgb565:
                     return "bgr565le";
                 case PixelFormat.Format24bppRgb:
