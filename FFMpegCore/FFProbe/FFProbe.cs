@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -117,7 +118,13 @@ namespace FFMpegCore
             FFProbeHelper.RootExceptionCheck();
             FFProbeHelper.VerifyFFProbeExists(ffOptions);
             var arguments = $"-loglevel error -print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
-            var instance = new Instance(GlobalFFOptions.GetFFProbeBinaryPath(), arguments) {DataBufferCapacity = outputCapacity};
+            var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(), arguments)
+            {
+                StandardOutputEncoding = ffOptions.Encoding,
+                StandardErrorEncoding = ffOptions.Encoding
+            };
+            var instance = new Instance(startInfo)
+                { DataBufferCapacity = outputCapacity };
             return instance;
         }
     }
