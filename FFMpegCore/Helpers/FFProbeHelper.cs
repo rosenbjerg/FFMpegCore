@@ -30,7 +30,7 @@ namespace FFMpegCore.Helpers
             var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
             _ffprobeVerified = exitCode == 0;
             if (!_ffprobeVerified) 
-                throw new FFMpegException(FFMpegExceptionType.Operation, "ffprobe was not found on your system");
+                throw new FFProbeException("ffprobe was not found on your system");
         }
     }
 }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
+using System.Threading;
 
 namespace FFMpegCore.Test
 {
@@ -600,6 +601,65 @@ namespace FFMpegCore.Test
 
             await Task.Delay(300);
             cancel();
+
+            var result = await task;
+
+            var outputInfo = await FFProbe.AnalyseAsync(outputFile);
+
+            Assert.IsTrue(result);
+            Assert.IsNotNull(outputInfo);
+            Assert.AreEqual(320, outputInfo.PrimaryVideoStream!.Width);
+            Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
+            Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
+            Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_Cancel_CancellationToken_Async()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var cts = new CancellationTokenSource();
+
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(cts.Token)
+                .ProcessAsynchronously(false);
+
+            await Task.Delay(300);
+            cts.Cancel();
+
+            var result = await task;
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_Cancel_CancellationToken_Async_With_Timeout()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var cts = new CancellationTokenSource();
+
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(cts.Token, 5000)
+                .ProcessAsynchronously(false);
+
+            await Task.Delay(300);
+            cts.Cancel();
 
             var result = await task;
 
