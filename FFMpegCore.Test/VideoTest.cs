@@ -655,7 +655,7 @@ namespace FFMpegCore.Test
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithSpeedPreset(Speed.VeryFast))
-                .CancellableThrough(cts.Token, 10000)
+                .CancellableThrough(cts.Token, 5000)
                 .ProcessAsynchronously(false);
 
             await Task.Delay(300);
