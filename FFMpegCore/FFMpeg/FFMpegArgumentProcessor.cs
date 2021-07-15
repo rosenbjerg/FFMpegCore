@@ -50,6 +50,11 @@ namespace FFMpegCore
             cancel = () => CancelEvent?.Invoke(this, timeout);
             return this;
         }
+        public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
+        {
+            token.Register(() => CancelEvent?.Invoke(this, timeout));
+            return this;
+        }
         public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
             using var instance = PrepareInstance(ffMpegOptions ?? GlobalFFOptions.Current, out var cancellationTokenSource);

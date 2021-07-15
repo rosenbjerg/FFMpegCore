@@ -9,10 +9,11 @@
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Added support for PCM audio through RawAudioPipeSource (thanks to Namaneo)
-- Removed -y in InputPipeArgument due to reported problems</PackageReleaseNotes>
+    <PackageReleaseNotes>- Cancellation token support (thanks patagonaa)
+- Support for setting stdout and stderr encoding for ffprobe (thanks CepheiSigma)
+- Improved ffprobe exceptions</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.3.0</PackageVersion>
+    <PackageVersion>4.4.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
