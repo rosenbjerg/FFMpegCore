@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -92,7 +93,7 @@ namespace FFMpegCore
             }
             var exitCode = await task.ConfigureAwait(false);
             if (exitCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Process, $"FFProbe process returned exit status {exitCode}", null, string.Join("\n", instance.ErrorData));
+                throw new FFProbeProcessException($"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", instance.ErrorData)})", instance.ErrorData);
             
             pipeArgument.Post();
             return ParseOutput(instance);
@@ -107,7 +108,7 @@ namespace FFMpegCore
             });
             
             if (ffprobeAnalysis?.Format == null)
-                throw new Exception();
+                throw new FormatNullException();
             
             return new MediaAnalysis(ffprobeAnalysis);
         }
@@ -117,7 +118,12 @@ namespace FFMpegCore
             FFProbeHelper.RootExceptionCheck();
             FFProbeHelper.VerifyFFProbeExists(ffOptions);
             var arguments = $"-loglevel error -print_format json -show_format -sexagesimal -show_streams \"{filePath}\"";
-            var instance = new Instance(GlobalFFOptions.GetFFProbeBinaryPath(), arguments) {DataBufferCapacity = outputCapacity};
+            var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(), arguments)
+            {
+                StandardOutputEncoding = ffOptions.Encoding,
+                StandardErrorEncoding = ffOptions.Encoding
+            };
+            var instance = new Instance(startInfo) { DataBufferCapacity = outputCapacity };
             return instance;
         }
     }
