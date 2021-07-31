@@ -100,5 +100,15 @@ namespace FFMpegCore.Test
             var info = await FFProbe.AnalyseAsync(stream);
             Assert.AreEqual(3, info.Duration.Seconds);
         }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_Subtitle_Async()
+        {
+            var info = await FFProbe.AnalyseAsync(TestResources.SrtSubtitle);
+            Assert.IsNotNull(info.PrimarySubtitleStream);
+            Assert.AreEqual(1, info.SubtitleStreams.Count);
+            Assert.AreEqual(0, info.AudioStreams.Count);
+            Assert.AreEqual(0, info.VideoStreams.Count);
+        }
     }
 }
