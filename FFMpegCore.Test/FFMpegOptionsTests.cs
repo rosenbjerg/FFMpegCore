@@ -10,39 +10,39 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Options_Initialized()
         {
-            Assert.IsNotNull(FFMpegOptions.Options);
+            Assert.IsNotNull(GlobalFFOptions.Current);
         }
 
         [TestMethod]
         public void Options_Defaults_Configured()
         {
-            Assert.AreEqual(new FFMpegOptions().RootDirectory, $"");
+            Assert.AreEqual(new FFOptions().BinaryFolder, $"");
         }
 
         [TestMethod]
         public void Options_Loaded_From_File()
         {
             Assert.AreEqual(
-                FFMpegOptions.Options.RootDirectory, 
-                JsonConvert.DeserializeObject<FFMpegOptions>(File.ReadAllText("ffmpeg.config.json")).RootDirectory
+                GlobalFFOptions.Current.BinaryFolder, 
+                JsonConvert.DeserializeObject<FFOptions>(File.ReadAllText("ffmpeg.config.json")).BinaryFolder
             );
         }
 
         [TestMethod]
         public void Options_Set_Programmatically()
         {
-            var original = FFMpegOptions.Options; 
+            var original = GlobalFFOptions.Current; 
             try
             {
-                FFMpegOptions.Configure(new FFMpegOptions { RootDirectory = "Whatever" });
+                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "Whatever" });
                 Assert.AreEqual(
-                    FFMpegOptions.Options.RootDirectory,
+                    GlobalFFOptions.Current.BinaryFolder,
                     "Whatever"
                 );
             }
             finally
             {
-                FFMpegOptions.Configure(original);
+                GlobalFFOptions.Configure(original);
             }
         }
     }
