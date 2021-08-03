@@ -27,7 +27,7 @@ namespace FFMpegCore
 
         public string Arguments => _ffMpegArguments.Text;
 
-        private event EventHandler CancelEvent = null!; 
+        private event EventHandler<int> CancelEvent = null!; 
 
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
@@ -45,21 +45,30 @@ namespace FFMpegCore
             _onOutput = onOutput;
             return this;
         }
-        public FFMpegArgumentProcessor CancellableThrough(out Action cancel)
+        public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
         {
-            cancel = () => CancelEvent?.Invoke(this, EventArgs.Empty);
+            cancel = () => CancelEvent?.Invoke(this, timeout);
             return this;
         }
-        public bool ProcessSynchronously(bool throwOnError = true)
+        public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
         {
-            using var instance = PrepareInstance(out var cancellationTokenSource);
+            token.Register(() => CancelEvent?.Invoke(this, timeout));
+            return this;
+        }
+        public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+        {
+            using var instance = PrepareInstance(ffMpegOptions ?? GlobalFFOptions.Current, out var cancellationTokenSource);
             var errorCode = -1;
 
-            void OnCancelEvent(object sender, EventArgs args)
+            void OnCancelEvent(object sender, int timeout)
             {
                 instance.SendInput("q");
-                cancellationTokenSource.Cancel();
-                instance.Started = false;
+
+                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                {
+                    cancellationTokenSource.Cancel();
+                    instance.Started = false;
+                }
             }
             CancelEvent += OnCancelEvent;
             instance.Exited += delegate { cancellationTokenSource.Cancel(); };
@@ -76,37 +85,30 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
                 CancelEvent -= OnCancelEvent;
             }
             
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private bool HandleCompletion(bool throwOnError, int errorCode, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
+        public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
-            if (throwOnError && errorCode != 0)
-                throw new FFMpegException(FFMpegExceptionType.Conversion, "FFMpeg exited with non-zero exitcode.", null, string.Join("\n", errorData), string.Join("\n", outputData));
-
-            _onPercentageProgress?.Invoke(100.0);
-            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
-
-            return errorCode == 0;
-        }
-
-        public async Task<bool> ProcessAsynchronously(bool throwOnError = true)
-        {
-            using var instance = PrepareInstance(out var cancellationTokenSource);
+            using var instance = PrepareInstance(ffMpegOptions ?? GlobalFFOptions.Current, out var cancellationTokenSource);
             var errorCode = -1;
 
-            void OnCancelEvent(object sender, EventArgs args)
+            void OnCancelEvent(object sender, int timeout)
             {
                 instance.SendInput("q");
-                cancellationTokenSource.Cancel();
-                instance.Started = false;
+
+                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                {
+                    cancellationTokenSource.Cancel();
+                    instance.Started = false;
+                }
             }
             CancelEvent += OnCancelEvent;
             
@@ -122,26 +124,38 @@ namespace FFMpegCore
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData, instance.OutputData)) return false;
+                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
             }
             finally
             {
                 CancelEvent -= OnCancelEvent;
             }
 
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData, instance.OutputData);
+            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
-        private Instance PrepareInstance(out CancellationTokenSource cancellationTokenSource)
+        private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
+        {
+            if (throwOnError && exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, $"ffmpeg exited with non-zero exit-code ({exitCode} - {string.Join("\n", errorData)})", null, string.Join("\n", errorData));
+
+            _onPercentageProgress?.Invoke(100.0);
+            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
+
+            return exitCode == 0;
+        }
+
+        private Instance PrepareInstance(FFOptions ffMpegOptions,
+            out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck();
-            FFMpegHelper.VerifyFFMpegExists();
+            FFMpegHelper.VerifyFFMpegExists(ffMpegOptions);
             var startInfo = new ProcessStartInfo
             {
-                FileName = FFMpegOptions.Options.FFmpegBinary(),
+                FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions),
                 Arguments = _ffMpegArguments.Text,
-                StandardOutputEncoding = FFMpegOptions.Options.Encoding,
-                StandardErrorEncoding = FFMpegOptions.Options.Encoding,
+                StandardOutputEncoding = ffMpegOptions.Encoding,
+                StandardErrorEncoding = ffMpegOptions.Encoding,
             };
             var instance = new Instance(startInfo);
             cancellationTokenSource = new CancellationTokenSource();
@@ -153,12 +167,12 @@ namespace FFMpegCore
         }
 
         
-        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData, IReadOnlyList<string> outputData)
+        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
                 return false;
 
-            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData), string.Join("\n", outputData));
+            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData));
         }
 
         private void OutputData(object sender, (DataType Type, string Data) msg)

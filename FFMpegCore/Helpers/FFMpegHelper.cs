@@ -11,21 +11,15 @@ namespace FFMpegCore.Helpers
         private static bool _ffmpegVerified;
 
         public static void ConversionSizeExceptionCheck(Image image)
-        {
-            ConversionSizeExceptionCheck(image.Size);
-        }
+            => ConversionSizeExceptionCheck(image.Size.Width, image.Size.Height);
 
         public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
-        {
-            ConversionSizeExceptionCheck(new Size(info.PrimaryVideoStream.Width, info.PrimaryVideoStream.Height));
-        }
+            => ConversionSizeExceptionCheck(info.PrimaryVideoStream!.Width, info.PrimaryVideoStream.Height);
 
-        private static void ConversionSizeExceptionCheck(Size size)
+        private static void ConversionSizeExceptionCheck(int width, int height)
         {
-            if (size.Height % 2 != 0 || size.Width % 2 != 0 )
-            {
+            if (height % 2 != 0 || width % 2 != 0 )
                 throw new ArgumentException("FFMpeg yuv420p encoding requires the width and height to be a multiple of 2!");
-            }
         }
 
         public static void ExtensionExceptionCheck(string filename, string extension)
@@ -37,17 +31,17 @@ namespace FFMpegCore.Helpers
 
         public static void RootExceptionCheck()
         {
-            if (FFMpegOptions.Options.RootDirectory == null)
-                throw new FFMpegException(FFMpegExceptionType.Dependency,
-                    "FFMpeg root is not configured in app config. Missing key 'ffmpegRoot'.");
+            if (GlobalFFOptions.Current.BinaryFolder == null)
+                throw new FFOptionsException("FFMpeg root is not configured in app config. Missing key 'BinaryFolder'.");
         }
         
-        public static void VerifyFFMpegExists()
+        public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
         {
             if (_ffmpegVerified) return;
-            var (exitCode, _) = Instance.Finish(FFMpegOptions.Options.FFmpegBinary(), "-version");
+            var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
             _ffmpegVerified = exitCode == 0;
-            if (!_ffmpegVerified) throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
+            if (!_ffmpegVerified) 
+                throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
         }
     }
 }

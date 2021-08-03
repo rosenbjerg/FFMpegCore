@@ -20,18 +20,17 @@ namespace FFMpegCore.Helpers
 
         public static void RootExceptionCheck()
         {
-            if (FFMpegOptions.Options.RootDirectory == null)
-                throw new FFMpegException(FFMpegExceptionType.Dependency,
-                    "FFProbe root is not configured in app config. Missing key 'ffmpegRoot'.");
-            
+            if (GlobalFFOptions.Current.BinaryFolder == null)
+                throw new FFOptionsException("FFProbe root is not configured in app config. Missing key 'BinaryFolder'.");
         }
         
-        public static void VerifyFFProbeExists()
+        public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
         {
             if (_ffprobeVerified) return;
-            var (exitCode, _) = Instance.Finish(FFMpegOptions.Options.FFProbeBinary(), "-version");
+            var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
             _ffprobeVerified = exitCode == 0;
-            if (!_ffprobeVerified) throw new FFMpegException(FFMpegExceptionType.Operation, "ffprobe was not found on your system");
+            if (!_ffprobeVerified) 
+                throw new FFProbeException("ffprobe was not found on your system");
         }
     }
 }
