@@ -5,16 +5,17 @@
     <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
     <Copyright></Copyright>
-    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your C# applications</Description>
+    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
     <Version>3.0.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- return null from FFProbe.Analyse* when no media format was detected
-- Expose tags as string dictionary on IMediaAnalysis (thanks hey-red)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Cancellation token support (thanks patagonaa)
+- Support for setting stdout and stderr encoding for ffprobe (thanks CepheiSigma)
+- Improved ffprobe exceptions</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>3.4.0</PackageVersion>
+    <PackageVersion>4.4.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Malte Rosenbjerg, Vlad Jerca</Authors>
+    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Instances" Version="1.6.0" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
