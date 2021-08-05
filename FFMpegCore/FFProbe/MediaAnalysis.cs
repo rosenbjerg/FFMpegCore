@@ -12,8 +12,9 @@ namespace FFMpegCore
             Format = ParseFormat(analysis.Format);
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
+            SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
         }
-
+        
         private MediaFormat ParseFormat(Format analysisFormat)
         {
             return new MediaFormat
@@ -36,12 +37,14 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
+        
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
+        public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
+        public List<SubtitleStream> SubtitleStreams { get; }
 
         private VideoStream ParseVideoStream(FFProbeStream stream)
         {
@@ -84,7 +87,19 @@ namespace FFMpegCore
             };
         }
 
-
+        private SubtitleStream ParseSubtitleStream(FFProbeStream stream)
+        {
+            return new SubtitleStream
+            {
+                Index = stream.Index,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                CodecName = stream.CodecName,
+                CodecLongName = stream.CodecLongName,
+                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                Language = stream.GetLanguage(),
+                Tags = stream.Tags,
+            };
+        }
     }
 
     public static class MediaAnalysisUtils
