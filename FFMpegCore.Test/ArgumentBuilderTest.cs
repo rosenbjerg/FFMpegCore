@@ -334,7 +334,7 @@ namespace FFMpegCore.Test
                                 .WithParameter("PrimaryColour", "&HAA00FF00")))))
                 .Arguments;
 
-            Assert.AreEqual("-i \"input.mp4\" -vf \"subtitles=sample.srt:charenc=UTF-8:original_size=1366x768:si=0:force_style='FontName=DejaVu Serif\\,PrimaryColour=&HAA00FF00'\" \"output.mp4\"",
+            Assert.AreEqual("-i \"input.mp4\" -vf \"subtitles=sample.srt:charenc=UTF-8:original_size=1366x768:stream_index=0:force_style='FontName=DejaVu Serif\\,PrimaryColour=&HAA00FF00'\" \"output.mp4\"",
                 str);
         }
 

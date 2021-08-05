@@ -74,7 +74,7 @@ namespace FFMpegCore.Arguments
         /// </remarks>
         public SubtitleHardBurnOptions SetSubtitleIndex(int index)
         {
-            return WithParameter("si", index.ToString());
+            return WithParameter("stream_index", index.ToString());
         }
 
         /// <summary>
