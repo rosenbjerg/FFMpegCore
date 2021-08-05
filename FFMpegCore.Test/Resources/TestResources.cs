@@ -20,5 +20,6 @@
         public static readonly string Mp3Audio = "./Resources/audio.mp3";
         public static readonly string PngImage = "./Resources/cover.png";
         public static readonly string ImageCollection = "./Resources/images";
+        public static readonly string SrtSubtitle = "./Resources/sample.srt";
     }
 }
