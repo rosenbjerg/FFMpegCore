@@ -186,6 +186,8 @@ The default value of an empty string (expecting ffmpeg to be found through PATH)
 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 // or
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
+// on some systems the absolute path may be required, in which case 
+GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Server.MapPath("./bin"), TemporaryFilesFolder = Server.MapPath("/tmp") });
 
 // or individual, per-run options
 await FFMpegArguments
