@@ -212,16 +212,9 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 
 
 ## Contributors
-
-<a href="https://github.com/vladjerca"><img src="https://avatars.githubusercontent.com/u/6339681?v=4" title="vladjerca" width="80" height="80"></a>
-<a href="https://github.com/max619"><img src="https://avatars.githubusercontent.com/u/26447324?v=4" title="max619" width="80" height="80"></a>
-<a href="https://github.com/kyriakosio"><img src="https://avatars3.githubusercontent.com/u/6959989?v=4" title="kyriakosio" width="80" height="80"></a>
-<a href="https://github.com/winchesterag"><img src="https://avatars3.githubusercontent.com/u/47878681?v=4" title="winchesterag" width="80" height="80"></a>
-<a href="https://github.com/devlev"><img src="https://avatars3.githubusercontent.com/u/2109995?v=4" title="devlev" width="80" height="80"></a>
-<a href="https://github.com/tugrulelmas"><img src="https://avatars3.githubusercontent.com/u/3829187?v=4" title="tugrulelmas" width="80" height="80"></a>
-<a href="https://github.com/rosenbjerg"><img src="https://avatars3.githubusercontent.com/u/11181960?v=4" title="rosenbjerg" width="80" height="80"></a>
-<a href="https://github.com/WeihanLi"><img src="https://avatars3.githubusercontent.com/u/7604648?v=4" title="weihanli" width="80" height="80"></a>
-<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
+<a href="https://github.com/rosenbjerg/ffmpegcore/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
+</a>
 
 ### License
 
