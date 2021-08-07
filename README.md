@@ -210,10 +210,14 @@ If these folders are not defined, it will try to find the binaries in `/root/(ff
 Older versions of ffmpeg might not support all ffmpeg arguments available through this library. The library has been tested with version `3.3` to `4.2`
 
 
-## Contributors
+## Code contributors
 <a href="https://github.com/rosenbjerg/ffmpegcore/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
 </a>
+
+## Non-code contributors
+<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
+
 
 ### License
 
