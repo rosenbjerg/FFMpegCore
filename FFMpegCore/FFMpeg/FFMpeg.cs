@@ -247,10 +247,10 @@ namespace FFMpegCore
             FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image));
 
             return FFMpegArguments
-                .FromFileInput(image)
+                .FromFileInput(image, false, options => options
+                    .Loop(1))
                 .AddFileInput(audio)
                 .OutputToFile(output, true, options => options
-                    .Loop(1)
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithConstantRateFactor(21)
                     .WithAudioBitrate(AudioQuality.Normal)
