@@ -41,6 +41,12 @@ namespace FFMpegCore
         [JsonPropertyName("codec_long_name")]
         public string CodecLongName { get; set; } = null!;
 
+        [JsonPropertyName("codec_tag")]
+        public string CodecTag { get; set; } = null!;
+
+        [JsonPropertyName("codec_tag_string")]
+        public string CodecTagString { get; set; } = null!;
+
         [JsonPropertyName("display_aspect_ratio")]
         public string DisplayAspectRatio { get; set; } = null!;
 
