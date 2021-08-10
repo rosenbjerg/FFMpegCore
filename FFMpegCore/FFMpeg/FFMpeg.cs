@@ -20,16 +20,17 @@ namespace FFMpegCore
         /// <param name="output">Output video file path</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <param name="inputFileIndex">Input file index</param>
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static bool Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        public static bool Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int inputFileIndex = 0, int? streamIndex = null)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
             var source = FFProbe.Analyse(input);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
-            
+            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, inputFileIndex, streamIndex);
+
             return arguments
                 .OutputToFile(output, true, outputOptions)
                 .ProcessSynchronously();
@@ -41,16 +42,17 @@ namespace FFMpegCore
         /// <param name="output">Output video file path</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <param name="inputFileIndex">Input file index</param>
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int inputFileIndex = 0, int? streamIndex = null)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
             var source = await FFProbe.AnalyseAsync(input);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
-            
+            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, inputFileIndex, streamIndex);
+
             return await arguments
                 .OutputToFile(output, true, outputOptions)
                 .ProcessAsynchronously();
@@ -62,14 +64,15 @@ namespace FFMpegCore
         /// <param name="input">Source video file.</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <param name="inputFileIndex">Input file index</param>
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int inputFileIndex = 0, int? streamIndex = null)
         {
             var source = FFProbe.Analyse(input);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
+            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, inputFileIndex, streamIndex);
             using var ms = new MemoryStream();
-            
+
             arguments
                 .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                     .ForceFormat("rawvideo")))
@@ -85,14 +88,15 @@ namespace FFMpegCore
         /// <param name="input">Source video file.</param>
         /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
         /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+        /// <param name="inputFileIndex">Input file index</param>
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int inputFileIndex = 0, int? streamIndex = null)
         {
             var source = await FFProbe.AnalyseAsync(input);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
+            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, inputFileIndex, streamIndex);
             using var ms = new MemoryStream();
-            
+
             await arguments
                 .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                     .ForceFormat("rawvideo")))
@@ -102,17 +106,23 @@ namespace FFMpegCore
             return new Bitmap(ms);
         }
 
-        private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(string input, IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int streamIndex = 0)
+        private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+            string input,
+            IMediaAnalysis source,
+            Size? size = null,
+            TimeSpan? captureTime = null,
+            int inputFileIndex = 0,
+            int? streamIndex = null)
         {
             captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
             size = PrepareSnapshotSize(source, size);
-            var index = source.VideoStreams.FirstOrDefault(videoStream => videoStream.Index == streamIndex)?.Index;
+            streamIndex = streamIndex == null ? 0 : source.VideoStreams.FirstOrDefault(videoStream => videoStream.Index == streamIndex).Index;
 
             return (FFMpegArguments
                 .FromFileInput(input, false, options => options
-                    .Seek(captureTime)), 
+                    .Seek(captureTime)),
                 options => options
-                    .SelectStream(index ?? 0)
+                    .SelectStream((int)streamIndex, inputFileIndex)
                     .WithVideoCodec(VideoCodec.Png)
                     .WithFrameOutputCount(1)
                     .Resize(size));
@@ -122,11 +132,11 @@ namespace FFMpegCore
         {
             if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0) || source.PrimaryVideoStream == null)
                 return null;
-            
+
             var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
             if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
                 currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
-            
+
             if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
             {
                 if (wantedSize.Value.Width <= 0 && wantedSize.Value.Height > 0)

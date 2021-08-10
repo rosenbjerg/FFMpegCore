@@ -234,7 +234,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Builder_BuildString_VideoStreamNumber()
         {
-            var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.SelectStream(1)).Arguments;
+            var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.SelectStream(0,1)).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -map 0:1 \"output.mp4\"", str);
         }
 
