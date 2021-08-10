@@ -48,11 +48,11 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithSpeedPreset(Speed speed) => WithArgument(new SpeedPresetArgument(speed));
         public FFMpegArgumentOptions WithStartNumber(int startNumber) => WithArgument(new StartNumberArgument(startNumber));
         public FFMpegArgumentOptions WithCustomArgument(string argument) => WithArgument(new CustomArgument(argument));
-        
+
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
-        public FFMpegArgumentOptions SelectStream(int index) => WithArgument(new MapStreamArgument(index));
+        public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0) => WithArgument(new MapStreamArgument(inputFileIndex, streamIndex));
 
         public FFMpegArgumentOptions ForceFormat(ContainerFormat format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
