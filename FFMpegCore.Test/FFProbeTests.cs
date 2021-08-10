@@ -63,6 +63,8 @@ namespace FFMpegCore.Test
             Assert.AreEqual("LC", info.PrimaryAudioStream.Profile);
             Assert.AreEqual(377351, info.PrimaryAudioStream.BitRate);
             Assert.AreEqual(48000, info.PrimaryAudioStream.SampleRateHz);
+            Assert.AreEqual("mp4a", info.PrimaryAudioStream.CodecTagString);
+            Assert.AreEqual("0x6134706d", info.PrimaryAudioStream.CodecTag);
             
             Assert.AreEqual(1471810, info.PrimaryVideoStream!.BitRate);
             Assert.AreEqual(16, info.PrimaryVideoStream.DisplayAspectRatio.Width);
@@ -76,6 +78,8 @@ namespace FFMpegCore.Test
             Assert.AreEqual("h264", info.PrimaryVideoStream.CodecName);
             Assert.AreEqual(8, info.PrimaryVideoStream.BitsPerRawSample);
             Assert.AreEqual("Main", info.PrimaryVideoStream.Profile);
+            Assert.AreEqual("avc1", info.PrimaryVideoStream.CodecTagString);
+            Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
         }
         
         [TestMethod, Timeout(10000)]
