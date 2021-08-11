@@ -8,7 +8,7 @@
         private readonly int _inputFileIndex;
         private readonly int _streamIndex;
 
-        public MapStreamArgument(int inputFileIndex, int streamIndex)
+        public MapStreamArgument(int streamIndex, int inputFileIndex)
         {
             _inputFileIndex = inputFileIndex;
             _streamIndex = streamIndex;
