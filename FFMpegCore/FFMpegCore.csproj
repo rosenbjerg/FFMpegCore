@@ -6,9 +6,8 @@
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
     <Copyright></Copyright>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <Version>3.0.0.0</Version>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>- Cancellation token support (thanks patagonaa)
 - Support for setting stdout and stderr encoding for ffprobe (thanks CepheiSigma)
 - Improved ffprobe exceptions</PackageReleaseNotes>
@@ -27,6 +26,7 @@
     <Content Include="FFMPEG\bin\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
