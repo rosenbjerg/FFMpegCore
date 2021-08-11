@@ -8,27 +8,20 @@ namespace FFMpegCore
     public static class GlobalFFOptions
     {
         private static readonly string ConfigFile = "ffmpeg.config.json";
+        private static FFOptions? _current;
 
-        public static FFOptions Current { get; private set; }
-        static GlobalFFOptions()
+        public static FFOptions Current
         {
-            if (File.Exists(ConfigFile))
-            {
-                Current = JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!;
-            }
-            else
-            {
-                Current = new FFOptions();
-            }
+            get { return _current ??= LoadFFOptions(); }
         }
-        
+
         public static void Configure(Action<FFOptions> optionsAction)
         {
             optionsAction?.Invoke(Current);
         }
         public static void Configure(FFOptions ffOptions)
         {
-            Current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
+            _current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
         }
         
 
@@ -47,6 +40,18 @@ namespace FFMpegCore
                 ffName = Path.Combine(target, ffName);
 
             return Path.Combine(ffOptions.BinaryFolder, ffName);
+        }
+
+        private static FFOptions LoadFFOptions()
+        {
+            if (File.Exists(ConfigFile))
+            {
+                return JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!;
+            }
+            else
+            {
+                return new FFOptions();
+            }
         }
     }
 }
