@@ -6,14 +6,15 @@
     <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
     <Copyright></Copyright>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <Version>3.0.0.0</Version>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
-    <PackageReleaseNotes>- Cancellation token support (thanks patagonaa)
-- Support for setting stdout and stderr encoding for ffprobe (thanks CepheiSigma)
-- Improved ffprobe exceptions</PackageReleaseNotes>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>- Support for PCM audio samples (thanks to Namaneo)
+- Support for subtitle streams in MediaAnalysis (thanks to alex6dj)
+- Support for subtitle hard burning (thanks to alex6dj)
+- Additional codec* properties on MediaAnalysis object (thanks to GuyWithDogs)
+- SelectStream method for mapping/specifyíng specific streams from input files (thanks to Feodoros)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.4.0</PackageVersion>
+    <PackageVersion>4.5.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
@@ -27,6 +28,7 @@
     <Content Include="FFMPEG\bin\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

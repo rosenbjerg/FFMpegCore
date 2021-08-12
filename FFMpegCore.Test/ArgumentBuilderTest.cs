@@ -232,6 +232,13 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
+        public void Builder_BuildString_VideoStreamNumber()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.SelectStream(1)).Arguments;
+            Assert.AreEqual("-i \"input.mp4\" -map 0:1 \"output.mp4\"", str);
+        }
+
+        [TestMethod]
         public void Builder_BuildString_FrameRate()
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
@@ -314,6 +321,27 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(
                 "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"",
+                str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_SubtitleHardBurnFilter()
+        {
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .HardBurnSubtitle(SubtitleHardBurnOptions
+                            .Create(subtitlePath: "sample.srt")
+                            .SetCharacterEncoding("UTF-8")
+                            .SetOriginalSize(1366,768)
+                            .SetSubtitleIndex(0)
+                            .WithStyle(StyleOptions.Create()
+                                .WithParameter("FontName", "DejaVu Serif")
+                                .WithParameter("PrimaryColour", "&HAA00FF00")))))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -vf \"subtitles=sample.srt:charenc=UTF-8:original_size=1366x768:stream_index=0:force_style='FontName=DejaVu Serif\\,PrimaryColour=&HAA00FF00'\" \"output.mp4\"",
                 str);
         }
 
