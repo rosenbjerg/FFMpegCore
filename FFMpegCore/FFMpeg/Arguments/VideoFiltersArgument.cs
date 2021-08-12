@@ -50,6 +50,7 @@ namespace FFMpegCore.Arguments
         public VideoFilterOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
         public VideoFilterOptions Mirror(Mirroring mirroring) => WithArgument(new SetMirroringArgument(mirroring));
         public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
+        public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions) => WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
 
         private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
         {
