@@ -196,12 +196,12 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 ```
 
 ### Supporting both 32 and 64 bit processes
-If you wish to support multiple client processor architectures, you can do so by creating a folder `x64` and `x86` in the `root` directory.
-Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) for build for the respective architectures. 
+If you wish to support multiple client processor architectures, you can do so by creating two folders, `x64` and `x86`, in the `BinaryFolder` directory.
+Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) built for the respective architectures. 
 
-By doing so, the library will attempt to use either `/root/{ARCH}/(ffmpeg|ffprobe).exe`.
+By doing so, the library will attempt to use either `/{BinaryFolder}/{ARCH}/(ffmpeg|ffprobe).exe`.
 
-If these folders are not defined, it will try to find the binaries in `/root/(ffmpeg|ffprobe.exe)`.
+If these folders are not defined, it will try to find the binaries in `/{BinaryFolder}/(ffmpeg|ffprobe.exe)`.
 
 (`.exe` is only appended on Windows)
 
