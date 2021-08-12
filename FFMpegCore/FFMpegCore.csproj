@@ -8,11 +8,13 @@
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>- Cancellation token support (thanks patagonaa)
-- Support for setting stdout and stderr encoding for ffprobe (thanks CepheiSigma)
-- Improved ffprobe exceptions</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for PCM audio samples (thanks to Namaneo)
+- Support for subtitle streams in MediaAnalysis (thanks to alex6dj)
+- Support for subtitle hard burning (thanks to alex6dj)
+- Additional codec* properties on MediaAnalysis object (thanks to GuyWithDogs)
+- SelectStream method for mapping/specifyíng specific streams from input files (thanks to Feodoros)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.4.0</PackageVersion>
+    <PackageVersion>4.5.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
