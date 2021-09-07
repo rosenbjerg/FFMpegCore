@@ -67,6 +67,7 @@ namespace FFMpegCore
                 PixelFormat = stream.PixelFormat,
                 Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
                 Language = stream.GetLanguage(),
+                Disposition = stream.Disposition,
                 Tags = stream.Tags,
             };
         }
@@ -87,6 +88,7 @@ namespace FFMpegCore
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
                 Language = stream.GetLanguage(),
+                Disposition = stream.Disposition,
                 Tags = stream.Tags,
             };
         }
@@ -101,6 +103,7 @@ namespace FFMpegCore
                 CodecLongName = stream.CodecLongName,
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 Language = stream.GetLanguage(),
+                Disposition = stream.Disposition,
                 Tags = stream.Tags,
             };
         }
