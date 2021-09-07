@@ -114,5 +114,14 @@ namespace FFMpegCore.Test
             Assert.AreEqual(0, info.AudioStreams.Count);
             Assert.AreEqual(0, info.VideoStreams.Count);
         }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_Disposition_Async()
+        {
+            var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
+            Assert.IsNotNull(info.PrimaryAudioStream);
+            Assert.AreEqual(1, info.PrimaryAudioStream.Disposition["default"]);
+            Assert.AreEqual(0, info.PrimaryAudioStream.Disposition["forced"]);
+        }
     }
 }
