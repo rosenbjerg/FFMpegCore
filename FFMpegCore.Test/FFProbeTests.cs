@@ -120,8 +120,9 @@ namespace FFMpegCore.Test
         {
             var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
             Assert.IsNotNull(info.PrimaryAudioStream);
-            Assert.AreEqual(1, info.PrimaryAudioStream.Disposition["default"]);
-            Assert.AreEqual(0, info.PrimaryAudioStream.Disposition["forced"]);
+            Assert.IsNotNull(info.PrimaryAudioStream.Disposition);
+            Assert.AreEqual(true, info.PrimaryAudioStream.Disposition["default"]);
+            Assert.AreEqual(false, info.PrimaryAudioStream.Disposition["forced"]);
         }
     }
 }
