@@ -12,8 +12,9 @@ namespace FFMpegCore
             Format = ParseFormat(analysis.Format);
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
+            SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
         }
-
+        
         private MediaFormat ParseFormat(Format analysisFormat)
         {
             return new MediaFormat
@@ -36,12 +37,14 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
+        
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
+        public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
+        public List<SubtitleStream> SubtitleStreams { get; }
 
         private VideoStream ParseVideoStream(FFProbeStream stream)
         {
@@ -53,6 +56,8 @@ namespace FFMpegCore
                 BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitsPerRawSample) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
+                CodecTag = stream.CodecTag,
+                CodecTagString = stream.CodecTagString,
                 DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
@@ -65,6 +70,7 @@ namespace FFMpegCore
                 ColorTransfer = stream.ColorTransfer,
                 Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
                 Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags,
             };
         }
@@ -77,17 +83,33 @@ namespace FFMpegCore
                 BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
+                CodecTag = stream.CodecTag,
+                CodecTagString = stream.CodecTagString,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
                 Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags,
             };
         }
 
-
+        private SubtitleStream ParseSubtitleStream(FFProbeStream stream)
+        {
+            return new SubtitleStream
+            {
+                Index = stream.Index,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                CodecName = stream.CodecName,
+                CodecLongName = stream.CodecLongName,
+                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
+                Tags = stream.Tags,
+            };
+        }
     }
 
     public static class MediaAnalysisUtils
@@ -152,6 +174,31 @@ namespace FFMpegCore
         public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
+        }
+
+        public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)
+        {
+            if (disposition == null)
+            {
+                return null;
+            }
+
+            var result = new Dictionary<string, bool>(disposition.Count);
+
+            foreach (var pair in disposition)
+            {
+                result.Add(pair.Key, ToBool(pair.Value));
+            }
+
+            static bool ToBool(int value) => value switch
+            {
+                0 => false,
+                1 => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(value),
+                    $"Not expected disposition state value: {value}")
+            };
+
+            return result;
         }
     }
 }
