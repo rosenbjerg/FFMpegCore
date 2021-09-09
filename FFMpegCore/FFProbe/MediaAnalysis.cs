@@ -67,6 +67,7 @@ namespace FFMpegCore
                 PixelFormat = stream.PixelFormat,
                 Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
                 Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags,
             };
         }
@@ -87,6 +88,7 @@ namespace FFMpegCore
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
                 Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags,
             };
         }
@@ -101,6 +103,7 @@ namespace FFMpegCore
                 CodecLongName = stream.CodecLongName,
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 Language = stream.GetLanguage(),
+                Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags,
             };
         }
@@ -168,6 +171,31 @@ namespace FFMpegCore
         public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
+        }
+
+        public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)
+        {
+            if (disposition == null)
+            {
+                return null;
+            }
+
+            var result = new Dictionary<string, bool>(disposition.Count);
+
+            foreach (var pair in disposition)
+            {
+                result.Add(pair.Key, ToBool(pair.Value));
+            }
+
+            static bool ToBool(int value) => value switch
+            {
+                0 => false,
+                1 => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(value),
+                    $"Not expected disposition state value: {value}")
+            };
+
+            return result;
         }
     }
 }
