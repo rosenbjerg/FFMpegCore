@@ -215,7 +215,7 @@ Older versions of ffmpeg might not support all ffmpeg arguments available throug
   <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
 </a>
 
-## Non-code contributors
+## Other contributors
 <a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
 
 
