@@ -103,7 +103,7 @@ namespace FFMpegCore.Arguments
             return this;
         }
 
-        internal string TextInternal => string.Join(":", new[] { _subtitle.EncloseIfContainsSpace() }.Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(enclose: true))));
+        internal string TextInternal => string.Join(":", new[] { _subtitle.ToFFmpegLibavfilterPath().EncloseInQuotes() }.Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(enclose: true))));
     }
 
     public class StyleOptions
