@@ -7,11 +7,11 @@ namespace FFMpegCore.Extend
     {
         private static Dictionary<char, string> CharactersSubstitution { get; } = new Dictionary<char, string>
         {
-            {'\\', @"\\"},
-            {':', @"\:"},
-            {'[', @"\["},
-            {']', @"\]"},
-            // {'\'', @"\'"} TODO: Quotes need to be escaped but i failed miserably
+            { '\\', @"\\" },
+            { ':', @"\:" },
+            { '[', @"\[" },
+            { ']', @"\]" },
+            { '\'', @"'\\\''" }
         };
 
         /// <summary>

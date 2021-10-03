@@ -353,10 +353,10 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt
                     .WithVideoFilters(filterOptions => filterOptions
                         .HardBurnSubtitle(SubtitleHardBurnOptions
-                            .Create(subtitlePath: @"sample( \ : [ ] , ).srt"))))
+                            .Create(subtitlePath: @"sample( \ : [ ] , ' ).srt"))))
                 .Arguments;
 
-            Assert.AreEqual(@"-i ""input.mp4"" -vf ""subtitles='sample( \\ \: \[ \] \, ).srt'"" ""output.mp4""",
+            Assert.AreEqual(@"-i ""input.mp4"" -vf ""subtitles='sample( \\ \: \[ \] \, '\\\'' ).srt'"" ""output.mp4""",
                 str);
         }
 
