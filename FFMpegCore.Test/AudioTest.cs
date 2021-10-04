@@ -229,7 +229,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var success = FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan(1, "c0 < 0.9 * c0 + 0.1 * c1")))
@@ -246,7 +246,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var success = FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan(1)))
@@ -263,7 +263,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var ex = Assert.ThrowsException<ArgumentException>(() => FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+            var ex = Assert.ThrowsException<ArgumentException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan(1, "c0=c0", "c1=c1")))
@@ -275,7 +275,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
