@@ -43,6 +43,13 @@ namespace FFMpegCore
             return WithArgument(new VideoFiltersArgument(videoFilterOptionsObj));
         }
 
+        public FFMpegArgumentOptions WithAudioFilters(Action<AudioFilterOptions> audioFilterOptions)
+        {
+            var audioFilterOptionsObj = new AudioFilterOptions();
+            audioFilterOptions(audioFilterOptionsObj);
+            return WithArgument(new AudioFiltersArgument(audioFilterOptionsObj));
+        }
+
         public FFMpegArgumentOptions WithFramerate(double framerate) => WithArgument(new FrameRateArgument(framerate));
         public FFMpegArgumentOptions WithoutMetadata() => WithArgument(new RemoveMetadataArgument());
         public FFMpegArgumentOptions WithSpeedPreset(Speed speed) => WithArgument(new SpeedPresetArgument(speed));
