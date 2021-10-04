@@ -44,6 +44,12 @@ namespace FFMpegCore.Arguments
 
         public AudioFilterOptions Pan(string channelLayout, params string[] outputDefinitions) => WithArgument(new PanArgument(channelLayout, outputDefinitions));
         public AudioFilterOptions Pan(int channels, params string[] outputDefinitions) => WithArgument(new PanArgument(channels, outputDefinitions));
+        public AudioFilterOptions DynamicNormalizer(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95,
+            double gainFactor = 10.0, double targetRms = 0.0, bool channelCoupling = true,
+            bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false,
+            double compressorFactor = 0.0) => WithArgument(new DynamicNormalizerArgument(frameLength, filterWindow,
+            targetPeak, gainFactor, targetRms, channelCoupling, enableDcBiasCorrection, enableAlternativeBoundary,
+            compressorFactor));
 
         private AudioFilterOptions WithArgument(IAudioFilterArgument argument)
         {

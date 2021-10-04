@@ -1,5 +1,6 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extend;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FFMpegCore.Extend;
 
 namespace FFMpegCore.Test
 {
@@ -279,6 +279,52 @@ namespace FFMpegCore.Test
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
+                .ProcessSynchronously());
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_DynamicNormalizer_WithDefaultValues()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(filter => filter.DynamicNormalizer()))
+                .ProcessSynchronously();
+
+            Assert.IsTrue(success);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_DynamicNormalizer_WithNonDefaultValues()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(
+                            filter => filter.DynamicNormalizer(250, 7, 0.9, 2, 1, false, true, true, 0.5)))
+                .ProcessSynchronously();
+
+            Assert.IsTrue(success);
+        }
+
+        [DataTestMethod, Timeout(10000)]
+        [DataRow(2)]
+        [DataRow(32)]
+        [DataRow(8)]
+        public void Audio_DynamicNormalizer_FilterWindow(int filterWindow)
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => FFMpegArguments
+                .FromFileInput(TestResources.Mp3Audio)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(
+                            filter => filter.DynamicNormalizer(filterWindow: filterWindow)))
                 .ProcessSynchronously());
         }
     }
