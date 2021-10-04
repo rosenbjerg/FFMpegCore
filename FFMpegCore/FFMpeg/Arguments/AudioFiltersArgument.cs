@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments
@@ -43,7 +41,10 @@ namespace FFMpegCore.Arguments
     public class AudioFilterOptions
     {
         public List<IAudioFilterArgument> Arguments { get; } = new List<IAudioFilterArgument>();
-     
+
+        public AudioFilterOptions Pan(string channelLayout, params string[] outputDefinitions) => WithArgument(new PanArgument(channelLayout, outputDefinitions));
+        public AudioFilterOptions Pan(int channels, params string[] outputDefinitions) => WithArgument(new PanArgument(channels, outputDefinitions));
+
         private AudioFilterOptions WithArgument(IAudioFilterArgument argument)
         {
             Arguments.Add(argument);
