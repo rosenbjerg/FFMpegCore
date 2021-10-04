@@ -414,5 +414,38 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt.ForcePixelFormat("yuv444p")).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -pix_fmt yuv444p \"output.mp4\"", str);
         }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelNumber()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan(2, "c0=c1", "c1=c1")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=2c|c0=c1|c1=c1\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelLayout()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan("stereo", "c0=c0", "c1=c1")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=stereo|c0=c0|c1=c1\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelNoOutputDefinition()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan("stereo")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=stereo\" \"output.mp4\"", str);
+        }
     }
 }

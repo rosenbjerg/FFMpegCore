@@ -223,5 +223,63 @@ namespace FFMpegCore.Test
                     .WithAudioCodec(AudioCodec.Aac))
                 .ProcessSynchronously());
         }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_Pan_ToMono()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(filter => filter.Pan(1, "c0 < 0.9 * c0 + 0.1 * c1")))
+                .ProcessSynchronously();
+
+            var mediaAnalysis = FFProbe.Analyse(outputFile);
+
+            Assert.IsTrue(success);
+            Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_Pan_ToMonoNoDefinitions()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var success = FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(filter => filter.Pan(1)))
+                .ProcessSynchronously();
+
+            var mediaAnalysis = FFProbe.Analyse(outputFile);
+
+            Assert.IsTrue(success);
+            Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_Pan_ToMonoChannelsToOutputDefinitionsMismatch()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var ex = Assert.ThrowsException<ArgumentException>(() => FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(filter => filter.Pan(1, "c0=c0", "c1=c1")))
+                .ProcessSynchronously());
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Audio_Pan_ToMonoChannelsLayoutToOutputDefinitionsMismatch()
+        {
+            using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, true,
+                    argumentOptions => argumentOptions
+                        .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
+                .ProcessSynchronously());
+        }
     }
 }
