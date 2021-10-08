@@ -21,32 +21,6 @@ namespace FFMpegCore.Test
     [TestClass]
     public class VideoTest
     {
-        //private readonly string _fontConfEnvironmentVariableName = "FONTCONFIG_FILE";
-
-        //[TestInitialize]
-        //public void Initialize()
-        //{
-        //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        //    {
-        //        var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-        //        var fontConfPath = Path.Join(currentDirectory, "Resources", "fonts.conf");
-
-        //        Environment.SetEnvironmentVariable(_fontConfEnvironmentVariableName, fontConfPath, EnvironmentVariableTarget.User);
-        //    }
-        //}
-
-        //[TestCleanup]
-        //public void Cleanup()
-        //{
-        //    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
-
-        //    if (Environment.GetEnvironmentVariable(_fontConfEnvironmentVariableName, EnvironmentVariableTarget.User) != null)
-        //    {
-        //        Environment.SetEnvironmentVariable(_fontConfEnvironmentVariableName, null, EnvironmentVariableTarget.User);
-        //    }
-        //}
-
         [TestMethod, Timeout(10000)]
         public void Video_ToOGV()
         {
@@ -727,20 +701,7 @@ namespace FFMpegCore.Test
                 .ProcessSynchronously();
 
             Assert.IsTrue(result);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Assert.IsTrue(fontConfigError);
-            }
-            else
-            {
-                Assert.IsFalse(fontConfigError);
-            }
-        }
-
-        private void check(string arg1, DataType arg2)
-        {
-            throw new NotImplementedException();
+            Assert.IsFalse(fontConfigError);
         }
     }
 }
