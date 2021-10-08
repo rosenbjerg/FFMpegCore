@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <None Remove="ffmpeg.config.json" />
+    <None Update="Resources\fonts.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\input.webm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

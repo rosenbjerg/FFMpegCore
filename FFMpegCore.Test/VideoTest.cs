@@ -7,18 +7,46 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 using System.Threading;
+using Instances;
 
 namespace FFMpegCore.Test
 {
     [TestClass]
     public class VideoTest
     {
+        //private readonly string _fontConfEnvironmentVariableName = "FONTCONFIG_FILE";
+
+        //[TestInitialize]
+        //public void Initialize()
+        //{
+        //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        //    {
+        //        var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+        //        var fontConfPath = Path.Join(currentDirectory, "Resources", "fonts.conf");
+
+        //        Environment.SetEnvironmentVariable(_fontConfEnvironmentVariableName, fontConfPath, EnvironmentVariableTarget.User);
+        //    }
+        //}
+
+        //[TestCleanup]
+        //public void Cleanup()
+        //{
+        //    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
+        //    if (Environment.GetEnvironmentVariable(_fontConfEnvironmentVariableName, EnvironmentVariableTarget.User) != null)
+        //    {
+        //        Environment.SetEnvironmentVariable(_fontConfEnvironmentVariableName, null, EnvironmentVariableTarget.User);
+        //    }
+        //}
+
         [TestMethod, Timeout(10000)]
         public void Video_ToOGV()
         {
@@ -671,6 +699,48 @@ namespace FFMpegCore.Test
             Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
             Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
             Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+        }
+
+        [TestMethod]
+        public void Video_Run_SubtitleHardBurn()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var fontConfigError = false;
+
+            void IfFontConfigError(string data, DataType _)
+            {
+                if (data.Contains("Fontconfig error:"))
+                {
+                    fontConfigError = true;
+                }
+            }
+
+            var result = FFMpegArguments
+                .FromFileInput(TestResources.Mp4Video)
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .HardBurnSubtitle(SubtitleHardBurnOptions
+                            .Create(subtitlePath: TestResources.SrtSubtitle)
+                            .SetCharacterEncoding("UTF-8"))))
+                .NotifyOnOutput(IfFontConfigError)
+                .ProcessSynchronously();
+
+            Assert.IsTrue(result);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Assert.IsTrue(fontConfigError);
+            }
+            else
+            {
+                Assert.IsFalse(fontConfigError);
+            }
+        }
+
+        private void check(string arg1, DataType arg2)
+        {
+            throw new NotImplementedException();
         }
     }
 }
