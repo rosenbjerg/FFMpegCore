@@ -116,7 +116,9 @@ namespace FFMpegCore
         {
             captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
             size = PrepareSnapshotSize(source, size);
-            streamIndex = streamIndex == null ? 0 : source.VideoStreams.FirstOrDefault(videoStream => videoStream.Index == streamIndex).Index;
+            streamIndex ??= source.PrimaryVideoStream?.Index
+                            ?? source.VideoStreams.FirstOrDefault()?.Index
+                            ?? 0;
 
             return (FFMpegArguments
                 .FromFileInput(input, false, options => options
