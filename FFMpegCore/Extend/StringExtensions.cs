@@ -19,7 +19,7 @@ namespace FFMpegCore.Extend
         /// </summary>
         /// <param name="input">The input</param>
         /// <returns>The enclosed string</returns>
-        public static string EncloseIfContainsSpace(this string input)
+        public static string EncloseIfContainsSpace(string input)
         {
             return input.Contains(" ") ? $"'{input}'" : input;
         }
@@ -29,7 +29,7 @@ namespace FFMpegCore.Extend
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string EncloseInQuotes(this string input)
+        public static string EncloseInQuotes(string input)
         {
             return $"'{input}'";
         }
@@ -43,7 +43,7 @@ namespace FFMpegCore.Extend
         /// </remarks>
         /// <param name="source"></param>
         /// <returns>Scaped path</returns>
-        public static string ToFFmpegLibavfilterPath(this string source)
+        public static string ToFFmpegLibavfilterPath(string source)
         {
             return source.Replace(CharactersSubstitution);
         }
