@@ -16,7 +16,7 @@ namespace FFMpegCore.Extend
         public static string FormatArgumentPair(this KeyValuePair<string, string> pair, bool enclose)
         {
             var key = pair.Key;
-            var value = enclose ? pair.Value.EncloseIfContainsSpace() : pair.Value;
+            var value = enclose ? StringExtensions.EncloseIfContainsSpace(pair.Value) : pair.Value;
 
             return $"{key}={value}";
         }
