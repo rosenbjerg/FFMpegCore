@@ -414,5 +414,60 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt.ForcePixelFormat("yuv444p")).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -pix_fmt yuv444p \"output.mp4\"", str);
         }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelNumber()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan(2, "c0=c1", "c1=c1")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=2c|c0=c1|c1=c1\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelLayout()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan("stereo", "c0=c0", "c1=c1")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=stereo|c0=c0|c1=c1\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PanAudioFilterChannelNoOutputDefinition()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.Pan("stereo")))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"pan=stereo\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DynamicAudioNormalizerDefaultFormat()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicNormalizer()))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=500:g=31:p=0.95:m=10.0:r=0.0:n=1:c=0:b=0:s=0.0\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_DynamicAudioNormalizerWithValuesFormat()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false,
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicNormalizer(125, 13, 0.9215, 5.124, 0.5458,false,true,true, 0.3333333)))
+                .Arguments;
+
+            Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=125:g=13:p=0.92:m=5.1:r=0.5:n=0:c=1:b=1:s=0.3\" \"output.mp4\"", str);
+        }
     }
 }
