@@ -1,39 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace FFMpegCore
 {
-    public class Frame
+    public class FFProbeFrameAnalysis
     {
-        public string media_type { get; set; }
-        public int stream_index { get; set; }
-        public int key_frame { get; set; }
-        public long pkt_pts { get; set; }
-        public string pkt_pts_time { get; set; }
-        public long pkt_dts { get; set; }
-        public string pkt_dts_time { get; set; }
-        public long best_effort_timestamp { get; set; }
-        public string best_effort_timestamp_time { get; set; }
-        public int pkt_duration { get; set; }
-        public string pkt_duration_time { get; set; }
-        public long pkt_pos { get; set; }
-        public int pkt_size { get; set; }
-        public long width { get; set; }
-        public long height { get; set; }
-        public string pix_fmt { get; set; }
-        public string pict_type { get; set; }
-        public long coded_picture_number { get; set; }
-        public long display_picture_number { get; set; }
-        public int interlaced_frame { get; set; }
-        public int top_field_first { get; set; }
-        public int repeat_pict { get; set; }
-        public string chroma_location { get; set; }
+        [JsonPropertyName("media_type")]
+        public string MediaType { get; set; }
+        
+        [JsonPropertyName("stream_index")]
+        public int StreamIndex { get; set; }
+        
+        [JsonPropertyName("key_frame")]
+        public int KeyFrame { get; set; }
+        
+        [JsonPropertyName("pkt_pts")]
+        public long PacketPts { get; set; }
+        
+        [JsonPropertyName("pkt_pts_time")]
+        public string PacketPtsTime { get; set; }
+        
+        [JsonPropertyName("pkt_dts")]
+        public long PacketDts { get; set; }
+        
+        [JsonPropertyName("pkt_dts_time")]
+        public string PacketDtsTime { get; set; }
+        
+        [JsonPropertyName("best_effort_timestamp")]
+        public long BestEffortTimestamp { get; set; }
+        
+        [JsonPropertyName("best_effort_timestamp_time")]
+        public string BestEffortTimestampTime { get; set; }
+        
+        [JsonPropertyName("pkt_duration")]
+        public int PacketDuration { get; set; }
+        
+        [JsonPropertyName("pkt_duration_time")]
+        public string PacketDurationTime { get; set; }
+        
+        [JsonPropertyName("pkt_pos")]
+        public long PacketPos { get; set; }
+        
+        [JsonPropertyName("pkt_size")]
+        public int PacketSize { get; set; }
+        
+        [JsonPropertyName("width")]
+        public long Width { get; set; }
+        
+        [JsonPropertyName("height")]
+        public long Height { get; set; }
+        
+        [JsonPropertyName("pix_fmt")]
+        public string PixelFormat { get; set; }
+        
+        [JsonPropertyName("pict_type")]
+        public string PictureType { get; set; }
+        
+        [JsonPropertyName("coded_picture_number")]
+        public long CodedPictureNumber { get; set; }
+        
+        [JsonPropertyName("display_picture_number")]
+        public long DisplayPictureNumber { get; set; }
+        
+        [JsonPropertyName("interlaced_frame")]
+        public int InterlacedFrame { get; set; }
+        
+        [JsonPropertyName("top_field_first")]
+        public int TopFieldFirst { get; set; }
+        
+        [JsonPropertyName("repeat_pict")]
+        public int RepeatPicture { get; set; }
+        
+        [JsonPropertyName("chroma_location")]
+        public string ChromaLocation { get; set; }
     }
 
     public class FFProbeFrames
     {
-        public List<Frame> frames { get; set; }
+        [JsonPropertyName("frames")]
+        public List<FFProbeFrameAnalysis> Frames { get; set; }
     }
 }
