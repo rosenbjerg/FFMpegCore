@@ -75,7 +75,10 @@ namespace FFMpegCore
                 throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
             
             using var instance = PrepareStreamAnalysisInstance(filePath, outputCapacity, ffOptions ?? GlobalFFOptions.Current);
-            await instance.FinishedRunning().ConfigureAwait(false);
+            var exitCode = await instance.FinishedRunning().ConfigureAwait(false);
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, $"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", instance.ErrorData)})", null, string.Join("\n", instance.ErrorData));
+
             return ParseOutput(instance);
         }
 
@@ -91,7 +94,10 @@ namespace FFMpegCore
         public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, int outputCapacity = int.MaxValue, FFOptions? ffOptions = null)
         {
             using var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, outputCapacity, ffOptions ?? GlobalFFOptions.Current);
-            await instance.FinishedRunning().ConfigureAwait(false);
+            var exitCode = await instance.FinishedRunning().ConfigureAwait(false);
+            if (exitCode != 0)
+                throw new FFMpegException(FFMpegExceptionType.Process, $"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", instance.ErrorData)})", null, string.Join("\n", instance.ErrorData));
+
             return ParseOutput(instance);
         }
         public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, int outputCapacity = int.MaxValue, FFOptions? ffOptions = null)
