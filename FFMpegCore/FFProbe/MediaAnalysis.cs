@@ -52,7 +52,7 @@ namespace FFMpegCore
             {
                 Index = stream.Index,
                 AvgFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.AvgFrameRate, '/')),
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
                 BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitsPerRawSample) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
@@ -77,7 +77,7 @@ namespace FFMpegCore
             return new AudioStream
             {
                 Index = stream.Index,
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
                 CodecTag = stream.CodecTag,
@@ -98,7 +98,7 @@ namespace FFMpegCore
             return new SubtitleStream
             {
                 Index = stream.Index,
-                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitRate) : default,
+                BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
@@ -134,6 +134,9 @@ namespace FFMpegCore
 
         public static int ParseIntInvariant(string line) =>
             int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+        
+        public static long ParseLongInvariant(string line) =>
+            long.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
         
         
         public static TimeSpan ParseDuration(string duration)
