@@ -12,7 +12,7 @@ namespace FFMpegCore
         public Format Format { get; set; } = null!;
     }
     
-    public class FFProbeStream : ITagsContainer
+    public class FFProbeStream : ITagsContainer, IDispositionContainer
     {
         [JsonPropertyName("index")]
         public int Index { get; set; }
@@ -71,9 +71,13 @@ namespace FFMpegCore
         [JsonPropertyName("sample_rate")]
         public string SampleRate { get; set; } = null!;
 
+        [JsonPropertyName("disposition")]
+        public Dictionary<string, int> Disposition { get; set; } = null!;
+
         [JsonPropertyName("tags")]
         public Dictionary<string, string> Tags { get; set; } = null!;
     }
+
     public class Format : ITagsContainer
     {
         [JsonPropertyName("filename")]
@@ -110,10 +114,16 @@ namespace FFMpegCore
         public Dictionary<string, string> Tags { get; set; } = null!;
     }
 
+    public interface IDispositionContainer
+    {
+        Dictionary<string, int> Disposition { get; set; }
+    }
+
     public interface ITagsContainer
     {
         Dictionary<string, string> Tags { get; set; }
     }
+
     public static class TagExtensions
     {
         private static string? TryGetTagValue(ITagsContainer tagsContainer, string key)
@@ -127,7 +137,18 @@ namespace FFMpegCore
         public static string? GetCreationTime(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "creation_time ");
         public static string? GetRotate(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "rotate");
         public static string? GetDuration(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "duration");
-        
-        
+    }
+
+    public static class DispositionExtensions
+    {
+        private static int? TryGetDispositionValue(IDispositionContainer dispositionContainer, string key)
+        {
+            if (dispositionContainer.Disposition != null && dispositionContainer.Disposition.TryGetValue(key, out var dispositionValue))
+                return dispositionValue;
+            return null;
+        }
+
+        public static int? GetDefault(this IDispositionContainer tagsContainer) => TryGetDispositionValue(tagsContainer, "default");
+        public static int? GetForced(this IDispositionContainer tagsContainer) => TryGetDispositionValue(tagsContainer, "forced");
     }
 }

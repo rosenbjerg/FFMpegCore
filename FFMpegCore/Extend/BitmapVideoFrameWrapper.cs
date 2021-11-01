@@ -49,7 +49,7 @@ namespace FFMpegCore.Extend
             {
                 var buffer = new byte[data.Stride * data.Height];
                 Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                await stream.WriteAsync(buffer, 0, buffer.Length, token);
+                await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
             }
             finally
             {

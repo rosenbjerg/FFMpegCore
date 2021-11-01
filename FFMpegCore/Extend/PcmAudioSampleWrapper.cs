@@ -24,7 +24,7 @@ namespace FFMpegCore.Extend
 
         public async Task SerializeAsync(Stream stream, CancellationToken token)
         {
-            await stream.WriteAsync(_sample, 0, _sample.Length, token);
+            await stream.WriteAsync(_sample, 0, _sample.Length, token).ConfigureAwait(false);
         }
     }
 }
