@@ -75,13 +75,7 @@ namespace FFMpegCore
             
             try
             {
-                _ffMpegArguments.Pre();
-                Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
-                {
-                    errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token));
+                errorCode = Process(instance, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
@@ -114,13 +108,7 @@ namespace FFMpegCore
             
             try
             {
-                _ffMpegArguments.Pre();
-                await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
-                {
-                    errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+                errorCode = await Process(instance, cancellationTokenSource).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -132,6 +120,21 @@ namespace FFMpegCore
             }
 
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
+        }
+
+        private async Task<int> Process(Instance instance, CancellationTokenSource cancellationTokenSource)
+        {
+            var errorCode = -1;
+
+            _ffMpegArguments.Pre();
+            await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
+            {
+                errorCode = t.Result;
+                cancellationTokenSource.Cancel();
+                _ffMpegArguments.Post();
+            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+
+            return errorCode;
         }
 
         private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
