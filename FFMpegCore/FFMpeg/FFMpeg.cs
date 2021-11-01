@@ -50,7 +50,7 @@ namespace FFMpegCore
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
-            var source = await FFProbe.AnalyseAsync(input);
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
 
             return await arguments
@@ -93,7 +93,7 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
-            var source = await FFProbe.AnalyseAsync(input);
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
             using var ms = new MemoryStream();
 
@@ -116,7 +116,9 @@ namespace FFMpegCore
         {
             captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
             size = PrepareSnapshotSize(source, size);
-            streamIndex = streamIndex == null ? 0 : source.VideoStreams.FirstOrDefault(videoStream => videoStream.Index == streamIndex).Index;
+            streamIndex ??= source.PrimaryVideoStream?.Index
+                            ?? source.VideoStreams.FirstOrDefault()?.Index
+                            ?? 0;
 
             return (FFMpegArguments
                 .FromFileInput(input, false, options => options
@@ -301,12 +303,13 @@ namespace FFMpegCore
         public static bool JoinImageSequence(string output, double frameRate = 30, params ImageInfo[] images)
         {
             var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
-            var temporaryImageFiles = images.Select((image, index) =>
+            var temporaryImageFiles = images.Select((imageInfo, index) =>
             {
-                FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
-                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                using var image = Image.FromFile(imageInfo.FullName);
+                FFMpegHelper.ConversionSizeExceptionCheck(image);
+                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{imageInfo.Extension}");
                 Directory.CreateDirectory(tempFolderName);
-                File.Copy(image.FullName, destinationPath);
+                File.Copy(imageInfo.FullName, destinationPath);
                 return destinationPath;
             }).ToArray();
 
