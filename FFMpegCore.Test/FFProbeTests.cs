@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,6 +24,30 @@ namespace FFMpegCore.Test
             await using var inputStream = File.OpenRead(TestResources.WebmVideo);
             var streamAnalysis = await FFProbe.AnalyseAsync(inputStream);
             Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
+        }
+
+        [TestMethod]
+        public void FrameAnalysis_Sync()
+        {
+            var frameAnalysis = FFProbe.GetFrames(TestResources.WebmVideo);
+            
+            Assert.AreEqual(90, frameAnalysis.Frames.Count);
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+        }
+
+        [TestMethod]
+        public async Task FrameAnalysis_Async()
+        {
+            var frameAnalysis = await FFProbe.GetFramesAsync(TestResources.WebmVideo);
+            
+            Assert.AreEqual(90, frameAnalysis.Frames.Count);
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
+            Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
         }
 
         [DataTestMethod]
@@ -113,6 +138,16 @@ namespace FFMpegCore.Test
             Assert.AreEqual(1, info.SubtitleStreams.Count);
             Assert.AreEqual(0, info.AudioStreams.Count);
             Assert.AreEqual(0, info.VideoStreams.Count);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_Disposition_Async()
+        {
+            var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
+            Assert.IsNotNull(info.PrimaryAudioStream);
+            Assert.IsNotNull(info.PrimaryAudioStream.Disposition);
+            Assert.AreEqual(true, info.PrimaryAudioStream.Disposition["default"]);
+            Assert.AreEqual(false, info.PrimaryAudioStream.Disposition["forced"]);
         }
     }
 }

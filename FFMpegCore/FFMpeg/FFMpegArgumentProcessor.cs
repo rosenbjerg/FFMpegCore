@@ -75,13 +75,7 @@ namespace FFMpegCore
             
             try
             {
-                _ffMpegArguments.Pre();
-                Task.WaitAll(instance.FinishedRunning().ContinueWith(t =>
-                {
-                    errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token));
+                errorCode = Process(instance, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
@@ -114,13 +108,7 @@ namespace FFMpegCore
             
             try
             {
-                _ffMpegArguments.Pre();
-                await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
-                {
-                    errorCode = t.Result;
-                    cancellationTokenSource.Cancel();
-                    _ffMpegArguments.Post();
-                }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+                errorCode = await Process(instance, cancellationTokenSource).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -134,6 +122,21 @@ namespace FFMpegCore
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
+        private async Task<int> Process(Instance instance, CancellationTokenSource cancellationTokenSource)
+        {
+            var errorCode = -1;
+
+            _ffMpegArguments.Pre();
+            await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
+            {
+                errorCode = t.Result;
+                cancellationTokenSource.Cancel();
+                _ffMpegArguments.Post();
+            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+
+            return errorCode;
+        }
+
         private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
         {
             if (throwOnError && exitCode != 0)
@@ -145,17 +148,18 @@ namespace FFMpegCore
             return exitCode == 0;
         }
 
-        private Instance PrepareInstance(FFOptions ffMpegOptions,
+        private Instance PrepareInstance(FFOptions ffOptions,
             out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck();
-            FFMpegHelper.VerifyFFMpegExists(ffMpegOptions);
+            FFMpegHelper.VerifyFFMpegExists(ffOptions);
             var startInfo = new ProcessStartInfo
             {
-                FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions),
+                FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions),
                 Arguments = _ffMpegArguments.Text,
-                StandardOutputEncoding = ffMpegOptions.Encoding,
-                StandardErrorEncoding = ffMpegOptions.Encoding,
+                StandardOutputEncoding = ffOptions.Encoding,
+                StandardErrorEncoding = ffOptions.Encoding,
+                WorkingDirectory = ffOptions.WorkingDirectory
             };
             var instance = new Instance(startInfo);
             cancellationTokenSource = new CancellationTokenSource();
