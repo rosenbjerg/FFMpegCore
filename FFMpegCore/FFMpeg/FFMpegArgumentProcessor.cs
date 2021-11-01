@@ -145,17 +145,18 @@ namespace FFMpegCore
             return exitCode == 0;
         }
 
-        private Instance PrepareInstance(FFOptions ffMpegOptions,
+        private Instance PrepareInstance(FFOptions ffOptions,
             out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck();
-            FFMpegHelper.VerifyFFMpegExists(ffMpegOptions);
+            FFMpegHelper.VerifyFFMpegExists(ffOptions);
             var startInfo = new ProcessStartInfo
             {
-                FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions),
+                FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions),
                 Arguments = _ffMpegArguments.Text,
-                StandardOutputEncoding = ffMpegOptions.Encoding,
-                StandardErrorEncoding = ffMpegOptions.Encoding,
+                StandardOutputEncoding = ffOptions.Encoding,
+                StandardErrorEncoding = ffOptions.Encoding,
+                WorkingDirectory = ffOptions.WorkingDirectory
             };
             var instance = new Instance(startInfo);
             cancellationTokenSource = new CancellationTokenSource();

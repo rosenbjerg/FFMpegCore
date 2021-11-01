@@ -165,7 +165,8 @@ namespace FFMpegCore
             var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(), arguments)
             {
                 StandardOutputEncoding = ffOptions.Encoding,
-                StandardErrorEncoding = ffOptions.Encoding
+                StandardErrorEncoding = ffOptions.Encoding,
+                WorkingDirectory = ffOptions.WorkingDirectory
             };
             var instance = new Instance(startInfo) { DataBufferCapacity = outputCapacity };
             return instance;
