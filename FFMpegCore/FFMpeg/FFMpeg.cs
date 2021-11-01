@@ -50,7 +50,7 @@ namespace FFMpegCore
             if (Path.GetExtension(output) != FileExtension.Png)
                 output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
 
-            var source = await FFProbe.AnalyseAsync(input);
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
 
             return await arguments
@@ -93,7 +93,7 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
-            var source = await FFProbe.AnalyseAsync(input);
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
             using var ms = new MemoryStream();
 

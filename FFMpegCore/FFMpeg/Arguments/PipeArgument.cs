@@ -40,7 +40,7 @@ namespace FFMpegCore.Arguments
         {
             try
             {
-                await ProcessDataAsync(cancellationToken);           
+                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);           
             }
             catch (TaskCanceledException)
             {
