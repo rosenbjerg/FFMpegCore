@@ -25,6 +25,16 @@ namespace FFMpegCore.Test
             Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
         }
 
+        [TestMethod]
+        public async Task DAwdaw()
+        {
+            var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo);
+            
+            Assert.AreEqual("", fileAnalysis.PrimaryVideoStream!.ColorSpace);
+            Assert.AreEqual("", fileAnalysis.PrimaryVideoStream!.ColorPrimaries);
+            Assert.AreEqual("", fileAnalysis.PrimaryVideoStream!.ColorTransfer);
+        }
+
         [DataTestMethod]
         [DataRow("0:00:03.008000", 0, 0, 0, 3, 8)]
         [DataRow("05:12:59.177", 0, 5, 12, 59, 177)]
