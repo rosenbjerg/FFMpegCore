@@ -303,12 +303,13 @@ namespace FFMpegCore
         public static bool JoinImageSequence(string output, double frameRate = 30, params ImageInfo[] images)
         {
             var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
-            var temporaryImageFiles = images.Select((image, index) =>
+            var temporaryImageFiles = images.Select((imageInfo, index) =>
             {
-                FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image.FullName));
-                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{image.Extension}");
+                using var image = Image.FromFile(imageInfo.FullName);
+                FFMpegHelper.ConversionSizeExceptionCheck(image);
+                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{imageInfo.Extension}");
                 Directory.CreateDirectory(tempFolderName);
-                File.Copy(image.FullName, destinationPath);
+                File.Copy(imageInfo.FullName, destinationPath);
                 return destinationPath;
             }).ToArray();
 
