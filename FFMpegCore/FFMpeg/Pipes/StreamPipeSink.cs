@@ -17,7 +17,7 @@ namespace FFMpegCore.Pipes
         }
         public StreamPipeSink(Stream destination)
         {
-            Writer = (inputStream, cancellationToken) => inputStream.CopyToAsync(destination, BlockSize, cancellationToken);
+            Writer = async (inputStream, cancellationToken) => await inputStream.CopyToAsync(destination, BlockSize, cancellationToken).ConfigureAwait(false);
         }
 
         public Task ReadAsync(Stream inputStream, CancellationToken cancellationToken) 
