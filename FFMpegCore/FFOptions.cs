@@ -7,6 +7,11 @@ namespace FFMpegCore
     public class FFOptions
     {
         /// <summary>
+        /// Working directory for the ffmpeg/ffprobe instance
+        /// </summary>
+        public string WorkingDirectory { get; set; } = string.Empty;
+        
+        /// <summary>
         /// Folder container ffmpeg and ffprobe binaries. Leave empty if ffmpeg and ffprobe are present in PATH
         /// </summary>
         public string BinaryFolder { get; set; } = string.Empty;
