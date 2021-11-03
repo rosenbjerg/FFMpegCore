@@ -12,6 +12,7 @@
     public static class VideoCodec
     {
         public static Codec LibX264 => FFMpeg.GetCodec("libx264");
+        public static Codec LibX265 => FFMpeg.GetCodec("libx265");
         public static Codec LibVpx => FFMpeg.GetCodec("libvpx");
         public static Codec LibTheora => FFMpeg.GetCodec("libtheora");
         public static Codec Png => FFMpeg.GetCodec("png");
