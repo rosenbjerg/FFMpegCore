@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,6 +49,43 @@ namespace FFMpegCore.Test
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+        }
+
+        [TestMethod]
+        public async Task PacketAnalysis_Async()
+        {
+            var packetAnalysis = await FFProbe.GetPacketsAsync(TestResources.WebmVideo);
+            var packets = packetAnalysis.Packets;
+            Assert.AreEqual(96, packets.Count);
+            Assert.IsTrue(packets.All(f => f.CodecType == "video"));
+            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.AreEqual(1362, packets.Last().Size);
+        }
+
+        
+        [TestMethod]
+        public void PacketAnalysis_Sync()
+        {
+            var packets = FFProbe.GetPackets(TestResources.WebmVideo).Packets;
+            
+            Assert.AreEqual(96, packets.Count);
+            Assert.IsTrue(packets.All(f => f.CodecType == "video"));
+            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.AreEqual(1362, packets.Last().Size);
+        }
+
+        [TestMethod]
+        public void PacketAnalysisAudioVideo_Sync()
+        {
+            var packets = FFProbe.GetPackets(TestResources.Mp4Video).Packets;
+
+            Assert.AreEqual(216, packets.Count);
+            var actual = packets.Select(f => f.CodecType).Distinct().ToList();
+            var expected = new List<string> {"audio", "video"};
+            CollectionAssert.AreEquivalent(expected, actual);
+            Assert.IsTrue(packets.Where(t=>t.CodecType == "audio").All(f => f.Flags == "K_"));
+            Assert.AreEqual(75, packets.Count(t => t.CodecType == "video"));
+            Assert.AreEqual(141, packets.Count(t => t.CodecType == "audio"));
         }
 
         [DataTestMethod]
