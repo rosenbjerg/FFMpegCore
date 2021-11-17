@@ -29,17 +29,32 @@ namespace FFMpegCore
 
         private event EventHandler<int> CancelEvent = null!; 
 
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed and progress percentage is calculated.
+        /// Total time is needed to calculate the percentage that has been processed of the full file.
+        /// </summary>
+        /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated</param>
+        /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
             _totalTimespan = totalTimeSpan;
             _onPercentageProgress = onPercentageProgress;
             return this;
         }
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed
+        /// </summary>
+        /// <param name="onTimeProgress">Action that will be invoked with the parsed timestamp as argument</param>
         public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan> onTimeProgress)
         {
             _onTimeProgress = onTimeProgress;
             return this;
         }
+
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a line is output
+        /// </summary>
+        /// <param name="onOutput"></param>
         public FFMpegArgumentProcessor NotifyOnOutput(Action<string, DataType> onOutput)
         {
             _onOutput = onOutput;
