@@ -172,7 +172,7 @@ namespace FFMpegCore
             return exitCode == 0;
         }
 
-        private FFOptions GetConfiguredOptions(FFOptions? ffOptions)
+        internal FFOptions GetConfiguredOptions(FFOptions? ffOptions)
         {
             var options = ffOptions ?? GlobalFFOptions.Current.Clone();
 
@@ -206,7 +206,7 @@ namespace FFMpegCore
             return instance;
         }
 
-        
+
         private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
