@@ -1,11 +1,19 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using System.Reflection;
 
 namespace FFMpegCore.Test
 {
     [TestClass]
     public class FFMpegArgumentProcessorTest
     {
+        [TestCleanup]
+        public void TestInitialize()
+
+        {
+            // After testing reset global configuration to null, to be not wrong for other test relying on configuration
+            typeof(GlobalFFOptions).GetField("_current", BindingFlags.NonPublic | BindingFlags.Static).SetValue(GlobalFFOptions.Current, null);
+        }
 
         private static FFMpegArgumentProcessor CreateArgumentProcessor() => FFMpegArguments
                         .FromFileInput("")
@@ -15,7 +23,6 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Processor_GlobalOptions_GetUsed()
         {
-
             var globalWorkingDir = "Whatever";
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
 
@@ -27,7 +34,6 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Processor_SessionOptions_GetUsed()
         {
-
             var sessionWorkingDir = "./CurrentRunWorkingDir";
 
             var processor = CreateArgumentProcessor();
