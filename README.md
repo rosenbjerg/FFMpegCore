@@ -182,7 +182,17 @@ await FFMpegArguments
     .FromFileInput(inputPath)
     .OutputToFile(outputPath)
     .ProcessAsynchronously(true, new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
-```
+
+// or combined, setting global defaults and adapting per-run options
+GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "./globalTmp", WorkingDirectory = "./" });
+
+await FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath)
+    .Configure(options => options.WorkingDirectory = "./CurrentRunWorkingDir")
+    .Configure(options => options.TemporaryFilesFolder = "./CurrentRunTmpFolder")
+    .ProcessAsynchronously();
+    ```
 
 ### Option 2
 
