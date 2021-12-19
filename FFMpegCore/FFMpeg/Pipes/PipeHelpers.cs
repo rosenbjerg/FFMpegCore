@@ -11,8 +11,11 @@ namespace FFMpegCore.Pipes
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return $@"\\.\pipe\{pipeName}";
-            else
-                return $"unix:/tmp/CoreFxPipe_{pipeName}";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return $"/tmp/{pipeName}";
+
+            return $"unix:/tmp/CoreFxPipe_{pipeName}";
         }
     }
 }
