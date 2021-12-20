@@ -38,6 +38,7 @@ namespace FFMpegCore
         public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
         public FFMpegArguments AddPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputPipeArgument(sourcePipe), addArguments);
+        public FFMpegArguments AddMetaData(string content, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(content), addArguments);
 
         private FFMpegArguments WithInput(IInputArgument inputArgument, Action<FFMpegArgumentOptions>? addArguments)
         {
