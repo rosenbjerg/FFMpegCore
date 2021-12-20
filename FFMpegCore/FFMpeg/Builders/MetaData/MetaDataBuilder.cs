@@ -88,7 +88,7 @@ namespace FFMpegCore.Builders.MetaData
 
         public ReadOnlyMetaData Build()
         {
-            return new MetaData(_metaData);
+            return new ReadOnlyMetaData(_metaData);
         }
     }
 }
