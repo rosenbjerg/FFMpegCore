@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FFMpegCore.Builders.MetaData
@@ -16,6 +17,17 @@ namespace FFMpegCore.Builders.MetaData
         public MetaDataBuilder AddChapter(ChapterData chapterData)
         {
             _metaData.Chapters.Add(chapterData);
+            return this;
+        }
+
+        public MetaDataBuilder AddChapters<T>(IEnumerable<T> values, Func<T, (TimeSpan duration, string title)> chapterGetter)
+        {
+            foreach (T value in values)
+            {
+                var (duration, title) = chapterGetter(value);
+                AddChapter(duration, title);
+            }
+
             return this;
         }
 
