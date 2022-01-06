@@ -24,18 +24,19 @@ namespace FFMpegCore.Helpers
                 throw new FFOptionsException("FFProbe root is not configured in app config. Missing key 'BinaryFolder'.");
         }
         
-        public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
-        {
-            if (_ffprobeVerified) return;
-            
-            var probepath = GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions);
-            if (!System.IO.File.Exists(probepath))
-                throw new FFProbeException("ffprobe was not found on your system");
-
-            var (exitCode, _) = Instance.Finish(probepath, "-version");
-            _ffprobeVerified = exitCode == 0;
-            if (!_ffprobeVerified) 
-                throw new FFProbeException("ffprobe was not found on your system");
+        public static void VerifyFFProbeExists(FFOptions ffMpegOptions) {
+            try {
+                if (_ffprobeVerified) return;
+                var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
+                _ffprobeVerified = exitCode == 0;
+                if (!_ffprobeVerified)
+                    throw new FFProbeException("ffprobe was not found on your system");
+            }
+            catch (System.Exception ex) {
+                if ((ex.HResult == -2147467259 /* file not found error code? */) && !System.IO.File.Exists(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions)))
+                        throw new FFProbeException("ffprobe was not found on your system");
+                throw ex;
+            }
         }
     }
 }
