@@ -8,11 +8,22 @@ namespace FFMpegCore.Builders.MetaData
     {
         private MetaData _metaData = new MetaData();
 
-        public MetaDataBuilder WithEntry(string key, string value)
+        public MetaDataBuilder WithEntry(string key, string entry)
         {
-            _metaData.Entries[key] = value;
+            if (_metaData.Entries.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
+            {
+                entry = String.Concat(value, "; ", entry);
+            }
+
+            _metaData.Entries[key] = entry;
             return this;
         }
+
+        public MetaDataBuilder WithEntry(string key, params string[] values)
+            => this.WithEntry(key, String.Join("; ", values));
+
+        public MetaDataBuilder WithEntry(string key, IEnumerable<string> values)
+            => this.WithEntry(key, String.Join("; ", values));
 
         public MetaDataBuilder AddChapter(ChapterData chapterData)
         {
@@ -41,7 +52,7 @@ namespace FFMpegCore.Builders.MetaData
             (
                 start: start,
                 end: end,
-                title: title
+                title: title ?? String.Empty
             ));
 
             return this;
@@ -63,13 +74,16 @@ namespace FFMpegCore.Builders.MetaData
         public MetaDataBuilder WithTitle(string value) => WithEntry("title", value);
 
         //artist=Dennis E. Taylor
-        public MetaDataBuilder WithArtist(string value) => WithEntry("artist", value);
+        public MetaDataBuilder WithArtists(params string[] value) => WithEntry("artist", value);
+        public MetaDataBuilder WithArtists(IEnumerable<string> value) => WithEntry("artist", value);
 
         //composer=J. K. Rowling
-        public MetaDataBuilder WithComposer(string value) => WithEntry("composer", value);
+        public MetaDataBuilder WithComposers(params string[] value) => WithEntry("composer", value);
+        public MetaDataBuilder WithComposers(IEnumerable<string> value) => WithEntry("composer", value);
 
         //album_artist=Dennis E. Taylor
-        public MetaDataBuilder WithAlbumArtist(string value) => WithEntry("album_artist", value);
+        public MetaDataBuilder WithAlbumArtists(params string[] value) => WithEntry("album_artist", value);
+        public MetaDataBuilder WithAlbumArtists(IEnumerable<string> value) => WithEntry("album_artist", value);
 
         //album=Alle diese Welten: Bobiverse 3
         public MetaDataBuilder WithAlbum(string value) => WithEntry("album", value);
@@ -78,17 +92,18 @@ namespace FFMpegCore.Builders.MetaData
         public MetaDataBuilder WithDate(string value) => WithEntry("date", value);
 
         //genre=Hörbuch
-        public MetaDataBuilder WithGenre(string value) => WithEntry("genre", value);
+        public MetaDataBuilder WithGenres(params string[] value) => WithEntry("genre", value);
+        public MetaDataBuilder WithGenres(IEnumerable<string> value) => WithEntry("genre", value);
 
         //comment=Chapter 200
-        public MetaDataBuilder WithComment(string value) => WithEntry("comment", value);
+        public MetaDataBuilder WithComments(params string[] value) => WithEntry("comment", value);
+        public MetaDataBuilder WithComments(IEnumerable<string> value) => WithEntry("comment", value);
 
         //encoder=Lavf58.47.100
         public MetaDataBuilder WithEncoder(string value) => WithEntry("encoder", value);
 
-        public ReadOnlyMetaData Build()
-        {
-            return new ReadOnlyMetaData(_metaData);
-        }
+
+
+        public ReadOnlyMetaData Build() => new ReadOnlyMetaData(_metaData);
     }
 }
