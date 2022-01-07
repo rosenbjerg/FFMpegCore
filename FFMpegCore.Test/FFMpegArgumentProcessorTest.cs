@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using System.Reflection;
+using FFMpegCore.Arguments;
 
 namespace FFMpegCore.Test
 {
@@ -85,6 +86,13 @@ namespace FFMpegCore.Test
             var processor2 = CreateArgumentProcessor();
             var options2 = processor2.GetConfiguredOptions(null);
             options2.WorkingDirectory.Should().Be(globalWorkingDir);
+        }
+
+        [TestMethod]
+        public void Concat_Escape()
+        {
+            var arg = new DemuxConcatArgument(new[] { @"Heaven's River\05 - Investigation.m4b" });
+            arg.Values.Should().BeEquivalentTo(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" });
         }
     }
 }
