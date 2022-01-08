@@ -8,18 +8,13 @@
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>- Support for reading Disposition metadata on streams in FFProbe output (thanks alex6dj)
-- Fix for stream index in Snapshot(Async) (thanks stasokrosh)
-- Add support for frame analysis through FFProbe,GetFrames(Async) (thanks andyjmorgan)
-- Fix for subtitle burning error, when subtitle path contains special characters (thanks alex6dj)
-- Support for Audio filters (thanks alex6dj)
-- Fix FFProbe.AnalyseAsync not throwing if non-zero exit-code (thanks samburovkv)
-- Change bit_rate from int to long to support analysis of high bit-rate files (thanks zhuker) 
-- Support for specifying working directory for ffmpeg and ffprobe processes through FFOptions
-- Ensure Image instances in JoinImageSequence are disposed
-- Added ConfigureAwait(false) to prevent hanging with certain frameworks</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added libx265 static codec prop
+- Support for reading Packets from mediafile through ffprobe (thanks zhuker)
+- Support for fluent configuration of FFOptinos per-run (thanks BobSilent)
+- Support for adding metadata (thanks Weirdo)
+- Automatically escape single quotes in filenames for DemuxConcatArgument (thanks JKamsker)</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.6.0</PackageVersion>
+    <PackageVersion>4.7.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
