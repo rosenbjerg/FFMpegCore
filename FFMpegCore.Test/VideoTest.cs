@@ -72,6 +72,19 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
+        [TestMethod, Timeout(10000)]
+        public void Video_ToH265_MKV_Args()
+        {
+            using var outputFile = new TemporaryFile($"out.mkv");
+            
+            var success = FFMpegArguments
+                .FromFileInput(TestResources.WebmVideo)
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithVideoCodec(VideoCodec.LibX265))
+                .ProcessSynchronously();
+            Assert.IsTrue(success);
+        }
+
         [DataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
