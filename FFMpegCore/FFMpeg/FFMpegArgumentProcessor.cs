@@ -14,6 +14,7 @@ namespace FFMpegCore
     public class FFMpegArgumentProcessor
     {
         private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+        private readonly List<Action<FFOptions>> _configurations;
         private readonly FFMpegArguments _ffMpegArguments;
         private Action<double>? _onPercentageProgress;
         private Action<TimeSpan>? _onTimeProgress;
@@ -22,24 +23,40 @@ namespace FFMpegCore
 
         internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
         {
+            _configurations = new List<Action<FFOptions>>();
             _ffMpegArguments = ffMpegArguments;
         }
 
         public string Arguments => _ffMpegArguments.Text;
 
-        private event EventHandler<int> CancelEvent = null!; 
+        private event EventHandler<int> CancelEvent = null!;
 
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed and progress percentage is calculated.
+        /// Total time is needed to calculate the percentage that has been processed of the full file.
+        /// </summary>
+        /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated</param>
+        /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
         public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
         {
             _totalTimespan = totalTimeSpan;
             _onPercentageProgress = onPercentageProgress;
             return this;
         }
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed
+        /// </summary>
+        /// <param name="onTimeProgress">Action that will be invoked with the parsed timestamp as argument</param>
         public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan> onTimeProgress)
         {
             _onTimeProgress = onTimeProgress;
             return this;
         }
+
+        /// <summary>
+        /// Register action that will be invoked during the ffmpeg processing, when a line is output
+        /// </summary>
+        /// <param name="onOutput"></param>
         public FFMpegArgumentProcessor NotifyOnOutput(Action<string, DataType> onOutput)
         {
             _onOutput = onOutput;
@@ -55,10 +72,15 @@ namespace FFMpegCore
             token.Register(() => CancelEvent?.Invoke(this, timeout));
             return this;
         }
+        public FFMpegArgumentProcessor Configure(Action<FFOptions> configureOptions)
+        {
+            _configurations.Add(configureOptions);
+            return this;
+        }
         public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
-            using var instance = PrepareInstance(ffMpegOptions ?? GlobalFFOptions.Current, out var cancellationTokenSource);
-            var errorCode = -1;
+            var options = GetConfiguredOptions(ffMpegOptions);
+            using var instance = PrepareInstance(options, out var cancellationTokenSource);
 
             void OnCancelEvent(object sender, int timeout)
             {
@@ -72,7 +94,8 @@ namespace FFMpegCore
             }
             CancelEvent += OnCancelEvent;
             instance.Exited += delegate { cancellationTokenSource.Cancel(); };
-            
+
+            var errorCode = -1;
             try
             {
                 errorCode = Process(instance, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -85,14 +108,14 @@ namespace FFMpegCore
             {
                 CancelEvent -= OnCancelEvent;
             }
-            
+
             return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
         }
 
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
-            using var instance = PrepareInstance(ffMpegOptions ?? GlobalFFOptions.Current, out var cancellationTokenSource);
-            var errorCode = -1;
+            var options = GetConfiguredOptions(ffMpegOptions);
+            using var instance = PrepareInstance(options, out var cancellationTokenSource);
 
             void OnCancelEvent(object sender, int timeout)
             {
@@ -105,7 +128,8 @@ namespace FFMpegCore
                 }
             }
             CancelEvent += OnCancelEvent;
-            
+
+            var errorCode = -1;
             try
             {
                 errorCode = await Process(instance, cancellationTokenSource).ConfigureAwait(false);
@@ -148,6 +172,18 @@ namespace FFMpegCore
             return exitCode == 0;
         }
 
+        internal FFOptions GetConfiguredOptions(FFOptions? ffOptions)
+        {
+            var options = ffOptions ?? GlobalFFOptions.Current.Clone();
+
+            foreach (var configureOptions in _configurations)
+            {
+                configureOptions(options);
+            }
+
+            return options;
+        }
+
         private Instance PrepareInstance(FFOptions ffOptions,
             out CancellationTokenSource cancellationTokenSource)
         {
@@ -170,7 +206,7 @@ namespace FFMpegCore
             return instance;
         }
 
-        
+
         private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
         {
             if (!throwOnError)
