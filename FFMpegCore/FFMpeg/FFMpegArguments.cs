@@ -23,13 +23,19 @@ namespace FFMpegCore
         private string GetText()
         {
             var sb = new StringBuilder();
+            var appendSpace = false;
 
             foreach (var arg in _globalArguments.Arguments.Concat(Arguments))
             {
-                if (sb.Length != 0)
+                if (appendSpace)
                 {
                     sb.Append(' ');
                 }
+                else
+                {
+                    appendSpace = true;
+                }
+
                 sb.Append(arg is IDynamicArgument dynArg ? dynArg.GetText(sb) : arg.Text);
             }
 
