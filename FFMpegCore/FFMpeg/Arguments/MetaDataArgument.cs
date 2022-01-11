@@ -30,7 +30,7 @@ namespace FFMpegCore.Arguments
 
         public string GetText(StringBuilder context)
         {
-            var index = context.ToString().CountOccurrences("-i");
+            var index = context?.ToString().CountOccurrences("-i") ?? 0;
 
             return $"-i \"{_tempFileName}\" -map_metadata {index}";
         }
