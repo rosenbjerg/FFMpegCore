@@ -13,6 +13,7 @@ namespace FFMpegCore
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
+            ErrorData = analysis.ErrorData ?? new List<string>().AsReadOnly();
         }
         
         private MediaFormat ParseFormat(Format analysisFormat)
@@ -45,7 +46,8 @@ namespace FFMpegCore
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams { get; }
         public List<SubtitleStream> SubtitleStreams { get; }
-
+        public IReadOnlyList<string> ErrorData { get; }
+        
         private VideoStream ParseVideoStream(FFProbeStream stream)
         {
             return new VideoStream
