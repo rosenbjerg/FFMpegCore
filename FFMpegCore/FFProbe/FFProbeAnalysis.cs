@@ -10,6 +10,9 @@ namespace FFMpegCore
         
         [JsonPropertyName("format")]
         public Format Format { get; set; } = null!;
+        
+        [JsonIgnore]
+        public IReadOnlyList<string> ErrorData { get; set; }
     }
     
     public class FFProbeStream : ITagsContainer, IDispositionContainer
