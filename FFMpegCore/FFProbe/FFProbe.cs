@@ -201,7 +201,7 @@ namespace FFMpegCore
         {
             FFProbeHelper.RootExceptionCheck();
             FFProbeHelper.VerifyFFProbeExists(ffOptions);
-            var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(), arguments)
+            var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(ffOptions), arguments)
             {
                 StandardOutputEncoding = ffOptions.Encoding,
                 StandardErrorEncoding = ffOptions.Encoding,
