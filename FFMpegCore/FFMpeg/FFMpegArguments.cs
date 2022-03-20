@@ -22,25 +22,6 @@ namespace FFMpegCore
 
         private string GetText()
         {
-            //var sb = new StringBuilder();
-            //var appendSpace = false;
-
-            //foreach (var arg in _globalArguments.Arguments.Concat(Arguments))
-            //{
-            //    if (appendSpace)
-            //    {
-            //        sb.Append(' ');
-            //    }
-            //    else
-            //    {
-            //        appendSpace = true;
-            //    }
-
-            //    sb.Append(arg is IDynamicArgument dynArg ? dynArg.GetText(sb) : arg.Text);
-            //}
-
-            //return sb.ToString();
-
             var allArguments = _globalArguments.Arguments.Concat(Arguments).ToArray();
             return string.Join(" ", allArguments.Select(arg => arg is IDynamicArgument dynArg ? dynArg.GetText(allArguments) : arg.Text));
         }
