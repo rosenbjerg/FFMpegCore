@@ -1,5 +1,8 @@
 ﻿using FFMpegCore.Extend;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +13,10 @@ namespace FFMpegCore.Arguments
     {
         private readonly int? _inputIndex;
 
+        public string Text => GetText(null);
+
         /// <summary>
-        /// Null means it takes the last input used befroe this argument
+        /// Null means it takes the last input used before this argument
         /// </summary>
         /// <param name="inputIndex"></param>
         public MapMetadataArgument(int? inputIndex = null)
@@ -19,14 +24,27 @@ namespace FFMpegCore.Arguments
             _inputIndex = inputIndex;
         }
 
-        public string Text => GetText(null);
-
-        public string GetText(StringBuilder context)
+        public string GetText(IEnumerable<IArgument>? arguments)
         {
-            var index = _inputIndex ?? context?.ToString().CountOccurrences("-i") -1 ?? 0;
+            arguments ??= Enumerable.Empty<IArgument>();
+
+            var index = 0;
+            if (_inputIndex is null)
+            {
+                index = arguments
+                   .TakeWhile(x => x != this)
+                   .OfType<IInputArgument>()
+                   .Count();
+
+                index = Math.Max(index - 1, 0);
+            }
+            else
+            {
+                index = _inputIndex.Value;
+            }
+
             return $"-map_metadata {index}";
         }
-
 
         public Task During(CancellationToken cancellationToken = default)
         {
@@ -40,5 +58,7 @@ namespace FFMpegCore.Arguments
         public void Pre()
         {
         }
+
+
     }
 }

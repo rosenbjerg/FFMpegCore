@@ -101,5 +101,13 @@ namespace FFMpegCore.Test
             var arg = new AudibleEncryptionKeyArgument("123", "456");
             arg.Text.Should().Be($"-audible_key 123 -audible_iv 456");
         }
+
+
+        [TestMethod]
+        public void Audible_Aax_Test()
+        {
+            var arg = new AudibleEncryptionKeyArgument("62689101");
+            arg.Text.Should().Be($"-activation_bytes 62689101");
+        }
     }
 }
