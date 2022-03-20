@@ -1,6 +1,7 @@
 ﻿using FFMpegCore.Extend;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,9 +29,14 @@ namespace FFMpegCore.Arguments
 
         public void Post() => File.Delete(_tempFileName);
 
-        public string GetText(StringBuilder context)
+        public string GetText(IEnumerable<IArgument>? arguments)
         {
-            var index = context.ToString().CountOccurrences("-i");
+            arguments ??= Enumerable.Empty<IArgument>();
+
+            var index = arguments
+                .TakeWhile(x => x != this)
+                .OfType<IInputArgument>()
+                .Count();
 
             return $"-i \"{_tempFileName}\" -map_metadata {index}";
         }
