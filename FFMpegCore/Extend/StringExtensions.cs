@@ -93,12 +93,9 @@ namespace FFMpegCore.Extend
             bool aggressiveSearch = false)
         {
             // if s or substring is null or empty, substring cannot be found in s
-            if (string.IsNullOrEmpty(s) || string.IsNullOrEmpty(substring))
-                return 0;
-
             // if the length of substring is greater than the length of s,
             // substring cannot be found in s
-            if (substring.Length > s.Length)
+            if (string.IsNullOrEmpty(s) || string.IsNullOrEmpty(substring) || substring.Length > s.Length)
                 return 0;
 
             int count = 0, n = 0;

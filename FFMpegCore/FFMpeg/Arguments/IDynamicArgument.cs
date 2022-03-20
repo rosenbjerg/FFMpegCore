@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace FFMpegCore.Arguments
 {
@@ -9,6 +10,7 @@ namespace FFMpegCore.Arguments
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string GetText(StringBuilder context);
+        //public string GetText(StringBuilder context);
+        public string GetText(IEnumerable<IArgument> context);
     }
 }
