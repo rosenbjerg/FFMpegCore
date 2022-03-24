@@ -114,9 +114,9 @@ namespace FFMpegCore
     {
         private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
-        internal static Dictionary<string, string> ToCaseInsensitive(this Dictionary<string, string> dictionary)
+        internal static Dictionary<string, string>? ToCaseInsensitive(this Dictionary<string, string>? dictionary)
         {
-            return dictionary.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase);
+            return dictionary?.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, string>();
         }
         public static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
 
