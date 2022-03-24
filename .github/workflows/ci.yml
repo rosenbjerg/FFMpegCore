@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+    - .github/workflows/ci.yml
     - FFMpegCore/**
     - FFMpegCore.Test/**
   pull_request:
@@ -12,6 +13,7 @@ on:
       - master
       - release
     paths:
+    - .github/workflows/ci.yml
     - FFMpegCore/**
     - FFMpegCore.Test/**
 
