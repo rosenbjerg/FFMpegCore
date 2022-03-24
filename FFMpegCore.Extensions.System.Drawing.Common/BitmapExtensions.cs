@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.IO;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public static class BitmapExtensions
     {

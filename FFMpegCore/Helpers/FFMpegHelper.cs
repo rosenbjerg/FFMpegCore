@@ -10,13 +10,10 @@ namespace FFMpegCore.Helpers
     {
         private static bool _ffmpegVerified;
 
-        public static void ConversionSizeExceptionCheck(Image image)
-            => ConversionSizeExceptionCheck(image.Size.Width, image.Size.Height);
-
         public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
             => ConversionSizeExceptionCheck(info.PrimaryVideoStream!.Width, info.PrimaryVideoStream.Height);
 
-        private static void ConversionSizeExceptionCheck(int width, int height)
+        public static void ConversionSizeExceptionCheck(int width, int height)
         {
             if (height % 2 != 0 || width % 2 != 0 )
                 throw new ArgumentException("FFMpeg yuv420p encoding requires the width and height to be a multiple of 2!");
