@@ -4,10 +4,16 @@ on:
   push:
     branches:
       - master
+    paths:
+    - FFMpegCore/**
+    - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
       - release
+    paths:
+    - FFMpegCore/**
+    - FFMpegCore.Test/**
 
 jobs:
   ci:
