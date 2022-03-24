@@ -25,7 +25,7 @@ namespace FFMpegCore
                 StreamCount = analysisFormat.NbStreams,
                 ProbeScore = analysisFormat.ProbeScore,
                 BitRate = long.Parse(analysisFormat.BitRate ?? "0"),
-                Tags = analysisFormat.Tags,
+                Tags = analysisFormat.Tags.ToCaseInsensitive(),
             };
         }
 
@@ -69,7 +69,7 @@ namespace FFMpegCore
                 Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
-                Tags = stream.Tags,
+                Tags = stream.Tags.ToCaseInsensitive(),
             };
         }
 
@@ -90,7 +90,7 @@ namespace FFMpegCore
                 Profile = stream.Profile,
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
-                Tags = stream.Tags,
+                Tags = stream.Tags.ToCaseInsensitive(),
             };
         }
 
@@ -105,15 +105,20 @@ namespace FFMpegCore
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
-                Tags = stream.Tags,
+                Tags = stream.Tags.ToCaseInsensitive(),
             };
         }
+
     }
 
     public static class MediaAnalysisUtils
     {
         private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
+        internal static Dictionary<string, string> ToCaseInsensitive(this Dictionary<string, string> dictionary)
+        {
+            return dictionary.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase);
+        }
         public static double DivideRatio((double, double) ratio) => ratio.Item1 / ratio.Item2;
 
         public static (int, int) ParseRatioInt(string input, char separator)
@@ -184,7 +189,7 @@ namespace FFMpegCore
                 return null;
             }
 
-            var result = new Dictionary<string, bool>(disposition.Count);
+            var result = new Dictionary<string, bool>(disposition.Count, StringComparer.Ordinal);
 
             foreach (var pair in disposition)
             {
