@@ -64,9 +64,6 @@ namespace FFMpegCore
 
         [JsonPropertyName("r_frame_rate")]
         public string FrameRate { get; set; } = null!;
-
-        [JsonPropertyName("avg_frame_rate")]
-        public string AverageFrameRate { get; set; } = null!;
         
         [JsonPropertyName("pix_fmt")]
         public string PixelFormat { get; set; } = null!;
