@@ -12,13 +12,6 @@ namespace FFMpegCore.Test
     public class FFProbeTests
     {
         [TestMethod]
-        public void Probe_TooLongOutput()
-        {
-            Assert.ThrowsException<System.Text.Json.JsonException>(() => FFProbe.Analyse(TestResources.Mp4Video, 5));
-        }
-        
-
-        [TestMethod]
         public async Task Audio_FromStream_Duration()
         {
             var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo);

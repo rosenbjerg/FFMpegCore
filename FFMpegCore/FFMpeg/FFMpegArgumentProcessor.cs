@@ -18,7 +18,8 @@ namespace FFMpegCore
         private readonly FFMpegArguments _ffMpegArguments;
         private Action<double>? _onPercentageProgress;
         private Action<TimeSpan>? _onTimeProgress;
-        private Action<string, DataType>? _onOutput;
+        private Action<string>? _onOutput;
+        private Action<string>? _onError;
         private TimeSpan? _totalTimespan;
 
         internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
@@ -57,9 +58,14 @@ namespace FFMpegCore
         /// Register action that will be invoked during the ffmpeg processing, when a line is output
         /// </summary>
         /// <param name="onOutput"></param>
-        public FFMpegArgumentProcessor NotifyOnOutput(Action<string, DataType> onOutput)
+        public FFMpegArgumentProcessor NotifyOnOutput(Action<string> onOutput)
         {
             _onOutput = onOutput;
+            return this;
+        }
+        public FFMpegArgumentProcessor NotifyOnError(Action<string> onError)
+        {
+            _onError = onError;
             return this;
         }
         public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
@@ -80,43 +86,47 @@ namespace FFMpegCore
         public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
             var options = GetConfiguredOptions(ffMpegOptions);
-            using var instance = PrepareInstance(options, out var cancellationTokenSource);
+            var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
+            processArguments.Exited += delegate { cancellationTokenSource.Cancel(); };
 
-            void OnCancelEvent(object sender, int timeout)
-            {
-                instance.SendInput("q");
-
-                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
-                {
-                    cancellationTokenSource.Cancel();
-                    instance.Started = false;
-                }
-            }
-            CancelEvent += OnCancelEvent;
-            instance.Exited += delegate { cancellationTokenSource.Cancel(); };
-
-            var errorCode = -1;
+            IProcessResult? processResult = null;
             try
             {
-                errorCode = Process(instance, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
+                processResult = Process(processArguments, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
-                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
-            }
-            finally
-            {
-                CancelEvent -= OnCancelEvent;
+                if (!HandleException(throwOnError, e, processResult?.ErrorData ?? Array.Empty<string>())) return false;
             }
 
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
+            return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
         }
 
         public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
             var options = GetConfiguredOptions(ffMpegOptions);
-            using var instance = PrepareInstance(options, out var cancellationTokenSource);
+            var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
 
+            IProcessResult? processResult = null;
+            try
+            {
+                processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (!HandleException(throwOnError, e, processResult?.ErrorData ?? Array.Empty<string>())) return false;
+            }
+
+            return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
+        }
+
+        private async Task<IProcessResult> Process(ProcessArguments processArguments, CancellationTokenSource cancellationTokenSource)
+        {
+            IProcessResult processResult = null!;
+
+            _ffMpegArguments.Pre();
+
+            using var instance = processArguments.Start();
             void OnCancelEvent(object sender, int timeout)
             {
                 instance.SendInput("q");
@@ -124,41 +134,26 @@ namespace FFMpegCore
                 if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
                 {
                     cancellationTokenSource.Cancel();
-                    instance.Started = false;
+                    instance.Kill();
                 }
             }
             CancelEvent += OnCancelEvent;
 
-            var errorCode = -1;
             try
             {
-                errorCode = await Process(instance, cancellationTokenSource).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                if (!HandleException(throwOnError, e, instance.ErrorData)) return false;
+                await Task.WhenAll(instance.WaitForExitAsync().ContinueWith(t =>
+                {
+                    processResult = t.Result;
+                    cancellationTokenSource.Cancel();
+                    _ffMpegArguments.Post();
+                }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+
+                return processResult;
             }
             finally
             {
                 CancelEvent -= OnCancelEvent;
             }
-
-            return HandleCompletion(throwOnError, errorCode, instance.ErrorData);
-        }
-
-        private async Task<int> Process(Instance instance, CancellationTokenSource cancellationTokenSource)
-        {
-            var errorCode = -1;
-
-            _ffMpegArguments.Pre();
-            await Task.WhenAll(instance.FinishedRunning().ContinueWith(t =>
-            {
-                errorCode = t.Result;
-                cancellationTokenSource.Cancel();
-                _ffMpegArguments.Post();
-            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
-
-            return errorCode;
         }
 
         private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
@@ -184,7 +179,7 @@ namespace FFMpegCore
             return options;
         }
 
-        private Instance PrepareInstance(FFOptions ffOptions,
+        private ProcessArguments PrepareProcessArguments(FFOptions ffOptions,
             out CancellationTokenSource cancellationTokenSource)
         {
             FFMpegHelper.RootExceptionCheck();
@@ -197,17 +192,25 @@ namespace FFMpegCore
                 StandardErrorEncoding = ffOptions.Encoding,
                 WorkingDirectory = ffOptions.WorkingDirectory
             };
-            var instance = new Instance(startInfo);
+            var processArguments = new ProcessArguments(startInfo);
             cancellationTokenSource = new CancellationTokenSource();
 
             if (_onOutput != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
-                instance.DataReceived += OutputData;
+                processArguments.OutputDataReceived += OutputData;
+            
+            if (_onError != null)
+                processArguments.ErrorDataReceived += ErrorData;
 
-            return instance;
+            return processArguments;
+        }
+
+        private void ErrorData(object sender, string msg)
+        {
+            _onError?.Invoke(msg);
         }
 
 
-        private static bool HandleException(bool throwOnError, Exception e, IReadOnlyList<string> errorData)
+        private static bool HandleException(bool throwOnError, Exception e, IEnumerable<string> errorData)
         {
             if (!throwOnError)
                 return false;
@@ -215,12 +218,12 @@ namespace FFMpegCore
             throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData));
         }
 
-        private void OutputData(object sender, (DataType Type, string Data) msg)
+        private void OutputData(object sender, string msg)
         {
-            Debug.WriteLine(msg.Data);
-            _onOutput?.Invoke(msg.Data, msg.Type);
+            Debug.WriteLine(msg);
+            _onOutput?.Invoke(msg);
 
-            var match = ProgressRegex.Match(msg.Data);
+            var match = ProgressRegex.Match(msg);
             if (!match.Success) return;
 
             var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
