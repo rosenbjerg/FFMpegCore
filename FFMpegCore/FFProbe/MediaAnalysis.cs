@@ -61,6 +61,7 @@ namespace FFMpegCore
                 DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
+                AverageFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.AverageFrameRate, '/')),
                 Height = stream.Height ?? 0,
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
