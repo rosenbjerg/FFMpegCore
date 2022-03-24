@@ -4,8 +4,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FFMpegCore.Test
@@ -49,6 +51,30 @@ namespace FFMpegCore.Test
             Assert.IsTrue(serialized.Contains("genre=Synthwave; Classics", StringComparison.OrdinalIgnoreCase));
             Assert.IsTrue(serialized.Contains("title=Chapter 01", StringComparison.OrdinalIgnoreCase));
             Assert.IsTrue(serialized.Contains("album_artist=Pachelbel", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [TestMethod]
+        public void TestMapMetadata()
+        {
+            //-i "whaterver0" // index: 0
+            //-f concat -safe 0
+            //-i "\AppData\Local\Temp\concat_b511f2bf-c4af-4f71-b9bd-24d706bf4861.txt"   // index: 1
+            //-i "\AppData\Local\Temp\metadata_210d3259-3d5c-43c8-9786-54b5c414fa70.txt" // index: 2
+            //-map_metadata 2
+
+            var text0 = FFMpegArguments.FromFileInput("whaterver0")
+                .AddMetaData("WhatEver3")
+                .Text;
+
+            var text1 = FFMpegArguments.FromFileInput("whaterver0")
+                .AddDemuxConcatInput(new[] { "whaterver", "whaterver1" })
+                .AddMetaData("WhatEver3")
+                .Text;
+
+
+
+            Assert.IsTrue(Regex.IsMatch(text0, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 1"), "map_metadata index is calculated incorrectly.");
+            Assert.IsTrue(Regex.IsMatch(text1, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 2"), "map_metadata index is calculated incorrectly.");
         }
     }
 }

@@ -94,5 +94,20 @@ namespace FFMpegCore.Test
             var arg = new DemuxConcatArgument(new[] { @"Heaven's River\05 - Investigation.m4b" });
             arg.Values.Should().BeEquivalentTo(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" });
         }
+
+        [TestMethod]
+        public void Audible_Aaxc_Test()
+        {
+            var arg = new AudibleEncryptionKeyArgument("123", "456");
+            arg.Text.Should().Be($"-audible_key 123 -audible_iv 456");
+        }
+
+
+        [TestMethod]
+        public void Audible_Aax_Test()
+        {
+            var arg = new AudibleEncryptionKeyArgument("62689101");
+            arg.Text.Should().Be($"-activation_bytes 62689101");
+        }
     }
 }
