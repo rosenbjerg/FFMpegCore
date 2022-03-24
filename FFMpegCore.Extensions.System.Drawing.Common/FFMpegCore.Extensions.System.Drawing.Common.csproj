@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <NeutralLanguage>en</NeutralLanguage>
+        <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
+        <Copyright></Copyright>
+        <Description>Image extension for FFMpegCore, using System.Common.Drawing</Description>
+        <PackageReleaseNotes>
+        </PackageReleaseNotes>
+        <LangVersion>8</LangVersion>
+        <AssemblyVersion>4.0.0.0</AssemblyVersion>
+        <PackageVersion>4.0.0</PackageVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
+        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
+        <RepositoryType>GitHub</RepositoryType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Nullable>enable</Nullable>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FFMpegCore" Version="4.7.0" />
+      <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    </ItemGroup>
+
+</Project>
