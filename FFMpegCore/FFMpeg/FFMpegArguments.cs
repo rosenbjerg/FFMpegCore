@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using FFMpegCore.Arguments;
 using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Pipes;
@@ -13,10 +15,16 @@ namespace FFMpegCore
     public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
         private readonly FFMpegGlobalArguments _globalArguments = new FFMpegGlobalArguments();
-        
+
         private FFMpegArguments() { }
 
-        public string Text => string.Join(" ", _globalArguments.Arguments.Concat(Arguments).Select(arg => arg.Text));
+        public string Text => GetText();
+
+        private string GetText()
+        {
+            var allArguments = _globalArguments.Arguments.Concat(Arguments).ToArray();
+            return string.Join(" ", allArguments.Select(arg => arg is IDynamicArgument dynArg ? dynArg.GetText(allArguments) : arg.Text));
+        }
 
         public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
@@ -26,7 +34,7 @@ namespace FFMpegCore
         public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
-        
+
         public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
         {
             configureOptions(_globalArguments);
