@@ -50,6 +50,13 @@ namespace FFMpegCore
         public FFMpegArguments AddMetaData(string content, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(content), addArguments);
         public FFMpegArguments AddMetaData(IReadOnlyMetaData metaData, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(MetaDataSerializer.Instance.Serialize(metaData)), addArguments);
 
+
+        /// <summary>
+        /// Maps the metadata of the given stream
+        /// </summary>
+        /// <param name="inputIndex">null means, the previous input will be used</param>
+        public FFMpegArguments MapMetaData(int? inputIndex = null, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MapMetadataArgument(inputIndex), addArguments);
+
         private FFMpegArguments WithInput(IInputArgument inputArgument, Action<FFMpegArgumentOptions>? addArguments)
         {
             var arguments = new FFMpegArgumentOptions();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 
@@ -65,6 +66,11 @@ namespace FFMpegCore
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForcePixelFormat(string pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
         public FFMpegArgumentOptions ForcePixelFormat(PixelFormat pixelFormat) => WithArgument(new ForcePixelFormat(pixelFormat));
+
+        public FFMpegArgumentOptions WithAudibleEncryptionKeys(string key, string iv) => WithArgument(new AudibleEncryptionKeyArgument(key, iv));
+        public FFMpegArgumentOptions WithAudibleActivationBytes(string activationBytes) => WithArgument(new AudibleEncryptionKeyArgument(activationBytes));
+        public FFMpegArgumentOptions WithTagVersion(int id3v2Version = 3) => WithArgument(new ID3V2VersionArgument(id3v2Version));
+
 
         public FFMpegArgumentOptions WithArgument(IArgument argument)
         {
