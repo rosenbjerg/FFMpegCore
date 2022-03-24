@@ -163,7 +163,7 @@ namespace FFMpegCore
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
             }) ;
 
-            return ffprobeAnalysis;
+            return ffprobeAnalysis!;
         }
 
         private static FFProbePackets ParsePacketsOutput(IProcessResult instance)
@@ -175,7 +175,7 @@ namespace FFMpegCore
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
             }) ;
 
-            return ffprobeAnalysis;
+            return ffprobeAnalysis!;
         }
 
         private static void ThrowIfInputFileDoesNotExist(string filePath)
