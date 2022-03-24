@@ -544,7 +544,7 @@ namespace FFMpegCore.Test
                     .WithVerbosityLevel(VerbosityLevel.Info))
                 .OutputToFile(outputFile, false, opt => opt
                     .WithDuration(TimeSpan.FromSeconds(2)))
-                .NotifyOnOutput((_, _) => dataReceived = true)
+                .NotifyOnError(_ => dataReceived = true)
                 .ProcessSynchronously();
 
             Assert.IsTrue(dataReceived);

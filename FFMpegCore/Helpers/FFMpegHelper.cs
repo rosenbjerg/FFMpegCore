@@ -38,8 +38,8 @@ namespace FFMpegCore.Helpers
         public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
         {
             if (_ffmpegVerified) return;
-            var (exitCode, _) = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-            _ffmpegVerified = exitCode == 0;
+            var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
+            _ffmpegVerified = result.ExitCode == 0;
             if (!_ffmpegVerified) 
                 throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
         }
