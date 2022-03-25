@@ -247,7 +247,10 @@ namespace FFMpegCore
         public static bool PosterWithAudio(string image, string audio, string output)
         {
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-            FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image));
+            using (var imageFile = Image.FromFile(image))
+            {
+                FFMpegHelper.ConversionSizeExceptionCheck(imageFile);
+            }
 
             return FFMpegArguments
                 .FromFileInput(image, false, options => options
