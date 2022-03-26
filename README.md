@@ -11,7 +11,6 @@ A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and
 # API
 
 ## FFProbe
-
 Use FFProbe to analyze media files:
 
 ```csharp
@@ -22,12 +21,12 @@ or
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
-
 ## FFMpeg
 Use FFMpeg to convert your media files.
 Easily build your FFMpeg arguments using the fluent argument builder:
 
 Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
+
 ```csharp
 FFMpegArguments
     .FromFileInput(inputPath)
@@ -193,7 +192,7 @@ await FFMpegArguments
     .Configure(options => options.WorkingDirectory = "./CurrentRunWorkingDir")
     .Configure(options => options.TemporaryFilesFolder = "./CurrentRunTmpFolder")
     .ProcessAsynchronously();
-    ```
+```
 
 ### Option 2
 
