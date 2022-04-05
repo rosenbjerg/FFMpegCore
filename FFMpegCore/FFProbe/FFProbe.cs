@@ -152,6 +152,7 @@ namespace FFMpegCore
             if (ffprobeAnalysis?.Format == null)
                 throw new FormatNullException();
             
+            ffprobeAnalysis.ErrorData = instance.ErrorData;
             return new MediaAnalysis(ffprobeAnalysis);
         }
         private static FFProbeFrames ParseFramesOutput(IProcessResult instance)
