@@ -2,9 +2,9 @@
 {
     public class AudioStream : MediaStream
     {
-        public int Channels { get; internal set; }
-        public string ChannelLayout { get; internal set; } = null!;
-        public int SampleRateHz { get; internal set; }
-        public string Profile { get; internal set; } = null!;
+        public int Channels { get; set; }
+        public string ChannelLayout { get; set; } = null!;
+        public int SampleRateHz { get; set; }
+        public string Profile { get; set; } = null!;
     }
 }
