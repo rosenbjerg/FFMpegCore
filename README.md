@@ -3,14 +3,14 @@
 [![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
 [![GitHub stars](https://img.shields.io/github/stars/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/stargazers)
 [![GitHub](https://img.shields.io/github/license/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
-[![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions?query=workflow%3ACI)
+[![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions/workflows/ci.yml)
+[![GitHub code contributors](https://img.shields.io/github/contributors/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/graphs/contributors)
 
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both synchronous and asynchronous calls
 
 # API
 
 ## FFProbe
-
 Use FFProbe to analyze media files:
 
 ```csharp
@@ -21,12 +21,12 @@ or
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
-
 ## FFMpeg
 Use FFMpeg to convert your media files.
 Easily build your FFMpeg arguments using the fluent argument builder:
 
 Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
+
 ```csharp
 FFMpegArguments
     .FromFileInput(inputPath)
@@ -192,7 +192,7 @@ await FFMpegArguments
     .Configure(options => options.WorkingDirectory = "./CurrentRunWorkingDir")
     .Configure(options => options.TemporaryFilesFolder = "./CurrentRunTmpFolder")
     .ProcessAsynchronously();
-    ```
+```
 
 ### Option 2
 
