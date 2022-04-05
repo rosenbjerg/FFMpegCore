@@ -26,12 +26,14 @@ namespace FFMpegCore.Arguments
             if (Pipe != null)
                 throw new InvalidOperationException("Pipe already has been opened");
 
-            Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            Pipe = new NamedPipeServerStream(PipePath, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
 
         public void Post()
         {
             Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
+            //if (Pipe != null && Pipe.IsConnected)
+            //    Pipe.WaitForPipeDrain();
             Pipe?.Dispose();
             Pipe = null!;
         }
@@ -40,7 +42,7 @@ namespace FFMpegCore.Arguments
         {
             try
             {
-                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);           
+                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (TaskCanceledException)
             {
@@ -49,6 +51,8 @@ namespace FFMpegCore.Arguments
             finally
             {
                 Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
+                //if (Pipe != null && Pipe.IsConnected)
+                //    Pipe.WaitForPipeDrain();
                 Pipe?.Disconnect();
             }
         }
