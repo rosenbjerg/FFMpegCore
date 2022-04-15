@@ -87,16 +87,17 @@ namespace FFMpegCore
         {
             var options = GetConfiguredOptions(ffMpegOptions);
             var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
-            processArguments.Exited += delegate { cancellationTokenSource.Cancel(); };
 
+            
             IProcessResult? processResult = null;
             try
             {
                 processResult = Process(processArguments, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                if (!HandleException(throwOnError, e, processResult?.ErrorData ?? Array.Empty<string>())) return false;
+                if (throwOnError)
+                    throw;
             }
 
             return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
@@ -106,17 +107,18 @@ namespace FFMpegCore
         {
             var options = GetConfiguredOptions(ffMpegOptions);
             var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
-
+            
             IProcessResult? processResult = null;
             try
             {
                 processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                if (!HandleException(throwOnError, e, processResult?.ErrorData ?? Array.Empty<string>())) return false;
+                if (throwOnError)
+                    throw;
             }
-
+            
             return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
         }
 
@@ -127,8 +129,10 @@ namespace FFMpegCore
             _ffMpegArguments.Pre();
 
             using var instance = processArguments.Start();
+            var cancelled = false;
             void OnCancelEvent(object sender, int timeout)
             {
+                cancelled = true;
                 instance.SendInput("q");
 
                 if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
@@ -147,6 +151,11 @@ namespace FFMpegCore
                     cancellationTokenSource.Cancel();
                     _ffMpegArguments.Post();
                 }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+
+                if (cancelled)
+                {
+                    throw new OperationCanceledException("ffmpeg processing was cancelled");
+                }
 
                 return processResult;
             }
@@ -207,15 +216,6 @@ namespace FFMpegCore
         private void ErrorData(object sender, string msg)
         {
             _onError?.Invoke(msg);
-        }
-
-
-        private static bool HandleException(bool throwOnError, Exception e, IEnumerable<string> errorData)
-        {
-            if (!throwOnError)
-                return false;
-
-            throw new FFMpegException(FFMpegExceptionType.Process, "Exception thrown during processing", e, string.Join("\n", errorData));
         }
 
         private void OutputData(object sender, string msg)
