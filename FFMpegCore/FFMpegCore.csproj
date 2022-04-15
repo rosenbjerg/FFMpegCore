@@ -8,13 +8,18 @@
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>- Added libx265 static codec prop
-- Support for reading Packets from mediafile through ffprobe (thanks zhuker)
-- Support for fluent configuration of FFOptinos per-run (thanks BobSilent)
-- Support for adding metadata (thanks Weirdo)
-- Automatically escape single quotes in filenames for DemuxConcatArgument (thanks JKamsker)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixes for `MetaDataArgument` (thanks @JKamsker)
+- Support for Audible `aaxc` (thanks @JKamsker)
+- Include errordata in `IMediaAnalysis` (thanks @JKamsker)
+- Pass `FFOptions` properly when using ffprobe (thanks @Notheisz57)
+- CancellationToken support for `AnalyseAsync`
+- Case-insensitive dictionaries for `Tags` and `Disposition`
+- Fix for `PosterWithAudio`
+- Fix for `JoinImageSequence`
+- Updates to dependendies
+- A lot of bug fixes</PackageReleaseNotes>
     <LangVersion>8</LangVersion>
-    <PackageVersion>4.7.0</PackageVersion>
+    <PackageVersion>4.8.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
