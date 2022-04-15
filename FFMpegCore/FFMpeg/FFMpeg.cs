@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Instances;
 
 namespace FFMpegCore
 {
@@ -246,13 +247,18 @@ namespace FFMpegCore
         public static bool PosterWithAudio(string image, string audio, string output)
         {
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-            FFMpegHelper.ConversionSizeExceptionCheck(Image.FromFile(image));
+            using (var imageFile = Image.FromFile(image))
+            {
+                FFMpegHelper.ConversionSizeExceptionCheck(imageFile);
+            }
 
             return FFMpegArguments
                 .FromFileInput(image, false, options => options
-                    .Loop(1))
+                    .Loop(1)
+                    .ForceFormat("image2"))
                 .AddFileInput(audio)
                 .OutputToFile(output, true, options => options
+                    .ForcePixelFormat("yuv420p")
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithConstantRateFactor(21)
                     .WithAudioBitrate(AudioQuality.Normal)
@@ -319,6 +325,7 @@ namespace FFMpegCore
                 return FFMpegArguments
                     .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
                     .OutputToFile(output, true, options => options
+                        .ForcePixelFormat("yuv420p")
                         .Resize(firstImage.Width, firstImage.Height)
                         .WithFramerate(frameRate))
                     .ProcessSynchronously();
@@ -417,15 +424,16 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<PixelFormat>();
-            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
-            instance.DataReceived += (e, args) =>
+            var processArguments = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
+            processArguments.OutputDataReceived += (e, data) =>
             {
-                if (PixelFormat.TryParse(args.Data, out var format))
+                if (PixelFormat.TryParse(data, out var format))
                     list.Add(format);
             };
 
-            var exitCode = instance.BlockUntilFinished();
-            if (exitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", instance.OutputData));
+            var result = processArguments.StartAndWaitForExit();
+            if (result.ExitCode != 0) 
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
 
             return list.AsReadOnly();
         }
@@ -462,10 +470,10 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck();
 
-            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
-            instance.DataReceived += (e, args) =>
+            var processArguments = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
+            processArguments.OutputDataReceived += (e, data) =>
             {
-                var codec = parser(args.Data);
+                var codec = parser(data);
                 if(codec != null)
                     if (codecs.TryGetValue(codec.Name, out var parentCodec))
                         parentCodec.Merge(codec);
@@ -473,8 +481,8 @@ namespace FFMpegCore
                         codecs.Add(codec.Name, codec);
             };
 
-            var exitCode = instance.BlockUntilFinished();
-            if (exitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", instance.OutputData));
+            var result = processArguments.StartAndWaitForExit();
+            if (result.ExitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
         }
 
         internal static Dictionary<string, Codec> GetCodecsInternal()
@@ -546,15 +554,15 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
 
             var list = new List<ContainerFormat>();
-            using var instance = new Instances.Instance(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
-            instance.DataReceived += (e, args) =>
+            var instance = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
+            instance.OutputDataReceived += (e, data) =>
             {
-                if (ContainerFormat.TryParse(args.Data, out var fmt))
+                if (ContainerFormat.TryParse(data, out var fmt))
                     list.Add(fmt);
             };
 
-            var exitCode = instance.BlockUntilFinished();
-            if (exitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", instance.OutputData));
+            var result = instance.StartAndWaitForExit();
+            if (result.ExitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
 
             return list.AsReadOnly();
         }

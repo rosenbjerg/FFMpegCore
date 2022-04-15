@@ -4,10 +4,18 @@ on:
   push:
     branches:
       - master
+    paths:
+    - .github/workflows/ci.yml
+    - FFMpegCore/**
+    - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
       - release
+    paths:
+    - .github/workflows/ci.yml
+    - FFMpegCore/**
+    - FFMpegCore.Test/**
 
 jobs:
   ci:
@@ -22,7 +30,7 @@ jobs:
     - name: Prepare .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.x'
+        dotnet-version: '6.0.x'
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v1
     - name: Test with dotnet

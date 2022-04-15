@@ -334,7 +334,7 @@ namespace FFMpegCore.Test
                         .HardBurnSubtitle(SubtitleHardBurnOptions
                             .Create(subtitlePath: "sample.srt")
                             .SetCharacterEncoding("UTF-8")
-                            .SetOriginalSize(1366,768)
+                            .SetOriginalSize(1366, 768)
                             .SetSubtitleIndex(0)
                             .WithStyle(StyleOptions.Create()
                                 .WithParameter("FontName", "DejaVu Serif")
@@ -479,10 +479,21 @@ namespace FFMpegCore.Test
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
                 .OutputToFile("output.mp4", false,
-                    opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicNormalizer(125, 13, 0.9215, 5.124, 0.5458,false,true,true, 0.3333333)))
+                    opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicNormalizer(125, 13, 0.9215, 5.124, 0.5458, false, true, true, 0.3333333)))
                 .Arguments;
 
             Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=125:g=13:p=0.92:m=5.1:r=0.5:n=0:c=1:b=1:s=0.3\" \"output.mp4\"", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_Audible_AAXC_Decryption()
+        {
+            var str = FFMpegArguments.FromFileInput("input.aaxc", false, x => x.WithAudibleEncryptionKeys("123", "456"))
+                .MapMetaData()
+                .OutputToFile("output.m4b", true, x => x.WithTagVersion(3).DisableChannel(Channel.Video).CopyChannel(Channel.Audio))
+                .Arguments;
+
+            Assert.AreEqual("-audible_key 123 -audible_iv 456 -i \"input.aaxc\" -map_metadata 0 -id3v2_version 3 -vn -c:a copy \"output.m4b\" -y", str);
         }
     }
 }
