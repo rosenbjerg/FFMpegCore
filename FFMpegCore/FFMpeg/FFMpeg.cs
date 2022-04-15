@@ -254,9 +254,11 @@ namespace FFMpegCore
 
             return FFMpegArguments
                 .FromFileInput(image, false, options => options
-                    .Loop(1))
+                    .Loop(1)
+                    .ForceFormat("image2"))
                 .AddFileInput(audio)
                 .OutputToFile(output, true, options => options
+                    .ForcePixelFormat("yuv420p")
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithConstantRateFactor(21)
                     .WithAudioBitrate(AudioQuality.Normal)
