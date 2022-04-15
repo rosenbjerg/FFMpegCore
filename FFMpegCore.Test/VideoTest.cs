@@ -468,7 +468,7 @@ namespace FFMpegCore.Test
                     }
                 });
 
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
             var success = FFMpeg.JoinImageSequence(outputFile, images: imageSet.ToArray());
             Assert.IsTrue(success);
             var result = FFProbe.Analyse(outputFile);
