@@ -113,13 +113,11 @@ namespace FFMpegCore.Test
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+            var ex = Assert.ThrowsException<FFMpegStreamFormatException>(() => FFMpegArguments
               .FromPipeInput(videoFramesSource)
               .OutputToFile(outputFile, false, opt => opt
                   .WithVideoCodec(VideoCodec.LibX264))
               .ProcessSynchronously());
-
-            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
         }
 
 
@@ -135,13 +133,11 @@ namespace FFMpegCore.Test
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
-            var ex = await Assert.ThrowsExceptionAsync<FFMpegException>(() => FFMpegArguments
+            var ex = await Assert.ThrowsExceptionAsync<FFMpegStreamFormatException>(() => FFMpegArguments
               .FromPipeInput(videoFramesSource)
               .OutputToFile(outputFile, false, opt => opt
                   .WithVideoCodec(VideoCodec.LibX264))
               .ProcessAsynchronously());
-
-            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
         }
 
         [TestMethod, Timeout(10000)]
@@ -156,13 +152,11 @@ namespace FFMpegCore.Test
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+            var ex = Assert.ThrowsException<FFMpegStreamFormatException>(() => FFMpegArguments
               .FromPipeInput(videoFramesSource)
               .OutputToFile(outputFile, false, opt => opt
                   .WithVideoCodec(VideoCodec.LibX264))
               .ProcessSynchronously());
-
-            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
         }
 
 
@@ -178,13 +172,11 @@ namespace FFMpegCore.Test
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
-            var ex = await Assert.ThrowsExceptionAsync<FFMpegException>(() => FFMpegArguments
+            var ex = await Assert.ThrowsExceptionAsync<FFMpegStreamFormatException>(() => FFMpegArguments
               .FromPipeInput(videoFramesSource)
               .OutputToFile(outputFile, false, opt => opt
                   .WithVideoCodec(VideoCodec.LibX264))
               .ProcessAsynchronously());
-
-            Assert.IsInstanceOfType(ex.GetBaseException(), typeof(FFMpegStreamFormatException));
         }
 
         [TestMethod, Timeout(10000)]
@@ -597,6 +589,27 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(10000)]
+        public void Video_Cancel()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(out var cancel);
+
+            Task.Delay(300).ContinueWith((_) => cancel());
+
+            var result = task.ProcessSynchronously(false);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async_With_Timeout()
         {
             var outputFile = new TemporaryFile("out.mp4");
@@ -615,11 +628,10 @@ namespace FFMpegCore.Test
             await Task.Delay(300);
             cancel();
 
-            var result = await task;
+            await task;
 
             var outputInfo = await FFProbe.AnalyseAsync(outputFile);
 
-            Assert.IsTrue(result);
             Assert.IsNotNull(outputInfo);
             Assert.AreEqual(320, outputInfo.PrimaryVideoStream!.Width);
             Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
@@ -645,12 +657,56 @@ namespace FFMpegCore.Test
                 .CancellableThrough(cts.Token)
                 .ProcessAsynchronously(false);
 
-            await Task.Delay(300);
-            cts.Cancel();
+            cts.CancelAfter(300);
 
             var result = await task;
 
             Assert.IsFalse(result);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Video_Cancel_CancellationToken_Async_Throws()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var cts = new CancellationTokenSource();
+
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(cts.Token)
+                .ProcessAsynchronously();
+
+            cts.CancelAfter(300);
+
+            await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => task);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Video_Cancel_CancellationToken_Throws()
+        {
+            var outputFile = new TemporaryFile("out.mp4");
+
+            var cts = new CancellationTokenSource();
+
+            var task = FFMpegArguments
+                .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                    .WithCustomArgument("-re")
+                    .ForceFormat("lavfi"))
+                .OutputToFile(outputFile, false, opt => opt
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithSpeedPreset(Speed.VeryFast))
+                .CancellableThrough(cts.Token);
+
+            cts.CancelAfter(300);
+
+            Assert.ThrowsException<OperationCanceledException>(() => task.ProcessSynchronously());
         }
 
         [TestMethod, Timeout(10000)]
@@ -671,14 +727,12 @@ namespace FFMpegCore.Test
                 .CancellableThrough(cts.Token, 8000)
                 .ProcessAsynchronously(false);
 
-            await Task.Delay(300);
-            cts.Cancel();
+            cts.CancelAfter(300);
 
-            var result = await task;
+            await task;
 
             var outputInfo = await FFProbe.AnalyseAsync(outputFile);
 
-            Assert.IsTrue(result);
             Assert.IsNotNull(outputInfo);
             Assert.AreEqual(320, outputInfo.PrimaryVideoStream!.Width);
             Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
