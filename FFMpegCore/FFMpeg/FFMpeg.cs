@@ -325,6 +325,7 @@ namespace FFMpegCore
                 return FFMpegArguments
                     .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
                     .OutputToFile(output, true, options => options
+                        .ForcePixelFormat("yuv420p")
                         .Resize(firstImage.Width, firstImage.Height)
                         .WithFramerate(frameRate))
                     .ProcessSynchronously();
