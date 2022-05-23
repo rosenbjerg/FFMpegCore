@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <PackageReference Include="Instances" Version="3.0.0"/>
+        <PackageReference Include="PInvoke.Kernel32" Version="0.7.104" />
         <PackageReference Include="System.Text.Json" Version="7.0.1"/>
     </ItemGroup>
 
