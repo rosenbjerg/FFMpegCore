@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-
+using System.Linq;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 
@@ -61,6 +62,8 @@ namespace FFMpegCore
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
         public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex));
+        public FFMpegArgumentOptions SelectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0) =>
+            streamIndices.Aggregate(this, (options, streamIndex) => options.SelectStream(streamIndex, inputFileIndex));
 
         public FFMpegArgumentOptions ForceFormat(ContainerFormat format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
