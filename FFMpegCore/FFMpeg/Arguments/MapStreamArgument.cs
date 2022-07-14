@@ -10,8 +10,9 @@ namespace FFMpegCore.Arguments
         private readonly int _inputFileIndex;
         private readonly int _streamIndex;
         private readonly Channel _channel;
+        private readonly bool _negativeMap;
 
-        public MapStreamArgument(int streamIndex, int inputFileIndex, Channel channel = Channel.All)
+        public MapStreamArgument(int streamIndex, int inputFileIndex, Channel channel = Channel.All, bool negativeMap = false)
         {
             if (channel == Channel.Both)
             {
@@ -21,8 +22,9 @@ namespace FFMpegCore.Arguments
             _inputFileIndex = inputFileIndex;
             _streamIndex = streamIndex;
             _channel = channel;
+            _negativeMap = negativeMap;
         }
 
-        public string Text => $"-map {_inputFileIndex}{_channel.StreamType()}:{_streamIndex}";
+        public string Text => $"-map {(_negativeMap?"-":"")}{_inputFileIndex}{_channel.StreamType()}:{_streamIndex}";
     }
 }
