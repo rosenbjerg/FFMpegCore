@@ -61,9 +61,10 @@ namespace FFMpegCore
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
-        public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex));
-        public FFMpegArgumentOptions SelectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0) =>
-            streamIndices.Aggregate(this, (options, streamIndex) => options.SelectStream(streamIndex, inputFileIndex));
+        public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0,
+            Channel channel = Channel.All) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, channel));
+        public FFMpegArgumentOptions SelectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0, Channel channel = Channel.All) =>
+            streamIndices.Aggregate(this, (options, streamIndex) => options.SelectStream(streamIndex, inputFileIndex, channel));
 
         public FFMpegArgumentOptions ForceFormat(ContainerFormat format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
