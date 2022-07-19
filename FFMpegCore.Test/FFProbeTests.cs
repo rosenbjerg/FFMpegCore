@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FFMpegCore.Test.Resources;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FFMpegCore.Test.Resources;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -24,7 +24,7 @@ namespace FFMpegCore.Test
         public void FrameAnalysis_Sync()
         {
             var frameAnalysis = FFProbe.GetFrames(TestResources.WebmVideo);
-            
+
             Assert.AreEqual(90, frameAnalysis.Frames.Count);
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
@@ -36,7 +36,7 @@ namespace FFMpegCore.Test
         public async Task FrameAnalysis_Async()
         {
             var frameAnalysis = await FFProbe.GetFramesAsync(TestResources.WebmVideo);
-            
+
             Assert.AreEqual(90, frameAnalysis.Frames.Count);
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
             Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
@@ -55,12 +55,12 @@ namespace FFMpegCore.Test
             Assert.AreEqual(1362, packets.Last().Size);
         }
 
-        
+
         [TestMethod]
         public void PacketAnalysis_Sync()
         {
             var packets = FFProbe.GetPackets(TestResources.WebmVideo).Packets;
-            
+
             Assert.AreEqual(96, packets.Count);
             Assert.IsTrue(packets.All(f => f.CodecType == "video"));
             Assert.AreEqual("K_", packets[0].Flags);
@@ -74,9 +74,9 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(216, packets.Count);
             var actual = packets.Select(f => f.CodecType).Distinct().ToList();
-            var expected = new List<string> {"audio", "video"};
+            var expected = new List<string> { "audio", "video" };
             CollectionAssert.AreEquivalent(expected, actual);
-            Assert.IsTrue(packets.Where(t=>t.CodecType == "audio").All(f => f.Flags == "K_"));
+            Assert.IsTrue(packets.Where(t => t.CodecType == "audio").All(f => f.Flags == "K_"));
             Assert.AreEqual(75, packets.Count(t => t.CodecType == "video"));
             Assert.AreEqual(141, packets.Count(t => t.CodecType == "audio"));
         }
@@ -105,13 +105,13 @@ namespace FFMpegCore.Test
             var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"));
             Assert.IsNotNull(fileAnalysis);
         }
-        
+
         [TestMethod]
         public void Probe_Success()
         {
             var info = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
-            
+
             Assert.AreEqual("5.1", info.PrimaryAudioStream!.ChannelLayout);
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
             Assert.AreEqual("AAC (Advanced Audio Coding)", info.PrimaryAudioStream.CodecLongName);
@@ -121,10 +121,12 @@ namespace FFMpegCore.Test
             Assert.AreEqual(48000, info.PrimaryAudioStream.SampleRateHz);
             Assert.AreEqual("mp4a", info.PrimaryAudioStream.CodecTagString);
             Assert.AreEqual("0x6134706d", info.PrimaryAudioStream.CodecTag);
-            
+
             Assert.AreEqual(1471810, info.PrimaryVideoStream!.BitRate);
             Assert.AreEqual(16, info.PrimaryVideoStream.DisplayAspectRatio.Width);
             Assert.AreEqual(9, info.PrimaryVideoStream.DisplayAspectRatio.Height);
+            Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Width);
+            Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Height);
             Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
             Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
             Assert.AreEqual(720, info.PrimaryVideoStream.Height);
@@ -137,7 +139,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual("avc1", info.PrimaryVideoStream.CodecTagString);
             Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
         }
-        
+
         [TestMethod, Timeout(10000)]
         public async Task Probe_Async_Success()
         {
