@@ -7,40 +7,40 @@ namespace FFMpegCore
     {
         [JsonPropertyName("streams")]
         public List<FFProbeStream> Streams { get; set; } = null!;
-        
+
         [JsonPropertyName("format")]
         public Format Format { get; set; } = null!;
-        
+
         [JsonIgnore]
         public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
     }
-    
+
     public class FFProbeStream : ITagsContainer, IDispositionContainer
     {
         [JsonPropertyName("index")]
         public int Index { get; set; }
-        
+
         [JsonPropertyName("avg_frame_rate")]
         public string AvgFrameRate { get; set; } = null!;
-        
+
         [JsonPropertyName("bits_per_raw_sample")]
         public string BitsPerRawSample { get; set; } = null!;
-        
+
         [JsonPropertyName("bit_rate")]
         public string BitRate { get; set; } = null!;
-        
+
         [JsonPropertyName("channels")]
         public int? Channels { get; set; }
-        
+
         [JsonPropertyName("channel_layout")]
         public string ChannelLayout { get; set; } = null!;
 
         [JsonPropertyName("codec_type")]
         public string CodecType { get; set; } = null!;
-        
+
         [JsonPropertyName("codec_name")]
         public string CodecName { get; set; } = null!;
-        
+
         [JsonPropertyName("codec_long_name")]
         public string CodecLongName { get; set; } = null!;
 
@@ -52,6 +52,9 @@ namespace FFMpegCore
 
         [JsonPropertyName("display_aspect_ratio")]
         public string DisplayAspectRatio { get; set; } = null!;
+
+        [JsonPropertyName("sample_aspect_ratio")]
+        public string SampleAspectRatio { get; set; } = null!;
 
         [JsonPropertyName("duration")]
         public string Duration { get; set; } = null!;
@@ -67,10 +70,10 @@ namespace FFMpegCore
 
         [JsonPropertyName("r_frame_rate")]
         public string FrameRate { get; set; } = null!;
-        
+
         [JsonPropertyName("pix_fmt")]
         public string PixelFormat { get; set; } = null!;
-        
+
         [JsonPropertyName("sample_rate")]
         public string SampleRate { get; set; } = null!;
 
@@ -135,7 +138,7 @@ namespace FFMpegCore
                 return tagValue;
             return null;
         }
-        
+
         public static string? GetLanguage(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "language");
         public static string? GetCreationTime(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "creation_time ");
         public static string? GetRotate(this ITagsContainer tagsContainer) => TryGetTagValue(tagsContainer, "rotate");
