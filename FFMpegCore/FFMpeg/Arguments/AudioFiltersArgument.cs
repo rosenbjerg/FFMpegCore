@@ -50,6 +50,17 @@ namespace FFMpegCore.Arguments
             double compressorFactor = 0.0) => WithArgument(new DynamicNormalizerArgument(frameLength, filterWindow,
             targetPeak, gainFactor, targetRms, channelCoupling, enableDcBiasCorrection, enableAlternativeBoundary,
             compressorFactor));
+        public AudioFilterOptions HighPass(double frequency = 3000, int poles = 2, string width_type ="q", double width = 0.707,
+            double mix = 1, string channels = "", bool normalize = false, string transform = "", string precision = "auto", 
+            int? blocksize = null) => WithArgument(new HighPassFilterArgument(frequency, poles, width_type, width, mix, channels, normalize, transform, precision, blocksize));
+        public AudioFilterOptions LowPass(double frequency = 3000, int poles = 2, string width_type = "q", double width = 0.707,
+            double mix = 1, string channels = "", bool normalize = false, string transform = "", string precision = "auto", 
+            int? blocksize = null) => WithArgument(new LowPassFilterArgument(frequency, poles, width_type, width, mix, channels, normalize, transform, precision, blocksize));
+        public AudioFilterOptions AudioGate(double level_in = 1, string mode = "downward", double range = 0.06125, double threshold = 0.125,
+            int ratio = 2, double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, string detection = "rms", 
+            string link = "average") => WithArgument(new AudioGateArgument(level_in, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
+        public AudioFilterOptions SilenceDetect(string noise_type = "db", double noise = 60, double duration = 2, 
+            bool mono = false) => WithArgument(new SilenceDetectArgument(noise_type, noise, duration, mono));
 
         private AudioFilterOptions WithArgument(IAudioFilterArgument argument)
         {
