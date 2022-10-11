@@ -150,7 +150,7 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibX264)
                         .WithVideoBitrate(2400)
-                        .WithVideoFilters(filterOptions => filterOptions 
+                        .WithVideoFilters(filterOptions => filterOptions
                             .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.Aac)
@@ -162,7 +162,7 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibTheora)
                         .WithVideoBitrate(2400)
-                        .WithVideoFilters(filterOptions => filterOptions 
+                        .WithVideoFilters(filterOptions => filterOptions
                             .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.LibVorbis)
@@ -181,7 +181,7 @@ namespace FFMpegCore
                         .UsingMultithreading(multithreaded)
                         .WithVideoCodec(VideoCodec.LibVpx)
                         .WithVideoBitrate(2400)
-                        .WithVideoFilters(filterOptions => filterOptions 
+                        .WithVideoFilters(filterOptions => filterOptions
                             .Scale(outputSize))
                         .WithSpeedPreset(speed)
                         .WithAudioCodec(AudioCodec.LibVorbis)
@@ -236,7 +236,7 @@ namespace FFMpegCore
 
             if (uri.Scheme != "http" && uri.Scheme != "https")
                 throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
-            
+
             return FFMpegArguments
                 .FromUrlInput(uri)
                 .OutputToFile(output)
@@ -319,7 +319,7 @@ namespace FFMpegCore
             };
 
             var result = processArguments.StartAndWaitForExit();
-            if (result.ExitCode != 0) 
+            if (result.ExitCode != 0)
                 throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
 
             return list.AsReadOnly();
@@ -361,7 +361,7 @@ namespace FFMpegCore
             processArguments.OutputDataReceived += (e, data) =>
             {
                 var codec = parser(data);
-                if(codec != null)
+                if (codec != null)
                     if (codecs.TryGetValue(codec.Name, out var parentCodec))
                         parentCodec.Merge(codec);
                     else
@@ -408,7 +408,7 @@ namespace FFMpegCore
         {
             if (!GlobalFFOptions.Current.UseCache)
                 return GetCodecsInternal().Values.Where(x => x.Type == type).ToList().AsReadOnly();
-            return FFMpegCache.Codecs.Values.Where(x=>x.Type == type).ToList().AsReadOnly();
+            return FFMpegCache.Codecs.Values.Where(x => x.Type == type).ToList().AsReadOnly();
         }
 
         public static IReadOnlyList<Codec> GetVideoCodecs() => GetCodecs(CodecType.Video);
