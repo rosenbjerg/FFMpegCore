@@ -89,6 +89,15 @@ namespace FFMpegCore
             return ParseOutput(result);
         }
 
+        public static FFProbeFrames GetFrames(Uri uri, FFOptions? ffOptions = null)
+        {
+            var instance = PrepareFrameAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current);
+            var result = instance.StartAndWaitForExit();
+            ThrowIfExitCodeNotZero(result);
+
+            return ParseFramesOutput(result);
+        }
+
         public static async Task<FFProbeFrames> GetFramesAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
         {
             ThrowIfInputFileDoesNotExist(filePath);
@@ -139,6 +148,13 @@ namespace FFMpegCore
             
             pipeArgument.Post();
             return ParseOutput(result);
+        }
+
+        public static async Task<FFProbeFrames> GetFramesAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
+        {
+            var instance = PrepareFrameAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current);
+            var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            return ParseFramesOutput(result);
         }
 
         private static IMediaAnalysis ParseOutput(IProcessResult instance)
