@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace FFMpegCore.Pipes
@@ -11,8 +12,9 @@ namespace FFMpegCore.Pipes
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return $@"\\.\pipe\{pipeName}";
-            else
-                return $"unix:/tmp/CoreFxPipe_{pipeName}";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return $"unix:{Path.GetTempPath()}/CoreFxPipe_{pipeName}";
+            return $"unix:/tmp/CoreFxPipe_{pipeName}";
         }
     }
 }
