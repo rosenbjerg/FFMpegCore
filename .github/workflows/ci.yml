@@ -25,13 +25,12 @@ jobs:
     - name: Prepare .NET
       uses: actions/setup-dotnet@v1
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
         dotnet-version: '6.0.x'
 
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v1
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test with dotnet
       run: dotnet test --logger GitHubActions
