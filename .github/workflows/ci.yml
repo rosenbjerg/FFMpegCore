@@ -20,15 +20,15 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Prepare .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
 
     - name: Prepare FFMpeg
-      uses: FedericoCarboni/setup-ffmpeg@v1
+      uses: FedericoCarboni/setup-ffmpeg@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
