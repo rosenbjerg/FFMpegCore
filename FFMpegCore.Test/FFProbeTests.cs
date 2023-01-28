@@ -99,7 +99,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(expectedMilliseconds, parsedDuration.Milliseconds);
         }
 
-        [TestMethod, Ignore("Consistently fails on GitHub Workflow ubuntu agents")]
+        [TestMethod]
         public async Task Uri_Duration()
         {
             var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"));
