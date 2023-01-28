@@ -25,6 +25,7 @@
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>

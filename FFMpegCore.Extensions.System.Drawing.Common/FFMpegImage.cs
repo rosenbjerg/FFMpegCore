@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
             var temporaryImageFiles = images.Select((imageInfo, index) =>
             {
                 using var image = Image.FromFile(imageInfo.FullName);
-                FFMpegHelper.ConversionSizeExceptionCheck(image);
+                FFMpegHelper.ConversionSizeExceptionCheck(image.Width, image.Height);
                 var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{imageInfo.Extension}");
                 Directory.CreateDirectory(tempFolderName);
                 File.Copy(imageInfo.FullName, destinationPath);
@@ -74,6 +75,8 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
                     .WithAudioBitrate(AudioQuality.Normal)
                     .UsingShortest())
                 .ProcessSynchronously();
+            
+            
         }
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
