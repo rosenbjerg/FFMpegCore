@@ -1,13 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-    - .github/workflows/ci.yml
-    - FFMpegCore/**
-    - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
@@ -25,13 +18,20 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     timeout-minutes: 6
     steps:
+
     - name: Checkout
       uses: actions/checkout@v2
+
     - name: Prepare .NET
       uses: actions/setup-dotnet@v1
       with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
         dotnet-version: '6.0.x'
+
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Test with dotnet
       run: dotnet test --logger GitHubActions
