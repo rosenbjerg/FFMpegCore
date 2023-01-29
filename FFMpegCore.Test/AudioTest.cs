@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Test.Utilities;
