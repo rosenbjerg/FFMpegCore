@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
+using System.Runtime.Versioning;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Test
+namespace FFMpegCore.Test.Utilities
 {
+    [SupportedOSPlatform("windows")]
     static class BitmapSource
     {
         public static IEnumerable<IVideoFrame> CreateBitmaps(int count, PixelFormat fmt, int w, int h)

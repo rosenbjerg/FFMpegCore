@@ -13,7 +13,7 @@ namespace FFMpegCore
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
-            ErrorData = analysis.ErrorData ?? new List<string>().AsReadOnly();
+            ErrorData = analysis.ErrorData;
         }
         
         private MediaFormat ParseFormat(Format analysisFormat)
