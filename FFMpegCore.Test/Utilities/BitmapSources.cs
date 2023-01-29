@@ -6,7 +6,7 @@ using System.Numerics;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Test.Utilities
+namespace FFMpegCore.Test
 {
     static class BitmapSource
     {
