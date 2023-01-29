@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test
 {
@@ -66,8 +67,8 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [TestMethod]
-        [SupportedOSPlatform("windows")]
+        [TestMethodWithIgnoreIfSupport]
+        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
         public void Image_AddAudio()
         {
             using var outputFile = new TemporaryFile("out.mp4");
