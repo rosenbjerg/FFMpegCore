@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.IO;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public static class BitmapExtensions
     {
@@ -12,7 +12,7 @@ namespace FFMpegCore.Extend
             poster.Save(destination);
             try
             {
-                return FFMpeg.PosterWithAudio(destination, audio, output);
+                return FFMpegImage.PosterWithAudio(destination, audio, output);
             }
             finally
             {
