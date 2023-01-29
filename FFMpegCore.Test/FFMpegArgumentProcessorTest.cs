@@ -13,7 +13,7 @@ namespace FFMpegCore.Test
 
         {
             // After testing reset global configuration to null, to be not wrong for other test relying on configuration
-            typeof(GlobalFFOptions).GetField("_current", BindingFlags.NonPublic | BindingFlags.Static).SetValue(GlobalFFOptions.Current, null);
+            typeof(GlobalFFOptions).GetField("_current", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(GlobalFFOptions.Current, null);
         }
 
         private static FFMpegArgumentProcessor CreateArgumentProcessor() => FFMpegArguments
@@ -69,10 +69,6 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Options_Global_And_Session_Options_Can_Differ()
         {
-            FFMpegArgumentProcessor CreateArgumentProcessor() => FFMpegArguments
-                .FromFileInput("")
-                .OutputToFile("");
-
             var globalWorkingDir = "Whatever";
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
 

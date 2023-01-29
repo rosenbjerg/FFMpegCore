@@ -1,0 +1,15 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <NeutralLanguage>en</NeutralLanguage>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <LangVersion>default</LangVersion>
+        <Nullable>enable</Nullable>
+
+        <RepositoryType>GitHub</RepositoryType>
+        <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>en</NeutralLanguage>
+    </PropertyGroup>
+</Project>
