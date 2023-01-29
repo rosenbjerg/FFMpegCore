@@ -41,6 +41,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
                 return FFMpegArguments
                     .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
                     .OutputToFile(output, true, options => options
+                        .ForcePixelFormat("yuv420p")
                         .Resize(firstImage.Width, firstImage.Height)
                         .WithFramerate(frameRate))
                     .ProcessSynchronously();
@@ -62,22 +63,22 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
         {
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
             using (var img = Image.FromFile(image))
-                FFMpegHelper.ConversionSizeExceptionCheck(img);
+                FFMpegHelper.ConversionSizeExceptionCheck(img.Width, img.Height);
 
             return FFMpegArguments
                 .FromFileInput(image, false, options => options
-                    .Loop(1))
+                    .Loop(1)
+                    .ForceFormat("image2"))
                 .AddFileInput(audio)
                 .OutputToFile(output, true, options => options
+                    .ForcePixelFormat("yuv420p")
                     .WithVideoCodec(VideoCodec.LibX264)
-                    .CopyChannel()
                     .WithConstantRateFactor(21)
                     .WithAudioBitrate(AudioQuality.Normal)
                     .UsingShortest())
                 .ProcessSynchronously();
-            
-            
         }
+        
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
         /// </summary>
@@ -90,7 +91,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
         public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             var source = FFProbe.Analyse(input);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
             using var ms = new MemoryStream();
 
             arguments
@@ -114,7 +115,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
         public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
-            var (arguments, outputOptions) = BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
             using var ms = new MemoryStream();
 
             await arguments

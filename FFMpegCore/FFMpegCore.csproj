@@ -1,45 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <NeutralLanguage>en</NeutralLanguage>
-    <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
-    <Copyright></Copyright>
-    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>- Fixes for `MetaDataArgument` (thanks @JKamsker)
-- Support for Audible `aaxc` (thanks @JKamsker)
-- Include errordata in `IMediaAnalysis` (thanks @JKamsker)
-- Pass `FFOptions` properly when using ffprobe (thanks @Notheisz57)
-- CancellationToken support for `AnalyseAsync`
-- Case-insensitive dictionaries for `Tags` and `Disposition`
-- Fix for `PosterWithAudio`
-- Fix for `JoinImageSequence`
-- Updates to dependendies
-- A lot of bug fixes</PackageReleaseNotes>
-    <LangVersion>8</LangVersion>
-    <PackageVersion>4.8.0</PackageVersion>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
-    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
-    <RepositoryType>GitHub</RepositoryType>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IsPackable>true</IsPackable>
-    <Nullable>enable</Nullable>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
+        <PackageVersion>5.0.0</PackageVersion>
+        <PackageReleaseNotes>
+        </PackageReleaseNotes>
+        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
+        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="FFMPEG\bin\**\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Instances" Version="3.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Instances" Version="3.0.0"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.1"/>
+    </ItemGroup>
 
 </Project>

@@ -84,8 +84,8 @@ var inputAudioPath = "/path/to/input/audio";
 var inputImagePath = "/path/to/input/image";
 {
     FFMpegImage.PosterWithAudio(inputPath, inputAudioPath, outputPath);
-    // or
-    var image = Image.FromFile(inputImagePath);
+    // or 
+    using var image = Image.FromFile(inputImagePath);
     image.AddAudio(inputAudioPath, outputPath);
 }
 
