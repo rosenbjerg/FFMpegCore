@@ -7,7 +7,7 @@ public class WindowsOnlyDataTestMethod : DataTestMethodAttribute
 {
     public override TestResult[] Execute(ITestMethod testMethod)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var message = $"Test not executed on other platforms than Windows";
             {
