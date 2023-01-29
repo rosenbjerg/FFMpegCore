@@ -242,7 +242,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]
@@ -260,7 +260,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]
