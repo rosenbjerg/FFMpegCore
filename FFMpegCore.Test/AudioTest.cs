@@ -66,8 +66,7 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [TestMethodWithIgnoreIfSupport]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod]
         public void Image_AddAudio()
         {
             using var outputFile = new TemporaryFile("out.mp4");

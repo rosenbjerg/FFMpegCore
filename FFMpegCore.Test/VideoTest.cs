@@ -89,8 +89,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [DataTestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         public void Video_ToMP4_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
@@ -107,8 +106,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_Pipe_DifferentImageSizes()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -128,8 +126,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)][SupportedOSPlatform("windows")]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Async()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -149,8 +146,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_Pipe_DifferentPixelFormats()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -170,8 +166,7 @@ namespace FFMpegCore.Test
         }
         
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Async()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -326,8 +321,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [DataTestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         public async Task Video_ToTS_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
@@ -360,8 +354,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [DataTestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -397,8 +390,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [DataTestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -416,8 +408,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_Snapshot_InMemory()
         {
             var input = FFProbe.Analyse(TestResources.Mp4Video);
@@ -429,8 +420,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_Snapshot_PersistSnapshot()
         {
             var outputPath = new TemporaryFile("out.png");
@@ -466,8 +456,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_Join_Image_Sequence()
         {
             var imageSet = new List<ImageInfo>();
@@ -577,8 +566,7 @@ namespace FFMpegCore.Test
         }
 
         [SupportedOSPlatform("windows")]
-        [TestMethodWithIgnoreIfSupport, Timeout(10000)]
-        [IgnoreIf(nameof(OperatingSystemUtils.NotWindows))]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_TranscodeInMemory()
         {
             using var resStream = new MemoryStream();
