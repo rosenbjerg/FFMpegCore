@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test
 {
@@ -64,11 +66,11 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [TestMethod]
+        [WindowsOnlyTestMethod]
         public void Image_AddAudio()
         {
             using var outputFile = new TemporaryFile("out.mp4");
-            FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
+            FFMpegImage.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
             var analysis = FFProbe.Analyse(TestResources.Mp3Audio);
             Assert.IsTrue(analysis.Duration.TotalSeconds > 0);
             Assert.IsTrue(File.Exists(outputFile));
@@ -239,7 +241,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]
@@ -257,7 +259,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]
