@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
     {

@@ -4,10 +4,10 @@
     {
         private readonly bool _aaxcMode;
         
-        private readonly string _key;
-        private readonly string _iv;
+        private readonly string? _key;
+        private readonly string? _iv;
 
-        private readonly string _activationBytes;
+        private readonly string? _activationBytes;
 
 
         public AudibleEncryptionKeyArgument(string activationBytes)

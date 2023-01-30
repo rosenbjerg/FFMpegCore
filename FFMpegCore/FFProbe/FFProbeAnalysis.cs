@@ -12,7 +12,7 @@ namespace FFMpegCore
         public Format Format { get; set; } = null!;
         
         [JsonIgnore]
-        public IReadOnlyList<string> ErrorData { get; set; }
+        public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
     }
     
     public class FFProbeStream : ITagsContainer, IDispositionContainer
@@ -108,7 +108,7 @@ namespace FFMpegCore
         public string Size { get; set; } = null!;
 
         [JsonPropertyName("bit_rate")]
-        public string BitRate { get; set; } = null!;
+        public string? BitRate { get; set; } = null!;
 
         [JsonPropertyName("probe_score")]
         public int ProbeScore { get; set; }
