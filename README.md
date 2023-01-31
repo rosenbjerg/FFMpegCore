@@ -231,6 +231,6 @@ Older versions of ffmpeg might not support all ffmpeg arguments available throug
 
 ### License
 
-Copyright © 2021
+Copyright © 2023
 
 Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
