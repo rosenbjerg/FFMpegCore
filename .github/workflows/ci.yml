@@ -28,10 +28,9 @@ jobs:
         dotnet-version: '7.0.x'
 
     - name: Prepare FFMpeg
-      uses: Iamshankhadeep/setup-ffmpeg@v1.2
+      uses: FedericoCarboni/setup-ffmpeg@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        version: "4.4"
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln --logger GitHubActions
