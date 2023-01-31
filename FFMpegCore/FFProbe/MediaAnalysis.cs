@@ -13,9 +13,9 @@ namespace FFMpegCore
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
-            ErrorData = analysis.ErrorData ?? new List<string>().AsReadOnly();
+            ErrorData = analysis.ErrorData;
         }
-        
+
         private MediaFormat ParseFormat(Format analysisFormat)
         {
             return new MediaFormat
@@ -38,7 +38,7 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
-        
+
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
@@ -68,6 +68,7 @@ namespace FFMpegCore
                 CodecTag = stream.CodecTag,
                 CodecTagString = stream.CodecTagString,
                 DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
+                SampleAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.SampleAspectRatio, ':'),
                 Duration = MediaAnalysisUtils.ParseDuration(stream),
                 FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
                 Height = stream.Height ?? 0,
@@ -150,11 +151,11 @@ namespace FFMpegCore
 
         public static int ParseIntInvariant(string line) =>
             int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-        
+
         public static long ParseLongInvariant(string line) =>
             long.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-        
-        
+
+
         public static TimeSpan ParseDuration(string duration)
         {
             if (!string.IsNullOrEmpty(duration))

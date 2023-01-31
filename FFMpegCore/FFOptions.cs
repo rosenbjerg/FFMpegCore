@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FFMpegCore.Enums;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -26,6 +27,15 @@ namespace FFMpegCore
         /// Encoding used for parsing stdout/stderr on ffmpeg and ffprobe processes
         /// </summary>
         public Encoding Encoding { get; set; } = Encoding.Default;
+
+        /// <summary>
+        /// The log level to use when calling of the ffmpeg executable.
+        /// <para>
+        /// This option can be overridden before an execution of a Process command
+        /// to set the log level for that command.
+        /// </para>
+        /// </summary>
+        public FFMpegLogLevel? LogLevel { get; set; }
 
         /// <summary>
         ///

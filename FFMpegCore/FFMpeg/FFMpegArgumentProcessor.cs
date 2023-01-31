@@ -1,13 +1,14 @@
-﻿using System;
+﻿using FFMpegCore.Exceptions;
+using FFMpegCore.Helpers;
+using Instances;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using FFMpegCore.Exceptions;
-using FFMpegCore.Helpers;
-using Instances;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore
 {
@@ -21,6 +22,7 @@ namespace FFMpegCore
         private Action<string>? _onOutput;
         private Action<string>? _onError;
         private TimeSpan? _totalTimespan;
+        private FFMpegLogLevel? _logLevel;
 
         internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
         {
@@ -83,12 +85,23 @@ namespace FFMpegCore
             _configurations.Add(configureOptions);
             return this;
         }
+
+        /// <summary>
+        /// Sets the log level of this process. Overides the <see cref="FFMpegLogLevel"/>
+        /// that is set in the <see cref="FFOptions"/> for this specific process.
+        /// </summary>
+        /// <param name="logLevel">The log level of the ffmpeg execution.</param>
+        public FFMpegArgumentProcessor WithLogLevel(FFMpegLogLevel logLevel)
+        {
+            _logLevel = logLevel;
+            return this;
+        }
+
         public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
         {
             var options = GetConfiguredOptions(ffMpegOptions);
             var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
 
-            
             IProcessResult? processResult = null;
             try
             {
@@ -107,7 +120,7 @@ namespace FFMpegCore
         {
             var options = GetConfiguredOptions(ffMpegOptions);
             var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
-            
+
             IProcessResult? processResult = null;
             try
             {
@@ -118,7 +131,7 @@ namespace FFMpegCore
                 if (throwOnError)
                     throw;
             }
-            
+
             return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
         }
 
@@ -193,10 +206,25 @@ namespace FFMpegCore
         {
             FFMpegHelper.RootExceptionCheck();
             FFMpegHelper.VerifyFFMpegExists(ffOptions);
+
+            string? arguments = _ffMpegArguments.Text;
+
+            //If local loglevel is null, set the global.
+            if (_logLevel == null)
+                _logLevel = ffOptions.LogLevel;
+
+            //If neither local nor global loglevel is null, set the argument.
+            if (_logLevel != null)
+            {
+                string normalizedLogLevel = _logLevel.ToString()
+                                                     .ToLower();
+                arguments += $" -v {normalizedLogLevel}";
+            }
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions),
-                Arguments = _ffMpegArguments.Text,
+                Arguments = arguments,
                 StandardOutputEncoding = ffOptions.Encoding,
                 StandardErrorEncoding = ffOptions.Encoding,
                 WorkingDirectory = ffOptions.WorkingDirectory
@@ -204,10 +232,10 @@ namespace FFMpegCore
             var processArguments = new ProcessArguments(startInfo);
             cancellationTokenSource = new CancellationTokenSource();
 
-            if (_onOutput != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+            if (_onOutput != null)
                 processArguments.OutputDataReceived += OutputData;
-            
-            if (_onError != null)
+
+            if (_onError != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
                 processArguments.ErrorDataReceived += ErrorData;
 
             return processArguments;
@@ -216,12 +244,6 @@ namespace FFMpegCore
         private void ErrorData(object sender, string msg)
         {
             _onError?.Invoke(msg);
-        }
-
-        private void OutputData(object sender, string msg)
-        {
-            Debug.WriteLine(msg);
-            _onOutput?.Invoke(msg);
 
             var match = ProgressRegex.Match(msg);
             if (!match.Success) return;
@@ -232,6 +254,12 @@ namespace FFMpegCore
             if (_onPercentageProgress == null || _totalTimespan == null) return;
             var percentage = Math.Round(processed.TotalSeconds / _totalTimespan.Value.TotalSeconds * 100, 2);
             _onPercentageProgress(percentage);
+        }
+
+        private void OutputData(object sender, string msg)
+        {
+            Debug.WriteLine(msg);
+            _onOutput?.Invoke(msg);
         }
     }
 }
