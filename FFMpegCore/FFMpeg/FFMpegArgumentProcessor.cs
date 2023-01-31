@@ -9,12 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
-using FFMpegCore.Extend;
-using FFMpegCore.Helpers;
-using Instances;
-
-using PInvoke;
 
 namespace FFMpegCore
 {
@@ -148,13 +142,6 @@ namespace FFMpegCore
             _ffMpegArguments.Pre();
 
             using var instance = (ProcessInstance)processArguments.Start();
-            
-            using var job = new Job();
-            var processHack = (Process)typeof(ProcessInstance).GetField("_process", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .GetValue(instance);
-            using var instanceHandle = new Kernel32.SafeObjectHandle(processHack.Handle, ownsHandle: false);
-            job.AddProcess(instanceHandle);
-            
             var cancelled = false;
             void OnCancelEvent(object sender, int timeout)
             {
