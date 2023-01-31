@@ -141,7 +141,7 @@ namespace FFMpegCore
 
             _ffMpegArguments.Pre();
 
-            using var instance = (ProcessInstance)processArguments.Start();
+            using var instance = processArguments.Start();
             var cancelled = false;
             void OnCancelEvent(object sender, int timeout)
             {
