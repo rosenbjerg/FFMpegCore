@@ -75,7 +75,7 @@ namespace FFMpegCore.Test
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
                 .OutputToFile("output.mp4", false, opt => opt.WithHardwareAcceleration()).Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -hwaccel \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -hwaccel auto \"output.mp4\"", str);
         }
 
         [TestMethod]
