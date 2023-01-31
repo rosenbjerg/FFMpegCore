@@ -79,7 +79,7 @@ namespace FFMpegCore
         public static bool Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
-                output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
 
             var source = FFProbe.Analyse(input);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -101,7 +101,7 @@ namespace FFMpegCore
         public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
-                output = Path.GetFileNameWithoutExtension(output) + FileExtension.Png;
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
 
             var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
