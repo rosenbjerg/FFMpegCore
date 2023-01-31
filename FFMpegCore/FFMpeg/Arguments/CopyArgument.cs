@@ -16,9 +16,8 @@ namespace FFMpegCore.Arguments
 
         public string Text => Channel switch
         {
-            Channel.Audio => "-c:a copy",
-            Channel.Video => "-c:v copy",
-            _ => "-c copy"
+            Channel.Both => "-c:a copy -c:v copy",
+            _ => $"-c{Channel.StreamType()} copy"
         };
     }
 }
