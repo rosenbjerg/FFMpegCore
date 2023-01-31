@@ -53,6 +53,7 @@ namespace FFMpegCore.Arguments
         public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions) => WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
         public VideoFilterOptions BlackDetect(double minimumDuration = 2.0, double pictureBlackRatioThreshold = 0.98, double pixelBlackThreshold = 0.1) => WithArgument(new BlackDetectArgument(minimumDuration, pictureBlackRatioThreshold, pixelBlackThreshold));
         public VideoFilterOptions BlackFrame(int amount = 98, int threshold = 32) => WithArgument(new BlackFrameArgument(amount, threshold));
+        public VideoFilterOptions Pad(PadOptions padOptions) => WithArgument(new PadArgument(padOptions));
 
         private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
         {
