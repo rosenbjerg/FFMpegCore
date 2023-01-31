@@ -45,6 +45,7 @@ namespace FFMpegCore
         public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(verifyExists, filePath), addArguments);
         public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+        public FFMpegArguments AddDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputDeviceArgument(device), addArguments);
         public FFMpegArguments AddPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputPipeArgument(sourcePipe), addArguments);
         public FFMpegArguments AddMetaData(string content, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(content), addArguments);
         public FFMpegArguments AddMetaData(IReadOnlyMetaData metaData, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(MetaDataSerializer.Instance.Serialize(metaData)), addArguments);
