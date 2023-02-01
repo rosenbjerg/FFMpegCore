@@ -40,7 +40,7 @@ namespace FFMpegCore.Arguments
 
     public class AudioFilterOptions
     {
-        public List<IAudioFilterArgument> Arguments { get; } = new List<IAudioFilterArgument>();
+        public List<IAudioFilterArgument> Arguments { get; } = new();
 
         public AudioFilterOptions Pan(string channelLayout, params string[] outputDefinitions) => WithArgument(new PanArgument(channelLayout, outputDefinitions));
         public AudioFilterOptions Pan(int channels, params string[] outputDefinitions) => WithArgument(new PanArgument(channels, outputDefinitions));

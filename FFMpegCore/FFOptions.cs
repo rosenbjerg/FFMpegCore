@@ -37,7 +37,7 @@ namespace FFMpegCore
         /// <summary>
         ///
         /// </summary>
-        public Dictionary<string, string> ExtensionOverrides { get; set; } = new Dictionary<string, string>
+        public Dictionary<string, string> ExtensionOverrides { get; set; } = new()
         {
             { "mpegts", ".ts" },
         };

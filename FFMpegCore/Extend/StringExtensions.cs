@@ -4,7 +4,7 @@ namespace FFMpegCore.Extend
 {
     internal static class StringExtensions
     {
-        private static Dictionary<char, string> CharactersSubstitution { get; } = new Dictionary<char, string>
+        private static Dictionary<char, string> CharactersSubstitution { get; } = new()
         {
             { '\\', @"\\" },
             { ':', @"\:" },

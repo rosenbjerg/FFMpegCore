@@ -18,7 +18,7 @@ namespace FFMpegCore.Arguments
 
     public class PadOptions
     {
-        public readonly Dictionary<string, string> Parameters = new Dictionary<string, string>();
+        public readonly Dictionary<string, string> Parameters = new();
 
         internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
 

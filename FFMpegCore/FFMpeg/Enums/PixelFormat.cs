@@ -4,7 +4,7 @@ namespace FFMpegCore.Enums
 {
     public class PixelFormat
     {
-        private static readonly Regex _formatRegex = new Regex(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)");
+        private static readonly Regex _formatRegex = new(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)");
 
         public bool InputConversionSupported { get; private set; }
         public bool OutputConversionSupported { get; private set; }

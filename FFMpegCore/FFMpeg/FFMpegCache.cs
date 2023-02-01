@@ -4,7 +4,7 @@ namespace FFMpegCore
 {
     internal static class FFMpegCache
     {
-        private static readonly object _syncObject = new object();
+        private static readonly object _syncObject = new();
         private static Dictionary<string, PixelFormat>? _pixelFormats;
         private static Dictionary<string, Codec>? _codecs;
         private static Dictionary<string, ContainerFormat>? _containers;

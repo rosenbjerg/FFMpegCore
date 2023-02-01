@@ -4,7 +4,7 @@ namespace FFMpegCore.Arguments
 {
     public class DynamicNormalizerArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _arguments = new();
 
         /// <summary>
         ///     Dynamic Audio Normalizer. <see href="https://ffmpeg.org/ffmpeg-filters.html#dynaudnorm"/>

@@ -12,8 +12,8 @@ namespace FFMpegCore.Enums
 
     public class Codec
     {
-        private static readonly Regex _codecsFormatRegex = new Regex(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
-        private static readonly Regex _decodersEncodersFormatRegex = new Regex(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _codecsFormatRegex = new(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _decodersEncodersFormatRegex = new(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
 
         public class FeatureLevel
         {

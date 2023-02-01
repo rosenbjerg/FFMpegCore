@@ -4,6 +4,6 @@ namespace FFMpegCore
 {
     public abstract class FFMpegArgumentsBase
     {
-        internal readonly List<IArgument> Arguments = new List<IArgument>();
+        internal readonly List<IArgument> Arguments = new();
     }
 }

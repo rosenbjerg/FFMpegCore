@@ -6,7 +6,7 @@ namespace FFMpegCore
 {
     public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
-        private readonly FFMpegGlobalArguments _globalArguments = new FFMpegGlobalArguments();
+        private readonly FFMpegGlobalArguments _globalArguments = new();
 
         private FFMpegArguments() { }
 

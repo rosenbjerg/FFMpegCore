@@ -4,7 +4,7 @@ namespace FFMpegCore.Arguments
 {
     public class AudioGateArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _arguments = new();
 
         /// <summary>
         ///     Audio Gate. <see href="https://ffmpeg.org/ffmpeg-filters.html#agate"/>

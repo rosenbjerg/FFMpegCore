@@ -42,7 +42,7 @@ namespace FFMpegCore.Arguments
 
     public class VideoFilterOptions
     {
-        public List<IVideoFilterArgument> Arguments { get; } = new List<IVideoFilterArgument>();
+        public List<IVideoFilterArgument> Arguments { get; } = new();
 
         public VideoFilterOptions Scale(VideoSize videoSize) => WithArgument(new ScaleArgument(videoSize));
         public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));

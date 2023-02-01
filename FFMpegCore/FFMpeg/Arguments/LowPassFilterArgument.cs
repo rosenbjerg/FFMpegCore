@@ -4,10 +4,10 @@ namespace FFMpegCore.Arguments
 {
     public class LowPassFilterArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
-        private readonly List<string> _widthTypes = new List<string> { "h", "q", "o", "s", "k" };
-        private readonly List<string> _transformTypes = new List<string> { "di", "dii", "tdi", "tdii", "latt", "svf", "zdf" };
-        private readonly List<string> _precision = new List<string> { "auto", "s16", "s32", "f32", "f64" };
+        private readonly Dictionary<string, string> _arguments = new();
+        private readonly List<string> _widthTypes = new() { "h", "q", "o", "s", "k" };
+        private readonly List<string> _transformTypes = new() { "di", "dii", "tdi", "tdii", "latt", "svf", "zdf" };
+        private readonly List<string> _precision = new() { "auto", "s16", "s32", "f32", "f64" };
         /// <summary>
         ///     LowPass Filter. <see href="https://ffmpeg.org/ffmpeg-filters.html#lowpass"/>
         /// </summary>

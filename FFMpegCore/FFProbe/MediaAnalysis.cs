@@ -120,7 +120,7 @@ namespace FFMpegCore
 
     public static class MediaAnalysisUtils
     {
-        private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
+        private static readonly Regex DurationRegex = new(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
         internal static Dictionary<string, string>? ToCaseInsensitive(this Dictionary<string, string>? dictionary)
         {

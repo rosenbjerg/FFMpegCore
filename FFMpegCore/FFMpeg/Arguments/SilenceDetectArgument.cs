@@ -4,7 +4,7 @@ namespace FFMpegCore.Arguments
 {
     public class SilenceDetectArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _arguments = new();
         /// <summary>
         ///     Silence Detection. <see href="https://ffmpeg.org/ffmpeg-filters.html#silencedetect"/>
         /// </summary>

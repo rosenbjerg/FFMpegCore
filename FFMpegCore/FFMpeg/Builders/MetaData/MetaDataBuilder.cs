@@ -2,7 +2,7 @@
 {
     public class MetaDataBuilder
     {
-        private readonly MetaData _metaData = new MetaData();
+        private readonly MetaData _metaData = new();
 
         public MetaDataBuilder WithEntry(string key, string entry)
         {
@@ -98,6 +98,6 @@
         //encoder=Lavf58.47.100
         public MetaDataBuilder WithEncoder(string value) => WithEntry("encoder", value);
 
-        public ReadOnlyMetaData Build() => new ReadOnlyMetaData(_metaData);
+        public ReadOnlyMetaData Build() => new(_metaData);
     }
 }

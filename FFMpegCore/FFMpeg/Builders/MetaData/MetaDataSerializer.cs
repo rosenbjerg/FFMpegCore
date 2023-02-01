@@ -4,7 +4,7 @@ namespace FFMpegCore.Builders.MetaData
 {
     public class MetaDataSerializer
     {
-        public static readonly MetaDataSerializer Instance = new MetaDataSerializer();
+        public static readonly MetaDataSerializer Instance = new();
 
         public string Serialize(IReadOnlyMetaData metaData)
         {

@@ -10,7 +10,7 @@ namespace FFMpegCore
 {
     public class FFMpegArgumentProcessor
     {
-        private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+        private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
         private readonly List<Action<FFOptions>> _configurations;
         private readonly FFMpegArguments _ffMpegArguments;
         private Action<double>? _onPercentageProgress;

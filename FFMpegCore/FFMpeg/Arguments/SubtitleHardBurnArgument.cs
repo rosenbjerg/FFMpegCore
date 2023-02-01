@@ -21,7 +21,7 @@ namespace FFMpegCore.Arguments
     {
         private readonly string _subtitle;
 
-        public readonly Dictionary<string, string> Parameters = new Dictionary<string, string>();
+        public readonly Dictionary<string, string> Parameters = new();
 
         /// <summary>
         ///     Create a new <see cref="SubtitleHardBurnOptions"/> using a provided subtitle file or a video file
@@ -108,7 +108,7 @@ namespace FFMpegCore.Arguments
 
     public class StyleOptions
     {
-        public readonly Dictionary<string, string> Parameters = new Dictionary<string, string>();
+        public readonly Dictionary<string, string> Parameters = new();
 
         public static StyleOptions Create()
         {
