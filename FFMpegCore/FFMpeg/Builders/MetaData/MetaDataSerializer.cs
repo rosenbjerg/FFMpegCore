@@ -17,7 +17,7 @@ namespace FFMpegCore.Builders.MetaData
                 sb.AppendLine($"{value.Key}={value.Value}");
             }
 
-            int chapterNumber = 0;
+            var chapterNumber = 0;
             foreach (var chapter in metaData.Chapters ?? Enumerable.Empty<ChapterData>())
             {
                 chapterNumber++;

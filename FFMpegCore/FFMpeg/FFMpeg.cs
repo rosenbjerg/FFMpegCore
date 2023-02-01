@@ -11,59 +11,6 @@ using Instances;
 
 namespace FFMpegCore
 {
-    public static class SnapshotArgumentBuilder
-    {
-        public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
-            string input,
-            IMediaAnalysis source,
-            Size? size = null,
-            TimeSpan? captureTime = null,
-            int? streamIndex = null,
-            int inputFileIndex = 0)
-        {
-            captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
-            size = PrepareSnapshotSize(source, size);
-            streamIndex ??= source.PrimaryVideoStream?.Index
-                            ?? source.VideoStreams.FirstOrDefault()?.Index
-                            ?? 0;
-
-            return (FFMpegArguments
-                .FromFileInput(input, false, options => options
-                    .Seek(captureTime)),
-                options => options
-                    .SelectStream((int)streamIndex, inputFileIndex)
-                    .WithVideoCodec(VideoCodec.Png)
-                    .WithFrameOutputCount(1)
-                    .Resize(size));
-        }
-
-        private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
-        {
-            if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0) || source.PrimaryVideoStream == null)
-                return null;
-
-            var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
-            if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
-                currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
-
-            if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
-            {
-                if (wantedSize.Value.Width <= 0 && wantedSize.Value.Height > 0)
-                {
-                    var ratio = (double)wantedSize.Value.Height / currentSize.Height;
-                    return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
-                }
-                if (wantedSize.Value.Height <= 0 && wantedSize.Value.Width > 0)
-                {
-                    var ratio = (double)wantedSize.Value.Width / currentSize.Width;
-                    return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
-                }
-                return wantedSize;
-            }
-
-            return null;
-        }
-    }
     public static class FFMpeg
     {
         /// <summary>
@@ -109,6 +56,47 @@ namespace FFMpegCore
             return await arguments
                 .OutputToFile(output, true, outputOptions)
                 .ProcessAsynchronously();
+        }
+
+        /// <summary>
+        /// Converts an image sequence to a video.
+        /// </summary>
+        /// <param name="output">Output video file.</param>
+        /// <param name="frameRate">FPS</param>
+        /// <param name="images">Image sequence collection</param>
+        /// <returns>Output video information.</returns>
+        public static bool JoinImageSequence(string output, double frameRate = 30, params string[] images)
+        {
+            int? width = null, height = null;
+            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
+            var temporaryImageFiles = images.Select((imagePath, index) =>
+            {
+                var analysis = FFProbe.Analyse(imagePath);
+                FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
+                width ??= analysis.PrimaryVideoStream.Width;
+                height ??= analysis.PrimaryVideoStream.Height;
+
+                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{Path.GetExtension(imagePath)}");
+                Directory.CreateDirectory(tempFolderName);
+                File.Copy(imagePath, destinationPath);
+                return destinationPath;
+            }).ToArray();
+
+            try
+            {
+                return FFMpegArguments
+                    .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
+                    .OutputToFile(output, true, options => options
+                        .ForcePixelFormat("yuv420p")
+                        .Resize(width!.Value, height!.Value)
+                        .WithFramerate(frameRate))
+                    .ProcessSynchronously();
+            }
+            finally
+            {
+                Cleanup(temporaryImageFiles);
+                Directory.Delete(tempFolderName);
+            }
         }
 
         /// <summary>

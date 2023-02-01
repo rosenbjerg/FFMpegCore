@@ -458,25 +458,26 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Join_Image_Sequence()
         {
-            var imageSet = new List<ImageInfo>();
-            Directory.EnumerateFiles(TestResources.ImageCollection)
-                .Where(file => file.ToLower().EndsWith(".png"))
+            var imageSet = new List<string>();
+            Directory.EnumerateFiles(TestResources.ImageCollection, "*.png")
                 .ToList()
                 .ForEach(file =>
                 {
                     for (var i = 0; i < 15; i++)
                     {
-                        imageSet.Add(new ImageInfo(file));
+                        imageSet.Add(file);
                     }
                 });
+            var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
             var outputFile = new TemporaryFile("out.mp4");
-            var success = FFMpegImage.JoinImageSequence(outputFile, images: imageSet.ToArray());
+            var success = FFMpeg.JoinImageSequence(outputFile, images: imageSet.ToArray());
             Assert.IsTrue(success);
             var result = FFProbe.Analyse(outputFile);
+            
             Assert.AreEqual(3, result.Duration.Seconds);
-            Assert.AreEqual(imageSet.First().Width, result.PrimaryVideoStream!.Width);
-            Assert.AreEqual(imageSet.First().Height, result.PrimaryVideoStream.Height);
+            Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Width, result.PrimaryVideoStream!.Width);
+            Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Height, result.PrimaryVideoStream.Height);
         }
 
         [TestMethod, Timeout(10000)]

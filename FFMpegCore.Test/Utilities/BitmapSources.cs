@@ -14,7 +14,7 @@ namespace FFMpegCore.Test.Utilities
     {
         public static IEnumerable<IVideoFrame> CreateBitmaps(int count, PixelFormat fmt, int w, int h)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 using (var frame = CreateVideoFrame(i, fmt, w, h, 0.025f, 0.025f * w * 0.03f))
                 {
@@ -29,8 +29,8 @@ namespace FFMpegCore.Test.Utilities
 
             offset = offset * index;
 
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
+            for (var y = 0; y < h; y++)
+                for (var x = 0; x < w; x++)
                 {
                     var xf = x / (float)w;
                     var yf = y / (float)h;

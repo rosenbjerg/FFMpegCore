@@ -7,18 +7,13 @@ namespace FFMpegCore
 {
     public static class GlobalFFOptions
     {
-        private static readonly string ConfigFile = "ffmpeg.config.json";
+        private const string ConfigFile = "ffmpeg.config.json";
         private static FFOptions? _current;
 
-        public static FFOptions Current
-        {
-            get { return _current ??= LoadFFOptions(); }
-        }
+        public static FFOptions Current => _current ??= LoadFFOptions();
 
-        public static void Configure(Action<FFOptions> optionsAction)
-        {
-            optionsAction?.Invoke(Current);
-        }
+        public static void Configure(Action<FFOptions> optionsAction) => optionsAction.Invoke(Current);
+
         public static void Configure(FFOptions ffOptions)
         {
             _current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
@@ -44,14 +39,9 @@ namespace FFMpegCore
 
         private static FFOptions LoadFFOptions()
         {
-            if (File.Exists(ConfigFile))
-            {
-                return JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!;
-            }
-            else
-            {
-                return new FFOptions();
-            }
+            return File.Exists(ConfigFile) 
+                ? JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))! 
+                : new FFOptions();
         }
     }
 }

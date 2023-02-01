@@ -14,17 +14,12 @@ namespace FFMpegCore.Arguments
 
         public string Key => string.Empty;
 
-        public string Value
-        {
-            get
+        public string Value =>
+            Mirroring switch
             {
-                return Mirroring switch
-                {
-                    Mirroring.Horizontal => "hflip",
-                    Mirroring.Vertical => "vflip",
-                    _ => throw new ArgumentOutOfRangeException(nameof(Mirroring))
-                };
-            }
-        }
+                Mirroring.Horizontal => "hflip",
+                Mirroring.Vertical => "vflip",
+                _ => throw new ArgumentOutOfRangeException(nameof(Mirroring))
+            };
     }
 }

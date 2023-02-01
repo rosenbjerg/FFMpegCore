@@ -18,7 +18,7 @@ namespace FFMpegCore.Arguments
             get { 
                 if(SeekTo.HasValue)
                 {
-                    int hours = SeekTo.Value.Hours;
+                    var hours = SeekTo.Value.Hours;
                     if(SeekTo.Value.Days > 0)
                     {
                         hours += SeekTo.Value.Days * 24;

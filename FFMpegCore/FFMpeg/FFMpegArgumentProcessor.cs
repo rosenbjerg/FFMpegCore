@@ -207,7 +207,7 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
             FFMpegHelper.VerifyFFMpegExists(ffOptions);
 
-            string? arguments = _ffMpegArguments.Text;
+            var arguments = _ffMpegArguments.Text;
 
             //If local loglevel is null, set the global.
             if (_logLevel == null)
@@ -216,7 +216,7 @@ namespace FFMpegCore
             //If neither local nor global loglevel is null, set the argument.
             if (_logLevel != null)
             {
-                string normalizedLogLevel = _logLevel.ToString()
+                var normalizedLogLevel = _logLevel.ToString()
                                                      .ToLower();
                 arguments += $" -v {normalizedLogLevel}";
             }

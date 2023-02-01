@@ -13,44 +13,6 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
     public static class FFMpegImage
     {
         /// <summary>
-        /// Converts an image sequence to a video.
-        /// </summary>
-        /// <param name="output">Output video file.</param>
-        /// <param name="frameRate">FPS</param>
-        /// <param name="images">Image sequence collection</param>
-        /// <returns>Output video information.</returns>
-        public static bool JoinImageSequence(string output, double frameRate = 30, params ImageInfo[] images)
-        {
-            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
-            var temporaryImageFiles = images.Select((imageInfo, index) =>
-            {
-                using var image = Image.FromFile(imageInfo.FullName);
-                FFMpegHelper.ConversionSizeExceptionCheck(image.Width, image.Height);
-                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{imageInfo.Extension}");
-                Directory.CreateDirectory(tempFolderName);
-                File.Copy(imageInfo.FullName, destinationPath);
-                return destinationPath;
-            }).ToArray();
-
-            var firstImage = images.First();
-            try
-            {
-                return FFMpegArguments
-                    .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
-                    .OutputToFile(output, true, options => options
-                        .ForcePixelFormat("yuv420p")
-                        .Resize(firstImage.Width, firstImage.Height)
-                        .WithFramerate(frameRate))
-                    .ProcessSynchronously();
-            }
-            finally
-            {
-                Cleanup(temporaryImageFiles);
-                Directory.Delete(tempFolderName);
-            }
-        }
-        
-        /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
         /// </summary>
         /// <param name="input">Source video file.</param>

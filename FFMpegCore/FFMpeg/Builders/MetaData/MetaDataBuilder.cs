@@ -12,7 +12,7 @@ namespace FFMpegCore.Builders.MetaData
         {
             if (_metaData.Entries.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
             {
-                entry = String.Concat(value, "; ", entry);
+                entry = string.Concat(value, "; ", entry);
             }
 
             _metaData.Entries[key] = entry;
@@ -20,10 +20,10 @@ namespace FFMpegCore.Builders.MetaData
         }
 
         public MetaDataBuilder WithEntry(string key, params string[] values)
-            => this.WithEntry(key, String.Join("; ", values));
+            => WithEntry(key, string.Join("; ", values));
 
         public MetaDataBuilder WithEntry(string key, IEnumerable<string> values)
-            => this.WithEntry(key, String.Join("; ", values));
+            => WithEntry(key, string.Join("; ", values));
 
         public MetaDataBuilder AddChapter(ChapterData chapterData)
         {
@@ -33,7 +33,7 @@ namespace FFMpegCore.Builders.MetaData
 
         public MetaDataBuilder AddChapters<T>(IEnumerable<T> values, Func<T, (TimeSpan duration, string title)> chapterGetter)
         {
-            foreach (T value in values)
+            foreach (var value in values)
             {
                 var (duration, title) = chapterGetter(value);
                 AddChapter(duration, title);
@@ -46,13 +46,13 @@ namespace FFMpegCore.Builders.MetaData
         {
             var start = _metaData.Chapters.LastOrDefault()?.End ?? TimeSpan.Zero;
             var end = start + duration;
-            title = String.IsNullOrEmpty(title) ? $"Chapter {_metaData.Chapters.Count + 1}" : title;
+            title = string.IsNullOrEmpty(title) ? $"Chapter {_metaData.Chapters.Count + 1}" : title;
 
             _metaData.Chapters.Add(new ChapterData
             (
                 start: start,
                 end: end,
-                title: title ?? String.Empty
+                title: title ?? string.Empty
             ));
 
             return this;
