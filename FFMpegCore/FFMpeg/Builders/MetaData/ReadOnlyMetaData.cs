@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace FFMpegCore.Builders.MetaData
+﻿namespace FFMpegCore.Builders.MetaData
 {
     public class ReadOnlyMetaData : IReadOnlyMetaData
     {

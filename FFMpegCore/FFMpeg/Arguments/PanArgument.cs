@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     ///     Mix channels with specific gain levels.

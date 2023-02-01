@@ -1,12 +1,7 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Instances;
 
 namespace FFMpegCore

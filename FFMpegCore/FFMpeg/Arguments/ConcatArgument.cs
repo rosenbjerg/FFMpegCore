@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
 
     /// <summary>

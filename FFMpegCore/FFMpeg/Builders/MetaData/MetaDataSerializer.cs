@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace FFMpegCore.Builders.MetaData
 {

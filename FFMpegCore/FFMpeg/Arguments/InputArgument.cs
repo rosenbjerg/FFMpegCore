@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents input parameter

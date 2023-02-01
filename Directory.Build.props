@@ -6,6 +6,7 @@
         <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
 
         <RepositoryType>GitHub</RepositoryType>
         <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>

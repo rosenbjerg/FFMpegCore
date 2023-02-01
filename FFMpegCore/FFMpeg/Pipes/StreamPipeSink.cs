@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes
 {
     public class StreamPipeSink : IPipeSink
     {

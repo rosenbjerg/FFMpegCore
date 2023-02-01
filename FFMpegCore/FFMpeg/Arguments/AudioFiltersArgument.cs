@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FFMpegCore.Exceptions;
+﻿using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments
 {

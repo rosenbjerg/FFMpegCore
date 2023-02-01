@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFMpegCore.Extend
+﻿namespace FFMpegCore.Extend
 {
     public static class UriExtensions
     {

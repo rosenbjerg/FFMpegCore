@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Drawtext video filter argument

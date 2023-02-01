@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     public interface IDynamicArgument
     {

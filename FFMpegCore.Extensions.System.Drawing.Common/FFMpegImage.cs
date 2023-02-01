@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using FFMpegCore.Enums;
-using FFMpegCore.Helpers;
+﻿using System.Drawing;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common

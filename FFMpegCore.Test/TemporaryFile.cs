@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace FFMpegCore.Test
+﻿namespace FFMpegCore.Test
 {
     public class TemporaryFile : IDisposable
     {

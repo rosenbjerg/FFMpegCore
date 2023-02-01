@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFMpegCore.Builders.MetaData
+﻿namespace FFMpegCore.Builders.MetaData
 {
     public class ChapterData
     {

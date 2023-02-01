@@ -1,9 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;

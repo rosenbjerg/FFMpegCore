@@ -1,6 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FFMpegCore
 {

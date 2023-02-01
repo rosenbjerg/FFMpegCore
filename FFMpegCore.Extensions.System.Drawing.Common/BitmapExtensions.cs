@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common
 {

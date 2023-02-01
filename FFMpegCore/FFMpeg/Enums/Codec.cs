@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Exceptions;
-using System;
 using System.Text.RegularExpressions;
 
 namespace FFMpegCore.Enums

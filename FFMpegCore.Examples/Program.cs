@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Runtime.Versioning;
+﻿using System.Drawing;
 using FFMpegCore;
 using FFMpegCore.Enums;
 using FFMpegCore.Pipes;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using FFMpegCore.Exceptions;
+﻿using FFMpegCore.Exceptions;
 using Instances;
 
 namespace FFMpegCore.Helpers

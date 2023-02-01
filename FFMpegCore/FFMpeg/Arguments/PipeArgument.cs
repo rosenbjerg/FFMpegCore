@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments

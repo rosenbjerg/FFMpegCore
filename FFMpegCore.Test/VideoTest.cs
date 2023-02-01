@@ -4,16 +4,9 @@ using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Test.Utilities;
 

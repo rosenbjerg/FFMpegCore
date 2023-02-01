@@ -1,8 +1,5 @@
 ﻿using FFMpegCore.Enums;
 
-using System;
-using System.Collections.Generic;
-
 namespace FFMpegCore
 {
     public abstract class MediaStream

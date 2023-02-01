@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Instances;
+﻿using Instances;
 
 namespace FFMpegCore
 {

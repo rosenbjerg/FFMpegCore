@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FFMpegCore.Arguments;
+﻿using FFMpegCore.Arguments;
 
 namespace FFMpegCore
 {

@@ -1,7 +1,5 @@
 ﻿using FFMpegCore.Extend;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 
 namespace FFMpegCore.Arguments
 {

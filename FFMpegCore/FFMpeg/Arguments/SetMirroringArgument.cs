@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using System;
 
 namespace FFMpegCore.Arguments
 {
