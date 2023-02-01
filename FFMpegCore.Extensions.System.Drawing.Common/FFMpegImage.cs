@@ -52,13 +52,5 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
             ms.Position = 0;
             return new Bitmap(ms);
         }
-        private static void Cleanup(IEnumerable<string> pathList)
-        {
-            foreach (var path in pathList)
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-        }
     }
 }
