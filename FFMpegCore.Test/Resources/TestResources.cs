@@ -21,5 +21,9 @@
         public static readonly string PngImage = "./Resources/cover.png";
         public static readonly string ImageCollection = "./Resources/images";
         public static readonly string SrtSubtitle = "./Resources/sample.srt";
+        public static readonly string AiffAudio = "./Resources/sample3aiff.aiff";
+        public static readonly string MkvVideo = "./Resources/sampleMKV.mkv";
+        public static readonly string Wav24Bit = "./Resources/24_bit_fixed.WAV";
+        public static readonly string Wav32Bit = "./Resources/32_bit_float.WAV";
     }
 }
