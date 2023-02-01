@@ -12,9 +12,6 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public static class FFMpegImage
     {
-        public static void ConversionSizeExceptionCheck(Image image)
-            => FFMpegHelper.ConversionSizeExceptionCheck(image.Size.Width, image.Size.Height);
-
         /// <summary>
         /// Converts an image sequence to a video.
         /// </summary>
@@ -51,32 +48,6 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
                 Cleanup(temporaryImageFiles);
                 Directory.Delete(tempFolderName);
             }
-        }
-        /// <summary>
-        ///     Adds a poster image to an audio file.
-        /// </summary>
-        /// <param name="image">Source image file.</param>
-        /// <param name="audio">Source audio file.</param>
-        /// <param name="output">Output video file.</param>
-        /// <returns></returns>
-        public static bool PosterWithAudio(string image, string audio, string output)
-        {
-            FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-            using (var img = Image.FromFile(image))
-                FFMpegHelper.ConversionSizeExceptionCheck(img.Width, img.Height);
-
-            return FFMpegArguments
-                .FromFileInput(image, false, options => options
-                    .Loop(1)
-                    .ForceFormat("image2"))
-                .AddFileInput(audio)
-                .OutputToFile(output, true, options => options
-                    .ForcePixelFormat("yuv420p")
-                    .WithVideoCodec(VideoCodec.LibX264)
-                    .WithConstantRateFactor(21)
-                    .WithAudioBitrate(AudioQuality.Normal)
-                    .UsingShortest())
-                .ProcessSynchronously();
         }
         
         /// <summary>
