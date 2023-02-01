@@ -62,6 +62,11 @@ namespace FFMpegCore.Arguments
                 throw new ArgumentOutOfRangeException(nameof(makeup), "Makeup Gain must be between 1 and 64");
             }
 
+            if (knee < 1 || knee > 64)
+            {
+                throw new ArgumentOutOfRangeException(nameof(makeup), "Knee must be between 1 and 8");
+            }
+
             if (!(detection == "peak" || detection == "rms"))
             {
                 throw new ArgumentOutOfRangeException(nameof(detection), "Detection must be either peak or rms");
@@ -73,15 +78,16 @@ namespace FFMpegCore.Arguments
             }
 
             _arguments.Add("level_in", level_in.ToString("0.00", CultureInfo.InvariantCulture));
-            _arguments.Add("mode", mode.ToString());
+            _arguments.Add("mode", mode);
             _arguments.Add("range", range.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("threshold", threshold.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("ratio", ratio.ToString());
             _arguments.Add("attack", attack.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("release", release.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("makeup", makeup.ToString());
-            _arguments.Add("detection", detection.ToString());
-            _arguments.Add("link", link.ToString());
+            _arguments.Add("knee", knee.ToString("0.00", CultureInfo.InvariantCulture));
+            _arguments.Add("detection", detection);
+            _arguments.Add("link", link);
         }
 
         public string Key { get; } = "agate";
