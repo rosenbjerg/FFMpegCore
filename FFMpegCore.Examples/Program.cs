@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 using FFMpegCore;
 using FFMpegCore.Enums;
-using FFMpegCore.Pipes;
 using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Pipes;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -84,13 +84,11 @@ var inputImagePath = "/path/to/input/image";
 #pragma warning restore CA1416
 }
 
-
-
 IVideoFrame GetNextFrame() => throw new NotImplementedException();
 {
     IEnumerable<IVideoFrame> CreateFrames(int count)
     {
-        for(var i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             yield return GetNextFrame(); //method of generating new frames
         }

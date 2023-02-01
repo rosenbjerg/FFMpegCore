@@ -13,7 +13,9 @@
         public void Dispose()
         {
             if (File.Exists(_path))
+            {
                 File.Delete(_path);
+            }
         }
     }
 }

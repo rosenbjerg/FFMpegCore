@@ -1,7 +1,7 @@
-﻿using FFMpegCore.Enums;
+﻿using System.Drawing;
+using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
-using System.Drawing;
 using Instances;
 
 namespace FFMpegCore
@@ -21,7 +21,9 @@ namespace FFMpegCore
         public static bool Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
+            {
                 output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
+            }
 
             var source = FFProbe.Analyse(input);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -43,7 +45,9 @@ namespace FFMpegCore
         public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             if (Path.GetExtension(output) != FileExtension.Png)
+            {
                 output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
+            }
 
             var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -149,7 +153,9 @@ namespace FFMpegCore
             var outputSize = new Size((int)(source.PrimaryVideoStream!.Width / scale), (int)(source.PrimaryVideoStream.Height / scale));
 
             if (outputSize.Width % 2 != 0)
+            {
                 outputSize.Width += 1;
+            }
 
             return format.Name switch
             {
@@ -244,7 +250,9 @@ namespace FFMpegCore
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
 
             if (uri.Scheme != "http" && uri.Scheme != "https")
+            {
                 throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
+            }
 
             return FFMpegArguments
                 .FromUrlInput(uri)
@@ -324,12 +332,16 @@ namespace FFMpegCore
             processArguments.OutputDataReceived += (e, data) =>
             {
                 if (PixelFormat.TryParse(data, out var format))
+                {
                     list.Add(format);
+                }
             };
 
             var result = processArguments.StartAndWaitForExit();
             if (result.ExitCode != 0)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            }
 
             return list.AsReadOnly();
         }
@@ -337,7 +349,10 @@ namespace FFMpegCore
         public static IReadOnlyList<PixelFormat> GetPixelFormats()
         {
             if (!GlobalFFOptions.Current.UseCache)
+            {
                 return GetPixelFormatsInternal();
+            }
+
             return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
         }
 
@@ -349,13 +364,18 @@ namespace FFMpegCore
                 return format != null;
             }
             else
+            {
                 return FFMpegCache.PixelFormats.TryGetValue(name, out format);
+            }
         }
 
         public static PixelFormat GetPixelFormat(string name)
         {
             if (TryGetPixelFormat(name, out var fmt))
+            {
                 return fmt;
+            }
+
             throw new FFMpegException(FFMpegExceptionType.Operation, $"Pixel format \"{name}\" not supported");
         }
         #endregion
@@ -371,14 +391,23 @@ namespace FFMpegCore
             {
                 var codec = parser(data);
                 if (codec != null)
+                {
                     if (codecs.TryGetValue(codec.Name, out var parentCodec))
+                    {
                         parentCodec.Merge(codec);
+                    }
                     else
+                    {
                         codecs.Add(codec.Name, codec);
+                    }
+                }
             };
 
             var result = processArguments.StartAndWaitForExit();
-            if (result.ExitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            if (result.ExitCode != 0)
+            {
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            }
         }
 
         internal static Dictionary<string, Codec> GetCodecsInternal()
@@ -387,19 +416,28 @@ namespace FFMpegCore
             ParsePartOfCodecs(res, "-codecs", (s) =>
             {
                 if (Codec.TryParseFromCodecs(s, out var codec))
+                {
                     return codec;
+                }
+
                 return null;
             });
             ParsePartOfCodecs(res, "-encoders", (s) =>
             {
                 if (Codec.TryParseFromEncodersDecoders(s, out var codec, true))
+                {
                     return codec;
+                }
+
                 return null;
             });
             ParsePartOfCodecs(res, "-decoders", (s) =>
             {
                 if (Codec.TryParseFromEncodersDecoders(s, out var codec, false))
+                {
                     return codec;
+                }
+
                 return null;
             });
 
@@ -409,14 +447,20 @@ namespace FFMpegCore
         public static IReadOnlyList<Codec> GetCodecs()
         {
             if (!GlobalFFOptions.Current.UseCache)
+            {
                 return GetCodecsInternal().Values.ToList().AsReadOnly();
+            }
+
             return FFMpegCache.Codecs.Values.ToList().AsReadOnly();
         }
 
         public static IReadOnlyList<Codec> GetCodecs(CodecType type)
         {
             if (!GlobalFFOptions.Current.UseCache)
+            {
                 return GetCodecsInternal().Values.Where(x => x.Type == type).ToList().AsReadOnly();
+            }
+
             return FFMpegCache.Codecs.Values.Where(x => x.Type == type).ToList().AsReadOnly();
         }
 
@@ -433,13 +477,18 @@ namespace FFMpegCore
                 return codec != null;
             }
             else
+            {
                 return FFMpegCache.Codecs.TryGetValue(name, out codec);
+            }
         }
 
         public static Codec GetCodec(string name)
         {
             if (TryGetCodec(name, out var codec) && codec != null)
+            {
                 return codec;
+            }
+
             throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{name}\" not supported");
         }
         #endregion
@@ -454,11 +503,16 @@ namespace FFMpegCore
             instance.OutputDataReceived += (e, data) =>
             {
                 if (ContainerFormat.TryParse(data, out var fmt))
+                {
                     list.Add(fmt);
+                }
             };
 
             var result = instance.StartAndWaitForExit();
-            if (result.ExitCode != 0) throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            if (result.ExitCode != 0)
+            {
+                throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            }
 
             return list.AsReadOnly();
         }
@@ -466,7 +520,10 @@ namespace FFMpegCore
         public static IReadOnlyList<ContainerFormat> GetContainerFormats()
         {
             if (!GlobalFFOptions.Current.UseCache)
+            {
                 return GetContainersFormatsInternal();
+            }
+
             return FFMpegCache.ContainerFormats.Values.ToList().AsReadOnly();
         }
 
@@ -478,13 +535,18 @@ namespace FFMpegCore
                 return fmt != null;
             }
             else
+            {
                 return FFMpegCache.ContainerFormats.TryGetValue(name, out fmt);
+            }
         }
 
         public static ContainerFormat GetContainerFormat(string name)
         {
             if (TryGetContainerFormat(name, out var fmt))
+            {
                 return fmt;
+            }
+
             throw new FFMpegException(FFMpegExceptionType.Operation, $"Container format \"{name}\" not supported");
         }
         #endregion
@@ -494,7 +556,9 @@ namespace FFMpegCore
             foreach (var path in pathList)
             {
                 if (File.Exists(path))
+                {
                     File.Delete(path);
+                }
             }
         }
     }

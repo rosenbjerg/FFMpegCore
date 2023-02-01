@@ -15,7 +15,7 @@ namespace FFMpegCore
         public Dictionary<string, bool>? Disposition { get; set; }
         public Dictionary<string, string>? Tags { get; set; }
         public int? BitDepth { get; set; }
-        
+
         public Codec GetCodecInfo() => FFMpeg.GetCodec(CodecName);
     }
 }

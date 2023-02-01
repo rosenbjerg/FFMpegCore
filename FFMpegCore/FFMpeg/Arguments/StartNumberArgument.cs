@@ -6,7 +6,7 @@
     public class StartNumberArgument : IArgument
     {
         public readonly int StartNumber;
-        
+
         public StartNumberArgument(int startNumber)
         {
             StartNumber = startNumber;

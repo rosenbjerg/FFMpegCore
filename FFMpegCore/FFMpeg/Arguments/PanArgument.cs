@@ -21,11 +21,11 @@
         {
             if (string.IsNullOrWhiteSpace(channelLayout))
             {
-                throw new ArgumentException("The channel layout must be set" ,nameof(channelLayout));
+                throw new ArgumentException("The channel layout must be set", nameof(channelLayout));
             }
 
             ChannelLayout = channelLayout;
-            
+
             _outputDefinitions = outputDefinitions;
         }
 
@@ -38,11 +38,16 @@
         /// </param>
         public PanArgument(int channels, params string[] outputDefinitions)
         {
-            if (channels <= 0) throw new ArgumentOutOfRangeException(nameof(channels));
-            
+            if (channels <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(channels));
+            }
+
             if (outputDefinitions.Length > channels)
+            {
                 throw new ArgumentException("The number of output definitions must be equal or lower than number of channels", nameof(outputDefinitions));
-            
+            }
+
             ChannelLayout = $"{channels}c";
 
             _outputDefinitions = outputDefinitions;

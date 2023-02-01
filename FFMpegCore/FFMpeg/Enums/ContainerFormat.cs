@@ -16,7 +16,10 @@ namespace FFMpegCore.Enums
             get
             {
                 if (GlobalFFOptions.Current.ExtensionOverrides.ContainsKey(Name))
+                {
                     return GlobalFFOptions.Current.ExtensionOverrides[Name];
+                }
+
                 return "." + Name;
             }
         }

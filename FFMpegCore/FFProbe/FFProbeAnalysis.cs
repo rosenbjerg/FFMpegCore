@@ -24,10 +24,10 @@ namespace FFMpegCore
 
         [JsonPropertyName("bits_per_raw_sample")]
         public string BitsPerRawSample { get; set; } = null!;
-        
+
         [JsonPropertyName("bits_per_sample")]
         public int BitsPerSample { get; set; } = 0;
-        
+
         [JsonPropertyName("bit_rate")]
         public string BitRate { get; set; } = null!;
 
@@ -137,7 +137,10 @@ namespace FFMpegCore
         private static string? TryGetTagValue(ITagsContainer tagsContainer, string key)
         {
             if (tagsContainer.Tags != null && tagsContainer.Tags.TryGetValue(key, out var tagValue))
+            {
                 return tagValue;
+            }
+
             return null;
         }
 
@@ -152,7 +155,10 @@ namespace FFMpegCore
         private static int? TryGetDispositionValue(IDispositionContainer dispositionContainer, string key)
         {
             if (dispositionContainer.Disposition != null && dispositionContainer.Disposition.TryGetValue(key, out var dispositionValue))
+            {
                 return dispositionValue;
+            }
+
             return null;
         }
 

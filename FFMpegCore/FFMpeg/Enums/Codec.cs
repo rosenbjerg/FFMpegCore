@@ -1,5 +1,5 @@
-﻿using FFMpegCore.Exceptions;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Enums
 {
@@ -72,7 +72,7 @@ namespace FFMpegCore.Enums
                 _ => CodecType.Unknown
             };
 
-            if(type == CodecType.Unknown)
+            if (type == CodecType.Unknown)
             {
                 codec = null!;
                 return false;
@@ -132,7 +132,9 @@ namespace FFMpegCore.Enums
         internal void Merge(Codec other)
         {
             if (Name != other.Name)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
+            }
 
             Type |= other.Type;
             DecodingSupported |= other.DecodingSupported;
@@ -145,7 +147,9 @@ namespace FFMpegCore.Enums
             DecoderFeatureLevel.Merge(other.DecoderFeatureLevel);
 
             if (Description != other.Description)
+            {
                 Description += "\r\n" + other.Description;
+            }
         }
     }
 }

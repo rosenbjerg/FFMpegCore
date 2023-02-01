@@ -14,7 +14,6 @@
 
         public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-
         public void Pre() => File.WriteAllText(_tempFileName, _metaDataContent);
 
         public void Post() => File.Delete(_tempFileName);

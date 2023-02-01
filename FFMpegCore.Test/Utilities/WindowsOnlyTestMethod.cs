@@ -17,7 +17,7 @@ public class WindowsOnlyTestMethod : TestMethodAttribute
                 };
             }
         }
-        
+
         return base.Execute(testMethod);
     }
 }

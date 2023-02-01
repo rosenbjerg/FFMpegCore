@@ -23,11 +23,30 @@ namespace FFMpegCore.Arguments
         /// <param name="block_size">Set block size used for reverse IIR processing. If this value is set to high enough value (higher than impulse response length truncated when reaches near zero values) filtering will become linear phase otherwise if not big enough it will just produce nasty artifacts.</param>
         public LowPassFilterArgument(double frequency = 3000, int poles = 2, string width_type = "q", double width = 0.707, double mix = 1, string channels = "", bool normalize = false, string transform = "", string precision = "auto", int? block_size = null)
         {
-            if (frequency < 0) throw new ArgumentOutOfRangeException(nameof(frequency), "Frequency must be a positive number");
-            if (poles < 1 || poles > 2) throw new ArgumentOutOfRangeException(nameof(poles), "Poles must be either 1 or 2");
-            if (!_widthTypes.Contains(width_type)) throw new ArgumentOutOfRangeException(nameof(width_type), "Width type must be either " + _widthTypes.ToString());
-            if (mix < 0 || mix > 1) throw new ArgumentOutOfRangeException(nameof(mix), "Mix must be between 0 and 1");
-            if (!_precision.Contains(precision)) throw new ArgumentOutOfRangeException(nameof(precision), "Precision must be either " + _precision.ToString());
+            if (frequency < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(frequency), "Frequency must be a positive number");
+            }
+
+            if (poles < 1 || poles > 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(poles), "Poles must be either 1 or 2");
+            }
+
+            if (!_widthTypes.Contains(width_type))
+            {
+                throw new ArgumentOutOfRangeException(nameof(width_type), "Width type must be either " + _widthTypes.ToString());
+            }
+
+            if (mix < 0 || mix > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(mix), "Mix must be between 0 and 1");
+            }
+
+            if (!_precision.Contains(precision))
+            {
+                throw new ArgumentOutOfRangeException(nameof(precision), "Precision must be either " + _precision.ToString());
+            }
 
             _arguments.Add("f", frequency.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("p", poles.ToString());
@@ -38,11 +57,13 @@ namespace FFMpegCore.Arguments
             {
                 _arguments.Add("c", channels);
             }
+
             _arguments.Add("n", (normalize ? 1 : 0).ToString());
             if (transform != "" && _transformTypes.Contains(transform))
             {
                 _arguments.Add("a", transform);
             }
+
             _arguments.Add("r", precision);
             if (block_size != null && block_size >= 0)
             {

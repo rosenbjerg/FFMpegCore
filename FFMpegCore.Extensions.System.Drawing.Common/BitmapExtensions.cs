@@ -14,7 +14,10 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
             }
             finally
             {
-                if (File.Exists(destination)) File.Delete(destination);
+                if (File.Exists(destination))
+                {
+                    File.Delete(destination);
+                }
             }
         }
     }

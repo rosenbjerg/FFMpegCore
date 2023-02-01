@@ -41,10 +41,16 @@ namespace FFMpegCore.Enums
             fmt.IsPaletted = match.Groups[4].Value != ".";
             fmt.IsBitstream = match.Groups[5].Value != ".";
             if (!int.TryParse(match.Groups[7].Value, out var nbComponents))
+            {
                 return false;
+            }
+
             fmt.Components = nbComponents;
             if (!int.TryParse(match.Groups[8].Value, out var bpp))
+            {
                 return false;
+            }
+
             fmt.BitsPerPixel = bpp;
 
             return true;

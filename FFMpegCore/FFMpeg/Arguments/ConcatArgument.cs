@@ -16,7 +16,7 @@
         public void Pre() { }
         public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Post() { }
-        
+
         public string Text => $"-i \"concat:{string.Join(@"|", Values)}\"";
     }
 }

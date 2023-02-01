@@ -44,12 +44,12 @@ namespace FFMpegCore
         public List<AudioStream> AudioStreams { get; }
         public List<SubtitleStream> SubtitleStreams { get; }
         public IReadOnlyList<string> ErrorData { get; }
-        
+
         private int? GetBitDepth(FFProbeStream stream)
         {
-	        var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs :
-		        stream.BitsPerSample;
-	        return bitDepth == 0 ? null : (int?)bitDepth;
+            var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs :
+                stream.BitsPerSample;
+            return bitDepth == 0 ? null : (int?)bitDepth;
         }
 
         private VideoStream ParseVideoStream(FFProbeStream stream)
@@ -82,7 +82,7 @@ namespace FFMpegCore
 
         private AudioStream ParseAudioStream(FFProbeStream stream)
         {
-			return new AudioStream
+            return new AudioStream
             {
                 Index = stream.Index,
                 BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
@@ -116,7 +116,6 @@ namespace FFMpegCore
                 Tags = stream.Tags.ToCaseInsensitive(),
             };
         }
-
     }
 
     public static class MediaAnalysisUtils
@@ -131,14 +130,22 @@ namespace FFMpegCore
 
         public static (int, int) ParseRatioInt(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
+            if (string.IsNullOrEmpty(input))
+            {
+                return (0, 0);
+            }
+
             var ratio = input.Split(separator);
             return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
         }
 
         public static (double, double) ParseRatioDouble(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
+            if (string.IsNullOrEmpty(input))
+            {
+                return (0, 0);
+            }
+
             var ratio = input.Split(separator);
             return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
         }
@@ -151,7 +158,6 @@ namespace FFMpegCore
 
         public static long ParseLongInvariant(string line) =>
             long.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-
 
         public static TimeSpan ParseDuration(string duration)
         {

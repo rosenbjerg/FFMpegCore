@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Arguments
 {
-     public class AudioGateArgument : IAudioFilterArgument
+    public class AudioGateArgument : IAudioFilterArgument
     {
         private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
 
@@ -22,16 +22,55 @@ namespace FFMpegCore.Arguments
         /// <param name="link">Choose if the average level between all channels or the louder channel affects the reduction. Default is average. Can be average or maximum.</param>
         public AudioGateArgument(double level_in = 1, string mode = "downward", double range = 0.06125, double threshold = 0.125, int ratio = 2, double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, string detection = "rms", string link = "average")
         {
-            if (level_in < 0.015625 || level_in > 64) throw new ArgumentOutOfRangeException(nameof(level_in), "Level in must be between 0.015625 to 64");
-            if (!(mode == "upward" || mode == "downward")) throw new ArgumentOutOfRangeException(nameof(mode), "Mode must be either upward or downward");
-            if (range <= 0 || range > 1) throw new ArgumentOutOfRangeException(nameof(range));
-            if (threshold < 0 || threshold > 1) throw new ArgumentOutOfRangeException(nameof(threshold), "Threshold must be between 0 and 1");
-            if (ratio < 1 || ratio > 9000) throw new ArgumentOutOfRangeException(nameof(ratio), "Ratio must be between 1 and 9000");
-            if (attack < 0.01 || attack > 9000) throw new ArgumentOutOfRangeException(nameof(attack), "Attack must be between 0.01 and 9000");
-            if (release < 0.01 || release > 9000) throw new ArgumentOutOfRangeException(nameof(release), "Release must be between 0.01 and 9000");
-            if (makeup < 1 || makeup > 64) throw new ArgumentOutOfRangeException(nameof(makeup), "Makeup Gain must be between 1 and 64");
-            if (!(detection == "peak" || detection == "rms")) throw new ArgumentOutOfRangeException(nameof(detection), "Detection must be either peak or rms");
-            if (!(link != "average" || link != "maximum")) throw new ArgumentOutOfRangeException(nameof(link), "Link must be either average or maximum");
+            if (level_in < 0.015625 || level_in > 64)
+            {
+                throw new ArgumentOutOfRangeException(nameof(level_in), "Level in must be between 0.015625 to 64");
+            }
+
+            if (!(mode == "upward" || mode == "downward"))
+            {
+                throw new ArgumentOutOfRangeException(nameof(mode), "Mode must be either upward or downward");
+            }
+
+            if (range <= 0 || range > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(range));
+            }
+
+            if (threshold < 0 || threshold > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(threshold), "Threshold must be between 0 and 1");
+            }
+
+            if (ratio < 1 || ratio > 9000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(ratio), "Ratio must be between 1 and 9000");
+            }
+
+            if (attack < 0.01 || attack > 9000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(attack), "Attack must be between 0.01 and 9000");
+            }
+
+            if (release < 0.01 || release > 9000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(release), "Release must be between 0.01 and 9000");
+            }
+
+            if (makeup < 1 || makeup > 64)
+            {
+                throw new ArgumentOutOfRangeException(nameof(makeup), "Makeup Gain must be between 1 and 64");
+            }
+
+            if (!(detection == "peak" || detection == "rms"))
+            {
+                throw new ArgumentOutOfRangeException(nameof(detection), "Detection must be either peak or rms");
+            }
+
+            if (!(link != "average" || link != "maximum"))
+            {
+                throw new ArgumentOutOfRangeException(nameof(link), "Link must be either average or maximum");
+            }
 
             _arguments.Add("level_in", level_in.ToString("0.00", CultureInfo.InvariantCulture));
             _arguments.Add("mode", mode.ToString());

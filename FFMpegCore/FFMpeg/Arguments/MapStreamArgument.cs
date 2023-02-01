@@ -19,12 +19,13 @@ namespace FFMpegCore.Arguments
                 // "Both" is not valid in this case and probably means all stream types
                 channel = Channel.All;
             }
+
             _inputFileIndex = inputFileIndex;
             _streamIndex = streamIndex;
             _channel = channel;
             _negativeMap = negativeMap;
         }
 
-        public string Text => $"-map {(_negativeMap?"-":"")}{_inputFileIndex}{_channel.StreamType()}:{_streamIndex}";
+        public string Text => $"-map {(_negativeMap ? "-" : "")}{_inputFileIndex}{_channel.StreamType()}:{_streamIndex}";
     }
 }

@@ -26,7 +26,6 @@ namespace FFMpegCore
         public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
-
         public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
         {
             configureOptions(_globalArguments);
@@ -42,7 +41,6 @@ namespace FFMpegCore
         public FFMpegArguments AddPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputPipeArgument(sourcePipe), addArguments);
         public FFMpegArguments AddMetaData(string content, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(content), addArguments);
         public FFMpegArguments AddMetaData(IReadOnlyMetaData metaData, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(MetaDataSerializer.Instance.Serialize(metaData)), addArguments);
-
 
         /// <summary>
         /// Maps the metadata of the given stream
@@ -76,7 +74,9 @@ namespace FFMpegCore
         internal void Pre()
         {
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
+            {
                 argument.Pre();
+            }
         }
         internal async Task During(CancellationToken cancellationToken = default)
         {
@@ -86,7 +86,9 @@ namespace FFMpegCore
         internal void Post()
         {
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
+            {
                 argument.Post();
+            }
         }
     }
 }

@@ -14,7 +14,6 @@ namespace FFMpegCore.Arguments
             Bitrate = bitrate;
         }
 
-
         public string Text => $"-b:a {Bitrate}k";
     }
 }

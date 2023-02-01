@@ -28,7 +28,7 @@
             FFMpegErrorOutput = string.Empty;
             Type = type;
         }
-        
+
         public FFMpegExceptionType Type { get; }
         public string FFMpegErrorOutput { get; }
     }

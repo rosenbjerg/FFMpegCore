@@ -12,19 +12,19 @@ namespace FFMpegCore
 
         [JsonPropertyName("pts")]
         public long Pts { get; set; }
-        
+
         [JsonPropertyName("pts_time")]
         public string PtsTime { get; set; } = null!;
 
         [JsonPropertyName("dts")]
         public long Dts { get; set; }
-        
+
         [JsonPropertyName("dts_time")]
         public string DtsTime { get; set; } = null!;
 
         [JsonPropertyName("duration")]
         public int Duration { get; set; }
-        
+
         [JsonPropertyName("duration_time")]
         public string DurationTime { get; set; } = null!;
 

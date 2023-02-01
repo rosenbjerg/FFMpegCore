@@ -21,7 +21,10 @@ namespace FFMpegCore.Arguments
         {
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
+            {
                 throw new OperationCanceledException();
+            }
+
             await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
         }
     }

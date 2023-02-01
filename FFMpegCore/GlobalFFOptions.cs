@@ -16,7 +16,6 @@ namespace FFMpegCore
         {
             _current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
         }
-        
 
         public static string GetFFMpegBinaryPath(FFOptions? ffOptions = null) => GetFFBinaryPath("FFMpeg", ffOptions ?? Current);
 
@@ -26,19 +25,23 @@ namespace FFMpegCore
         {
             var ffName = name.ToLowerInvariant();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
                 ffName += ".exe";
+            }
 
             var target = Environment.Is64BitProcess ? "x64" : "x86";
             if (Directory.Exists(Path.Combine(ffOptions.BinaryFolder, target)))
+            {
                 ffName = Path.Combine(target, ffName);
+            }
 
             return Path.Combine(ffOptions.BinaryFolder, ffName);
         }
 
         private static FFOptions LoadFFOptions()
         {
-            return File.Exists(ConfigFile) 
-                ? JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))! 
+            return File.Exists(ConfigFile)
+                ? JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!
                 : new FFOptions();
         }
     }

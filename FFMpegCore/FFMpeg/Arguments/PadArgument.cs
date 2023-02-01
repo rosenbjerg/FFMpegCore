@@ -1,4 +1,4 @@
-using FFMpegCore.Extend;
+﻿using FFMpegCore.Extend;
 
 namespace FFMpegCore.Arguments
 {
@@ -44,10 +44,12 @@ namespace FFMpegCore.Arguments
             {
                 throw new Exception("At least one of the parameters must be not null");
             }
+
             if (width != null)
             {
                 Parameters.Add("width", width);
             }
+
             if (height != null)
             {
                 Parameters.Add("height", height);

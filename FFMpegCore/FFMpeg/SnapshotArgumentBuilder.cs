@@ -34,11 +34,15 @@ public static class SnapshotArgumentBuilder
     private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
     {
         if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0) || source.PrimaryVideoStream == null)
+        {
             return null;
+        }
 
         var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
         if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
+        {
             currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
+        }
 
         if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
         {
@@ -47,11 +51,13 @@ public static class SnapshotArgumentBuilder
                 var ratio = (double)wantedSize.Value.Height / currentSize.Height;
                 return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
             }
+
             if (wantedSize.Value.Height <= 0 && wantedSize.Value.Width > 0)
             {
                 var ratio = (double)wantedSize.Value.Width / currentSize.Width;
                 return new Size((int)(currentSize.Width * ratio), (int)(currentSize.Height * ratio));
             }
+
             return wantedSize;
         }
 
