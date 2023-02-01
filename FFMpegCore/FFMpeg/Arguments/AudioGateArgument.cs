@@ -27,7 +27,7 @@ namespace FFMpegCore.Arguments
                 throw new ArgumentOutOfRangeException(nameof(level_in), "Level in must be between 0.015625 to 64");
             }
 
-            if (!(mode == "upward" || mode == "downward"))
+            if (mode != "upward" && mode != "downward")
             {
                 throw new ArgumentOutOfRangeException(nameof(mode), "Mode must be either upward or downward");
             }
@@ -67,12 +67,12 @@ namespace FFMpegCore.Arguments
                 throw new ArgumentOutOfRangeException(nameof(makeup), "Knee must be between 1 and 8");
             }
 
-            if (!(detection == "peak" || detection == "rms"))
+            if (detection != "peak" && detection != "rms")
             {
                 throw new ArgumentOutOfRangeException(nameof(detection), "Detection must be either peak or rms");
             }
 
-            if (!(link != "average" || link != "maximum"))
+            if (link != "average" && link != "maximum")
             {
                 throw new ArgumentOutOfRangeException(nameof(link), "Link must be either average or maximum");
             }
