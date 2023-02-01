@@ -47,6 +47,13 @@ namespace FFMpegCore
         public List<AudioStream> AudioStreams { get; }
         public List<SubtitleStream> SubtitleStreams { get; }
         public IReadOnlyList<string> ErrorData { get; }
+        
+        private int? GetBitDepth(FFProbeStream stream)
+        {
+	        var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs :
+		        stream.BitsPerSample;
+	        return bitDepth == 0 ? null : (int?)bitDepth;
+        }
 
         private VideoStream ParseVideoStream(FFProbeStream stream)
         {
@@ -72,12 +79,13 @@ namespace FFMpegCore
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
+                BitDepth = GetBitDepth(stream),
             };
         }
 
         private AudioStream ParseAudioStream(FFProbeStream stream)
         {
-            return new AudioStream
+			return new AudioStream
             {
                 Index = stream.Index,
                 BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
@@ -93,6 +101,7 @@ namespace FFMpegCore
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
+                BitDepth = GetBitDepth(stream),
             };
         }
 

@@ -25,7 +25,10 @@ namespace FFMpegCore
 
         [JsonPropertyName("bits_per_raw_sample")]
         public string BitsPerRawSample { get; set; } = null!;
-
+        
+        [JsonPropertyName("bits_per_sample")]
+        public int BitsPerSample { get; set; } = 0;
+        
         [JsonPropertyName("bit_rate")]
         public string BitRate { get; set; } = null!;
 

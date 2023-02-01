@@ -145,6 +145,9 @@ namespace FFMpegCore.Test
         {
             var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
+	        Assert.AreEqual(8, info.PrimaryVideoStream.BitDepth);
+            // This video's audio stream is AAC, which is lossy, so bit depth is meaningless.
+            Assert.IsNull(info.PrimaryAudioStream.BitDepth);
         }
 
         [TestMethod, Timeout(10000)]
@@ -153,6 +156,8 @@ namespace FFMpegCore.Test
             using var stream = File.OpenRead(TestResources.WebmVideo);
             var info = FFProbe.Analyse(stream);
             Assert.AreEqual(3, info.Duration.Seconds);
+            // This video has no audio stream.
+            Assert.IsNull(info.PrimaryAudioStream);
         }
 
         [TestMethod, Timeout(10000)]
@@ -171,16 +176,60 @@ namespace FFMpegCore.Test
             Assert.AreEqual(1, info.SubtitleStreams.Count);
             Assert.AreEqual(0, info.AudioStreams.Count);
             Assert.AreEqual(0, info.VideoStreams.Count);
+            // BitDepth is meaningless for subtitles
+            Assert.IsNull(info.SubtitleStreams[0].BitDepth);
         }
 
         [TestMethod, Timeout(10000)]
         public async Task Probe_Success_Disposition_Async()
         {
-            var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
-            Assert.IsNotNull(info.PrimaryAudioStream);
-            Assert.IsNotNull(info.PrimaryAudioStream.Disposition);
-            Assert.AreEqual(true, info.PrimaryAudioStream.Disposition["default"]);
-            Assert.AreEqual(false, info.PrimaryAudioStream.Disposition["forced"]);
+	        var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        Assert.IsNotNull(info.PrimaryAudioStream.Disposition);
+	        Assert.AreEqual(true, info.PrimaryAudioStream.Disposition["default"]);
+	        Assert.AreEqual(false, info.PrimaryAudioStream.Disposition["forced"]);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_Mp3AudioBitDepthNull_Async()
+        {
+	        var info = await FFProbe.AnalyseAsync(TestResources.Mp3Audio);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        // mp3 is lossy, so bit depth is meaningless.
+	        Assert.IsNull(info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_VocAudioBitDepth_Async()
+        {
+	        var info = await FFProbe.AnalyseAsync(TestResources.AiffAudio);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        Assert.AreEqual(16, info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_MkvVideoBitDepth_Async()
+        {
+	        var info = await FFProbe.AnalyseAsync(TestResources.MkvVideo);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        Assert.AreEqual(8, info.PrimaryVideoStream.BitDepth);
+	        Assert.IsNull(info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_24BitWavBitDepth_Async()
+        {
+	        var info = await FFProbe.AnalyseAsync(TestResources.Wav24Bit);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        Assert.AreEqual(24, info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Probe_Success_32BitWavBitDepth_Async()
+        {
+	        var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit);
+	        Assert.IsNotNull(info.PrimaryAudioStream);
+	        Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
         }
     }
 }
