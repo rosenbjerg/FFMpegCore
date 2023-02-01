@@ -357,7 +357,7 @@ namespace FFMpegCore.Test
         [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        // [DataRow(PixelFormat.Format48bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format48bppRgb)]
         public void RawVideoPipeSource_Ogv_Scale(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
@@ -411,16 +411,15 @@ namespace FFMpegCore.Test
         [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_Snapshot_InMemory()
         {
-            var input = FFProbe.Analyse(TestResources.Mp4Video);
             using var bitmap = FFMpegImage.Snapshot(TestResources.Mp4Video);
             
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
             Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
         }
 
-        [SupportedOSPlatform("windows")]
-        [WindowsOnlyTestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000)]
         public void Video_Snapshot_PersistSnapshot()
         {
             var outputPath = new TemporaryFile("out.png");
@@ -428,10 +427,10 @@ namespace FFMpegCore.Test
 
             FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
 
-            using var bitmap = Image.FromFile(outputPath);
-            Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
-            Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-            Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
         }
 
         [TestMethod, Timeout(10000)]
@@ -456,7 +455,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
-        [WindowsOnlyTestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000)]
         public void Video_Join_Image_Sequence()
         {
             var imageSet = new List<ImageInfo>();
@@ -584,6 +583,24 @@ namespace FFMpegCore.Test
             var vi = FFProbe.Analyse(resStream);
             Assert.AreEqual(vi.PrimaryVideoStream!.Width, 128);
             Assert.AreEqual(vi.PrimaryVideoStream.Height, 128);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Video_TranscodeToMemory()
+        {
+            using var memoryStream = new MemoryStream();
+
+            FFMpegArguments
+                .FromFileInput(TestResources.WebmVideo)
+                .OutputToPipe(new StreamPipeSink(memoryStream), opt => opt
+                    .WithVideoCodec("vp9")
+                    .ForceFormat("webm"))
+                .ProcessSynchronously();
+
+            memoryStream.Position = 0;
+            var vi = FFProbe.Analyse(memoryStream);
+            Assert.AreEqual(vi.PrimaryVideoStream!.Width, 640);
+            Assert.AreEqual(vi.PrimaryVideoStream.Height, 360);
         }
 
         [TestMethod, Timeout(10000)]

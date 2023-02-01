@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FFMpegCore.Extensions.System.Drawing.Common;
-using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test
 {
@@ -66,11 +64,11 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [WindowsOnlyTestMethod]
+        [TestMethod]
         public void Image_AddAudio()
         {
             using var outputFile = new TemporaryFile("out.mp4");
-            FFMpegImage.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
+            FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
             var analysis = FFProbe.Analyse(TestResources.Mp3Audio);
             Assert.IsTrue(analysis.Duration.TotalSeconds > 0);
             Assert.IsTrue(File.Exists(outputFile));
