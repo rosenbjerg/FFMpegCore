@@ -5,6 +5,7 @@
         <AssemblyVersion>5.0.0.0</AssemblyVersion>
         <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <RepositoryType>GitHub</RepositoryType>
         <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
