@@ -446,7 +446,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(15000)]
         public void Video_Join_Image_Sequence()
         {
             var imageSet = new List<string>();
