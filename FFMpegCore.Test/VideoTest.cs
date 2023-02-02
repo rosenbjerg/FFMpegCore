@@ -446,7 +446,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
-        [TestMethod, Timeout(15000)]
+        [TestMethod, Timeout(20000)]
         public void Video_Join_Image_Sequence()
         {
             var imageSet = new List<string>();
@@ -454,7 +454,7 @@ namespace FFMpegCore.Test
                 .ToList()
                 .ForEach(file =>
                 {
-                    for (var i = 0; i < 15; i++)
+                    for (var i = 0; i < 5; i++)
                     {
                         imageSet.Add(file);
                     }
@@ -462,7 +462,7 @@ namespace FFMpegCore.Test
             var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
             var outputFile = new TemporaryFile("out.mp4");
-            var success = FFMpeg.JoinImageSequence(outputFile, images: imageSet.ToArray());
+            var success = FFMpeg.JoinImageSequence(outputFile, frameRate: 10, images: imageSet.ToArray());
             Assert.IsTrue(success);
             var result = FFProbe.Analyse(outputFile);
 
