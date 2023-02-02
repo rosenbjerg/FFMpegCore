@@ -1,8 +1,5 @@
-﻿using FFMpegCore.Enums;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore
 {
@@ -12,7 +9,7 @@ namespace FFMpegCore
         /// Working directory for the ffmpeg/ffprobe instance
         /// </summary>
         public string WorkingDirectory { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Folder container ffmpeg and ffprobe binaries. Leave empty if ffmpeg and ffprobe are present in PATH
         /// </summary>
@@ -22,7 +19,7 @@ namespace FFMpegCore
         /// Folder used for temporary files necessary for static methods on FFMpeg class
         /// </summary>
         public string TemporaryFilesFolder { get; set; } = Path.GetTempPath();
-        
+
         /// <summary>
         /// Encoding used for parsing stdout/stderr on ffmpeg and ffprobe processes
         /// </summary>
@@ -40,7 +37,7 @@ namespace FFMpegCore
         /// <summary>
         ///
         /// </summary>
-        public Dictionary<string, string> ExtensionOverrides { get; set; } = new Dictionary<string, string>
+        public Dictionary<string, string> ExtensionOverrides { get; set; } = new()
         {
             { "mpegts", ".ts" },
         };

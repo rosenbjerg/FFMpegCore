@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using FFMpegCore;
 using FFMpegCore.Enums;
-using FFMpegCore.Pipes;
 using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Pipes;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -61,11 +58,7 @@ var outputStream = new MemoryStream();
 }
 
 {
-    FFMpegImage.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
-        ImageInfo.FromPath(@"..\1.png"),
-        ImageInfo.FromPath(@"..\2.png"),
-        ImageInfo.FromPath(@"..\3.png")
-    );
+    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1, @"..\1.png", @"..\2.png", @"..\3.png");
 }
 
 {
@@ -83,17 +76,19 @@ var inputAudioPath = "/path/to/input/audio";
 
 var inputImagePath = "/path/to/input/image";
 {
-    FFMpegImage.PosterWithAudio(inputPath, inputAudioPath, outputPath);
+    FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
     // or 
+#pragma warning disable CA1416
     using var image = Image.FromFile(inputImagePath);
     image.AddAudio(inputAudioPath, outputPath);
+#pragma warning restore CA1416
 }
 
 IVideoFrame GetNextFrame() => throw new NotImplementedException();
 {
     IEnumerable<IVideoFrame> CreateFrames(int count)
     {
-        for(int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             yield return GetNextFrame(); //method of generating new frames
         }

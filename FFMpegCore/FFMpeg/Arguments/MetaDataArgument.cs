@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     public class MetaDataArgument : IInputArgument, IDynamicArgument
     {
@@ -20,7 +13,6 @@ namespace FFMpegCore.Arguments
         public string Text => GetText(null);
 
         public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
 
         public void Pre() => File.WriteAllText(_tempFileName, _metaDataContent);
 

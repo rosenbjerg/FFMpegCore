@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 
@@ -9,7 +7,7 @@ namespace FFMpegCore.Arguments
     public class VideoFiltersArgument : IArgument
     {
         public readonly VideoFilterOptions Options;
-        
+
         public VideoFiltersArgument(VideoFilterOptions options)
         {
             Options = options;
@@ -20,7 +18,9 @@ namespace FFMpegCore.Arguments
         private string GetText()
         {
             if (!Options.Arguments.Any())
+            {
                 throw new FFMpegArgumentException("No video-filter arguments provided");
+            }
 
             var arguments = Options.Arguments
                 .Where(arg => !string.IsNullOrEmpty(arg.Value))
@@ -42,8 +42,8 @@ namespace FFMpegCore.Arguments
 
     public class VideoFilterOptions
     {
-        public List<IVideoFilterArgument> Arguments { get; } = new List<IVideoFilterArgument>();
-        
+        public List<IVideoFilterArgument> Arguments { get; } = new();
+
         public VideoFilterOptions Scale(VideoSize videoSize) => WithArgument(new ScaleArgument(videoSize));
         public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
         public VideoFilterOptions Scale(Size size) => WithArgument(new ScaleArgument(size));

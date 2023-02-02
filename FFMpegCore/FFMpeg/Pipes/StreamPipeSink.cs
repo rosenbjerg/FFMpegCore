@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes
 {
     public class StreamPipeSink : IPipeSink
     {
@@ -20,7 +15,7 @@ namespace FFMpegCore.Pipes
             Writer = (inputStream, cancellationToken) => inputStream.CopyToAsync(destination, BlockSize, cancellationToken);
         }
 
-        public async Task ReadAsync(Stream inputStream, CancellationToken cancellationToken) 
+        public async Task ReadAsync(Stream inputStream, CancellationToken cancellationToken)
             => await Writer(inputStream, cancellationToken).ConfigureAwait(false);
 
         public string GetFormat() => Format;

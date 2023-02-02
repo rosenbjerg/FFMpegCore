@@ -1,20 +1,16 @@
-﻿using FFMpegCore.Exceptions;
-using FFMpegCore.Helpers;
-using Instances;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
+using FFMpegCore.Helpers;
+using Instances;
 
 namespace FFMpegCore
 {
     public class FFMpegArgumentProcessor
     {
-        private static readonly Regex ProgressRegex = new Regex(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+        private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
         private readonly List<Action<FFOptions>> _configurations;
         private readonly FFMpegArguments _ffMpegArguments;
         private Action<double>? _onPercentageProgress;
@@ -110,7 +106,9 @@ namespace FFMpegCore
             catch (OperationCanceledException)
             {
                 if (throwOnError)
+                {
                     throw;
+                }
             }
 
             return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
@@ -129,7 +127,9 @@ namespace FFMpegCore
             catch (OperationCanceledException)
             {
                 if (throwOnError)
+                {
                     throw;
+                }
             }
 
             return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
@@ -154,6 +154,7 @@ namespace FFMpegCore
                     instance.Kill();
                 }
             }
+
             CancelEvent += OnCancelEvent;
 
             try
@@ -181,10 +182,15 @@ namespace FFMpegCore
         private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
         {
             if (throwOnError && exitCode != 0)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Process, $"ffmpeg exited with non-zero exit-code ({exitCode} - {string.Join("\n", errorData)})", null, string.Join("\n", errorData));
+            }
 
             _onPercentageProgress?.Invoke(100.0);
-            if (_totalTimespan.HasValue) _onTimeProgress?.Invoke(_totalTimespan.Value);
+            if (_totalTimespan.HasValue)
+            {
+                _onTimeProgress?.Invoke(_totalTimespan.Value);
+            }
 
             return exitCode == 0;
         }
@@ -207,16 +213,18 @@ namespace FFMpegCore
             FFMpegHelper.RootExceptionCheck();
             FFMpegHelper.VerifyFFMpegExists(ffOptions);
 
-            string? arguments = _ffMpegArguments.Text;
+            var arguments = _ffMpegArguments.Text;
 
             //If local loglevel is null, set the global.
             if (_logLevel == null)
+            {
                 _logLevel = ffOptions.LogLevel;
+            }
 
             //If neither local nor global loglevel is null, set the argument.
             if (_logLevel != null)
             {
-                string normalizedLogLevel = _logLevel.ToString()
+                var normalizedLogLevel = _logLevel.ToString()
                                                      .ToLower();
                 arguments += $" -v {normalizedLogLevel}";
             }
@@ -233,10 +241,14 @@ namespace FFMpegCore
             cancellationTokenSource = new CancellationTokenSource();
 
             if (_onOutput != null)
+            {
                 processArguments.OutputDataReceived += OutputData;
+            }
 
             if (_onError != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+            {
                 processArguments.ErrorDataReceived += ErrorData;
+            }
 
             return processArguments;
         }
@@ -246,12 +258,19 @@ namespace FFMpegCore
             _onError?.Invoke(msg);
 
             var match = ProgressRegex.Match(msg);
-            if (!match.Success) return;
+            if (!match.Success)
+            {
+                return;
+            }
 
             var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             _onTimeProgress?.Invoke(processed);
 
-            if (_onPercentageProgress == null || _totalTimespan == null) return;
+            if (_onPercentageProgress == null || _totalTimespan == null)
+            {
+                return;
+            }
+
             var percentage = Math.Round(processed.TotalSeconds / _totalTimespan.Value.TotalSeconds * 100, 2);
             _onPercentageProgress(percentage);
         }

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FFMpegCore.Extend;
+﻿using FFMpegCore.Extend;
 
 namespace FFMpegCore.Arguments
 {
@@ -21,7 +18,7 @@ namespace FFMpegCore.Arguments
 
     public class PadOptions
     {
-        public readonly Dictionary<string, string> Parameters = new Dictionary<string, string>();
+        public readonly Dictionary<string, string> Parameters = new();
 
         internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
 
@@ -47,10 +44,12 @@ namespace FFMpegCore.Arguments
             {
                 throw new Exception("At least one of the parameters must be not null");
             }
+
             if (width != null)
             {
                 Parameters.Add("width", width);
             }
+
             if (height != null)
             {
                 Parameters.Add("height", height);

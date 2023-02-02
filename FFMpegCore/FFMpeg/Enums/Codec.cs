@@ -1,6 +1,5 @@
-﻿using FFMpegCore.Exceptions;
-using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Enums
 {
@@ -13,8 +12,8 @@ namespace FFMpegCore.Enums
 
     public class Codec
     {
-        private static readonly Regex _codecsFormatRegex = new Regex(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
-        private static readonly Regex _decodersEncodersFormatRegex = new Regex(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _codecsFormatRegex = new(@"([D\.])([E\.])([VASD\.])([I\.])([L\.])([S\.])\s+([a-z0-9_-]+)\s+(.+)");
+        private static readonly Regex _decodersEncodersFormatRegex = new(@"([VASD\.])([F\.])([S\.])([X\.])([B\.])([D\.])\s+([a-z0-9_-]+)\s+(.+)");
 
         public class FeatureLevel
         {
@@ -73,7 +72,7 @@ namespace FFMpegCore.Enums
                 _ => CodecType.Unknown
             };
 
-            if(type == CodecType.Unknown)
+            if (type == CodecType.Unknown)
             {
                 codec = null!;
                 return false;
@@ -133,7 +132,9 @@ namespace FFMpegCore.Enums
         internal void Merge(Codec other)
         {
             if (Name != other.Name)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
+            }
 
             Type |= other.Type;
             DecodingSupported |= other.DecodingSupported;
@@ -146,7 +147,9 @@ namespace FFMpegCore.Enums
             DecoderFeatureLevel.Merge(other.DecoderFeatureLevel);
 
             if (Description != other.Description)
+            {
                 Description += "\r\n" + other.Description;
+            }
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes
 {
     /// <summary>
     /// Interface for Audio sample

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFMpegCore.Enums
+﻿namespace FFMpegCore.Enums
 {
     public static class FileExtension
     {

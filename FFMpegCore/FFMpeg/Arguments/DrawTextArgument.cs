@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Drawtext video filter argument
@@ -9,16 +6,16 @@ namespace FFMpegCore.Arguments
     public class DrawTextArgument : IVideoFilterArgument
     {
         public readonly DrawTextOptions Options;
-        
+
         public DrawTextArgument(DrawTextOptions options)
         {
             Options = options;
         }
-        
+
         public string Key { get; } = "drawtext";
         public string Value => Options.TextInternal;
     }
-    
+
     public class DrawTextOptions
     {
         public readonly string Text;
@@ -34,7 +31,7 @@ namespace FFMpegCore.Arguments
             return new DrawTextOptions(text, font, parameters);
         }
 
-        internal string TextInternal => string.Join(":", new[] {("text", Text), ("fontfile", Font)}.Concat(Parameters).Select(FormatArgumentPair));
+        internal string TextInternal => string.Join(":", new[] { ("text", Text), ("fontfile", Font) }.Concat(Parameters).Select(FormatArgumentPair));
 
         private static string FormatArgumentPair((string key, string value) pair)
         {

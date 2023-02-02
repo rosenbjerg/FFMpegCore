@@ -4,7 +4,7 @@ namespace FFMpegCore.Enums
 {
     public class ContainerFormat
     {
-        private static readonly Regex FormatRegex = new Regex(@"([D ])([E ])\s+([a-z0-9_]+)\s+(.+)");
+        private static readonly Regex FormatRegex = new(@"([D ])([E ])\s+([a-z0-9_]+)\s+(.+)");
 
         public string Name { get; private set; }
         public bool DemuxingSupported { get; private set; }
@@ -16,7 +16,10 @@ namespace FFMpegCore.Enums
             get
             {
                 if (GlobalFFOptions.Current.ExtensionOverrides.ContainsKey(Name))
+                {
                     return GlobalFFOptions.Current.ExtensionOverrides[Name];
+                }
+
                 return "." + Name;
             }
         }
