@@ -1,6 +1,4 @@
 ﻿using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments
@@ -20,7 +18,10 @@ namespace FFMpegCore.Arguments
         {
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
+            {
                 throw new TaskCanceledException();
+            }
+
             await Reader.ReadAsync(Pipe, token).ConfigureAwait(false);
         }
     }

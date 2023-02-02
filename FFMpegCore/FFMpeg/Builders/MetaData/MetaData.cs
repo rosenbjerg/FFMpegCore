@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace FFMpegCore.Builders.MetaData
+﻿namespace FFMpegCore.Builders.MetaData
 {
     public class MetaData : IReadOnlyMetaData
     {
         public Dictionary<string, string> Entries { get; private set; }
         public List<ChapterData> Chapters { get; private set; }
 
-        IReadOnlyList<ChapterData> IReadOnlyMetaData.Chapters => this.Chapters;
-        IReadOnlyDictionary<string, string> IReadOnlyMetaData.Entries => this.Entries;
+        IReadOnlyList<ChapterData> IReadOnlyMetaData.Chapters => Chapters;
+        IReadOnlyDictionary<string, string> IReadOnlyMetaData.Entries => Entries;
 
         public MetaData()
         {

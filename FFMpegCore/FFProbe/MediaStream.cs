@@ -1,8 +1,5 @@
 ﻿using FFMpegCore.Enums;
 
-using System;
-using System.Collections.Generic;
-
 namespace FFMpegCore
 {
     public abstract class MediaStream
@@ -18,7 +15,7 @@ namespace FFMpegCore
         public Dictionary<string, bool>? Disposition { get; set; }
         public Dictionary<string, string>? Tags { get; set; }
         public int? BitDepth { get; set; }
-        
+
         public Codec GetCodecInfo() => FFMpeg.GetCodec(CodecName);
     }
 }

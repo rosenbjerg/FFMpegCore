@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Pipes
@@ -35,8 +30,11 @@ namespace FFMpegCore.Pipes
                 if (_framesEnumerator.Current == null)
                 {
                     if (!_framesEnumerator.MoveNext())
+                    {
                         throw new InvalidOperationException("Enumerator is empty, unable to get frame");
+                    }
                 }
+
                 StreamFormat = _framesEnumerator.Current!.Format;
                 Width = _framesEnumerator.Current!.Width;
                 Height = _framesEnumerator.Current!.Height;
@@ -65,9 +63,11 @@ namespace FFMpegCore.Pipes
         private void CheckFrameAndThrow(IVideoFrame frame)
         {
             if (frame.Width != Width || frame.Height != Height || frame.Format != StreamFormat)
+            {
                 throw new FFMpegStreamFormatException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
                     $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
                     $"Stream format: {Width}x{Height} pix_fmt: {StreamFormat}");
+            }
         }
     }
 }

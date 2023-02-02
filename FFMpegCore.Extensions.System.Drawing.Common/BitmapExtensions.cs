@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common
 {
@@ -12,11 +10,14 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
             poster.Save(destination);
             try
             {
-                return FFMpegImage.PosterWithAudio(destination, audio, output);
+                return FFMpeg.PosterWithAudio(destination, audio, output);
             }
             finally
             {
-                if (File.Exists(destination)) File.Delete(destination);
+                if (File.Exists(destination))
+                {
+                    File.Delete(destination);
+                }
             }
         }
     }

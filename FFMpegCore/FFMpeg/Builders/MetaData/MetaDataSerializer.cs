@@ -1,11 +1,10 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace FFMpegCore.Builders.MetaData
 {
     public class MetaDataSerializer
     {
-        public static readonly MetaDataSerializer Instance = new MetaDataSerializer();
+        public static readonly MetaDataSerializer Instance = new();
 
         public string Serialize(IReadOnlyMetaData metaData)
         {
@@ -17,7 +16,7 @@ namespace FFMpegCore.Builders.MetaData
                 sb.AppendLine($"{value.Key}={value.Value}");
             }
 
-            int chapterNumber = 0;
+            var chapterNumber = 0;
             foreach (var chapter in metaData.Chapters ?? Enumerable.Empty<ChapterData>())
             {
                 chapterNumber++;

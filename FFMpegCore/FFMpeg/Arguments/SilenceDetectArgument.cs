@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 
 namespace FFMpegCore.Arguments
 {
     public class SilenceDetectArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _arguments = new();
         /// <summary>
         ///     Silence Detection. <see href="https://ffmpeg.org/ffmpeg-filters.html#silencedetect"/>
         /// </summary>
@@ -18,17 +15,21 @@ namespace FFMpegCore.Arguments
 
         public SilenceDetectArgument(string noise_type = "db", double noise = 60, double duration = 2, bool mono = false)
         {
-            if(noise_type == "db")
+            if (noise_type == "db")
             {
                 _arguments.Add("n", $"{noise.ToString("0.0", CultureInfo.InvariantCulture)}dB");
             }
-            else if (noise_type == "ar") 
+            else if (noise_type == "ar")
             {
                 _arguments.Add("n", noise.ToString("0.00", CultureInfo.InvariantCulture));
             }
-            else throw new ArgumentOutOfRangeException(nameof(noise_type), "Noise type must be either db or ar");
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(noise_type), "Noise type must be either db or ar");
+            }
+
             _arguments.Add("d", duration.ToString("0.00", CultureInfo.InvariantCulture));
-            _arguments.Add("m", (mono ? 1 : 0).ToString());            
+            _arguments.Add("m", (mono ? 1 : 0).ToString());
         }
 
         public string Key { get; } = "silencedetect";

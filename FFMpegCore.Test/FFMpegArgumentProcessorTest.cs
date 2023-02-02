@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using System.Reflection;
+﻿using System.Reflection;
 using FFMpegCore.Arguments;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -19,7 +19,6 @@ namespace FFMpegCore.Test
         private static FFMpegArgumentProcessor CreateArgumentProcessor() => FFMpegArguments
                         .FromFileInput("")
                         .OutputToFile("");
-
 
         [TestMethod]
         public void Processor_GlobalOptions_GetUsed()
@@ -44,13 +43,11 @@ namespace FFMpegCore.Test
             options.WorkingDirectory.Should().Be(sessionWorkingDir);
         }
 
-
         [TestMethod]
         public void Processor_Options_CanBeOverridden_And_Configured()
         {
             var globalConfig = "Whatever";
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
-
 
             var processor = CreateArgumentProcessor();
 
@@ -65,7 +62,6 @@ namespace FFMpegCore.Test
             options.BinaryFolder.Should().NotBeEquivalentTo(globalConfig);
         }
 
-
         [TestMethod]
         public void Options_Global_And_Session_Options_Can_Differ()
         {
@@ -77,7 +73,6 @@ namespace FFMpegCore.Test
             processor1.Configure(options => options.WorkingDirectory = sessionWorkingDir);
             var options1 = processor1.GetConfiguredOptions(null);
             options1.WorkingDirectory.Should().Be(sessionWorkingDir);
-
 
             var processor2 = CreateArgumentProcessor();
             var options2 = processor2.GetConfiguredOptions(null);
@@ -97,7 +92,6 @@ namespace FFMpegCore.Test
             var arg = new AudibleEncryptionKeyArgument("123", "456");
             arg.Text.Should().Be($"-audible_key 123 -audible_iv 456");
         }
-
 
         [TestMethod]
         public void Audible_Aax_Test()

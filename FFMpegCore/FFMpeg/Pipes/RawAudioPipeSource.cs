@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes
 {
     /// <summary>
     /// Implementation of <see cref="IPipeSource"/> for a raw audio stream that is gathered from <see cref="IEnumerator{IAudioFrame}"/>.

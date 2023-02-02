@@ -24,7 +24,7 @@ namespace FFMpegCore.Test
         {
             Assert.IsFalse(FFMpeg.TryGetPixelFormat("yuv420pppUnknown", out _));
         }
-        
+
         [TestMethod]
         public void PixelFormats_GetExisting()
         {

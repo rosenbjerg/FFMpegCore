@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace FFMpegCore.Test
+﻿namespace FFMpegCore.Test
 {
     public class TemporaryFile : IDisposable
     {
@@ -16,7 +13,9 @@ namespace FFMpegCore.Test
         public void Dispose()
         {
             if (File.Exists(_path))
+            {
                 File.Delete(_path);
+            }
         }
     }
 }

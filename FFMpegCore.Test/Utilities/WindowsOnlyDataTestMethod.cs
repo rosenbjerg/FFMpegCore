@@ -17,7 +17,7 @@ public class WindowsOnlyDataTestMethod : DataTestMethodAttribute
                 };
             }
         }
-        
+
         return base.Execute(testMethod);
     }
 }

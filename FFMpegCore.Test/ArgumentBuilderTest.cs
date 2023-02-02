@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using FFMpegCore.Arguments;
+﻿using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -9,7 +8,6 @@ namespace FFMpegCore.Test
     public class ArgumentBuilderTest
     {
         private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
-
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
@@ -52,7 +50,6 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false).Arguments;
             Assert.AreEqual("-hide_banner -loglevel error -i \"input.mp4\" \"output.mp4\"", str);
         }
-
 
         [TestMethod]
         public void Builder_BuildString_AudioCodec_Fluent()
@@ -400,7 +397,6 @@ namespace FFMpegCore.Test
             Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\" -y", str);
         }
 
-
         [TestMethod]
         public void Builder_BuildString_Duration()
         {
@@ -420,7 +416,6 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt.WithCustomArgument("-acodec copy")).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -acodec copy \"output.mp4\"", str);
         }
-
 
         [TestMethod]
         public void Builder_BuildString_ForcePixelFormat()

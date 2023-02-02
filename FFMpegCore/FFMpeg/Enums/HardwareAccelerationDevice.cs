@@ -7,6 +7,7 @@
         DXVA2,
         QSV,
         CUVID,
+        CUDA,
         VDPAU,
         VAAPI,
         LibMFX

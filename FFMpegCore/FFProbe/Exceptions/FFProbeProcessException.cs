@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FFMpegCore.Exceptions
+﻿namespace FFMpegCore.Exceptions
 {
     public class FFProbeProcessException : FFProbeException
     {

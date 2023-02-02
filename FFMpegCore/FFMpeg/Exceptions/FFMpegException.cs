@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFMpegCore.Exceptions
+﻿namespace FFMpegCore.Exceptions
 {
     public enum FFMpegExceptionType
     {
@@ -30,7 +28,7 @@ namespace FFMpegCore.Exceptions
             FFMpegErrorOutput = string.Empty;
             Type = type;
         }
-        
+
         public FFMpegExceptionType Type { get; }
         public string FFMpegErrorOutput { get; }
     }

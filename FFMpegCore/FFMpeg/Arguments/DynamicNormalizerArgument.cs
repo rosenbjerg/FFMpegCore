@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 
 namespace FFMpegCore.Arguments
 {
     public class DynamicNormalizerArgument : IAudioFilterArgument
     {
-        private readonly Dictionary<string, string> _arguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _arguments = new();
 
         /// <summary>
         ///     Dynamic Audio Normalizer. <see href="https://ffmpeg.org/ffmpeg-filters.html#dynaudnorm"/>
@@ -23,13 +20,40 @@ namespace FFMpegCore.Arguments
         /// <param name="compressorFactor">Set the compress factor. In range from 0.0 to 30.0. Default is 0.0 (disabled).</param>
         public DynamicNormalizerArgument(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95, double gainFactor = 10.0, double targetRms = 0.0, bool channelCoupling = true, bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false, double compressorFactor = 0.0)
         {
-            if (frameLength < 10 || frameLength > 8000) throw new ArgumentOutOfRangeException(nameof(frameLength),"Frame length must be between 10 to 8000");
-            if (filterWindow < 3 || filterWindow > 31) throw new ArgumentOutOfRangeException(nameof(filterWindow), "Gaussian filter window size must be between 3 to 31");
-            if (filterWindow % 2 == 0) throw new ArgumentOutOfRangeException(nameof(filterWindow), "Gaussian filter window size must be an odd number");
-            if (targetPeak <= 0 || targetPeak > 1) throw new ArgumentOutOfRangeException(nameof(targetPeak));
-            if (gainFactor < 1 || gainFactor > 100) throw new ArgumentOutOfRangeException(nameof(gainFactor), "Gain factor must be between 1.0 to 100.0");
-            if (targetRms < 0 || targetRms > 1) throw new ArgumentOutOfRangeException(nameof(targetRms), "Target RMS must be between 0.0 and 1.0");
-            if (compressorFactor < 0 || compressorFactor > 30) throw new ArgumentOutOfRangeException(nameof(compressorFactor), "Compressor factor must be between 0.0 and 30.0");
+            if (frameLength < 10 || frameLength > 8000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(frameLength), "Frame length must be between 10 to 8000");
+            }
+
+            if (filterWindow < 3 || filterWindow > 31)
+            {
+                throw new ArgumentOutOfRangeException(nameof(filterWindow), "Gaussian filter window size must be between 3 to 31");
+            }
+
+            if (filterWindow % 2 == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(filterWindow), "Gaussian filter window size must be an odd number");
+            }
+
+            if (targetPeak <= 0 || targetPeak > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(targetPeak));
+            }
+
+            if (gainFactor < 1 || gainFactor > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(gainFactor), "Gain factor must be between 1.0 to 100.0");
+            }
+
+            if (targetRms < 0 || targetRms > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(targetRms), "Target RMS must be between 0.0 and 1.0");
+            }
+
+            if (compressorFactor < 0 || compressorFactor > 30)
+            {
+                throw new ArgumentOutOfRangeException(nameof(compressorFactor), "Compressor factor must be between 0.0 and 30.0");
+            }
 
             _arguments.Add("f", frameLength.ToString());
             _arguments.Add("g", filterWindow.ToString());

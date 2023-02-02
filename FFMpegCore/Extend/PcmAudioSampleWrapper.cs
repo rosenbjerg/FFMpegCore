@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using FFMpegCore.Pipes;
+﻿using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Extend
 {

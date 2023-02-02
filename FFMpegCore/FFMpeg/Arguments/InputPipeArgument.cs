@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.IO.Pipes;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments
@@ -24,7 +21,10 @@ namespace FFMpegCore.Arguments
         {
             await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
             if (!Pipe.IsConnected)
+            {
                 throw new OperationCanceledException();
+            }
+
             await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
         }
     }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
@@ -17,11 +13,11 @@ namespace FFMpegCore
         public static IMediaAnalysis Analyse(string filePath, FFOptions? ffOptions = null)
         {
             ThrowIfInputFileDoesNotExist(filePath);
-            
+
             var processArguments = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current);
             var result = processArguments.StartAndWaitForExit();
             ThrowIfExitCodeNotZero(result);
-            
+
             return ParseOutput(result);
         }
 
@@ -72,16 +68,17 @@ namespace FFMpegCore
             {
                 pipeArgument.Post();
             }
+
             var result = task.ConfigureAwait(false).GetAwaiter().GetResult();
             ThrowIfExitCodeNotZero(result);
-            
+
             return ParseOutput(result);
         }
 
         public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
         {
             ThrowIfInputFileDoesNotExist(filePath);
-            
+
             var instance = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current);
             var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
             ThrowIfExitCodeNotZero(result);
@@ -136,16 +133,17 @@ namespace FFMpegCore
             {
                 await pipeArgument.During(cancellationToken).ConfigureAwait(false);
             }
-            catch(IOException)
+            catch (IOException)
             {
             }
             finally
             {
                 pipeArgument.Post();
             }
+
             var result = await task.ConfigureAwait(false);
             ThrowIfExitCodeNotZero(result);
-            
+
             pipeArgument.Post();
             return ParseOutput(result);
         }
@@ -164,10 +162,12 @@ namespace FFMpegCore
             {
                 PropertyNameCaseInsensitive = true
             });
-            
+
             if (ffprobeAnalysis?.Format == null)
+            {
                 throw new FormatNullException();
-            
+            }
+
             ffprobeAnalysis.ErrorData = instance.ErrorData;
             return new MediaAnalysis(ffprobeAnalysis);
         }
@@ -178,7 +178,7 @@ namespace FFMpegCore
             {
                 PropertyNameCaseInsensitive = true,
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
-            }) ;
+            });
 
             return ffprobeAnalysis!;
         }
@@ -190,7 +190,7 @@ namespace FFMpegCore
             {
                 PropertyNameCaseInsensitive = true,
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
-            }) ;
+            });
 
             return ffprobeAnalysis!;
         }
@@ -218,7 +218,7 @@ namespace FFMpegCore
             => PrepareInstance($"-loglevel error -print_format json -show_frames -v quiet -sexagesimal \"{filePath}\"", ffOptions);
         private static ProcessArguments PreparePacketAnalysisInstance(string filePath, FFOptions ffOptions)
             => PrepareInstance($"-loglevel error -print_format json -show_packets -v quiet -sexagesimal \"{filePath}\"", ffOptions);
-        
+
         private static ProcessArguments PrepareInstance(string arguments, FFOptions ffOptions)
         {
             FFProbeHelper.RootExceptionCheck();

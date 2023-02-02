@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
 using System.Runtime.Versioning;
@@ -10,11 +8,11 @@ using FFMpegCore.Pipes;
 namespace FFMpegCore.Test.Utilities
 {
     [SupportedOSPlatform("windows")]
-    static class BitmapSource
+    internal static class BitmapSource
     {
         public static IEnumerable<IVideoFrame> CreateBitmaps(int count, PixelFormat fmt, int w, int h)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 using (var frame = CreateVideoFrame(i, fmt, w, h, 0.025f, 0.025f * w * 0.03f))
                 {
@@ -29,8 +27,9 @@ namespace FFMpegCore.Test.Utilities
 
             offset = offset * index;
 
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
                 {
                     var xf = x / (float)w;
                     var yf = y / (float)h;
@@ -43,6 +42,7 @@ namespace FFMpegCore.Test.Utilities
 
                     bitmap.SetPixel(x, y, color);
                 }
+            }
 
             return new BitmapVideoFrameWrapper(bitmap);
         }
@@ -55,7 +55,7 @@ namespace FFMpegCore.Test.Utilities
         // Based on the original implementation by Ken Perlin
         // http://mrl.nyu.edu/~perlin/noise/
         //
-        static class Perlin
+        private static class Perlin
         {
             #region Noise functions
 
@@ -128,6 +128,7 @@ namespace FFMpegCore.Test.Utilities
                     x *= 2.0f;
                     w *= 0.5f;
                 }
+
                 return f;
             }
 
@@ -141,6 +142,7 @@ namespace FFMpegCore.Test.Utilities
                     coord *= 2.0f;
                     w *= 0.5f;
                 }
+
                 return f;
             }
 
@@ -159,6 +161,7 @@ namespace FFMpegCore.Test.Utilities
                     coord *= 2.0f;
                     w *= 0.5f;
                 }
+
                 return f;
             }
 
@@ -171,27 +174,27 @@ namespace FFMpegCore.Test.Utilities
 
             #region Private functions
 
-            static float Fade(float t)
+            private static float Fade(float t)
             {
                 return t * t * t * (t * (t * 6 - 15) + 10);
             }
 
-            static float Lerp(float t, float a, float b)
+            private static float Lerp(float t, float a, float b)
             {
                 return a + t * (b - a);
             }
 
-            static float Grad(int hash, float x)
+            private static float Grad(int hash, float x)
             {
                 return (hash & 1) == 0 ? x : -x;
             }
 
-            static float Grad(int hash, float x, float y)
+            private static float Grad(int hash, float x, float y)
             {
                 return ((hash & 1) == 0 ? x : -x) + ((hash & 2) == 0 ? y : -y);
             }
 
-            static float Grad(int hash, float x, float y, float z)
+            private static float Grad(int hash, float x, float y, float z)
             {
                 var h = hash & 15;
                 var u = h < 8 ? x : y;
@@ -199,7 +202,7 @@ namespace FFMpegCore.Test.Utilities
                 return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
             }
 
-            static int[] perm = {
+            private static readonly int[] perm = {
         151,160,137,91,90,15,
         131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
         190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
