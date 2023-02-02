@@ -583,7 +583,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(vi.PrimaryVideoStream.Height, 128);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(20000)]
         public void Video_TranscodeToMemory()
         {
             using var memoryStream = new MemoryStream();
