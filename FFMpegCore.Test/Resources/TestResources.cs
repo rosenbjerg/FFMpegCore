@@ -13,6 +13,7 @@
     public static class TestResources
     {
         public static readonly string Mp4Video = "./Resources/input_3sec.mp4";
+        public static readonly string Mp4VideoRotation = "./Resources/input_3sec_rotation_90deg.mp4";
         public static readonly string WebmVideo = "./Resources/input_3sec.webm";
         public static readonly string Mp4WithoutVideo = "./Resources/input_audio_only_10sec.mp4";
         public static readonly string Mp4WithoutAudio = "./Resources/input_video_only_3sec.mp4";
