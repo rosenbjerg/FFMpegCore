@@ -1,6 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/ci.yml
+      - FFMpegCore/**
+      - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
@@ -36,4 +43,10 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test with dotnet
-      run: dotnet test FFMpegCore.sln --logger GitHubActions
+      run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: FFMpegCore.Test/TestResults
+        fail_ci_if_error: true
