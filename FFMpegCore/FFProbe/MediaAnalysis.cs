@@ -72,7 +72,7 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
-                Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
+                Rotation = MediaAnalysisUtils.ParseRotation(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
@@ -194,6 +194,20 @@ namespace FFMpegCore
         public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
+        }
+
+        public static int ParseRotation(FFProbeStream fFProbeStream)
+        {
+            var displayMatrixSideData = fFProbeStream.SideData?.Find(item => item.TryGetValue("side_data_type", out var rawSideDataType) && rawSideDataType.ToString() == "Display Matrix");
+
+            if (displayMatrixSideData?.TryGetValue("rotation", out var rawRotation) ?? false)
+            {
+                return (int)float.Parse(rawRotation.ToString());
+            }
+            else
+            {
+                return (int)float.Parse(fFProbeStream.GetRotate() ?? "0");
+            }
         }
 
         public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)

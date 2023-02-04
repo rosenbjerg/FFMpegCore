@@ -42,6 +42,9 @@
     <None Update="Resources\input_3sec.webm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\input_3sec_rotation_90deg.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\input_audio_only_10sec.mp4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
