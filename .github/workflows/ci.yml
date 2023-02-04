@@ -1,6 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/ci.yml
+      - FFMpegCore/**
+      - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
