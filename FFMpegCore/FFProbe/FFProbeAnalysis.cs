@@ -59,6 +59,9 @@ namespace FFMpegCore
         [JsonPropertyName("sample_aspect_ratio")]
         public string SampleAspectRatio { get; set; } = null!;
 
+        [JsonPropertyName("start_time")]
+        public string StartTime { get; set; } = null!;
+
         [JsonPropertyName("duration")]
         public string Duration { get; set; } = null!;
 

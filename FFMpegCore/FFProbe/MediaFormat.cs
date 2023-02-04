@@ -3,6 +3,7 @@
     public class MediaFormat
     {
         public TimeSpan Duration { get; set; }
+        public TimeSpan StartTime { get; set; }
         public string FormatName { get; set; } = null!;
         public string FormatLongName { get; set; } = null!;
         public int StreamCount { get; set; }
