@@ -1,18 +1,14 @@
-﻿using FFMpegCore.Enums;
-using FFMpegCore.Test.Resources;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
+﻿using System.Drawing.Imaging;
+using System.Runtime.Versioning;
 using System.Text;
-using System.Threading.Tasks;
 using FFMpegCore.Arguments;
+using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
-using System.Threading;
+using FFMpegCore.Test.Resources;
+using FFMpegCore.Test.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -23,7 +19,7 @@ namespace FFMpegCore.Test
         public void Video_ToOGV()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.WebmVideo)
                 .OutputToFile(outputFile, false)
@@ -35,7 +31,7 @@ namespace FFMpegCore.Test
         public void Video_ToMP4()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.WebmVideo)
                 .OutputToFile(outputFile, false)
@@ -47,7 +43,7 @@ namespace FFMpegCore.Test
         public void Video_ToMP4_YUV444p()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.WebmVideo)
                 .OutputToFile(outputFile, false, opt => opt
@@ -63,7 +59,7 @@ namespace FFMpegCore.Test
         public void Video_ToMP4_Args()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.WebmVideo)
                 .OutputToFile(outputFile, false, opt => opt
@@ -76,7 +72,7 @@ namespace FFMpegCore.Test
         public void Video_ToH265_MKV_Args()
         {
             using var outputFile = new TemporaryFile($"out.mkv");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.WebmVideo)
                 .OutputToFile(outputFile, false, opt => opt
@@ -85,7 +81,8 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [DataTestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         public void Video_ToMP4_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
@@ -101,12 +98,13 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_Pipe_DifferentImageSizes()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var frames = new List<IVideoFrame> 
+            var frames = new List<IVideoFrame>
             {
                 BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
                 BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 256, 256, 1, 0)
@@ -120,8 +118,8 @@ namespace FFMpegCore.Test
               .ProcessSynchronously());
         }
 
-
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Async()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -140,7 +138,8 @@ namespace FFMpegCore.Test
               .ProcessAsynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_ToMP4_Args_Pipe_DifferentPixelFormats()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -159,8 +158,8 @@ namespace FFMpegCore.Test
               .ProcessSynchronously());
         }
 
-
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Async()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -184,7 +183,7 @@ namespace FFMpegCore.Test
         {
             using var input = File.OpenRead(TestResources.WebmVideo);
             using var output = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromPipeInput(new StreamPipeSource(input))
                 .OutputToFile(output, false, opt => opt
@@ -206,7 +205,6 @@ namespace FFMpegCore.Test
                     .ProcessAsynchronously();
             });
         }
-
 
         [TestMethod, Timeout(10000)]
         public void Video_StreamFile_OutputToMemoryStream()
@@ -239,7 +237,6 @@ namespace FFMpegCore.Test
             });
         }
 
-
         [TestMethod, Timeout(10000)]
         public async Task Video_ToMP4_Args_StreamOutputPipe_Async()
         {
@@ -260,12 +257,12 @@ namespace FFMpegCore.Test
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile("temporary.mp4")
                 .ProcessSynchronously();
-            
+
             await FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile("temporary.mp4")
                 .ProcessAsynchronously();
-            
+
             File.Delete("temporary.mp4");
         }
 
@@ -291,7 +288,7 @@ namespace FFMpegCore.Test
         public void Video_ToTS()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.MpegTs.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile(outputFile, false)
@@ -303,7 +300,7 @@ namespace FFMpegCore.Test
         public void Video_ToTS_Args()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.MpegTs.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile(outputFile, false, opt => opt
@@ -314,14 +311,15 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [DataTestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         public async Task Video_ToTS_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             using var output = new TemporaryFile($"out{VideoType.Ts.Extension}");
             var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
-            
+
             var success = await FFMpegArguments
                 .FromPipeInput(input)
                 .OutputToFile(output, false, opt => opt
@@ -346,15 +344,16 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [DataTestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        // [DataRow(PixelFormat.Format48bppRgb)]
+        [DataRow(System.Drawing.Imaging.PixelFormat.Format48bppRgb)]
         public void RawVideoPipeSource_Ogv_Scale(System.Drawing.Imaging.PixelFormat pixelFormat)
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
             var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
-            
+
             FFMpegArguments
                 .FromPipeInput(videoFramesSource)
                 .OutputToFile(outputFile, false, opt => opt
@@ -371,7 +370,7 @@ namespace FFMpegCore.Test
         public void Scale_Mp4_Multithreaded()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-            
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile(outputFile, false, opt => opt
@@ -381,7 +380,8 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [DataTestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyDataTestMethod, Timeout(10000)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
         [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
         // [DataRow(PixelFormat.Format48bppRgb)]
@@ -389,7 +389,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
             var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
-            
+
             var success = FFMpegArguments
                 .FromPipeInput(videoFramesSource)
                 .OutputToFile(outputFile, false, opt => opt
@@ -398,12 +398,13 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_Snapshot_InMemory()
         {
+            using var bitmap = FFMpegImage.Snapshot(TestResources.Mp4Video);
+
             var input = FFProbe.Analyse(TestResources.Mp4Video);
-            using var bitmap = FFMpeg.Snapshot(TestResources.Mp4Video);
-            
             Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
             Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
@@ -417,10 +418,10 @@ namespace FFMpegCore.Test
 
             FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
 
-            using var bitmap = Image.FromFile(outputPath);
-            Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
-            Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-            Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
         }
 
         [TestMethod, Timeout(10000)]
@@ -428,13 +429,13 @@ namespace FFMpegCore.Test
         {
             var inputCopy = new TemporaryFile("copy-input.mp4");
             File.Copy(TestResources.Mp4Video, inputCopy);
-            
+
             var outputPath = new TemporaryFile("out.mp4");
             var input = FFProbe.Analyse(TestResources.Mp4Video);
             var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy);
             Assert.IsTrue(success);
             Assert.IsTrue(File.Exists(outputPath));
-            
+
             var expectedDuration = input.Duration * 2;
             var result = FFProbe.Analyse(outputPath);
             Assert.AreEqual(expectedDuration.Days, result.Duration.Days);
@@ -445,28 +446,29 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(20000)]
         public void Video_Join_Image_Sequence()
         {
-            var imageSet = new List<ImageInfo>();
-            Directory.EnumerateFiles(TestResources.ImageCollection)
-                .Where(file => file.ToLower().EndsWith(".png"))
+            var imageSet = new List<string>();
+            Directory.EnumerateFiles(TestResources.ImageCollection, "*.png")
                 .ToList()
                 .ForEach(file =>
                 {
-                    for (var i = 0; i < 15; i++)
+                    for (var i = 0; i < 5; i++)
                     {
-                        imageSet.Add(new ImageInfo(file));
+                        imageSet.Add(file);
                     }
                 });
+            var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
-            using var outputFile = new TemporaryFile("out.mp4");
-            var success = FFMpeg.JoinImageSequence(outputFile, images: imageSet.ToArray());
+            var outputFile = new TemporaryFile("out.mp4");
+            var success = FFMpeg.JoinImageSequence(outputFile, frameRate: 10, images: imageSet.ToArray());
             Assert.IsTrue(success);
             var result = FFProbe.Analyse(outputFile);
-            Assert.AreEqual(3, result.Duration.Seconds);
-            Assert.AreEqual(imageSet.First().Width, result.PrimaryVideoStream!.Width);
-            Assert.AreEqual(imageSet.First().Height, result.PrimaryVideoStream.Height);
+
+            Assert.AreEqual(1, result.Duration.Seconds);
+            Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Width, result.PrimaryVideoStream!.Width);
+            Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Height, result.PrimaryVideoStream.Height);
         }
 
         [TestMethod, Timeout(10000)]
@@ -505,14 +507,28 @@ namespace FFMpegCore.Test
 
             var percentageDone = 0.0;
             var timeDone = TimeSpan.Zero;
-            void OnPercentageProgess(double percentage) => percentageDone = percentage;
-            void OnTimeProgess(TimeSpan time) => timeDone = time;
-
             var analysis = FFProbe.Analyse(TestResources.Mp4Video);
+
+            void OnPercentageProgess(double percentage)
+            {
+                if (percentage < 100)
+                {
+                    percentageDone = percentage;
+                }
+            }
+
+            void OnTimeProgess(TimeSpan time)
+            {
+                if (time < analysis.Duration)
+                {
+                    timeDone = time;
+                }
+            }
+
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToFile(outputFile, false, opt => opt
-                    .WithDuration(TimeSpan.FromSeconds(2)))
+                    .WithDuration(analysis.Duration))
                 .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
                 .NotifyOnProgress(OnTimeProgess)
                 .ProcessSynchronously();
@@ -520,7 +536,9 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
             Assert.IsTrue(File.Exists(outputFile));
             Assert.AreNotEqual(0.0, percentageDone);
+            Assert.AreNotEqual(100.0, percentageDone);
             Assert.AreNotEqual(TimeSpan.Zero, timeDone);
+            Assert.AreNotEqual(analysis.Duration, timeDone);
         }
 
         [TestMethod, Timeout(10000)]
@@ -528,7 +546,7 @@ namespace FFMpegCore.Test
         {
             var outputFile = new TemporaryFile("out.mp4");
             var dataReceived = false;
-            
+
             GlobalFFOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
             var success = FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
@@ -544,7 +562,8 @@ namespace FFMpegCore.Test
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [TestMethod, Timeout(10000)]
+        [SupportedOSPlatform("windows")]
+        [WindowsOnlyTestMethod, Timeout(10000)]
         public void Video_TranscodeInMemory()
         {
             using var resStream = new MemoryStream();
@@ -562,6 +581,24 @@ namespace FFMpegCore.Test
             var vi = FFProbe.Analyse(resStream);
             Assert.AreEqual(vi.PrimaryVideoStream!.Width, 128);
             Assert.AreEqual(vi.PrimaryVideoStream.Height, 128);
+        }
+
+        [TestMethod, Timeout(20000)]
+        public void Video_TranscodeToMemory()
+        {
+            using var memoryStream = new MemoryStream();
+
+            FFMpegArguments
+                .FromFileInput(TestResources.WebmVideo)
+                .OutputToPipe(new StreamPipeSink(memoryStream), opt => opt
+                    .WithVideoCodec("vp9")
+                    .ForceFormat("webm"))
+                .ProcessSynchronously();
+
+            memoryStream.Position = 0;
+            var vi = FFProbe.Analyse(memoryStream);
+            Assert.AreEqual(vi.PrimaryVideoStream!.Width, 640);
+            Assert.AreEqual(vi.PrimaryVideoStream.Height, 360);
         }
 
         [TestMethod, Timeout(10000)]

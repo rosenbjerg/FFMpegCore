@@ -4,7 +4,7 @@ namespace FFMpegCore.Enums
 {
     public class PixelFormat
     {
-        private static readonly Regex _formatRegex = new Regex(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)");
+        private static readonly Regex _formatRegex = new(@"([I\.])([O\.])([H\.])([P\.])([B\.])\s+(\S+)\s+([0-9]+)\s+([0-9]+)");
 
         public bool InputConversionSupported { get; private set; }
         public bool OutputConversionSupported { get; private set; }
@@ -41,10 +41,16 @@ namespace FFMpegCore.Enums
             fmt.IsPaletted = match.Groups[4].Value != ".";
             fmt.IsBitstream = match.Groups[5].Value != ".";
             if (!int.TryParse(match.Groups[7].Value, out var nbComponents))
+            {
                 return false;
+            }
+
             fmt.Components = nbComponents;
             if (!int.TryParse(match.Groups[8].Value, out var bpp))
+            {
                 return false;
+            }
+
             fmt.BitsPerPixel = bpp;
 
             return true;

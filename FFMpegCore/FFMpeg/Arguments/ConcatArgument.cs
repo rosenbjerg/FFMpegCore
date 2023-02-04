@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
 
     /// <summary>
@@ -20,7 +16,7 @@ namespace FFMpegCore.Arguments
         public void Pre() { }
         public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Post() { }
-        
+
         public string Text => $"-i \"concat:{string.Join(@"|", Values)}\"";
     }
 }

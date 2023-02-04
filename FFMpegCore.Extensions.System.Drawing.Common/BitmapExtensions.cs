@@ -1,8 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public static class BitmapExtensions
     {
@@ -16,7 +14,10 @@ namespace FFMpegCore.Extend
             }
             finally
             {
-                if (File.Exists(destination)) File.Delete(destination);
+                if (File.Exists(destination))
+                {
+                    File.Delete(destination);
+                }
             }
         }
     }

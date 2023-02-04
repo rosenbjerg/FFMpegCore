@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFMpegCore.Exceptions
+﻿namespace FFMpegCore.Exceptions
 {
     public class FFProbeException : Exception
     {

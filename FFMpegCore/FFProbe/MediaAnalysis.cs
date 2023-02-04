@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace FFMpegCore
 {
@@ -13,14 +10,15 @@ namespace FFMpegCore
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
-            ErrorData = analysis.ErrorData ?? new List<string>().AsReadOnly();
+            ErrorData = analysis.ErrorData;
         }
-        
+
         private MediaFormat ParseFormat(Format analysisFormat)
         {
             return new MediaFormat
             {
                 Duration = MediaAnalysisUtils.ParseDuration(analysisFormat.Duration),
+                StartTime = MediaAnalysisUtils.ParseDuration(analysisFormat.StartTime),
                 FormatName = analysisFormat.FormatName,
                 FormatLongName = analysisFormat.FormatLongName,
                 StreamCount = analysisFormat.NbStreams,
@@ -38,7 +36,7 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
-        
+
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
@@ -47,7 +45,14 @@ namespace FFMpegCore
         public List<AudioStream> AudioStreams { get; }
         public List<SubtitleStream> SubtitleStreams { get; }
         public IReadOnlyList<string> ErrorData { get; }
-        
+
+        private int? GetBitDepth(FFProbeStream stream)
+        {
+            var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs :
+                stream.BitsPerSample;
+            return bitDepth == 0 ? null : (int?)bitDepth;
+        }
+
         private VideoStream ParseVideoStream(FFProbeStream stream)
         {
             return new VideoStream
@@ -61,16 +66,19 @@ namespace FFMpegCore
                 CodecTag = stream.CodecTag,
                 CodecTagString = stream.CodecTagString,
                 DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
-                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                SampleAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.SampleAspectRatio, ':'),
+                Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+                StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
                 FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
                 Height = stream.Height ?? 0,
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
-                Rotation = (int)float.Parse(stream.GetRotate() ?? "0"),
+                Rotation = MediaAnalysisUtils.ParseRotation(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
+                BitDepth = GetBitDepth(stream),
             };
         }
 
@@ -86,12 +94,14 @@ namespace FFMpegCore
                 CodecTagString = stream.CodecTagString,
                 Channels = stream.Channels ?? default,
                 ChannelLayout = stream.ChannelLayout,
-                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+                StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
                 SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
                 Profile = stream.Profile,
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
+                BitDepth = GetBitDepth(stream),
             };
         }
 
@@ -103,18 +113,18 @@ namespace FFMpegCore
                 BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
                 CodecName = stream.CodecName,
                 CodecLongName = stream.CodecLongName,
-                Duration = MediaAnalysisUtils.ParseDuration(stream),
+                Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+                StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
             };
         }
-
     }
 
     public static class MediaAnalysisUtils
     {
-        private static readonly Regex DurationRegex = new Regex(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
+        private static readonly Regex DurationRegex = new(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
         internal static Dictionary<string, string>? ToCaseInsensitive(this Dictionary<string, string>? dictionary)
         {
@@ -124,14 +134,22 @@ namespace FFMpegCore
 
         public static (int, int) ParseRatioInt(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
+            if (string.IsNullOrEmpty(input))
+            {
+                return (0, 0);
+            }
+
             var ratio = input.Split(separator);
             return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
         }
 
         public static (double, double) ParseRatioDouble(string input, char separator)
         {
-            if (string.IsNullOrEmpty(input)) return (0, 0);
+            if (string.IsNullOrEmpty(input))
+            {
+                return (0, 0);
+            }
+
             var ratio = input.Split(separator);
             return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
         }
@@ -141,11 +159,10 @@ namespace FFMpegCore
 
         public static int ParseIntInvariant(string line) =>
             int.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-        
+
         public static long ParseLongInvariant(string line) =>
             long.Parse(line, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-        
-        
+
         public static TimeSpan ParseDuration(string duration)
         {
             if (!string.IsNullOrEmpty(duration))
@@ -181,6 +198,20 @@ namespace FFMpegCore
         public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
         {
             return ParseDuration(ffProbeStream.Duration);
+        }
+
+        public static int ParseRotation(FFProbeStream fFProbeStream)
+        {
+            var displayMatrixSideData = fFProbeStream.SideData?.Find(item => item.TryGetValue("side_data_type", out var rawSideDataType) && rawSideDataType.ToString() == "Display Matrix");
+
+            if (displayMatrixSideData?.TryGetValue("rotation", out var rawRotation) ?? false)
+            {
+                return (int)float.Parse(rawRotation.ToString());
+            }
+            else
+            {
+                return (int)float.Parse(fFProbeStream.GetRotate() ?? "0");
+            }
         }
 
         public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)

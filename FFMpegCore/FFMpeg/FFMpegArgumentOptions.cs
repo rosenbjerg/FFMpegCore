@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-
+﻿using System.Drawing;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 
@@ -18,8 +16,6 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithVariableBitrate(int vbr) => WithArgument(new VariableBitRateArgument(vbr));
         public FFMpegArgumentOptions Resize(int width, int height) => WithArgument(new SizeArgument(width, height));
         public FFMpegArgumentOptions Resize(Size? size) => WithArgument(new SizeArgument(size));
-
-
 
         public FFMpegArgumentOptions WithBitStreamFilter(Channel channel, Filter filter) => WithArgument(new BitStreamFilterArgument(channel, filter));
         public FFMpegArgumentOptions WithConstantRateFactor(int crf) => WithArgument(new ConstantRateFactorArgument(crf));
@@ -60,7 +56,16 @@ namespace FFMpegCore
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
-        public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex));
+        public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0,
+            Channel channel = Channel.All) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, channel));
+        public FFMpegArgumentOptions SelectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0,
+            Channel channel = Channel.All) => streamIndices.Aggregate(this,
+            (options, streamIndex) => options.SelectStream(streamIndex, inputFileIndex, channel));
+        public FFMpegArgumentOptions DeselectStream(int streamIndex, int inputFileIndex = 0,
+            Channel channel = Channel.All) => WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, channel, true));
+        public FFMpegArgumentOptions DeselectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0,
+            Channel channel = Channel.All) => streamIndices.Aggregate(this,
+            (options, streamIndex) => options.DeselectStream(streamIndex, inputFileIndex, channel));
 
         public FFMpegArgumentOptions ForceFormat(ContainerFormat format) => WithArgument(new ForceFormatArgument(format));
         public FFMpegArgumentOptions ForceFormat(string format) => WithArgument(new ForceFormatArgument(format));
@@ -70,7 +75,6 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithAudibleEncryptionKeys(string key, string iv) => WithArgument(new AudibleEncryptionKeyArgument(key, iv));
         public FFMpegArgumentOptions WithAudibleActivationBytes(string activationBytes) => WithArgument(new AudibleEncryptionKeyArgument(activationBytes));
         public FFMpegArgumentOptions WithTagVersion(int id3v2Version = 3) => WithArgument(new ID3V2VersionArgument(id3v2Version));
-
 
         public FFMpegArgumentOptions WithArgument(IArgument argument)
         {

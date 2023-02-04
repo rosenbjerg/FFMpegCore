@@ -1,13 +1,9 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extensions.System.Drawing.Common
 {
     public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
     {

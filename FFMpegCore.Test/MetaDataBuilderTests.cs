@@ -1,14 +1,6 @@
-﻿using FFMpegCore.Builders.MetaData;
-
+﻿using System.Text.RegularExpressions;
+using FFMpegCore.Builders.MetaData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FFMpegCore.Test
 {
@@ -70,8 +62,6 @@ namespace FFMpegCore.Test
                 .AddDemuxConcatInput(new[] { "whaterver", "whaterver1" })
                 .AddMetaData("WhatEver3")
                 .Text;
-
-
 
             Assert.IsTrue(Regex.IsMatch(text0, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 1"), "map_metadata index is calculated incorrectly.");
             Assert.IsTrue(Regex.IsMatch(text1, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 2"), "map_metadata index is calculated incorrectly.");

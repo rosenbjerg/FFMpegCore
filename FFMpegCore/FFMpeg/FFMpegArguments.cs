@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using FFMpegCore.Arguments;
+﻿using FFMpegCore.Arguments;
 using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Pipes;
 
@@ -14,7 +6,7 @@ namespace FFMpegCore
 {
     public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
-        private readonly FFMpegGlobalArguments _globalArguments = new FFMpegGlobalArguments();
+        private readonly FFMpegGlobalArguments _globalArguments = new();
 
         private FFMpegArguments() { }
 
@@ -34,7 +26,6 @@ namespace FFMpegCore
         public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
         public static FFMpegArguments FromPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
 
-
         public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
         {
             configureOptions(_globalArguments);
@@ -46,10 +37,10 @@ namespace FFMpegCore
         public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(verifyExists, filePath), addArguments);
         public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+        public FFMpegArguments AddDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputDeviceArgument(device), addArguments);
         public FFMpegArguments AddPipeInput(IPipeSource sourcePipe, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputPipeArgument(sourcePipe), addArguments);
         public FFMpegArguments AddMetaData(string content, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(content), addArguments);
         public FFMpegArguments AddMetaData(IReadOnlyMetaData metaData, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MetaDataArgument(MetaDataSerializer.Instance.Serialize(metaData)), addArguments);
-
 
         /// <summary>
         /// Maps the metadata of the given stream
@@ -83,7 +74,9 @@ namespace FFMpegCore
         internal void Pre()
         {
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
+            {
                 argument.Pre();
+            }
         }
         internal async Task During(CancellationToken cancellationToken = default)
         {
@@ -93,7 +86,9 @@ namespace FFMpegCore
         internal void Post()
         {
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
+            {
                 argument.Post();
+            }
         }
     }
 }

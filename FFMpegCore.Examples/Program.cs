@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using FFMpegCore;
 using FFMpegCore.Enums;
+using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
-using FFMpegCore.Extend;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -34,7 +31,7 @@ var outputPath = "/path/to/output";
 
 {
     // process the snapshot in-memory and use the Bitmap directly
-    var bitmap = FFMpeg.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+    var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 
     // or persists the image on the drive
     FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
@@ -61,11 +58,7 @@ var outputStream = new MemoryStream();
 }
 
 {
-    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
-        ImageInfo.FromPath(@"..\1.png"),
-        ImageInfo.FromPath(@"..\2.png"),
-        ImageInfo.FromPath(@"..\3.png")
-    );
+    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1, @"..\1.png", @"..\2.png", @"..\3.png");
 }
 
 {
@@ -84,16 +77,18 @@ var inputAudioPath = "/path/to/input/audio";
 var inputImagePath = "/path/to/input/image";
 {
     FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
-    // or
-    var image = Image.FromFile(inputImagePath);
+    // or 
+#pragma warning disable CA1416
+    using var image = Image.FromFile(inputImagePath);
     image.AddAudio(inputAudioPath, outputPath);
+#pragma warning restore CA1416
 }
 
 IVideoFrame GetNextFrame() => throw new NotImplementedException();
 {
     IEnumerable<IVideoFrame> CreateFrames(int count)
     {
-        for(int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             yield return GetNextFrame(); //method of generating new frames
         }

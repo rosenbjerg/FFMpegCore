@@ -4,25 +4,20 @@ using FFMpegCore.Extend;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FFMpegCore.Test
 {
     [TestClass]
-    public class AudioTest 
+    public class AudioTest
     {
         [TestMethod]
         public void Audio_Remove()
         {
             using var outputFile = new TemporaryFile("out.mp4");
-            
+
             FFMpeg.Mute(TestResources.Mp4Video, outputFile);
             var analysis = FFProbe.Analyse(outputFile);
-            
+
             Assert.IsTrue(analysis.VideoStreams.Any());
             Assert.IsTrue(!analysis.AudioStreams.Any());
         }
@@ -31,10 +26,10 @@ namespace FFMpegCore.Test
         public void Audio_Save()
         {
             using var outputFile = new TemporaryFile("out.mp3");
-            
+
             FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile);
             var analysis = FFProbe.Analyse(outputFile);
-            
+
             Assert.IsTrue(!analysis.VideoStreams.Any());
             Assert.IsTrue(analysis.AudioStreams.Any());
         }
@@ -48,17 +43,17 @@ namespace FFMpegCore.Test
                 .OutputToPipe(new StreamPipeSink(memoryStream), options => options.ForceFormat("mp3"))
                 .ProcessAsynchronously();
         }
-        
+
         [TestMethod]
         public void Audio_Add()
         {
             using var outputFile = new TemporaryFile("out.mp4");
-            
+
             var success = FFMpeg.ReplaceAudio(TestResources.Mp4WithoutAudio, TestResources.Mp3Audio, outputFile);
             var videoAnalysis = FFProbe.Analyse(TestResources.Mp4WithoutAudio);
             var audioAnalysis = FFProbe.Analyse(TestResources.Mp3Audio);
             var outputAnalysis = FFProbe.Analyse(outputFile);
-            
+
             Assert.IsTrue(success);
             Assert.AreEqual(Math.Max(videoAnalysis.Duration.TotalSeconds, audioAnalysis.Duration.TotalSeconds), outputAnalysis.Duration.TotalSeconds, 0.15);
             Assert.IsTrue(File.Exists(outputFile));
@@ -239,7 +234,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]
@@ -257,7 +252,7 @@ namespace FFMpegCore.Test
 
             Assert.IsTrue(success);
             Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
-            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream.ChannelLayout);
+            Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
         [TestMethod, Timeout(10000)]

@@ -13,7 +13,10 @@ namespace FFMpegCore.Arguments
         public DisableChannelArgument(Channel channel)
         {
             if (channel == Channel.Both)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Conversion, "Cannot disable both channels");
+            }
+
             Channel = channel;
         }
 

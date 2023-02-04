@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      
     - name: Prepare .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '7.0.x'
+        
     - name: Build solution
-      run: dotnet build --output build -c Release
+      run: dotnet pack FFMpegCore.sln --output build -c Release
+      
     - name: Publish NuGet package
-      run: dotnet nuget push "build/*.nupkg" --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
+      run: dotnet nuget push build/*.nupkg --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       

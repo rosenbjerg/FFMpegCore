@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FFMpegCore.Extend
+﻿namespace FFMpegCore.Extend
 {
     internal static class KeyValuePairExtensions
     {

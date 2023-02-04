@@ -5,9 +5,9 @@ on:
     branches:
       - master
     paths:
-    - .github/workflows/ci.yml
-    - FFMpegCore/**
-    - FFMpegCore.Test/**
+      - .github/workflows/ci.yml
+      - FFMpegCore/**
+      - FFMpegCore.Test/**
   pull_request:
     branches:
       - master
@@ -22,16 +22,31 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
-    timeout-minutes: 6
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    timeout-minutes: 7
     steps:
+
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+
     - name: Prepare .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '7.0.x'
+
+    - name: Lint with dotnet
+      run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
+
     - name: Prepare FFMpeg
-      uses: FedericoCarboni/setup-ffmpeg@v1
+      uses: FedericoCarboni/setup-ffmpeg@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Test with dotnet
-      run: dotnet test --logger GitHubActions
+      run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: FFMpegCore.Test/TestResults
+        fail_ci_if_error: true

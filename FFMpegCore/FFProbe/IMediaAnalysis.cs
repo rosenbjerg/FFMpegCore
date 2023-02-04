@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FFMpegCore
+﻿namespace FFMpegCore
 {
     public interface IMediaAnalysis
     {

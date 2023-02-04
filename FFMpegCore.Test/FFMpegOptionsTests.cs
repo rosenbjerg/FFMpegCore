@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace FFMpegCore.Test
 {
@@ -23,7 +22,7 @@ namespace FFMpegCore.Test
         public void Options_Loaded_From_File()
         {
             Assert.AreEqual(
-                GlobalFFOptions.Current.BinaryFolder, 
+                GlobalFFOptions.Current.BinaryFolder,
                 JsonConvert.DeserializeObject<FFOptions>(File.ReadAllText("ffmpeg.config.json")).BinaryFolder
             );
         }
@@ -31,7 +30,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Options_Set_Programmatically()
         {
-            var original = GlobalFFOptions.Current; 
+            var original = GlobalFFOptions.Current;
             try
             {
                 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "Whatever" });

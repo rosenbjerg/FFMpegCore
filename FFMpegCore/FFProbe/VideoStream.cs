@@ -7,6 +7,7 @@ namespace FFMpegCore
         public double AvgFrameRate { get; set; }
         public int BitsPerRawSample { get; set; }
         public (int Width, int Height) DisplayAspectRatio { get; set; }
+        public (int Width, int Height) SampleAspectRatio { get; set; }
         public string Profile { get; set; } = null!;
         public int Width { get; set; }
         public int Height { get; set; }

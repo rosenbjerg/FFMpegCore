@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using FFMpegCore.Arguments;
+﻿using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -9,7 +8,6 @@ namespace FFMpegCore.Test
     public class ArgumentBuilderTest
     {
         private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
-
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
@@ -53,7 +51,6 @@ namespace FFMpegCore.Test
             Assert.AreEqual("-hide_banner -loglevel error -i \"input.mp4\" \"output.mp4\"", str);
         }
 
-
         [TestMethod]
         public void Builder_BuildString_AudioCodec_Fluent()
         {
@@ -75,7 +72,7 @@ namespace FFMpegCore.Test
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
                 .OutputToFile("output.mp4", false, opt => opt.WithHardwareAcceleration()).Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -hwaccel \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -hwaccel auto \"output.mp4\"", str);
         }
 
         [TestMethod]
@@ -114,7 +111,7 @@ namespace FFMpegCore.Test
         {
             var str = FFMpegArguments.FromFileInput("input.mp4")
                 .OutputToFile("output.mp4", false, opt => opt.CopyChannel()).Arguments;
-            Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\"", str);
+            Assert.AreEqual("-i \"input.mp4\" -c:a copy -c:v copy \"output.mp4\"", str);
         }
 
         [TestMethod]
@@ -400,7 +397,6 @@ namespace FFMpegCore.Test
             Assert.AreEqual("-i \"input.mp4\" -c:v libx264 -pix_fmt yuv420p \"output.mp4\" -y", str);
         }
 
-
         [TestMethod]
         public void Builder_BuildString_Duration()
         {
@@ -420,7 +416,6 @@ namespace FFMpegCore.Test
                 .OutputToFile("output.mp4", false, opt => opt.WithCustomArgument("-acodec copy")).Arguments;
             Assert.AreEqual("-i \"input.mp4\" -acodec copy \"output.mp4\"", str);
         }
-
 
         [TestMethod]
         public void Builder_BuildString_ForcePixelFormat()
@@ -494,6 +489,46 @@ namespace FFMpegCore.Test
                 .Arguments;
 
             Assert.AreEqual("-audible_key 123 -audible_iv 456 -i \"input.aaxc\" -map_metadata 0 -id3v2_version 3 -vn -c:a copy \"output.m4b\" -y", str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PadFilter()
+        {
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .Pad(PadOptions
+                            .Create("max(iw,ih)", "ow")
+                            .WithParameter("x", "(ow-iw)/2")
+                            .WithParameter("y", "(oh-ih)/2")
+                            .WithParameter("color", "violet")
+                            .WithParameter("eval", "frame"))))
+                .Arguments;
+
+            Assert.AreEqual(
+                "-i \"input.mp4\" -vf \"pad=width=max(iw\\,ih):height=ow:x=(ow-iw)/2:y=(oh-ih)/2:color=violet:eval=frame\" \"output.mp4\"",
+                str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_PadFilter_Alt()
+        {
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.mp4", false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .Pad(PadOptions
+                            .Create("4/3")
+                            .WithParameter("x", "(ow-iw)/2")
+                            .WithParameter("y", "(oh-ih)/2")
+                            .WithParameter("color", "violet")
+                            .WithParameter("eval", "frame"))))
+                .Arguments;
+
+            Assert.AreEqual(
+                "-i \"input.mp4\" -vf \"pad=aspect=4/3:x=(ow-iw)/2:y=(oh-ih)/2:color=violet:eval=frame\" \"output.mp4\"",
+                str);
         }
     }
 }

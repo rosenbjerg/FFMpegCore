@@ -13,7 +13,9 @@ namespace FFMpegCore.Arguments
         public AudioCodecArgument(Codec audioCodec)
         {
             if (audioCodec.Type != CodecType.Audio)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{audioCodec.Name}\" is not an audio codec");
+            }
 
             AudioCodec = audioCodec.Name;
         }

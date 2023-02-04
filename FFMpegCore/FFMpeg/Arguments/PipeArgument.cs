@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments
@@ -24,7 +21,9 @@ namespace FFMpegCore.Arguments
         public void Pre()
         {
             if (Pipe != null)
+            {
                 throw new InvalidOperationException("Pipe already has been opened");
+            }
 
             Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
@@ -40,7 +39,7 @@ namespace FFMpegCore.Arguments
         {
             try
             {
-                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);           
+                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -50,7 +49,9 @@ namespace FFMpegCore.Arguments
             {
                 Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
                 if (Pipe is { IsConnected: true })
+                {
                     Pipe.Disconnect();
+                }
             }
         }
 

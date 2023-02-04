@@ -11,8 +11,6 @@ namespace FFMpegCore.Arguments
             HardwareAccelerationDevice = hardwareAccelerationDevice;
         }
 
-        public string Text => HardwareAccelerationDevice != HardwareAccelerationDevice.Auto
-            ? $"-hwaccel {HardwareAccelerationDevice.ToString().ToLower()}"
-            : "-hwaccel";
+        public string Text => $"-hwaccel {HardwareAccelerationDevice.ToString().ToLower()}";
     }
 }
