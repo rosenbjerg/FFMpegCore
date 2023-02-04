@@ -134,6 +134,16 @@ namespace FFMpegCore.Test
             Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
         }
 
+        [TestMethod]
+        public void Probe_Rotation()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4Video);
+            Assert.AreEqual(0, info.PrimaryVideoStream.Rotation);
+
+            info = FFProbe.Analyse(TestResources.Mp4VideoRotation);
+            Assert.AreEqual(90, info.PrimaryVideoStream.Rotation);
+        }
+
         [TestMethod, Timeout(10000)]
         public async Task Probe_Async_Success()
         {

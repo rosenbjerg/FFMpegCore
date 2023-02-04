@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace FFMpegCore
 {
@@ -84,6 +85,9 @@ namespace FFMpegCore
 
         [JsonPropertyName("tags")]
         public Dictionary<string, string> Tags { get; set; } = null!;
+
+        [JsonPropertyName("side_data_list")]
+        public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
     }
 
     public class Format : ITagsContainer
