@@ -84,7 +84,7 @@ namespace FFMpegCore.Test
         {
             var ffprobeStream = new FFProbeStream { Duration = duration };
 
-            var parsedDuration = MediaAnalysisUtils.ParseDuration(ffprobeStream);
+            var parsedDuration = MediaAnalysisUtils.ParseDuration(ffprobeStream.Duration);
 
             Assert.AreEqual(expectedDays, parsedDuration.Days);
             Assert.AreEqual(expectedHours, parsedDuration.Hours);
