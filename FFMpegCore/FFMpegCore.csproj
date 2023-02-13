@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <IsPackable>true</IsPackable>
-        <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Uses SkiaSharp instead of System.Drawing.Common.</Description>
+        <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
         <PackageVersion>5.0.0</PackageVersion>
         <PackageReleaseNotes>
         </PackageReleaseNotes>
         <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
-        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
+        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageId>FFMpegCore.SkiaSharp</PackageId>
         <PackageProjectUrl>https://github.com/drasive/FFMpegCore</PackageProjectUrl>
