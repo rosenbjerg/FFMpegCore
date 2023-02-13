@@ -3,6 +3,7 @@ using FFMpegCore;
 using FFMpegCore.Enums;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
+using SkiaSharp;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -79,7 +80,7 @@ var inputImagePath = "/path/to/input/image";
     FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
     // or 
 #pragma warning disable CA1416
-    using var image = Image.FromFile(inputImagePath);
+    using var image = SKBitmap.Decode(inputImagePath);
     image.AddAudio(inputAudioPath, outputPath);
 #pragma warning restore CA1416
 }
