@@ -4,13 +4,14 @@ using System.Numerics;
 using System.Runtime.Versioning;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
+using SkiaSharp;
 
 namespace FFMpegCore.Test.Utilities
 {
     [SupportedOSPlatform("windows")]
     internal static class BitmapSource
     {
-        public static IEnumerable<IVideoFrame> CreateBitmaps(int count, PixelFormat fmt, int w, int h)
+        public static IEnumerable<IVideoFrame> CreateBitmaps(int count, SKColorType fmt, int w, int h)
         {
             for (var i = 0; i < count; i++)
             {
@@ -21,9 +22,9 @@ namespace FFMpegCore.Test.Utilities
             }
         }
 
-        public static BitmapVideoFrameWrapper CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
+        public static BitmapVideoFrameWrapper CreateVideoFrame(int index, SKColorType fmt, int w, int h, float scaleNoise, float offset)
         {
-            var bitmap = new Bitmap(w, h, fmt);
+            var bitmap = new SKBitmap(w, h, fmt, SKAlphaType.Opaque);
 
             offset = offset * index;
 
@@ -36,9 +37,9 @@ namespace FFMpegCore.Test.Utilities
                     var nx = x * scaleNoise + offset;
                     var ny = y * scaleNoise + offset;
 
-                    var value = (int)((Perlin.Noise(nx, ny) + 1.0f) / 2.0f * 255);
+                    var value = (byte)((Perlin.Noise(nx, ny) + 1.0f) / 2.0f * 255);
 
-                    var color = Color.FromArgb((int)(value * xf), (int)(value * yf), value);
+                    var color = new SKColor((byte)(value * xf), (byte)(value * yf), value);
 
                     bitmap.SetPixel(x, y, color);
                 }

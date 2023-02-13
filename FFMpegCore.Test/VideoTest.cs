@@ -1,5 +1,4 @@
-﻿using System.Drawing.Imaging;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using System.Text;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
@@ -9,6 +8,7 @@ using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 using FFMpegCore.Test.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SkiaSharp;
 
 namespace FFMpegCore.Test
 {
@@ -83,9 +83,9 @@ namespace FFMpegCore.Test
 
         [SupportedOSPlatform("windows")]
         [WindowsOnlyDataTestMethod, Timeout(10000)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        public void Video_ToMP4_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
+        [DataRow(SKColorType.Rgb565)]
+        [DataRow(SKColorType.Bgra8888)]
+        public void Video_ToMP4_Args_Pipe(SKColorType pixelFormat)
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
@@ -106,8 +106,8 @@ namespace FFMpegCore.Test
 
             var frames = new List<IVideoFrame>
             {
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 256, 256, 1, 0)
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 256, 256, 1, 0)
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
@@ -126,8 +126,8 @@ namespace FFMpegCore.Test
 
             var frames = new List<IVideoFrame>
             {
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 256, 256, 1, 0)
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 256, 256, 1, 0)
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
@@ -146,8 +146,8 @@ namespace FFMpegCore.Test
 
             var frames = new List<IVideoFrame>
             {
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format32bppRgb, 255, 255, 1, 0)
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, SKColorType.Bgra8888, 255, 255, 1, 0)
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
@@ -166,8 +166,8 @@ namespace FFMpegCore.Test
 
             var frames = new List<IVideoFrame>
             {
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 255, 255, 1, 0),
-                BitmapSource.CreateVideoFrame(0, System.Drawing.Imaging.PixelFormat.Format32bppRgb, 255, 255, 1, 0)
+                BitmapSource.CreateVideoFrame(0, SKColorType.Rgb565, 255, 255, 1, 0),
+                BitmapSource.CreateVideoFrame(0, SKColorType.Bgra8888, 255, 255, 1, 0)
             };
 
             var videoFramesSource = new RawVideoPipeSource(frames);
@@ -313,9 +313,9 @@ namespace FFMpegCore.Test
 
         [SupportedOSPlatform("windows")]
         [WindowsOnlyDataTestMethod, Timeout(10000)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        public async Task Video_ToTS_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
+        [DataRow(SKColorType.Rgb565)]
+        [DataRow(SKColorType.Bgra8888)]
+        public async Task Video_ToTS_Args_Pipe(SKColorType pixelFormat)
         {
             using var output = new TemporaryFile($"out{VideoType.Ts.Extension}");
             var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
@@ -346,10 +346,9 @@ namespace FFMpegCore.Test
 
         [SupportedOSPlatform("windows")]
         [WindowsOnlyDataTestMethod, Timeout(10000)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format48bppRgb)]
-        public void RawVideoPipeSource_Ogv_Scale(System.Drawing.Imaging.PixelFormat pixelFormat)
+        [DataRow(SKColorType.Rgb565)]
+        [DataRow(SKColorType.Bgra8888)]
+        public void RawVideoPipeSource_Ogv_Scale(SKColorType pixelFormat)
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
             var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
@@ -382,10 +381,10 @@ namespace FFMpegCore.Test
 
         [SupportedOSPlatform("windows")]
         [WindowsOnlyDataTestMethod, Timeout(10000)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format24bppRgb)]
-        [DataRow(System.Drawing.Imaging.PixelFormat.Format32bppArgb)]
+        [DataRow(SKColorType.Rgb565)]
+        [DataRow(SKColorType.Bgra8888)]
         // [DataRow(PixelFormat.Format48bppRgb)]
-        public void Video_ToMP4_Resize_Args_Pipe(System.Drawing.Imaging.PixelFormat pixelFormat)
+        public void Video_ToMP4_Resize_Args_Pipe(SKColorType pixelFormat)
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
             var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
@@ -407,7 +406,7 @@ namespace FFMpegCore.Test
             var input = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-            Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+            Assert.AreEqual(bitmap.ColorType, SKColorType.Bgra8888);
         }
 
         [TestMethod, Timeout(10000)]
@@ -568,7 +567,7 @@ namespace FFMpegCore.Test
         {
             using var resStream = new MemoryStream();
             var reader = new StreamPipeSink(resStream);
-            var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, System.Drawing.Imaging.PixelFormat.Format24bppRgb, 128, 128));
+            var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, SKColorType.Rgb565, 128, 128));
 
             FFMpegArguments
                 .FromPipeInput(writer)
