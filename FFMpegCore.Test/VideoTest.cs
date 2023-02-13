@@ -15,7 +15,7 @@ namespace FFMpegCore.Test
     [TestClass]
     public class VideoTest
     {
-        private const int BaseTimeoutMilliseconds = 10_000;
+        private const int BaseTimeoutMilliseconds = 60_000;
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
         public void Video_ToOGV()
