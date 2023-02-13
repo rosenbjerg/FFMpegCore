@@ -9,6 +9,9 @@
         <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
         <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageId>FFMpegCore.SkiaSharp</PackageId>
+        <PackageProjectUrl>https://github.com/drasive/FFMpegCore</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/drasive/FFMpegCore</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
