@@ -3,7 +3,7 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-        <PackageVersion>5.0.0</PackageVersion>
+        <PackageVersion>5.0.1</PackageVersion>
         <PackageReleaseNotes>
         </PackageReleaseNotes>
         <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>

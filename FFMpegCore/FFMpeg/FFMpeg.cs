@@ -66,25 +66,34 @@ namespace FFMpegCore
         /// <returns>Output video information.</returns>
         public static bool JoinImageSequence(string output, double frameRate = 30, params string[] images)
         {
-            int? width = null, height = null;
-            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
-            var temporaryImageFiles = images.Select((imagePath, index) =>
+            var fileExtensions = images.Select(Path.GetExtension).Distinct().ToArray();
+            if (fileExtensions.Length != 1)
             {
-                var analysis = FFProbe.Analyse(imagePath);
-                FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
-                width ??= analysis.PrimaryVideoStream.Width;
-                height ??= analysis.PrimaryVideoStream.Height;
+                throw new ArgumentException("All images must have the same extension", nameof(images));
+            }
 
-                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{Path.GetExtension(imagePath)}");
-                Directory.CreateDirectory(tempFolderName);
-                File.Copy(imagePath, destinationPath);
-                return destinationPath;
-            }).ToArray();
+            var fileExtension = fileExtensions[0].ToLowerInvariant();
+            int? width = null, height = null;
+
+            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempFolderName);
 
             try
             {
+                var index = 0;
+                foreach (var imagePath in images)
+                {
+                    var analysis = FFProbe.Analyse(imagePath);
+                    FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
+                    width ??= analysis.PrimaryVideoStream.Width;
+                    height ??= analysis.PrimaryVideoStream.Height;
+
+                    var destinationPath = Path.Combine(tempFolderName, $"{index++.ToString().PadLeft(9, '0')}{fileExtension}");
+                    File.Copy(imagePath, destinationPath);
+                }
+
                 return FFMpegArguments
-                    .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
+                    .FromFileInput(Path.Combine(tempFolderName, $"%09d{fileExtension}"), false)
                     .OutputToFile(output, true, options => options
                         .ForcePixelFormat("yuv420p")
                         .Resize(width!.Value, height!.Value)
@@ -93,8 +102,7 @@ namespace FFMpegCore
             }
             finally
             {
-                Cleanup(temporaryImageFiles);
-                Directory.Delete(tempFolderName);
+                Directory.Delete(tempFolderName, true);
             }
         }
 
