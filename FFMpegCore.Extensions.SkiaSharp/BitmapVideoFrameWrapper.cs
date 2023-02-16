@@ -38,6 +38,7 @@ namespace FFMpegCore.Extensions.SkiaSharp
 
         private static string ConvertStreamFormat(SKColorType fmt)
         {
+            // TODO: Add support for additional formats
             switch (fmt)
             {
                 case SKColorType.Gray8:
