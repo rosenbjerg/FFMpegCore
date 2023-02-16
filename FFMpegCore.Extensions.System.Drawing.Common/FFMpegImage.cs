@@ -29,6 +29,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
             using var bitmap = new Bitmap(ms);
             return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
         }
+
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
         /// </summary>
