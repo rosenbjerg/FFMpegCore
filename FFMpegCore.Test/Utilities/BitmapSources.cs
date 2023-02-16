@@ -2,15 +2,25 @@
 using System.Drawing.Imaging;
 using System.Numerics;
 using System.Runtime.Versioning;
-using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using SkiaSharp;
 
 namespace FFMpegCore.Test.Utilities
 {
-    [SupportedOSPlatform("windows")]
     internal static class BitmapSource
     {
+        [SupportedOSPlatform("windows")]
+        public static IEnumerable<IVideoFrame> CreateBitmaps(int count, PixelFormat fmt, int w, int h)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                using (var frame = CreateVideoFrame(i, fmt, w, h, 0.025f, 0.025f * w * 0.03f))
+                {
+                    yield return frame;
+                }
+            }
+        }
+
         public static IEnumerable<IVideoFrame> CreateBitmaps(int count, SKColorType fmt, int w, int h)
         {
             for (var i = 0; i < count; i++)
@@ -22,10 +32,41 @@ namespace FFMpegCore.Test.Utilities
             }
         }
 
-        public static BitmapVideoFrameWrapper CreateVideoFrame(int index, SKColorType fmt, int w, int h, float scaleNoise, float offset)
+        [SupportedOSPlatform("windows")]
+        public static Extensions.System.Drawing.Common.BitmapVideoFrameWrapper CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
+        {
+            var bitmap = new Bitmap(w, h, fmt);
+
+            SetVideoFramePixels(index, w, h, scaleNoise, offset, ((int x, int y, byte red, byte green, byte blue) args) =>
+            {
+                var color = Color.FromArgb(args.red, args.blue, args.green);
+                bitmap.SetPixel(args.x, args.y, color);
+            });
+
+            return new Extensions.System.Drawing.Common.BitmapVideoFrameWrapper(bitmap);
+        }
+
+        public static Extensions.SkiaSharp.BitmapVideoFrameWrapper CreateVideoFrame(int index, SKColorType fmt, int w, int h, float scaleNoise, float offset)
         {
             var bitmap = new SKBitmap(w, h, fmt, SKAlphaType.Opaque);
 
+            SetVideoFramePixels(index, w, h, scaleNoise, offset, ((int x, int y, byte red, byte green, byte blue) args) =>
+            {
+                var color = new SKColor(args.red, args.blue, args.green);
+                bitmap.SetPixel(args.x, args.y, color);
+            });
+
+            return new Extensions.SkiaSharp.BitmapVideoFrameWrapper(bitmap);
+        }
+
+        private static void SetVideoFramePixels(
+            int index,
+            int w,
+            int h,
+            float scaleNoise,
+            float offset,
+            Action<(int x, int y, byte red, byte green, byte blue)> setPixel)
+        {
             offset = offset * index;
 
             for (var y = 0; y < h; y++)
@@ -39,13 +80,9 @@ namespace FFMpegCore.Test.Utilities
 
                     var value = (byte)((Perlin.Noise(nx, ny) + 1.0f) / 2.0f * 255);
 
-                    var color = new SKColor((byte)(value * xf), (byte)(value * yf), value);
-
-                    bitmap.SetPixel(x, y, color);
+                    setPixel((x, y, (byte)(value * xf), (byte)(value * yf), value));
                 }
             }
-
-            return new BitmapVideoFrameWrapper(bitmap);
         }
 
         //
