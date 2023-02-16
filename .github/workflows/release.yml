@@ -19,5 +19,5 @@ jobs:
       run: dotnet pack FFMpegCore.sln -c Release
       
     - name: Publish NuGet package
-      run: dotnet nuget push *.nupkg --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
+      run: dotnet nuget push nupkg/*.nupkg --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       
