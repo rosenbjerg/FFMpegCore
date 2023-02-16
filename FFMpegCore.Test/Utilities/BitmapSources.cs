@@ -50,10 +50,11 @@ namespace FFMpegCore.Test.Utilities
         {
             var bitmap = new SKBitmap(w, h, fmt, SKAlphaType.Opaque);
 
+            using var bitmapCanvas = new SKCanvas(bitmap);
             SetVideoFramePixels(index, w, h, scaleNoise, offset, ((int x, int y, byte red, byte green, byte blue) args) =>
             {
                 var color = new SKColor(args.red, args.blue, args.green);
-                bitmap.SetPixel(args.x, args.y, color);
+                bitmapCanvas.DrawPoint(args.x, args.y, color);
             });
 
             return new Extensions.SkiaSharp.BitmapVideoFrameWrapper(bitmap);
