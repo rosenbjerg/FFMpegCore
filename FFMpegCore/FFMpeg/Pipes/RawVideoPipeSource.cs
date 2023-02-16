@@ -15,12 +15,10 @@ namespace FFMpegCore.Pipes
         private bool _formatInitialized;
         private readonly IEnumerator<IVideoFrame> _framesEnumerator;
 
-        public RawVideoPipeSource(IEnumerator<IVideoFrame> framesEnumerator)
+        public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator)
         {
-            _framesEnumerator = framesEnumerator;
+            _framesEnumerator = framesEnumerator.GetEnumerator();
         }
-
-        public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator) : this(framesEnumerator.GetEnumerator()) { }
 
         public string GetStreamArguments()
         {
