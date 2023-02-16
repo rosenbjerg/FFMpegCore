@@ -1,21 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsPackable>true</IsPackable>
-        <Description>Image extension for FFMpegCore using System.Common.Drawing</Description>
-        <PackageVersion>5.0.0</PackageVersion>
-        <PackageReleaseNotes>
-        </PackageReleaseNotes>
-        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
-        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>Image extension for FFMpegCore using System.Common.Drawing</Description>
+    <PackageVersion>5.0.0</PackageVersion>
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
+    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj"/>
+  </ItemGroup>
 
 </Project>
