@@ -413,7 +413,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Snapshot_PersistSnapshot()
         {
-            var outputPath = new TemporaryFile("out.png");
+            using var outputPath = new TemporaryFile("out.png");
             var input = FFProbe.Analyse(TestResources.Mp4Video);
 
             FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
@@ -427,10 +427,10 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Join()
         {
-            var inputCopy = new TemporaryFile("copy-input.mp4");
+            using var inputCopy = new TemporaryFile("copy-input.mp4");
             File.Copy(TestResources.Mp4Video, inputCopy);
 
-            var outputPath = new TemporaryFile("out.mp4");
+            using var outputPath = new TemporaryFile("out.mp4");
             var input = FFProbe.Analyse(TestResources.Mp4Video);
             var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy);
             Assert.IsTrue(success);
@@ -461,7 +461,7 @@ namespace FFMpegCore.Test
                 });
             var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
             var success = FFMpeg.JoinImageSequence(outputFile, frameRate: 10, images: imageSet.ToArray());
             Assert.IsTrue(success);
             var result = FFProbe.Analyse(outputFile);
@@ -484,7 +484,7 @@ namespace FFMpegCore.Test
         public void Video_Duration()
         {
             var video = FFProbe.Analyse(TestResources.Mp4Video);
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
@@ -503,7 +503,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_UpdatesProgress()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var percentageDone = 0.0;
             var timeDone = TimeSpan.Zero;
@@ -544,7 +544,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_OutputsData()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
             var dataReceived = false;
 
             GlobalFFOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
@@ -604,7 +604,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var task = FFMpegArguments
                 .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
@@ -628,7 +628,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Cancel()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
             var task = FFMpegArguments
                 .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
                     .WithCustomArgument("-re")
@@ -649,7 +649,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_Async_With_Timeout()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var task = FFMpegArguments
                 .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
@@ -679,7 +679,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_CancellationToken_Async()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var cts = new CancellationTokenSource();
 
@@ -704,7 +704,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_CancellationToken_Async_Throws()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var cts = new CancellationTokenSource();
 
@@ -727,7 +727,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public void Video_Cancel_CancellationToken_Throws()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var cts = new CancellationTokenSource();
 
@@ -749,7 +749,7 @@ namespace FFMpegCore.Test
         [TestMethod, Timeout(10000)]
         public async Task Video_Cancel_CancellationToken_Async_With_Timeout()
         {
-            var outputFile = new TemporaryFile("out.mp4");
+            using var outputFile = new TemporaryFile("out.mp4");
 
             var cts = new CancellationTokenSource();
 
