@@ -72,6 +72,15 @@ FFMpeg.Join(@"..\joined_video.mp4",
 );
 ```
 
+### Create a sub video
+``` csharp
+FFMpeg.SubVideo(inputPath, 
+    outputPath,
+    TimeSpan.FromSeconds(0)
+    TimeSpan.FromSeconds(30)
+);
+```
+
 ### Join images into a video:
 ```csharp
 FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
