@@ -239,6 +239,46 @@ namespace FFMpegCore
             }
         }
 
+        private static FFMpegArgumentProcessor BaseSubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            if (Path.GetExtension(input) != Path.GetExtension(output))
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), Path.GetExtension(input));
+            }
+
+            return FFMpegArguments
+                .FromFileInput(input, true, options => options.Seek(startTime).EndSeek(endTime))
+                .OutputToFile(output, true, options => options.CopyChannel());
+        }
+
+        /// <summary>
+        ///     Creates a new video starting and ending at the specified times
+        /// </summary>
+        /// <param name="input">Input video file.</param>
+        /// <param name="output">Output video file.</param>
+        /// <param name="startTime">The start time of when the sub video needs to start</param>
+        /// <param name="endTime">The end time of where the sub video needs to  end</param>
+        /// <returns>Output video information.</returns>
+        public static bool SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            return BaseSubVideo(input, output, startTime, endTime)
+                .ProcessSynchronously();
+        }
+
+        /// <summary>
+        ///     Creates a new video starting and ending at the specified times
+        /// </summary>
+        /// <param name="input">Input video file.</param>
+        /// <param name="output">Output video file.</param>
+        /// <param name="startTime">The start time of when the sub video needs to start</param>
+        /// <param name="endTime">The end time of where the sub video needs to  end</param>
+        /// <returns>Output video information.</returns>
+        public static async Task<bool> SubVideoAsync(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            return await BaseSubVideo(input, output, startTime, endTime)
+                .ProcessAsynchronously();
+        }
+
         /// <summary>
         ///     Records M3U8 streams to the specified output.
         /// </summary>
