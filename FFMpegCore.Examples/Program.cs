@@ -2,7 +2,10 @@
 using FFMpegCore;
 using FFMpegCore.Enums;
 using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Pipes;
+using SkiaSharp;
+using FFMpegImage = FFMpegCore.Extensions.System.Drawing.Common.FFMpegImage;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -77,12 +80,14 @@ var inputAudioPath = "/path/to/input/audio";
 var inputImagePath = "/path/to/input/image";
 {
     FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
-    // or 
+    // or using FFMpegCore.Extensions.System.Drawing.Common
 #pragma warning disable CA1416
-    using var image = Image.FromFile(inputImagePath);    // Using FFMpegCore.Extensions.System.Drawing.Common
-    //using var image = SKBitmap.Decode(inputImagePath); // Using FFMpegCore.Extensions.SkiaSharp
+    using var image = Image.FromFile(inputImagePath);
     image.AddAudio(inputAudioPath, outputPath);
 #pragma warning restore CA1416
+    // or using FFMpegCore.Extensions.SkiaSharp
+    using var skiaSharpImage = SKBitmap.Decode(inputImagePath);
+    skiaSharpImage.AddAudio(inputAudioPath, outputPath);
 }
 
 IVideoFrame GetNextFrame() => throw new NotImplementedException();
