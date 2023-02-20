@@ -10,7 +10,7 @@ on:
       - FFMpegCore.Test/**
   pull_request:
     branches:
-      - master
+      - main
       - release
     paths:
     - .github/workflows/ci.yml

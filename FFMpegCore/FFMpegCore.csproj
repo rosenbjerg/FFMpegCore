@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsPackable>true</IsPackable>
-        <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-        <PackageVersion>5.0.0</PackageVersion>
-        <PackageReleaseNotes>
-        </PackageReleaseNotes>
-        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
-        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
+    <PackageVersion>5.0.1</PackageVersion>
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
+    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Instances" Version="3.0.0" />
-        <PackageReference Include="System.Text.Json" Version="7.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Instances" Version="3.0.0"/>
+    <PackageReference Include="System.Text.Json" Version="7.0.1"/>
+  </ItemGroup>
 
 </Project>

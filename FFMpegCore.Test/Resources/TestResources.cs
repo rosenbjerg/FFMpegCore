@@ -1,15 +1,5 @@
 ﻿namespace FFMpegCore.Test.Resources
 {
-    public enum AudioType
-    {
-        Mp3
-    }
-
-    public enum ImageType
-    {
-        Png
-    }
-
     public static class TestResources
     {
         public static readonly string Mp4Video = "./Resources/input_3sec.mp4";
