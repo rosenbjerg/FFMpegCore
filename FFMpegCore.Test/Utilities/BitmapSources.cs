@@ -37,11 +37,11 @@ namespace FFMpegCore.Test.Utilities
         {
             var bitmap = new Bitmap(w, h, fmt);
 
-            SetVideoFramePixels(index, w, h, scaleNoise, offset, ((int x, int y, byte red, byte green, byte blue) args) =>
+            foreach (var (x, y, red, green, blue) in GenerateVideoFramePixels(index, w, h, scaleNoise, offset))
             {
-                var color = Color.FromArgb(args.red, args.blue, args.green);
-                bitmap.SetPixel(args.x, args.y, color);
-            });
+                var color = Color.FromArgb(red, blue, green);
+                bitmap.SetPixel(x, y, color);
+            }
 
             return new Extensions.System.Drawing.Common.BitmapVideoFrameWrapper(bitmap);
         }
@@ -51,22 +51,16 @@ namespace FFMpegCore.Test.Utilities
             var bitmap = new SKBitmap(w, h, fmt, SKAlphaType.Opaque);
 
             using var bitmapCanvas = new SKCanvas(bitmap);
-            SetVideoFramePixels(index, w, h, scaleNoise, offset, ((int x, int y, byte red, byte green, byte blue) args) =>
+            foreach (var (x, y, red, green, blue) in GenerateVideoFramePixels(index, w, h, scaleNoise, offset))
             {
-                var color = new SKColor(args.red, args.blue, args.green);
-                bitmapCanvas.DrawPoint(args.x, args.y, color);
-            });
+                var color = new SKColor(red, blue, green);
+                bitmapCanvas.DrawPoint(x, y, color);
+            }
 
             return new Extensions.SkiaSharp.BitmapVideoFrameWrapper(bitmap);
         }
 
-        private static void SetVideoFramePixels(
-            int index,
-            int w,
-            int h,
-            float scaleNoise,
-            float offset,
-            Action<(int x, int y, byte red, byte green, byte blue)> setPixel)
+        private static IEnumerable<(int x, int y, byte red, byte green, byte blue)> GenerateVideoFramePixels(int index, int w, int h, float scaleNoise, float offset)
         {
             offset = offset * index;
 
@@ -81,7 +75,7 @@ namespace FFMpegCore.Test.Utilities
 
                     var value = (byte)((Perlin.Noise(nx, ny) + 1.0f) / 2.0f * 255);
 
-                    setPixel((x, y, (byte)(value * xf), (byte)(value * yf), value));
+                    yield return ((x, y, (byte)(value * xf), (byte)(value * yf), value));
                 }
             }
         }
