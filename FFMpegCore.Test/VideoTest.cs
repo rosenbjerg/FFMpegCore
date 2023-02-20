@@ -184,7 +184,7 @@ namespace FFMpegCore.Test
 
         [SupportedOSPlatform("windows")]
         [WindowsOnlyTestMethod, Timeout(BaseTimeoutMilliseconds)]
-        public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly_Async() => 
+        public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly_Async() =>
             await Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(System.Drawing.Imaging.PixelFormat.Format24bppRgb, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
