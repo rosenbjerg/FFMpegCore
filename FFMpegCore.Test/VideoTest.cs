@@ -461,7 +461,8 @@ namespace FFMpegCore.Test
             var input = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
-            Assert.AreEqual(bitmap.ColorType, SkiaSharp.SKColorType.Bgra8888);
+            // Note: The resulting ColorType is dependent on the execution environment and therefore not assessed,
+            // e.g. Bgra8888 on Windows and Rgba8888 on macOS.
         }
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
