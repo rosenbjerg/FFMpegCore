@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <Description>Image extension for FFMpegCore using SkiaSharp</Description>
+        <PackageVersion>5.0.0</PackageVersion>
+        <PackageReleaseNotes>
+        </PackageReleaseNotes>
+        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing skiasharp</PackageTags>
+        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SkiaSharp" Version="2.88.3" />
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,7 +1,8 @@
 ﻿using System.Drawing;
 using FFMpegCore.Pipes;
+using SkiaSharp;
 
-namespace FFMpegCore.Extensions.System.Drawing.Common
+namespace FFMpegCore.Extensions.SkiaSharp
 {
     public static class FFMpegImage
     {
@@ -14,7 +15,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <param name="inputFileIndex">Input file index</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+        public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             var source = FFProbe.Analyse(input);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -26,10 +27,9 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
                 .ProcessSynchronously();
 
             ms.Position = 0;
-            using var bitmap = new Bitmap(ms);
-            return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
+            using var bitmap = SKBitmap.Decode(ms);
+            return bitmap.Copy();
         }
-
         /// <summary>
         ///     Saves a 'png' thumbnail to an in-memory bitmap
         /// </summary>
@@ -39,7 +39,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
         /// <param name="streamIndex">Selected video stream index.</param>
         /// <param name="inputFileIndex">Input file index</param>
         /// <returns>Bitmap with the requested snapshot.</returns>
-        public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+        public static async Task<SKBitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
             var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
             var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -51,7 +51,7 @@ namespace FFMpegCore.Extensions.System.Drawing.Common
                 .ProcessAsynchronously();
 
             ms.Position = 0;
-            return new Bitmap(ms);
+            return SKBitmap.Decode(ms);
         }
     }
 }
