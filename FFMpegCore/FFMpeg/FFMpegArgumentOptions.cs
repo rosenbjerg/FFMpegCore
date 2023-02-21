@@ -54,6 +54,7 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithCustomArgument(string argument) => WithArgument(new CustomArgument(argument));
 
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
+        public FFMpegArgumentOptions EndSeek(TimeSpan? seekTo) => WithArgument(new EndSeekArgument(seekTo));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
         public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0,

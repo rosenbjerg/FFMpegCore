@@ -50,7 +50,7 @@ namespace FFMpegCore
         {
             var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs :
                 stream.BitsPerSample;
-            return bitDepth == 0 ? null : (int?)bitDepth;
+            return bitDepth == 0 ? null : bitDepth;
         }
 
         private VideoStream ParseVideoStream(FFProbeStream stream)
@@ -126,7 +126,7 @@ namespace FFMpegCore
     {
         private static readonly Regex DurationRegex = new(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
-        internal static Dictionary<string, string>? ToCaseInsensitive(this Dictionary<string, string>? dictionary)
+        internal static Dictionary<string, string> ToCaseInsensitive(this Dictionary<string, string>? dictionary)
         {
             return dictionary?.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, string>();
         }
@@ -193,11 +193,6 @@ namespace FFMpegCore
             {
                 return TimeSpan.Zero;
             }
-        }
-
-        public static TimeSpan ParseDuration(FFProbeStream ffProbeStream)
-        {
-            return ParseDuration(ffProbeStream.Duration);
         }
 
         public static int ParseRotation(FFProbeStream fFProbeStream)
