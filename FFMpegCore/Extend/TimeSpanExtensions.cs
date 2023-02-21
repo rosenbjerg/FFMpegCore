@@ -10,6 +10,6 @@ public static class TimeSpanExtensions
             hours += timeSpan.Days * 24;
         }
 
-        return $"-ss {hours:00}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}.{timeSpan.Milliseconds:000}";
+        return $"{hours:00}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}.{timeSpan.Milliseconds:000}";
     }
 }
