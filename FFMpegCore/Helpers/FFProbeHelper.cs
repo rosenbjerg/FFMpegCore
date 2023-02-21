@@ -3,26 +3,9 @@ using Instances;
 
 namespace FFMpegCore.Helpers
 {
-    public class FFProbeHelper
+    public static class FFProbeHelper
     {
         private static bool _ffprobeVerified;
-
-        public static int Gcd(int first, int second)
-        {
-            while (first != 0 && second != 0)
-            {
-                if (first > second)
-                {
-                    first -= second;
-                }
-                else
-                {
-                    second -= first;
-                }
-            }
-
-            return first == 0 ? second : first;
-        }
 
         public static void RootExceptionCheck()
         {
