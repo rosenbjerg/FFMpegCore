@@ -8,6 +8,8 @@ on:
       - .github/workflows/ci.yml
       - FFMpegCore/**
       - FFMpegCore.Test/**
+      - FFMpegCore.Extensions.SkiaSharp/**
+      - FFMpegCore.Extensions.System.Drawing.Common/**
   pull_request:
     branches:
       - main
@@ -16,6 +18,8 @@ on:
       - .github/workflows/ci.yml
       - FFMpegCore/**
       - FFMpegCore.Test/**
+      - FFMpegCore.Extensions.SkiaSharp/**
+      - FFMpegCore.Extensions.System.Drawing.Common/**
 
 jobs:
   ci:
