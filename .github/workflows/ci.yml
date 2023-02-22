@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/ci.yml
       - FFMpegCore/**
@@ -13,9 +13,9 @@ on:
       - main
       - release
     paths:
-    - .github/workflows/ci.yml
-    - FFMpegCore/**
-    - FFMpegCore.Test/**
+      - .github/workflows/ci.yml
+      - FFMpegCore/**
+      - FFMpegCore.Test/**
 
 jobs:
   ci:
