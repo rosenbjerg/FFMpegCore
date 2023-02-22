@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/ci.yml
+      - Directory.Build.props
       - FFMpegCore/**
       - FFMpegCore.Test/**
       - FFMpegCore.Extensions.SkiaSharp/**
@@ -16,6 +17,7 @@ on:
       - release
     paths:
       - .github/workflows/ci.yml
+      - Directory.Build.props
       - FFMpegCore/**
       - FFMpegCore.Test/**
       - FFMpegCore.Extensions.SkiaSharp/**
