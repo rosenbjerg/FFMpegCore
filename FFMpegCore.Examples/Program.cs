@@ -5,18 +5,27 @@ using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using SkiaSharp;
+using FFMpegCore.Helpers;
 using FFMpegImage = FFMpegCore.Extensions.System.Drawing.Common.FFMpegImage;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
+//var inputPathJpg = "/path/to/input.jpg";
+//var inputPathMp3 = "/path/to/input.mp3";
+//var outputPathMp4 = "/path/to/output.mp4";
 
 {
+    FFMpegHelper.VerifyFFMpegExists(new FFOptions());
     var mediaInfo = FFProbe.Analyse(inputPath);
 }
 
 {
     var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
 }
+
+//{
+//   FFMpeg.PosterWithAudio(inputPathJpg, inputPathMp3, outPathMp4, 0, 5);
+//}
 
 {
     FFMpegArguments
