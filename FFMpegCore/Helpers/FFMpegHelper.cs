@@ -37,18 +37,26 @@ namespace FFMpegCore.Helpers
 
         public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
         {
-            if (_ffmpegVerified) return;
+            if (_ffmpegVerified)
+            {
+               return;
+            }
+
             try
             {
                var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
                _ffmpegVerified = result.ExitCode == 0;
             }
+
             catch (Exception)
             {
                _ffmpegVerified = false;
             }
-            if (!_ffmpegVerified) 
+
+            if (!_ffmpegVerified)
+            {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
+            }
         }
     }
 }

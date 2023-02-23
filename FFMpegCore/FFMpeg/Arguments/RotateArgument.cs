@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments
 {
     /// <summary>
     /// Represents size parameter

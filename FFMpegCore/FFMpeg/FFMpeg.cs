@@ -122,6 +122,7 @@ namespace FFMpegCore
             var analysis = FFProbe.Analyse(image);
             FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
             if (string.IsNullOrEmpty(audio))
+            {
                return FFMpegArguments
                   .FromFileInput(image, false, options => options
                                  .Loop(1)
@@ -134,20 +135,23 @@ namespace FFMpegCore
                                 .WithDuration(new TimeSpan(0,0,duration))
                                 .WithArgument(new RotateArgument(rotateX90)))
                   .ProcessSynchronously();
+            }
             else
-            return FFMpegArguments
-                .FromFileInput(image, false, options => options
-                    .Loop(1)
-                    .ForceFormat("image2"))
-                .AddFileInput(audio)
-                .OutputToFile(output, true, options => options
-                    .ForcePixelFormat("yuv420p")
-                    .WithVideoCodec(VideoCodec.LibX264)
-                    .WithConstantRateFactor(21)
-                    .WithAudioBitrate(AudioQuality.Normal)
-                    .UsingShortest()
-                    .WithArgument(new RotateArgument(rotateX90)))
-                .ProcessSynchronously();
+            {
+               return FFMpegArguments
+                  .FromFileInput(image, false, options => options
+                                 .Loop(1)
+                                 .ForceFormat("image2"))
+                  .AddFileInput(audio)
+                  .OutputToFile(output, true, options => options
+                                .ForcePixelFormat("yuv420p")
+                                .WithVideoCodec(VideoCodec.LibX264)
+                                .WithConstantRateFactor(21)
+                                .WithAudioBitrate(AudioQuality.Normal)
+                                .UsingShortest()
+                                .WithArgument(new RotateArgument(rotateX90)))
+                  .ProcessSynchronously();
+            }
         }
 
         /// <summary>
