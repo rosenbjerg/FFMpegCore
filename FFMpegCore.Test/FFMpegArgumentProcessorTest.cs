@@ -106,7 +106,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Throws_FFMpegException_when_ffmpeg_not_found()
         {
-            var exception = Assert.ThrowsException<FFMpegException>(() => FFMpegHelper.VerifyFFMpegExists(new FFOptions { BinaryFolder = Path.GetTempPath() }));
+            var exception = Assert.ThrowsException<FFMpegException>(() => FFMpegHelper.VerifyFFMpegExists(new FFOptions { BinaryFolder = "./folder/that/does/not/exist" }));
             Assert.IsInstanceOfType<InstanceFileNotFoundException>(exception.InnerException);
         }
     }
