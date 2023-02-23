@@ -39,18 +39,18 @@ namespace FFMpegCore.Helpers
         {
             if (_ffmpegVerified)
             {
-               return;
+                return;
             }
 
             try
             {
-               var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-               _ffmpegVerified = result.ExitCode == 0;
+                var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
+                _ffmpegVerified = result.ExitCode == 0;
             }
 
             catch (Exception)
             {
-               _ffmpegVerified = false;
+                _ffmpegVerified = false;
             }
 
             if (!_ffmpegVerified)

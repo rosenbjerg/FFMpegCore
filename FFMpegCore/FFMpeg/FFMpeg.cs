@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using Instances;
-using FFMpegCore.Arguments;
 
 namespace FFMpegCore
 {
@@ -116,41 +116,41 @@ namespace FFMpegCore
         /// <param name="rotateX90"># times to rotate 90 degrees to right</param>
         /// <param name="duration">duration of clip without audio</param>
         /// <returns></returns>
-        public static bool PosterWithAudio(string image, string audio, string output, int rotateX90=0, int duration=10)
+        public static bool PosterWithAudio(string image, string audio, string output, int rotateX90 = 0, int duration = 10)
         {
             FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
             var analysis = FFProbe.Analyse(image);
             FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
             if (string.IsNullOrEmpty(audio))
             {
-               return FFMpegArguments
-                  .FromFileInput(image, false, options => options
-                                 .Loop(1)
-                                 .ForceFormat("image2"))
-                  .OutputToFile(output, true, options => options
-                                .ForcePixelFormat("yuv420p")
-                                .WithVideoCodec(VideoCodec.LibX264)
-                                .WithConstantRateFactor(21)
-                                // with no audio use specified time in seconds
-                                .WithDuration(new TimeSpan(0,0,duration))
-                                .WithArgument(new RotateArgument(rotateX90)))
-                  .ProcessSynchronously();
+                return FFMpegArguments
+                   .FromFileInput(image, false, options => options
+                                  .Loop(1)
+                                  .ForceFormat("image2"))
+                   .OutputToFile(output, true, options => options
+                                 .ForcePixelFormat("yuv420p")
+                                 .WithVideoCodec(VideoCodec.LibX264)
+                                 .WithConstantRateFactor(21)
+                                 // with no audio use specified time in seconds
+                                 .WithDuration(new TimeSpan(0, 0, duration))
+                                 .WithArgument(new RotateArgument(rotateX90)))
+                   .ProcessSynchronously();
             }
             else
             {
-               return FFMpegArguments
-                  .FromFileInput(image, false, options => options
-                                 .Loop(1)
-                                 .ForceFormat("image2"))
-                  .AddFileInput(audio)
-                  .OutputToFile(output, true, options => options
-                                .ForcePixelFormat("yuv420p")
-                                .WithVideoCodec(VideoCodec.LibX264)
-                                .WithConstantRateFactor(21)
-                                .WithAudioBitrate(AudioQuality.Normal)
-                                .UsingShortest()
-                                .WithArgument(new RotateArgument(rotateX90)))
-                  .ProcessSynchronously();
+                return FFMpegArguments
+                   .FromFileInput(image, false, options => options
+                                  .Loop(1)
+                                  .ForceFormat("image2"))
+                   .AddFileInput(audio)
+                   .OutputToFile(output, true, options => options
+                                 .ForcePixelFormat("yuv420p")
+                                 .WithVideoCodec(VideoCodec.LibX264)
+                                 .WithConstantRateFactor(21)
+                                 .WithAudioBitrate(AudioQuality.Normal)
+                                 .UsingShortest()
+                                 .WithArgument(new RotateArgument(rotateX90)))
+                   .ProcessSynchronously();
             }
         }
 

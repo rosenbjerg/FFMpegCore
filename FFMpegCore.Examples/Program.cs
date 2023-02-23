@@ -3,9 +3,9 @@ using FFMpegCore;
 using FFMpegCore.Enums;
 using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Extensions.System.Drawing.Common;
+using FFMpegCore.Helpers;
 using FFMpegCore.Pipes;
 using SkiaSharp;
-using FFMpegCore.Helpers;
 using FFMpegImage = FFMpegCore.Extensions.System.Drawing.Common.FFMpegImage;
 
 var inputPath = "/path/to/input";
