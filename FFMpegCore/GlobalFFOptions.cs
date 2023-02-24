@@ -23,6 +23,13 @@ namespace FFMpegCore
 
         private static string GetFFBinaryPath(string name, FFOptions ffOptions)
         {
+            name = name switch
+            {
+                "FFMpeg" => ffOptions.FFMpegBinaryName,
+                "FFProbe" => ffOptions.FFProbeBinaryName,
+                _ => throw new ArgumentException(nameof(name))
+            };
+
             var ffName = name.ToLowerInvariant();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

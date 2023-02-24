@@ -16,6 +16,16 @@ namespace FFMpegCore
         public string BinaryFolder { get; set; } = string.Empty;
 
         /// <summary>
+        /// Custom name for ffmpeg binary
+        /// </summary>
+        public string FFMpegBinaryName { get; set; } = "FFMpeg";
+
+        /// <summary>
+        /// Custom name for ffprobe binary
+        /// </summary>
+        public string FFProbeBinaryName { get; set; } = "FFProbe";
+
+        /// <summary>
         /// Folder used for temporary files necessary for static methods on FFMpeg class
         /// </summary>
         public string TemporaryFilesFolder { get; set; } = Path.GetTempPath();
