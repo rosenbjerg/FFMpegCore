@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <PackageVersion>5.0.8</PackageVersion>
+    <PackageVersion>5.0.10</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <PackageReleaseNotes>-Charles Young:
 -PosterWithoutAudio has duration parameter in seconds and  has rotateX90 parameter (0, 1, 2, or 3)
