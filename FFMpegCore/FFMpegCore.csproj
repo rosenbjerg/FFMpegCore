@@ -3,10 +3,10 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <PackageVersion>5.0.3</PackageVersion>
+    <PackageVersion>5.0.8</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <PackageReleaseNotes>-Charles Young:
--PosterWithAudio has duration parameter in seconds if audio is IsNullOrEmpty
+-PosterWithoutAudio has duration parameter in seconds and  has rotateX90 parameter (0, 1, 2, or 3)
 -PosterWithAudio has new rotateX90 parameter (0, 1, 2, or 3)
 -VerifyFFMpegExists fixed to work with both Windows and Mac
     </PackageReleaseNotes>

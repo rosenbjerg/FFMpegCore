@@ -48,6 +48,7 @@ namespace FFMpegCore.Arguments
         public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
         public VideoFilterOptions Scale(Size size) => WithArgument(new ScaleArgument(size));
         public VideoFilterOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
+        public VideoFilterOptions Rotate(int rotateX90) => WithArgument(new RotateArgument(rotateX90));
         public VideoFilterOptions Mirror(Mirroring mirroring) => WithArgument(new SetMirroringArgument(mirroring));
         public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
         public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions) => WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
