@@ -57,7 +57,7 @@ namespace FFMpegCore
                 .ProcessAsynchronously();
         }
 
-        public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int ? streamIndex = null)
+        public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
         {
             if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
             {
