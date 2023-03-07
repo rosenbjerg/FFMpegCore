@@ -1,4 +1,5 @@
-﻿using System.Drawing.Imaging;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.Versioning;
 using System.Text;
 using FFMpegCore.Arguments;
@@ -477,6 +478,64 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
             Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_GifSnapshot_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.gif");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+
+            FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0));
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreNotEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreNotEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("gif", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_GifSnapshot_PersistSnapshot_SizeSupplied()
+        {
+            using var outputPath = new TemporaryFile("out.gif");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+            var desiredGifSize = new Size(320, 240);
+
+            FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, desiredGifSize, captureTime: TimeSpan.FromSeconds(0));
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreNotEqual(input.PrimaryVideoStream!.Width, desiredGifSize.Width);
+            Assert.AreNotEqual(input.PrimaryVideoStream.Height, desiredGifSize.Height);
+            Assert.AreEqual("gif", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public async Task Video_GifSnapshot_PersistSnapshotAsync()
+        {
+            using var outputPath = new TemporaryFile("out.gif");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+
+            await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0));
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreNotEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreNotEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("gif", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public async Task Video_GifSnapshot_PersistSnapshotAsync_SizeSupplied()
+        {
+            using var outputPath = new TemporaryFile("out.gif");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+            var desiredGifSize = new Size(320, 240);
+
+            await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, desiredGifSize, captureTime: TimeSpan.FromSeconds(0));
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreNotEqual(input.PrimaryVideoStream!.Width, desiredGifSize.Width);
+            Assert.AreNotEqual(input.PrimaryVideoStream.Height, desiredGifSize.Height);
+            Assert.AreEqual("gif", analysis.PrimaryVideoStream!.CodecName);
         }
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
