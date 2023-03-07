@@ -76,6 +76,7 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithAudibleEncryptionKeys(string key, string iv) => WithArgument(new AudibleEncryptionKeyArgument(key, iv));
         public FFMpegArgumentOptions WithAudibleActivationBytes(string activationBytes) => WithArgument(new AudibleEncryptionKeyArgument(activationBytes));
         public FFMpegArgumentOptions WithTagVersion(int id3v2Version = 3) => WithArgument(new ID3V2VersionArgument(id3v2Version));
+        public FFMpegArgumentOptions WithGifPalettArgument(Size? size, int fps = 12) => WithArgument(new GifPalettArgument(fps, size));
 
         public FFMpegArgumentOptions WithArgument(IArgument argument)
         {
