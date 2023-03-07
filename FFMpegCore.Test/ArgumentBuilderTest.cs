@@ -540,7 +540,7 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
-        public void Builder_BuildString_GifPallet()
+        public void Builder_BuildString_GifPalette()
         {
             var streamIndex = 0;
             var size = new Size(640, 480);
@@ -548,7 +548,7 @@ namespace FFMpegCore.Test
             var str = FFMpegArguments
                 .FromFileInput("input.mp4")
                 .OutputToFile("output.gif", false, opt => opt
-                    .WithGifPalettArgument(streamIndex, size))
+                    .WithGifPaletteArgument(streamIndex, size))
                 .Arguments;
 
             Assert.AreEqual($"""
@@ -557,14 +557,14 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod]
-        public void Builder_BuildString_GifPallet_NullSize_FpsSupplied()
+        public void Builder_BuildString_GifPalette_NullSize_FpsSupplied()
         {
             var streamIndex = 1;
 
             var str = FFMpegArguments
                 .FromFileInput("input.mp4")
                 .OutputToFile("output.gif", false, opt => opt
-                    .WithGifPalettArgument(streamIndex, null, 10))
+                    .WithGifPaletteArgument(streamIndex, null, 10))
                 .Arguments;
 
             Assert.AreEqual($"""

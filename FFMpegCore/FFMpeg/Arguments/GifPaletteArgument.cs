@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Arguments
 {
-    public class GifPalettArgument : IArgument
+    public class GifPaletteArgument : IArgument
     {
         private readonly int _streamIndex;
 
@@ -10,7 +10,7 @@ namespace FFMpegCore.Arguments
 
         private readonly Size? _size;
 
-        public GifPalettArgument(int streamIndex, int fps, Size? size)
+        public GifPaletteArgument(int streamIndex, int fps, Size? size)
         {
             _streamIndex = streamIndex;
             _fps = fps;

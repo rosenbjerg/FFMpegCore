@@ -53,7 +53,7 @@ public static class SnapshotArgumentBuilder
                     .Seek(captureTime)
                     .WithDuration(duration)),
             options => options
-                .WithGifPalettArgument((int)streamIndex, size, fps));
+                .WithGifPaletteArgument((int)streamIndex, size, fps));
     }
 
     private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
