@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Arguments;
+﻿using System.Drawing;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -536,6 +537,39 @@ namespace FFMpegCore.Test
             Assert.AreEqual(
                 "-i \"input.mp4\" -vf \"pad=aspect=4/3:x=(ow-iw)/2:y=(oh-ih)/2:color=violet:eval=frame\" \"output.mp4\"",
                 str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_GifPalette()
+        {
+            var streamIndex = 0;
+            var size = new Size(640, 480);
+
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.gif", false, opt => opt
+                    .WithGifPaletteArgument(streamIndex, size))
+                .Arguments;
+
+            Assert.AreEqual($"""
+                -i "input.mp4" -filter_complex "[0:v] fps=12,scale=w={size.Width}:h={size.Height},split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
+                """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_GifPalette_NullSize_FpsSupplied()
+        {
+            var streamIndex = 1;
+
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.gif", false, opt => opt
+                    .WithGifPaletteArgument(streamIndex, null, 10))
+                .Arguments;
+
+            Assert.AreEqual($"""
+                -i "input.mp4" -filter_complex "[{streamIndex}:v] fps=10,split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
+                """, str);
         }
     }
 }
