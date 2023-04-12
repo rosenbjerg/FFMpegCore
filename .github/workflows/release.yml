@@ -16,8 +16,8 @@ jobs:
         dotnet-version: '7.0.x'
         
     - name: Build solution
-      run: dotnet pack FFMpegCore.sln --output build -c Release
+      run: dotnet pack FFMpegCore.sln -c Release
       
     - name: Publish NuGet package
-      run: dotnet nuget push build/*.nupkg --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
+      run: dotnet nuget push nupkg/*.nupkg --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
       

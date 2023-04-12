@@ -31,6 +31,31 @@ public static class SnapshotArgumentBuilder
                 .Resize(size));
     }
 
+    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildGifSnapshotArguments(
+        string input,
+        IMediaAnalysis source,
+        Size? size = null,
+        TimeSpan? captureTime = null,
+        TimeSpan? duration = null,
+        int? streamIndex = null,
+        int fps = 12)
+    {
+        var defaultGifOutputSize = new Size(480, -1);
+
+        captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
+        size = PrepareSnapshotSize(source, size) ?? defaultGifOutputSize;
+        streamIndex ??= source.PrimaryVideoStream?.Index
+                        ?? source.VideoStreams.FirstOrDefault()?.Index
+                        ?? 0;
+
+        return (FFMpegArguments
+                .FromFileInput(input, false, options => options
+                    .Seek(captureTime)
+                    .WithDuration(duration)),
+            options => options
+                .WithGifPaletteArgument((int)streamIndex, size, fps));
+    }
+
     private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
     {
         if (wantedSize == null || (wantedSize.Value.Height <= 0 && wantedSize.Value.Width <= 0) || source.PrimaryVideoStream == null)
