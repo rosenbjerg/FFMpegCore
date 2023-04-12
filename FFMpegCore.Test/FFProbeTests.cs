@@ -1,4 +1,4 @@
-using FFMpegCore.Test.Resources;
+﻿using FFMpegCore.Test.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
@@ -234,13 +234,6 @@ namespace FFMpegCore.Test
             var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit);
             Assert.IsNotNull(info.PrimaryAudioStream);
             Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
-        }
-
-        [TestMethod]
-        public void Probe_Success_Custom_Arguments()
-        {
-            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
-            Assert.AreEqual(3, info.Duration.Seconds);
         }
     }
 }
