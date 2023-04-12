@@ -5,15 +5,15 @@ namespace FFMpegCore.Arguments
     /// <summary>
     /// Represents seek parameter
     /// </summary>
-    public class SeekArgument : IArgument
+    public class EndSeekArgument : IArgument
     {
         public readonly TimeSpan? SeekTo;
 
-        public SeekArgument(TimeSpan? seekTo)
+        public EndSeekArgument(TimeSpan? seekTo)
         {
             SeekTo = seekTo;
         }
 
-        public string Text => SeekTo.HasValue ? $"-ss {SeekTo.Value.ToLongString()}" : string.Empty;
+        public string Text => SeekTo.HasValue ? $"-to {SeekTo.Value.ToLongString()}" : string.Empty;
     }
 }

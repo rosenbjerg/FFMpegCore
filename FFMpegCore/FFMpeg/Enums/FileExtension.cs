@@ -20,5 +20,6 @@
         public static readonly string WebM = VideoType.WebM.Extension;
         public static readonly string Png = ".png";
         public static readonly string Mp3 = ".mp3";
+        public static readonly string Gif = ".gif";
     }
 }

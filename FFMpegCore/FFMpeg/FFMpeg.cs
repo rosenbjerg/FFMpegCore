@@ -57,6 +57,36 @@ namespace FFMpegCore
                 .ProcessAsynchronously();
         }
 
+        public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
+        {
+            if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Gif);
+            }
+
+            var source = FFProbe.Analyse(input);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+
+            return arguments
+                .OutputToFile(output, true, outputOptions)
+                .ProcessSynchronously();
+        }
+
+        public static async Task<bool> GifSnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
+        {
+            if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Gif);
+            }
+
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+
+            return await arguments
+                .OutputToFile(output, true, outputOptions)
+                .ProcessAsynchronously();
+        }
+
         /// <summary>
         /// Converts an image sequence to a video.
         /// </summary>
@@ -66,25 +96,34 @@ namespace FFMpegCore
         /// <returns>Output video information.</returns>
         public static bool JoinImageSequence(string output, double frameRate = 30, params string[] images)
         {
-            int? width = null, height = null;
-            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
-            var temporaryImageFiles = images.Select((imagePath, index) =>
+            var fileExtensions = images.Select(Path.GetExtension).Distinct().ToArray();
+            if (fileExtensions.Length != 1)
             {
-                var analysis = FFProbe.Analyse(imagePath);
-                FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
-                width ??= analysis.PrimaryVideoStream.Width;
-                height ??= analysis.PrimaryVideoStream.Height;
+                throw new ArgumentException("All images must have the same extension", nameof(images));
+            }
 
-                var destinationPath = Path.Combine(tempFolderName, $"{index.ToString().PadLeft(9, '0')}{Path.GetExtension(imagePath)}");
-                Directory.CreateDirectory(tempFolderName);
-                File.Copy(imagePath, destinationPath);
-                return destinationPath;
-            }).ToArray();
+            var fileExtension = fileExtensions[0].ToLowerInvariant();
+            int? width = null, height = null;
+
+            var tempFolderName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempFolderName);
 
             try
             {
+                var index = 0;
+                foreach (var imagePath in images)
+                {
+                    var analysis = FFProbe.Analyse(imagePath);
+                    FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
+                    width ??= analysis.PrimaryVideoStream.Width;
+                    height ??= analysis.PrimaryVideoStream.Height;
+
+                    var destinationPath = Path.Combine(tempFolderName, $"{index++.ToString().PadLeft(9, '0')}{fileExtension}");
+                    File.Copy(imagePath, destinationPath);
+                }
+
                 return FFMpegArguments
-                    .FromFileInput(Path.Combine(tempFolderName, "%09d.png"), false)
+                    .FromFileInput(Path.Combine(tempFolderName, $"%09d{fileExtension}"), false)
                     .OutputToFile(output, true, options => options
                         .ForcePixelFormat("yuv420p")
                         .Resize(width!.Value, height!.Value)
@@ -93,8 +132,7 @@ namespace FFMpegCore
             }
             finally
             {
-                Cleanup(temporaryImageFiles);
-                Directory.Delete(tempFolderName);
+                Directory.Delete(tempFolderName, true);
             }
         }
 
@@ -237,6 +275,46 @@ namespace FFMpegCore
             {
                 Cleanup(temporaryVideoParts);
             }
+        }
+
+        private static FFMpegArgumentProcessor BaseSubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            if (Path.GetExtension(input) != Path.GetExtension(output))
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), Path.GetExtension(input));
+            }
+
+            return FFMpegArguments
+                .FromFileInput(input, true, options => options.Seek(startTime).EndSeek(endTime))
+                .OutputToFile(output, true, options => options.CopyChannel());
+        }
+
+        /// <summary>
+        ///     Creates a new video starting and ending at the specified times
+        /// </summary>
+        /// <param name="input">Input video file.</param>
+        /// <param name="output">Output video file.</param>
+        /// <param name="startTime">The start time of when the sub video needs to start</param>
+        /// <param name="endTime">The end time of where the sub video needs to  end</param>
+        /// <returns>Output video information.</returns>
+        public static bool SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            return BaseSubVideo(input, output, startTime, endTime)
+                .ProcessSynchronously();
+        }
+
+        /// <summary>
+        ///     Creates a new video starting and ending at the specified times
+        /// </summary>
+        /// <param name="input">Input video file.</param>
+        /// <param name="output">Output video file.</param>
+        /// <param name="startTime">The start time of when the sub video needs to start</param>
+        /// <param name="endTime">The end time of where the sub video needs to  end</param>
+        /// <returns>Output video information.</returns>
+        public static async Task<bool> SubVideoAsync(string input, string output, TimeSpan startTime, TimeSpan endTime)
+        {
+            return await BaseSubVideo(input, output, startTime, endTime)
+                .ProcessAsynchronously();
         }
 
         /// <summary>

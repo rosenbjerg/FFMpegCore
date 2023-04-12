@@ -54,6 +54,7 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithCustomArgument(string argument) => WithArgument(new CustomArgument(argument));
 
         public FFMpegArgumentOptions Seek(TimeSpan? seekTo) => WithArgument(new SeekArgument(seekTo));
+        public FFMpegArgumentOptions EndSeek(TimeSpan? seekTo) => WithArgument(new EndSeekArgument(seekTo));
         public FFMpegArgumentOptions Loop(int times) => WithArgument(new LoopArgument(times));
         public FFMpegArgumentOptions OverwriteExisting() => WithArgument(new OverwriteArgument());
         public FFMpegArgumentOptions SelectStream(int streamIndex, int inputFileIndex = 0,
@@ -75,6 +76,7 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithAudibleEncryptionKeys(string key, string iv) => WithArgument(new AudibleEncryptionKeyArgument(key, iv));
         public FFMpegArgumentOptions WithAudibleActivationBytes(string activationBytes) => WithArgument(new AudibleEncryptionKeyArgument(activationBytes));
         public FFMpegArgumentOptions WithTagVersion(int id3v2Version = 3) => WithArgument(new ID3V2VersionArgument(id3v2Version));
+        public FFMpegArgumentOptions WithGifPaletteArgument(int streamIndex, Size? size, int fps = 12) => WithArgument(new GifPaletteArgument(streamIndex, fps, size));
 
         public FFMpegArgumentOptions WithArgument(IArgument argument)
         {
