@@ -105,6 +105,7 @@ namespace FFMpegCore.Test
         {
             var info = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
+            Assert.AreEqual(0, info.Chapters.Count);
 
             Assert.AreEqual("5.1", info.PrimaryAudioStream!.ChannelLayout);
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
