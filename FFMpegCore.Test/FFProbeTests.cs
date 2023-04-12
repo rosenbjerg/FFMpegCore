@@ -239,7 +239,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Probe_Success_Custom_Arguments()
         {
-            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: world\"");
+            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
             Assert.AreEqual(3, info.Duration.Seconds);
         }
     }
