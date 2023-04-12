@@ -1,27 +1,65 @@
 ﻿using System.Runtime.InteropServices;
 using FFMpegCore.Helpers;
-
-namespace FFMpegCore.Test;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+namespace FFMpegCore.Test;
+
+[TestClass]
 public class DownloaderTests
 {
-    [TestClass]
-    public class FFMpegDownloaderTest
+    [TestMethod]
+    public void GetLatestSuiteTest()
     {
-        [TestMethod]
-        public void GetLatestVersionTest()
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var files = FFMpegDownloader.GetLatestVersion();
-                Assert.IsTrue(files.Count == 3);
-            }
-            else
-            {
-                Assert.Inconclusive("This test is only for Windows");
-            }
-            
+            var fileNames = FFMpegDownloader.AutoDownloadFFMpegSuite();
+            Assert.IsTrue(fileNames.Count == 3);
+        }
+        else
+        {
+            Assert.Inconclusive("This test is only for Windows");
+        }
+    }
+    
+    [TestMethod]
+    public void GetLatestFFMpegTest()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var fileNames = FFMpegDownloader.AutoDownloadFFMpeg();
+            Assert.IsTrue(fileNames.Count == 1);
+        }
+        else
+        {
+            Assert.Inconclusive("This test is only for Windows");
+        }
+    }
+    
+    [TestMethod]
+    public void GetLatestFFProbeTest()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var fileNames = FFMpegDownloader.AutoDownloadFFProbe();
+            Assert.IsTrue(fileNames.Count == 1);
+        }
+        else
+        {
+            Assert.Inconclusive("This test is only for Windows");
+        }
+    }
+    
+    [TestMethod]
+    public void GetLatestFFPlayTest()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var fileNames = FFMpegDownloader.AutoDownloadFFPlay();
+            Assert.IsTrue(fileNames.Count == 1);
+        }
+        else
+        {
+            Assert.Inconclusive("This test is only for Windows");
         }
     }
 }
