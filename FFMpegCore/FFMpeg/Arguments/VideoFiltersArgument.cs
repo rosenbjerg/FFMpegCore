@@ -47,6 +47,8 @@ namespace FFMpegCore.Arguments
         public VideoFilterOptions Scale(VideoSize videoSize) => WithArgument(new ScaleArgument(videoSize));
         public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
         public VideoFilterOptions Scale(Size size) => WithArgument(new ScaleArgument(size));
+        public VideoFilterOptions ScaleNpp(int width,int height) => WithArgument(new ScaleNppArgument(width,height));
+        public VideoFilterOptions ScaleNpp(VideoSize videoSize) => WithArgument(new ScaleNppArgument(videoSize));
         public VideoFilterOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
         public VideoFilterOptions Mirror(Mirroring mirroring) => WithArgument(new SetMirroringArgument(mirroring));
         public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
