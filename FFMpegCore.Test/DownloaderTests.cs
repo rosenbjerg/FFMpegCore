@@ -12,7 +12,7 @@ public class DownloaderTests
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var fileNames = FFMpegDownloader.AutoDownloadFFMpegSuite();
+            var fileNames = FFMpegDownloader.DownloadFFMpegSuite();
             Assert.IsTrue(fileNames.Count == 3);
         }
         else
@@ -26,7 +26,7 @@ public class DownloaderTests
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var fileNames = FFMpegDownloader.AutoDownloadFFMpeg();
+            var fileNames = FFMpegDownloader.DownloadFFMpeg();
             Assert.IsTrue(fileNames.Count == 1);
         }
         else
@@ -40,7 +40,7 @@ public class DownloaderTests
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var fileNames = FFMpegDownloader.AutoDownloadFFProbe();
+            var fileNames = FFMpegDownloader.DownloadFFProbe();
             Assert.IsTrue(fileNames.Count == 1);
         }
         else
@@ -54,7 +54,7 @@ public class DownloaderTests
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var fileNames = FFMpegDownloader.AutoDownloadFFPlay();
+            var fileNames = FFMpegDownloader.DownloadFFPlay();
             Assert.IsTrue(fileNames.Count == 1);
         }
         else

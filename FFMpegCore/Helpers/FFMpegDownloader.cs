@@ -53,12 +53,12 @@ public class FFMpegDownloader
     /// Downloads the latest FFMpeg suite binaries to bin directory.
     /// </summary>
     /// <param name="version"></param>
-    /// <returns></returns>
-    public static List<string> AutoDownloadFFMpegSuite(FFMpegVersions version = FFMpegVersions.V4_4_1)
+    /// <returns>Names of the binary that was saved to bin directory</returns>
+    public static List<string> DownloadFFMpegSuite(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
-        var files = AutoDownloadFFMpeg(version);
-        files.AddRange(AutoDownloadFFProbe(version));
-        files.AddRange(AutoDownloadFFPlay(version));
+        var files = DownloadFFMpeg(version);
+        files.AddRange(DownloadFFProbe(version));
+        files.AddRange(DownloadFFPlay(version));
         
         return files;
     }
@@ -68,7 +68,7 @@ public class FFMpegDownloader
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
-    public static List<string> AutoDownloadFFMpeg(FFMpegVersions version = FFMpegVersions.V4_4_1)
+    public static List<string> DownloadFFMpeg(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version])
@@ -86,7 +86,7 @@ public class FFMpegDownloader
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
-    public static List<string> AutoDownloadFFProbe(FFMpegVersions version = FFMpegVersions.V4_4_1)
+    public static List<string> DownloadFFProbe(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version].Replace("ffmpeg", "ffprobe"))
@@ -104,7 +104,7 @@ public class FFMpegDownloader
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
-    public static List<string> AutoDownloadFFPlay(FFMpegVersions version = FFMpegVersions.V4_4_1)
+    public static List<string> DownloadFFPlay(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version].Replace("ffmpeg", "ffplay"))
