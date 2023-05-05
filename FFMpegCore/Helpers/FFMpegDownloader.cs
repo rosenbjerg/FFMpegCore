@@ -1,39 +1,83 @@
 ﻿using System.Net;
 using System.IO.Compression;
-
+using System.Runtime.InteropServices;
 
 namespace FFMpegCore.Helpers;
-using System.Runtime.InteropServices;
 
 /// <summary>
 /// Downloads the latest FFMpeg suite binaries from GitHub. Only supported for windows at the moment.
 /// </summary>
 public class FFMpegDownloader
 {
-    private static Dictionary<FFMpegVersions, string> Windows64FFMpegDownloadUrls = new()
+    private static readonly Dictionary<FFMpegVersions, string> Windows64FFMpegDownloadUrls = new()
     {
-        { FFMpegVersions.V4_4_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip"},
-        { FFMpegVersions.V4_2_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffmpeg-4.2.1-win-64.zip"},
-        { FFMpegVersions.V4_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2/ffmpeg-4.2-win-64.zip"},
-        { FFMpegVersions.V4_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.1/ffmpeg-4.1-win-64.zip"},
-        { FFMpegVersions.V4_0, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.0/ffmpeg-4.0.1-win-64.zip"},
-        { FFMpegVersions.V3_4, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.4/ffmpeg-3.4-win-64.zip"},
-        { FFMpegVersions.V3_3, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.3/ffmpeg-3.3.4-win-64.zip"},
-        { FFMpegVersions.V3_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-64.zip"},
+        {
+            FFMpegVersions.V4_4_1,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip"
+        },
+        {
+            FFMpegVersions.V4_2_1,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffmpeg-4.2.1-win-64.zip"
+        },
+        {
+            FFMpegVersions.V4_2,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2/ffmpeg-4.2-win-64.zip"
+        },
+        {
+            FFMpegVersions.V4_1,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.1/ffmpeg-4.1-win-64.zip"
+        },
+        {
+            FFMpegVersions.V4_0,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.0/ffmpeg-4.0.1-win-64.zip"
+        },
+        {
+            FFMpegVersions.V3_4,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.4/ffmpeg-3.4-win-64.zip"
+        },
+        {
+            FFMpegVersions.V3_3,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.3/ffmpeg-3.3.4-win-64.zip"
+        },
+        {
+            FFMpegVersions.V3_2,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-64.zip"
+        },
     };
-    
-    private static Dictionary<FFMpegVersions, string> Windows32FFMpegDownloadUrls = new()
+
+    private static readonly Dictionary<FFMpegVersions, string> Windows32FFMpegDownloadUrls = new()
     {
         { FFMpegVersions.V4_4_1, "" },
-        { FFMpegVersions.V4_2_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffmpeg-4.2.1-win-32.zip"},
-        { FFMpegVersions.V4_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2/ffmpeg-4.2-win-32.zip"},
-        { FFMpegVersions.V4_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.1/ffmpeg-4.1-win-32.zip"},
-        { FFMpegVersions.V4_0, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.0/ffmpeg-4.0.1-win-32.zip"},
-        { FFMpegVersions.V3_4, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.4/ffmpeg-3.4-win-32.zip"},
-        { FFMpegVersions.V3_3, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.3/ffmpeg-3.3.4-win-32.zip"},
-        { FFMpegVersions.V3_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-32.zip"},
+        {
+            FFMpegVersions.V4_2_1,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffmpeg-4.2.1-win-32.zip"
+        },
+        {
+            FFMpegVersions.V4_2,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2/ffmpeg-4.2-win-32.zip"
+        },
+        {
+            FFMpegVersions.V4_1,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.1/ffmpeg-4.1-win-32.zip"
+        },
+        {
+            FFMpegVersions.V4_0,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.0/ffmpeg-4.0.1-win-32.zip"
+        },
+        {
+            FFMpegVersions.V3_4,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.4/ffmpeg-3.4-win-32.zip"
+        },
+        {
+            FFMpegVersions.V3_3,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.3/ffmpeg-3.3.4-win-32.zip"
+        },
+        {
+            FFMpegVersions.V3_2,
+            "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-32.zip"
+        },
     };
-    
+
     /// <summary>
     /// Supported FFMpeg versions
     /// </summary>
@@ -59,7 +103,7 @@ public class FFMpegDownloader
         var files = DownloadFFMpeg(version);
         files.AddRange(DownloadFFProbe(version));
         files.AddRange(DownloadFFPlay(version));
-        
+
         return files;
     }
 
@@ -73,14 +117,10 @@ public class FFMpegDownloader
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version])
             : new Uri(Windows32FFMpegDownloadUrls[version]);
-        
-        HasValidUri(url);
 
-        Stream zipStream = DownloadZip(url);
-
-        return ExtractAndSave(zipStream);
+        return DownloadAndSave(url);
     }
-    
+
     /// <summary>
     /// Downloads the latest FFProbe binaries to bin directory.
     /// </summary>
@@ -91,14 +131,10 @@ public class FFMpegDownloader
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version].Replace("ffmpeg", "ffprobe"))
             : new Uri(Windows32FFMpegDownloadUrls[version].Replace("ffmpeg", "ffprobe"));
-        
-        HasValidUri(url);
-        
-        Stream zipStream = DownloadZip(url);
 
-        return ExtractAndSave(zipStream);
+        return DownloadAndSave(url);
     }
-    
+
     /// <summary>
     /// Downloads the latest FFPlay binaries to bin directory.
     /// </summary>
@@ -109,12 +145,22 @@ public class FFMpegDownloader
         var url = Environment.Is64BitProcess
             ? new Uri(Windows64FFMpegDownloadUrls[version].Replace("ffmpeg", "ffplay"))
             : new Uri(Windows32FFMpegDownloadUrls[version].Replace("ffmpeg", "ffplay"));
-        
+
+        return DownloadAndSave(url);
+    }
+
+    /// <summary>
+    /// Downloads the zip file from the given url and saves the binaries to bin directory.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    private static List<string> DownloadAndSave(Uri url)
+    {
         HasValidUri(url);
 
         Stream zipStream = DownloadZip(url);
 
-        return ExtractAndSave(zipStream);
+        return ExtractZip(zipStream);
     }
 
     /// <summary>
@@ -130,19 +176,20 @@ public class FFMpegDownloader
 
         return zipStream;
     }
-    
+
     /// <summary>
     /// Extracts the zip file and saves the binaries to bin directory.
     /// </summary>
     /// <param name="zipStream"></param>
     /// <returns></returns>
-    private static List<string> ExtractAndSave(Stream zipStream)
+    private static List<string> ExtractZip(Stream zipStream)
     {
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
         List<string> files = new();
         foreach (var entry in archive.Entries)
         {
-            if (entry.Name is "ffmpeg.exe" or "ffmpeg" or "ffprobe.exe" or "ffplay.exe" or "ffplay") // only extract the binaries
+            if (entry.Name is "ffmpeg.exe" or "ffmpeg" or "ffprobe.exe" or "ffplay.exe"
+                or "ffplay") // only extract the binaries
             {
                 entry.ExtractToFile(Path.Combine(GlobalFFOptions.Current.BinaryFolder, entry.Name), true);
                 files.Add(Path.Combine(GlobalFFOptions.Current.BinaryFolder, entry.Name));
@@ -161,7 +208,8 @@ public class FFMpegDownloader
     {
         if (uri.ToString() == "" || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            throw new PlatformNotSupportedException("The requested version of FFMpeg component is not available for your OS/System.");
+            throw new PlatformNotSupportedException(
+                "The requested version of FFMpeg component is not available for your OS/System.");
         }
     }
 }
