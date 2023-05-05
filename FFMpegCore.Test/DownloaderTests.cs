@@ -20,7 +20,7 @@ public class DownloaderTests
             Assert.Inconclusive("This test is only for Windows");
         }
     }
-    
+
     [TestMethod]
     public void GetLatestFFMpegTest()
     {
@@ -34,7 +34,7 @@ public class DownloaderTests
             Assert.Inconclusive("This test is only for Windows");
         }
     }
-    
+
     [TestMethod]
     public void GetLatestFFProbeTest()
     {
@@ -48,7 +48,7 @@ public class DownloaderTests
             Assert.Inconclusive("This test is only for Windows");
         }
     }
-    
+
     [TestMethod]
     public void GetLatestFFPlayTest()
     {

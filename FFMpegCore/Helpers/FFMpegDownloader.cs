@@ -1,14 +1,29 @@
-﻿using System.Net;
-using System.IO.Compression;
+﻿using System.IO.Compression;
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace FFMpegCore.Helpers;
 
 /// <summary>
-/// Downloads the latest FFMpeg suite binaries from GitHub. Only supported for windows at the moment.
+///     Downloads the latest FFMpeg suite binaries from GitHub. Only supported for windows at the moment.
 /// </summary>
 public class FFMpegDownloader
 {
+    /// <summary>
+    ///     Supported FFMpeg versions
+    /// </summary>
+    public enum FFMpegVersions
+    {
+        V4_4_1,
+        V4_2_1,
+        V4_2,
+        V4_1,
+        V4_0,
+        V3_4,
+        V3_3,
+        V3_2
+    }
+
     private static readonly Dictionary<FFMpegVersions, string> Windows64FFMpegDownloadUrls = new()
     {
         {
@@ -42,7 +57,7 @@ public class FFMpegDownloader
         {
             FFMpegVersions.V3_2,
             "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-64.zip"
-        },
+        }
     };
 
     private static readonly Dictionary<FFMpegVersions, string> Windows32FFMpegDownloadUrls = new()
@@ -75,26 +90,11 @@ public class FFMpegDownloader
         {
             FFMpegVersions.V3_2,
             "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-32.zip"
-        },
+        }
     };
 
     /// <summary>
-    /// Supported FFMpeg versions
-    /// </summary>
-    public enum FFMpegVersions
-    {
-        V4_4_1,
-        V4_2_1,
-        V4_2,
-        V4_1,
-        V4_0,
-        V3_4,
-        V3_3,
-        V3_2
-    }
-
-    /// <summary>
-    /// Downloads the latest FFMpeg suite binaries to bin directory.
+    ///     Downloads the latest FFMpeg suite binaries to bin directory.
     /// </summary>
     /// <param name="version"></param>
     /// <returns>Names of the binary that was saved to bin directory</returns>
@@ -108,7 +108,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Downloads the latest FFMpeg binaries to bin directory.
+    ///     Downloads the latest FFMpeg binaries to bin directory.
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
@@ -122,7 +122,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Downloads the latest FFProbe binaries to bin directory.
+    ///     Downloads the latest FFProbe binaries to bin directory.
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
@@ -136,7 +136,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Downloads the latest FFPlay binaries to bin directory.
+    ///     Downloads the latest FFPlay binaries to bin directory.
     /// </summary>
     /// <param name="version"></param>
     /// <returns></returns>
@@ -150,7 +150,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Downloads the zip file from the given url and saves the binaries to bin directory.
+    ///     Downloads the zip file from the given url and saves the binaries to bin directory.
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
@@ -164,7 +164,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Downloads the zip file from the given url.
+    ///     Downloads the zip file from the given url.
     /// </summary>
     /// <param name="address"></param>
     /// <returns></returns>
@@ -178,7 +178,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Extracts the zip file and saves the binaries to bin directory.
+    ///     Extracts the zip file and saves the binaries to bin directory.
     /// </summary>
     /// <param name="zipStream"></param>
     /// <returns></returns>
@@ -200,7 +200,7 @@ public class FFMpegDownloader
     }
 
     /// <summary>
-    /// Checks if the given uri is valid.
+    ///     Checks if the given uri is valid.
     /// </summary>
     /// <param name="uri"></param>
     /// <exception cref="PlatformNotSupportedException"></exception>
