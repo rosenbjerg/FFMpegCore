@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net;
-using System.IO;
+﻿using System.Net;
 using System.IO.Compression;
 
 
@@ -10,7 +8,7 @@ using System.Runtime.InteropServices;
 /// <summary>
 /// Downloads the latest FFMpeg suite binaries from GitHub. Only supported for windows at the moment.
 /// </summary>
-public class FFMpegDownloader // this class is built to be easily modified to support other platforms
+public class FFMpegDownloader
 {
     private static Dictionary<FFMpegVersions, string> Windows64FFMpegDownloadUrls = new()
     {
@@ -26,7 +24,7 @@ public class FFMpegDownloader // this class is built to be easily modified to su
     
     private static Dictionary<FFMpegVersions, string> Windows32FFMpegDownloadUrls = new()
     {
-        { FFMpegVersions.V4_4_1, "https://example.com/" },
+        { FFMpegVersions.V4_4_1, "" },
         { FFMpegVersions.V4_2_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffmpeg-4.2.1-win-32.zip"},
         { FFMpegVersions.V4_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2/ffmpeg-4.2-win-32.zip"},
         { FFMpegVersions.V4_1, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.1/ffmpeg-4.1-win-32.zip"},
@@ -36,6 +34,9 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         { FFMpegVersions.V3_2, "https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffmpeg-3.2-win-32.zip"},
     };
     
+    /// <summary>
+    /// Supported FFMpeg versions
+    /// </summary>
     public enum FFMpegVersions
     {
         V4_4_1,
@@ -48,6 +49,11 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         V3_2
     }
 
+    /// <summary>
+    /// Downloads the latest FFMpeg suite binaries to bin directory.
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
     public static List<string> AutoDownloadFFMpegSuite(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var files = AutoDownloadFFMpeg(version);
@@ -57,6 +63,11 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return files;
     }
 
+    /// <summary>
+    /// Downloads the latest FFMpeg binaries to bin directory.
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
     public static List<string> AutoDownloadFFMpeg(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
@@ -70,6 +81,11 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return ExtractAndSave(zipStream);
     }
     
+    /// <summary>
+    /// Downloads the latest FFProbe binaries to bin directory.
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
     public static List<string> AutoDownloadFFProbe(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
@@ -83,6 +99,11 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return ExtractAndSave(zipStream);
     }
     
+    /// <summary>
+    /// Downloads the latest FFPlay binaries to bin directory.
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
     public static List<string> AutoDownloadFFPlay(FFMpegVersions version = FFMpegVersions.V4_4_1)
     {
         var url = Environment.Is64BitProcess
@@ -96,6 +117,11 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return ExtractAndSave(zipStream);
     }
 
+    /// <summary>
+    /// Downloads the zip file from the given url.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns></returns>
     private static MemoryStream DownloadZip(Uri address)
     {
         var client = new WebClient();
@@ -105,13 +131,18 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return zipStream;
     }
     
+    /// <summary>
+    /// Extracts the zip file and saves the binaries to bin directory.
+    /// </summary>
+    /// <param name="zipStream"></param>
+    /// <returns></returns>
     private static List<string> ExtractAndSave(Stream zipStream)
     {
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
         List<string> files = new();
         foreach (var entry in archive.Entries)
         {
-            if (entry.Name is "ffmpeg.exe" or "ffmpeg" or "ffprobe.exe")
+            if (entry.Name is "ffmpeg.exe" or "ffmpeg" or "ffprobe.exe" or "ffplay.exe" or "ffplay") // only extract the binaries
             {
                 entry.ExtractToFile(Path.Combine(GlobalFFOptions.Current.BinaryFolder, entry.Name), true);
                 files.Add(Path.Combine(GlobalFFOptions.Current.BinaryFolder, entry.Name));
@@ -121,11 +152,16 @@ public class FFMpegDownloader // this class is built to be easily modified to su
         return files;
     }
 
+    /// <summary>
+    /// Checks if the given uri is valid.
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <exception cref="PlatformNotSupportedException"></exception>
     private static void HasValidUri(Uri uri)
     {
-        if (uri.ToString() == "https://example.com/" || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (uri.ToString() == "" || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            throw new PlatformNotSupportedException("The requested version of FFMpeg component is not available for your OS.");
+            throw new PlatformNotSupportedException("The requested version of FFMpeg component is not available for your OS/System.");
         }
     }
 }
