@@ -55,8 +55,8 @@ namespace FFMpegCore
         {
             var arguments = new FFMpegArgumentOptions();
             addArguments?.Invoke(arguments);
-            Arguments.AddRange(arguments.Arguments);
             Arguments.Add(inputArgument);
+            Arguments.AddRange(arguments.Arguments);
             return this;
         }
 
