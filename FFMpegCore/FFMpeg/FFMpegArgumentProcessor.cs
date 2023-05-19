@@ -66,14 +66,27 @@ namespace FFMpegCore
             _onError = onError;
             return this;
         }
-        public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
+
+        /// <summary>
+        /// CancellableThrough
+        /// </summary>
+        /// <param name="cancel"></param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or <see cref="F:System.Threading.Timeout.Infinite" /> (-1) to wait indefinitely.</param>
+        /// <returns></returns>
+        public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int millisecondsTimeout = 0)
         {
-            cancel = () => CancelEvent?.Invoke(this, timeout);
+            cancel = () => CancelEvent?.Invoke(this, millisecondsTimeout);
             return this;
         }
-        public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
+        /// <summary>
+        /// CancellableThrough
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or <see cref="F:System.Threading.Timeout.Infinite" /> (-1) to wait indefinitely.</param>
+        /// <returns></returns>
+        public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int millisecondsTimeout = 0)
         {
-            token.Register(() => CancelEvent?.Invoke(this, timeout));
+            token.Register(() => CancelEvent?.Invoke(this, millisecondsTimeout));
             return this;
         }
         public FFMpegArgumentProcessor Configure(Action<FFOptions> configureOptions)
