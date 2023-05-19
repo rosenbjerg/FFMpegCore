@@ -13,5 +13,6 @@
         <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <NeutralLanguage>en</NeutralLanguage>
+        <NoWarn>$(NoWarn);NU1803;</NoWarn>
     </PropertyGroup>
 </Project>
