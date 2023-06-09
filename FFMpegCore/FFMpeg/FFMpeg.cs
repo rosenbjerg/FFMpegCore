@@ -2,6 +2,7 @@
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
+using FFMpegCore.Pipes;
 using Instances;
 
 namespace FFMpegCore
@@ -32,6 +33,27 @@ namespace FFMpegCore
                 .OutputToFile(output, true, outputOptions)
                 .ProcessSynchronously();
         }
+
+        /// <summary>
+        ///     Saves a PNG thumbnail from the input video to the specified output stream.
+        /// </summary>
+        /// <param name="input">Input video stream</param>
+        /// <param name="output">Output stream to save the thumbnail</param>
+        /// <param name="size">Thumbnail size. If width or height is set to 0, the other dimension will be computed automatically.</param>
+        /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+        /// <param name="streamIndex">Index of the selected video stream. If not specified, the primary video stream or the first video stream will be selected.</param>
+        /// <param name="inputFileIndex">Index of the input file</param>
+        /// <returns>True if the snapshot was successfully created and saved; otherwise, false.</returns>
+        public static bool Snapshot(Stream input, Stream output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+        {
+            var source = FFProbe.Analyse(input);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+
+            return arguments
+                .OutputToPipe(new StreamPipeSink(output), outputOptions)
+                .ProcessSynchronously();
+        }
+
         /// <summary>
         ///     Saves a 'png' thumbnail from the input video to drive
         /// </summary>
@@ -54,6 +76,26 @@ namespace FFMpegCore
 
             return await arguments
                 .OutputToFile(output, true, outputOptions)
+                .ProcessAsynchronously();
+        }
+
+        /// <summary>
+        ///     Saves a PNG thumbnail from the input video to the specified output stream.
+        /// </summary>
+        /// <param name="input">Input video stream</param>
+        /// <param name="output">Output stream to save the thumbnail</param>
+        /// <param name="size">Thumbnail size. If width or height is set to 0, the other dimension will be computed automatically.</param>
+        /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+        /// <param name="streamIndex">Index of the selected video stream. If not specified, the primary video stream or the first video stream will be selected.</param>
+        /// <param name="inputFileIndex">Index of the input file</param>
+        /// <returns>True if the snapshot was successfully created and saved; otherwise, false.</returns>
+        public static async Task<bool> SnapshotAsync(Stream input, Stream output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+        {
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+
+            return await arguments
+                .OutputToPipe(new StreamPipeSink(output), outputOptions)
                 .ProcessAsynchronously();
         }
 
