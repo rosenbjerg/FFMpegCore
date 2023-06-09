@@ -2,6 +2,7 @@
 
 using System.Drawing;
 using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore;
 
@@ -31,13 +32,38 @@ public static class SnapshotArgumentBuilder
                 .Resize(size));
     }
 
+    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+      Stream inputStream,
+      IMediaAnalysis source,
+      Size? size = null,
+      TimeSpan? captureTime = null,
+      int? streamIndex = null,
+      int inputFileIndex = 0)
+    {
+        captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
+        size = PrepareSnapshotSize(source, size);
+        streamIndex ??= source.PrimaryVideoStream?.Index
+                        ?? source.VideoStreams.FirstOrDefault()?.Index
+                        ?? 0;
+
+        return (FFMpegArguments
+                .FromPipeInput(new StreamPipeSource(inputStream), options => options
+                    .Seek(captureTime)), 
+            options => options
+                .SelectStream((int)streamIndex, inputFileIndex)
+                .WithVideoCodec(VideoCodec.Png)
+                .WithFrameOutputCount(1)
+                .Resize(size)
+        );
+    }
+
     public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildGifSnapshotArguments(
-        string input,
-        IMediaAnalysis source,
-        Size? size = null,
-        TimeSpan? captureTime = null,
-        TimeSpan? duration = null,
-        int? streamIndex = null,
+      string input,
+      IMediaAnalysis source,
+      Size? size = null,
+      TimeSpan? captureTime = null,
+      TimeSpan? duration = null,
+    int? streamIndex = null,
         int fps = 12)
     {
         var defaultGifOutputSize = new Size(480, -1);
