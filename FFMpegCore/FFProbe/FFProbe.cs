@@ -158,10 +158,9 @@ namespace FFMpegCore
         private static IMediaAnalysis ParseOutput(IProcessResult instance)
         {
             var json = string.Join(string.Empty, instance.OutputData);
-            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+            options.AddContext<JsonContext>();
+            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, options);
 
             if (ffprobeAnalysis?.Format == null)
             {
@@ -174,11 +173,14 @@ namespace FFMpegCore
         private static FFProbeFrames ParseFramesOutput(IProcessResult instance)
         {
             var json = string.Join(string.Empty, instance.OutputData);
-            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeFrames>(json, new JsonSerializerOptions
+            JsonSerializerOptions options = new()
             {
                 PropertyNameCaseInsensitive = true,
-                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
-            });
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString |
+                                 System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
+            };
+            options.AddContext<JsonContext>();
+            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeFrames>(json, options);
 
             return ffprobeAnalysis!;
         }
@@ -186,11 +188,13 @@ namespace FFMpegCore
         private static FFProbePackets ParsePacketsOutput(IProcessResult instance)
         {
             var json = string.Join(string.Empty, instance.OutputData);
-            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbePackets>(json, new JsonSerializerOptions
+            JsonSerializerOptions options = new()
             {
                 PropertyNameCaseInsensitive = true,
-                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
-            });
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString |
+                                 System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
+            };
+            var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbePackets>(json, options);
 
             return ffprobeAnalysis!;
         }
