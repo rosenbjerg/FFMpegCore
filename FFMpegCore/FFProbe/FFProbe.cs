@@ -194,6 +194,7 @@ namespace FFMpegCore
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString |
                                  System.Text.Json.Serialization.JsonNumberHandling.WriteAsString
             };
+            options.AddContext<JsonContext>();
             var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbePackets>(json, options);
 
             return ffprobeAnalysis!;
