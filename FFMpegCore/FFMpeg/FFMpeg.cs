@@ -57,6 +57,36 @@ namespace FFMpegCore
                 .ProcessAsynchronously();
         }
 
+        public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
+        {
+            if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Gif);
+            }
+
+            var source = FFProbe.Analyse(input);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+
+            return arguments
+                .OutputToFile(output, true, outputOptions)
+                .ProcessSynchronously();
+        }
+
+        public static async Task<bool> GifSnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
+        {
+            if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
+            {
+                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Gif);
+            }
+
+            var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+
+            return await arguments
+                .OutputToFile(output, true, outputOptions)
+                .ProcessAsynchronously();
+        }
+
         /// <summary>
         /// Converts an image sequence to a video.
         /// </summary>
@@ -303,7 +333,10 @@ namespace FFMpegCore
             }
 
             return FFMpegArguments
-                .FromUrlInput(uri)
+                .FromUrlInput(uri, options =>
+                {
+                    options.WithCopyCodec();
+                })
                 .OutputToFile(output)
                 .ProcessSynchronously();
         }

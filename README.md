@@ -63,6 +63,17 @@ var bitmap = FFMpeg.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes
 FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 ```
 
+### You can also capture GIF snapshots from a video file:
+```csharp
+FFMpeg.GifSnapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10));
+
+// or async
+await FFMpeg.GifSnapshotAsync(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10));
+
+// you can also supply -1 to either one of Width/Height Size properties if you'd like FFMPEG to resize while maintaining the aspect ratio
+await FFMpeg.GifSnapshotAsync(inputPath, outputPath, new Size(480, -1), TimeSpan.FromSeconds(10));
+```
+
 ### Join video parts into one single file:
 ```csharp
 FFMpeg.Join(@"..\joined_video.mp4",
@@ -76,7 +87,7 @@ FFMpeg.Join(@"..\joined_video.mp4",
 ``` csharp
 FFMpeg.SubVideo(inputPath, 
     outputPath,
-    TimeSpan.FromSeconds(0)
+    TimeSpan.FromSeconds(0),
     TimeSpan.FromSeconds(30)
 );
 ```
