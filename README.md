@@ -87,7 +87,7 @@ FFMpeg.Join(@"..\joined_video.mp4",
 ``` csharp
 FFMpeg.SubVideo(inputPath, 
     outputPath,
-    TimeSpan.FromSeconds(0)
+    TimeSpan.FromSeconds(0),
     TimeSpan.FromSeconds(30)
 );
 ```
@@ -162,7 +162,19 @@ If you want to use `System.Drawing.Bitmap`s as `IVideoFrame`s, a `BitmapVideoFra
 
 # Binaries
 
-## Installation
+## Runtime Auto Installation
+You can install a version of ffmpeg suite at runtime using `FFMpegDownloader.DownloadFFMpegSuite();`
+
+Or you can download only the desired binary using `FFMpegDownloader.DownloadFFMpeg()`, `FFMpegDownloader.DownloadFFProbe()`, `FFMpegDownloader.DownloadFFPlay()`.
+
+| OS      |                      Support                      |
+|---------|:-------------------------------------------------:|
+| Windows |   x64 Fully Supported, x86 Up to version V4.2.1   |
+| Mac OSX |                      NOT YET                      |
+| Linux   |                      NOT YET                      |
+
+
+## Manual Installation
 If you prefer to manually download them, visit [ffbinaries](https://ffbinaries.com/downloads) or [zeranoe Windows builds](https://ffmpeg.zeranoe.com/builds/).
 
 ### Windows (using choco)
