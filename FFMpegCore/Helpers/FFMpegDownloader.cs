@@ -85,7 +85,7 @@ public class FFMpegDownloader
 
         return successList;
     }
-    
+
     /// <summary>
     ///     Download file from uri
     /// </summary>
@@ -134,29 +134,21 @@ public class FFMpegDownloader
 
     private class BinaryInfo
     {
-        [JsonPropertyName("windows-64")] 
-        public DownloadInfo? Windows64 { get; set; }
+        [JsonPropertyName("windows-64")] public DownloadInfo? Windows64 { get; set; }
 
-        [JsonPropertyName("windows-32")] 
-        public DownloadInfo? Windows32 { get; set; }
+        [JsonPropertyName("windows-32")] public DownloadInfo? Windows32 { get; set; }
 
-        [JsonPropertyName("linux-32")] 
-        public DownloadInfo? Linux32 { get; set; }
+        [JsonPropertyName("linux-32")] public DownloadInfo? Linux32 { get; set; }
 
-        [JsonPropertyName("linux-64")] 
-        public DownloadInfo? Linux64 { get; set; }
+        [JsonPropertyName("linux-64")] public DownloadInfo? Linux64 { get; set; }
 
-        [JsonPropertyName("linux-armhf")] 
-        public DownloadInfo? LinuxArmhf { get; set; }
+        [JsonPropertyName("linux-armhf")] public DownloadInfo? LinuxArmhf { get; set; }
 
-        [JsonPropertyName("linux-armel")] 
-        public DownloadInfo? LinuxArmel { get; set; }
+        [JsonPropertyName("linux-armel")] public DownloadInfo? LinuxArmel { get; set; }
 
-        [JsonPropertyName("linux-arm64")] 
-        public DownloadInfo? LinuxArm64 { get; set; }
+        [JsonPropertyName("linux-arm64")] public DownloadInfo? LinuxArm64 { get; set; }
 
-        [JsonPropertyName("osx-64")] 
-        public DownloadInfo? Osx64 { get; set; }
+        [JsonPropertyName("osx-64")] public DownloadInfo? Osx64 { get; set; }
 
         /// <summary>
         ///     Automatically get the compatible download info for current os and architecture
