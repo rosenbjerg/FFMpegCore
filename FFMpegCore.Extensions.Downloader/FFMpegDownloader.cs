@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FFMpegCore.Downloader;
+namespace FFMpegCore.Extensions.Downloader;
 
 /// <summary>
 ///     Downloads the latest FFMpeg suite binaries from ffbinaries.com.

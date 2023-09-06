@@ -1,4 +1,4 @@
-﻿using FFMpegCore.Downloader;
+﻿using FFMpegCore.Extensions.Downloader;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test;

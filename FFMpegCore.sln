@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Extensions.Syste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Extensions.SkiaSharp", "FFMpegCore.Extensions.SkiaSharp\FFMpegCore.Extensions.SkiaSharp.csproj", "{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.Downloader", "FFMpegCore.Downloader\FFMpegCore.Downloader.csproj", "{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.Extensions.Downloader", "FFMpegCore.Extensions.Downloader\FFMpegCore.Extensions.Downloader.csproj", "{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
