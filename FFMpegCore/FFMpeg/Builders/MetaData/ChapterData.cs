@@ -6,6 +6,8 @@
         public TimeSpan Start { get; private set; }
         public TimeSpan End { get; private set; }
 
+        public TimeSpan Duration => End - Start;
+
         public ChapterData(string title, TimeSpan start, TimeSpan end)
         {
             Title = title;

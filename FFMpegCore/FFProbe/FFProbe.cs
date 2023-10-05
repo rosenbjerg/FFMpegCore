@@ -213,7 +213,7 @@ namespace FFMpegCore
         }
 
         private static ProcessArguments PrepareStreamAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
-            => PrepareInstance($"-loglevel error -print_format json -show_format -sexagesimal -show_streams \"{filePath}\"", ffOptions, customArguments);
+            => PrepareInstance($"-loglevel error -print_format json -show_format -sexagesimal -show_streams -show_chapters \"{filePath}\"", ffOptions, customArguments);
         private static ProcessArguments PrepareFrameAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
             => PrepareInstance($"-loglevel error -print_format json -show_frames -v quiet -sexagesimal \"{filePath}\"", ffOptions, customArguments);
         private static ProcessArguments PreparePacketAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
