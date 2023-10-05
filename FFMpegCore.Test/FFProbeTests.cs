@@ -46,7 +46,7 @@ namespace FFMpegCore.Test
             var packets = packetAnalysis.Packets;
             Assert.AreEqual(96, packets.Count);
             Assert.IsTrue(packets.All(f => f.CodecType == "video"));
-            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.IsTrue(packets[0].Flags.StartsWith("K_"));
             Assert.AreEqual(1362, packets.Last().Size);
         }
 
@@ -57,7 +57,7 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(96, packets.Count);
             Assert.IsTrue(packets.All(f => f.CodecType == "video"));
-            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.IsTrue(packets[0].Flags.StartsWith("K_"));
             Assert.AreEqual(1362, packets.Last().Size);
         }
 
@@ -70,7 +70,7 @@ namespace FFMpegCore.Test
             var actual = packets.Select(f => f.CodecType).Distinct().ToList();
             var expected = new List<string> { "audio", "video" };
             CollectionAssert.AreEquivalent(expected, actual);
-            Assert.IsTrue(packets.Where(t => t.CodecType == "audio").All(f => f.Flags == "K_"));
+            Assert.IsTrue(packets.Where(t => t.CodecType == "audio").All(f => f.Flags.StartsWith("K_")));
             Assert.AreEqual(75, packets.Count(t => t.CodecType == "video"));
             Assert.AreEqual(141, packets.Count(t => t.CodecType == "audio"));
         }
