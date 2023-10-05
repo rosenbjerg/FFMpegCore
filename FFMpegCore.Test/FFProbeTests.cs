@@ -105,6 +105,7 @@ namespace FFMpegCore.Test
         {
             var info = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
+            Assert.AreEqual(0, info.Chapters.Count);
 
             Assert.AreEqual("5.1", info.PrimaryAudioStream!.ChannelLayout);
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
@@ -234,6 +235,13 @@ namespace FFMpegCore.Test
             var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit);
             Assert.IsNotNull(info.PrimaryAudioStream);
             Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod]
+        public void Probe_Success_Custom_Arguments()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
+            Assert.AreEqual(3, info.Duration.Seconds);
         }
     }
 }
