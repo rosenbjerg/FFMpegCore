@@ -71,6 +71,21 @@ namespace FFMpegCore
             return new FFMpegArgumentProcessor(this);
         }
 
+        public FFMpegArgumentProcessor OutputToTee(Action<FFMpegMultiOutputOptions> addOutputs, Action<FFMpegArgumentOptions>? addArguments = null)
+        {
+            var outputs = new FFMpegMultiOutputOptions();
+            addOutputs(outputs);
+            return ToProcessor(new OutputTeeArgument(outputs), addArguments);
+        }
+
+        public FFMpegArgumentProcessor MultiOutput(Action<FFMpegMultiOutputOptions> addOutputs)
+        {
+            var args = new FFMpegMultiOutputOptions();
+            addOutputs(args);
+            Arguments.AddRange(args.Arguments);
+            return new FFMpegArgumentProcessor(this);
+        }
+
         internal void Pre()
         {
             foreach (var argument in Arguments.OfType<IInputOutputArgument>())
