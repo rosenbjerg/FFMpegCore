@@ -90,7 +90,7 @@ namespace FFMpegCore
         public Dictionary<string, int> Disposition { get; set; } = null!;
 
         [JsonPropertyName("tags")]
-        public Dictionary<string, string> Tags { get; set; } = null!;
+        public Dictionary<string, string>? Tags { get; set; }
 
         [JsonPropertyName("side_data_list")]
         public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
@@ -129,7 +129,7 @@ namespace FFMpegCore
         public int ProbeScore { get; set; }
 
         [JsonPropertyName("tags")]
-        public Dictionary<string, string> Tags { get; set; } = null!;
+        public Dictionary<string, string>? Tags { get; set; }
     }
 
     public class Chapter : ITagsContainer
@@ -163,7 +163,7 @@ namespace FFMpegCore
 
     public interface ITagsContainer
     {
-        Dictionary<string, string> Tags { get; set; }
+        Dictionary<string, string>? Tags { get; set; }
     }
 
     public static class TagExtensions
