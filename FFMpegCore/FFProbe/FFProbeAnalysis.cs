@@ -153,7 +153,7 @@ namespace FFMpegCore
         public string EndTime { get; set; } = null!;
 
         [JsonPropertyName("tags")]
-        public Dictionary<string, string> Tags { get; set; } = null!;
+        public Dictionary<string, string>? Tags { get; set; }
     }
 
     public interface IDispositionContainer
