@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using FFMpegCore.Builders.MetaData;
 
 namespace FFMpegCore
 {
@@ -7,6 +8,7 @@ namespace FFMpegCore
         internal MediaAnalysis(FFProbeAnalysis analysis)
         {
             Format = ParseFormat(analysis.Format);
+            Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
@@ -28,6 +30,15 @@ namespace FFMpegCore
             };
         }
 
+        private ChapterData ParseChapter(Chapter analysisChapter)
+        {
+            var title = analysisChapter.Tags.FirstOrDefault(t => t.Key == "title").Value;
+            var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);
+            var end = MediaAnalysisUtils.ParseDuration(analysisChapter.EndTime);
+
+            return new ChapterData(title, start, end);
+        }
+
         public TimeSpan Duration => new[]
         {
             Format.Duration,
@@ -36,6 +47,8 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
+
+        public List<ChapterData> Chapters { get; }
 
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();

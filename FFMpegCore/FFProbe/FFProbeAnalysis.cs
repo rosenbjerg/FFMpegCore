@@ -11,6 +11,9 @@ namespace FFMpegCore
         [JsonPropertyName("format")]
         public Format Format { get; set; } = null!;
 
+        [JsonPropertyName("chapters")]
+        public List<Chapter> Chapters { get; set; } = null!;
+
         [JsonIgnore]
         public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
     }
@@ -124,6 +127,30 @@ namespace FFMpegCore
 
         [JsonPropertyName("probe_score")]
         public int ProbeScore { get; set; }
+
+        [JsonPropertyName("tags")]
+        public Dictionary<string, string>? Tags { get; set; }
+    }
+
+    public class Chapter : ITagsContainer
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("time_base")]
+        public string TimeBase { get; set; } = null!;
+
+        [JsonPropertyName("start")]
+        public int Start { get; set; }
+
+        [JsonPropertyName("start_time")]
+        public string StartTime { get; set; } = null!;
+
+        [JsonPropertyName("end")]
+        public int End { get; set; }
+
+        [JsonPropertyName("end_time")]
+        public string EndTime { get; set; } = null!;
 
         [JsonPropertyName("tags")]
         public Dictionary<string, string>? Tags { get; set; }
