@@ -236,5 +236,12 @@ namespace FFMpegCore.Test
             Assert.IsNotNull(info.PrimaryAudioStream);
             Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
         }
+
+        [TestMethod]
+        public void Probe_Success_Custom_Arguments()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
+            Assert.AreEqual(3, info.Duration.Seconds);
+        }
     }
 }
