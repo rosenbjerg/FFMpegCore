@@ -571,5 +571,45 @@ namespace FFMpegCore.Test
                 -i "input.mp4" -filter_complex "[{streamIndex}:v] fps=10,split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
                 """, str);
         }
+
+        [TestMethod]
+        public void Builder_BuildString_MultiOutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .MultiOutput(args => args
+                    .OutputToFile("output.mp4", overwrite: true, args => args.CopyChannel())
+                    .OutputToFile("output.ts", overwrite: false, args => args.CopyChannel().ForceFormat("mpegts"))
+                    .OutputToUrl("http://server/path", options => options.ForceFormat("webm")))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -c:a copy -c:v copy "output.mp4" -y -c:a copy -c:v copy -f mpegts "output.ts" -f webm http://server/path
+                """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_MBROutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .MultiOutput(args => args
+                    .OutputToFile("sd.mp4", overwrite: true, args => args.Resize(1200, 720))
+                    .OutputToFile("hd.mp4", overwrite: false, args => args.Resize(1920, 1080)))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -s 1200x720 "sd.mp4" -y -s 1920x1080 "hd.mp4"
+                """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_TeeOutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToTee(args => args
+                    .OutputToFile("output.mp4", overwrite: false, args => args.WithFastStart())
+                    .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").SelectStream(0, channel: Channel.Video)))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'0:v:0\']http://server/path"
+                """, str);
+        }
     }
 }
