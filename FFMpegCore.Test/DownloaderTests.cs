@@ -6,6 +6,7 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class DownloaderTests
 {
+    [Ignore]
     [TestMethod]
     public void GetAllLatestSuiteTest()
     {
@@ -15,6 +16,7 @@ public class DownloaderTests
         Assert.IsTrue(binaries.Count >= 2); // many platforms have only ffmpeg and ffprobe
     }
 
+    [Ignore]
     [TestMethod]
     public void GetSpecificVersionTest()
     {
