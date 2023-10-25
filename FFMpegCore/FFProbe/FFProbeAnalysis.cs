@@ -135,19 +135,19 @@ namespace FFMpegCore
     public class Chapter : ITagsContainer
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [JsonPropertyName("time_base")]
         public string TimeBase { get; set; } = null!;
 
         [JsonPropertyName("start")]
-        public int Start { get; set; }
+        public long Start { get; set; }
 
         [JsonPropertyName("start_time")]
         public string StartTime { get; set; } = null!;
 
         [JsonPropertyName("end")]
-        public int End { get; set; }
+        public long End { get; set; }
 
         [JsonPropertyName("end_time")]
         public string EndTime { get; set; } = null!;
