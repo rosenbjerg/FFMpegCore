@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 using FFMpegCore.Arguments;
+using FFMpegCore.Exceptions;
+using FFMpegCore.Helpers;
 using FluentAssertions;
+using Instances.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
@@ -98,6 +101,13 @@ namespace FFMpegCore.Test
         {
             var arg = new AudibleEncryptionKeyArgument("62689101");
             arg.Text.Should().Be($"-activation_bytes 62689101");
+        }
+
+        [TestMethod]
+        public void Throws_FFMpegException_when_ffmpeg_not_found()
+        {
+            var exception = Assert.ThrowsException<FFMpegException>(() => FFMpegHelper.VerifyFFMpegExists(new FFOptions { BinaryFolder = "./folder/that/does/not/exist" }));
+            Assert.IsInstanceOfType<InstanceFileNotFoundException>(exception.InnerException);
         }
     }
 }
