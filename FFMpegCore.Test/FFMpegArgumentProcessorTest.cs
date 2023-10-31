@@ -99,5 +99,13 @@ namespace FFMpegCore.Test
             var arg = new AudibleEncryptionKeyArgument("62689101");
             arg.Text.Should().Be($"-activation_bytes 62689101");
         }
+
+        [TestMethod]
+        public void Should_Throw_If_Token_Is_Cancelled()
+        {
+            var token = new CancellationToken(true);
+            var action = () => CreateArgumentProcessor().CancellableThrough(token);
+            action.Should().Throw<OperationCanceledException>();
+        }
     }
 }

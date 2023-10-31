@@ -73,6 +73,7 @@ namespace FFMpegCore
         }
         public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
         {
+            token.ThrowIfCancellationRequested();
             token.Register(() => CancelEvent?.Invoke(this, timeout));
             return this;
         }
