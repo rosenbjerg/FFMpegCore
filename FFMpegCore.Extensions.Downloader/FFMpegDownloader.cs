@@ -22,6 +22,8 @@ public class FFMpegDownloader
     public enum FFMpegVersions : ushort
     {
         Latest,
+        V6_1,
+        V5_1,
         V4_4_1,
         V4_2_1,
         V4_2,
@@ -213,6 +215,8 @@ public class FFMpegDownloader
     private static readonly Dictionary<FFMpegVersions, string> _FFBinariesAPIs = new()
     {
         { FFMpegVersions.Latest, "https://ffbinaries.com/api/v1/version/latest" },
+        { FFMpegVersions.V6_1, "https://ffbinaries.com/api/v1/version/6.1" },
+        { FFMpegVersions.V5_1, "https://ffbinaries.com/api/v1/version/5.1" },
         { FFMpegVersions.V4_4_1, "https://ffbinaries.com/api/v1/version/4.4.1" },
         { FFMpegVersions.V4_2_1, "https://ffbinaries.com/api/v1/version/4.2.1" },
         { FFMpegVersions.V4_2, "https://ffbinaries.com/api/v1/version/4.2" },
