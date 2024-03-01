@@ -6,15 +6,15 @@
     public class MultiInputArgument : IInputArgument
     {
         public readonly bool VerifyExists;
-        public readonly string[] FilePaths;
+        public readonly IEnumerable<string> FilePaths;
 
-        public MultiInputArgument(bool verifyExists, params string[] filePaths)
+        public MultiInputArgument(bool verifyExists, IEnumerable<string> filePaths)
         {
             VerifyExists = verifyExists;
             FilePaths = filePaths;
         }
 
-        public MultiInputArgument(string[] filePaths, bool verifyExists) : this(verifyExists, filePaths) { }
+        public MultiInputArgument(IEnumerable<string> filePaths, bool verifyExists) : this(verifyExists, filePaths) { }
 
         public void Pre()
         {
