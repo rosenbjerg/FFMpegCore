@@ -628,7 +628,6 @@ namespace FFMpegCore.Test
                     .WithoutMetadata() // Remove metadata
                     .WithCustomArgument("-ac 2 -write_xing 0 -id3v2_version 0")) // Force 2 Channels
                 .Arguments;
-                
             Assert.AreEqual($"-i \"1.mp3\" -i \"2.mp3\" -i \"3.mp3\" -i \"4.mp3\" -filter_complex \"[0:0][1:0][2:0][3:0]amix=inputs=4:duration=longest:dropout_transition=1:normalize=0[final]\" -map \"[final]\" -c:a libmp3lame -b:a 128k -ar 48000 -map_metadata -1 -ac 2 -write_xing 0 -id3v2_version 0 \"output.mp3\" -y", str);
         }
     }
