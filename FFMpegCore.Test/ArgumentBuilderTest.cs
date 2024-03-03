@@ -9,6 +9,7 @@ namespace FFMpegCore.Test
     public class ArgumentBuilderTest
     {
         private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
+        private readonly string[] _multiFiles = { "1.mp3", "2.mp3", "3.mp3", "4.mp3" };
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
@@ -610,6 +611,25 @@ namespace FFMpegCore.Test
             Assert.AreEqual($"""
                 -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'0:v:0\']http://server/path"
                 """, str);
+        }
+        [TestMethod]
+        public void Builder_BuildString_MultiInput()
+        {
+            var audioStreams = string.Join("", _multiFiles.Select((item, index) => $"[{index}:0]"));
+            var mixFilter = $"{audioStreams}amix=inputs={_multiFiles.Length}:duration=longest:dropout_transition=1:normalize=0[final]";
+            var ffmpegArgs = $"-filter_complex \"{mixFilter}\" -map \"[final]\"";
+            var str = FFMpegArguments
+                .FromFileInput(_multiFiles)
+                .OutputToFile("output.mp3", overwrite: true, options => options
+                    .WithCustomArgument(ffmpegArgs)
+                    .WithAudioCodec(AudioCodec.LibMp3Lame) // Set the audio codec to MP3
+                    .WithAudioBitrate(128) // Set the bitrate to 128kbps
+                    .WithAudioSamplingRate(48000) // Set the sample rate to 48kHz
+                    .WithoutMetadata() // Remove metadata
+                    .WithCustomArgument("-ac 2 -write_xing 0 -id3v2_version 0")) // Force 2 Channels
+                .Arguments;
+                
+            Assert.AreEqual($"-i \"1.mp3\" -i \"2.mp3\" -i \"3.mp3\" -i \"4.mp3\" -filter_complex \"[0:0][1:0][2:0][3:0]amix=inputs=4:duration=longest:dropout_transition=1:normalize=0[final]\" -map \"[final]\" -c:a libmp3lame -b:a 128k -ar 48000 -map_metadata -1 -ac 2 -write_xing 0 -id3v2_version 0 \"output.mp3\" -y", str);
         }
     }
 }
