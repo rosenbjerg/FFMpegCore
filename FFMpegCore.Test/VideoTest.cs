@@ -490,7 +490,7 @@ namespace FFMpegCore.Test
 
             var analysis = FFProbe.Analyse(outputPath);
             Assert.AreEqual(size.Width, analysis.PrimaryVideoStream!.Width);
-            Assert.AreEqual(1280/2, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual(1280 / 2, analysis.PrimaryVideoStream!.Height);
             Assert.AreEqual(0, analysis.PrimaryVideoStream!.Rotation);
             Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
         }
