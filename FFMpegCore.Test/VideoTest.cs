@@ -481,6 +481,21 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_Snapshot_Rotated_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.png");
+            var input = FFProbe.Analyse(TestResources.Mp4VideoRotationNegative);
+
+            FFMpeg.Snapshot(TestResources.Mp4VideoRotationNegative, outputPath);
+
+            var analysis = FFProbe.Analyse(outputPath);
+            // height and width should be swapped
+            Assert.AreEqual(input.PrimaryVideoStream!.Height, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Width, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
         public void Video_GifSnapshot_PersistSnapshot()
         {
             using var outputPath = new TemporaryFile("out.gif");

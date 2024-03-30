@@ -145,6 +145,13 @@ namespace FFMpegCore.Test
             Assert.AreEqual(90, info.PrimaryVideoStream.Rotation);
         }
 
+        [TestMethod]
+        public void Probe_Rotation_Negative_Value()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4VideoRotationNegative);
+            Assert.AreEqual(-90, info.PrimaryVideoStream.Rotation);
+        }
+
         [TestMethod, Timeout(10000)]
         public async Task Probe_Async_Success()
         {
