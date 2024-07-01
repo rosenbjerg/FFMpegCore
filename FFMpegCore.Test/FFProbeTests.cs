@@ -80,6 +80,8 @@ namespace FFMpegCore.Test
         [DataRow("05:12:59.177", 0, 5, 12, 59, 177)]
         [DataRow("149:07:50.911750", 6, 5, 7, 50, 911)]
         [DataRow("00:00:00.83", 0, 0, 0, 0, 830)]
+        [DataRow("24:00:00.83", 1, 0, 0, 0, 830)]
+        [DataRow("240:00:00.83", 10, 0, 0, 0, 830)]
         public void MediaAnalysis_ParseDuration(string duration, int expectedDays, int expectedHours, int expectedMinutes, int expectedSeconds, int expectedMilliseconds)
         {
             var ffprobeStream = new FFProbeStream { Duration = duration };
