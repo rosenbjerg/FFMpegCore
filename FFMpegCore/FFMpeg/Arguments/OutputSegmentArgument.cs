@@ -10,12 +10,10 @@ namespace FFMpegCore.Arguments
         public readonly string SegmentPattern;
         public readonly bool Overwrite;
         public readonly SegmentArgumentOptions Options;
-
         public OutputSegmentArgument(SegmentArgument segmentArgument)
         {
             SegmentPattern = segmentArgument.SegmentPattern;
             Overwrite = segmentArgument.Overwrite;
-
             var segmentArgumentobj = new SegmentArgumentOptions();
             segmentArgument.Options?.Invoke(segmentArgumentobj);
             Options = segmentArgumentobj;
@@ -24,12 +22,11 @@ namespace FFMpegCore.Arguments
         public void Pre()
         {
             if (int.TryParse(Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value, out var result) && result < 1)
-            { 
-                throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentTime cannot be negative or equal to zero"); 
+            {
+                throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentTime cannot be negative or equal to zero");
             }
 
             if (Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value == "0")
-
             {
                 throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentWrap cannot equal to zero");
             }
@@ -40,7 +37,6 @@ namespace FFMpegCore.Arguments
         }
 
         public string Text => GetText();
-
         private string GetText()
         {
             var arguments = Options.Arguments
@@ -82,7 +78,7 @@ namespace FFMpegCore.Arguments
         public readonly bool Overwrite;
         public readonly Action<SegmentArgumentOptions> Options;
 
-        public SegmentArgument(string segmentPattern, bool overwrite,  Action<SegmentArgumentOptions> options)
+        public SegmentArgument(string segmentPattern, bool overwrite, Action<SegmentArgumentOptions> options)
         {
             SegmentPattern = segmentPattern;
             Overwrite = overwrite;

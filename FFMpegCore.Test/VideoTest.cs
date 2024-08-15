@@ -17,13 +17,11 @@ namespace FFMpegCore.Test
     {
         private const int BaseTimeoutMilliseconds = 15_000;
         private string _segmentPathSource = "";
-        
         [TestInitialize]
         public void Setup()
         {
             _segmentPathSource = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-");
         }
-
         [TestCleanup]
         public void Cleanup()
         {
@@ -32,7 +30,6 @@ namespace FFMpegCore.Test
                 File.Delete(file);
             }
         }
-
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
         public void Video_ToOGV()
         {
