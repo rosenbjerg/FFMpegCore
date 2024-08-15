@@ -16,7 +16,7 @@ namespace FFMpegCore
         public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => AddOutput(new OutputUrlArgument(uri.ToString()), addArguments);
 
         public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegArgumentOptions>? addArguments = null) => AddOutput(new OutputPipeArgument(reader), addArguments);
-
+        public FFMpegMultiOutputOptions OutPutToSegmentedFiles(SegmentArgument segmentArgument, Action<FFMpegArgumentOptions>? addArguments = null) => AddOutput(new OutputSegmentArgument(segmentArgument), addArguments);
         public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
         {
             var args = new FFMpegArgumentOptions();

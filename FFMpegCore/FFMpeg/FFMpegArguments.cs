@@ -61,7 +61,7 @@ namespace FFMpegCore
         public FFMpegArgumentProcessor OutputToUrl(string uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri), addArguments);
         public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputUrlArgument(uri.ToString()), addArguments);
         public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputPipeArgument(reader), addArguments);
-
+        public FFMpegArgumentProcessor OutPutToSegmentedFiles(SegmentArgument segmentArgument, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputSegmentArgument(segmentArgument), addArguments);
         private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
         {
             var args = new FFMpegArgumentOptions();
