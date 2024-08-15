@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
 using FFMpegCore.Enums;
 
 namespace FFMpegCore
@@ -20,6 +21,7 @@ namespace FFMpegCore
         /// </summary>
         public string TemporaryFilesFolder { get; set; } = Path.GetTempPath();
 
+        [JsonIgnore]
         /// <summary>
         /// Encoding used for parsing stdout/stderr on ffmpeg and ffprobe processes
         /// </summary>
