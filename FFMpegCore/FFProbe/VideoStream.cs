@@ -13,6 +13,7 @@ namespace FFMpegCore
         public int Height { get; set; }
         public double FrameRate { get; set; }
         public string PixelFormat { get; set; } = null!;
+        public int Level { get; set; }
         public int Rotation { get; set; }
         public double AverageFrameRate { get; set; }
 

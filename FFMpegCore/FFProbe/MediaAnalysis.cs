@@ -87,6 +87,7 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
+                Level = stream.Level,
                 Rotation = MediaAnalysisUtils.ParseRotation(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
