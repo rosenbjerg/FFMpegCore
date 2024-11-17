@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Instances" Version="3.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
   
   
