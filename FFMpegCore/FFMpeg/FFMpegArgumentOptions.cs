@@ -16,7 +16,10 @@ namespace FFMpegCore
         public FFMpegArgumentOptions WithVariableBitrate(int vbr) => WithArgument(new VariableBitRateArgument(vbr));
         public FFMpegArgumentOptions Resize(int width, int height) => WithArgument(new SizeArgument(width, height));
         public FFMpegArgumentOptions Resize(Size? size) => WithArgument(new SizeArgument(size));
-
+        public FFMpegArgumentOptions Crop(Size? size, int left, int top) => WithArgument(new CropArgument(size, top, left));
+        public FFMpegArgumentOptions Crop(int width, int height, int left, int top) => WithArgument(new CropArgument(new Size(width, height), top, left));
+        public FFMpegArgumentOptions Crop(Size? size) => WithArgument(new CropArgument(size, 0, 0));
+        public FFMpegArgumentOptions Crop(int width, int height) => WithArgument(new CropArgument(new Size(width, height), 0, 0));
         public FFMpegArgumentOptions WithBitStreamFilter(Channel channel, Filter filter) => WithArgument(new BitStreamFilterArgument(channel, filter));
         public FFMpegArgumentOptions WithConstantRateFactor(int crf) => WithArgument(new ConstantRateFactorArgument(crf));
         public FFMpegArgumentOptions CopyChannel(Channel channel = Channel.Both) => WithArgument(new CopyArgument(channel));

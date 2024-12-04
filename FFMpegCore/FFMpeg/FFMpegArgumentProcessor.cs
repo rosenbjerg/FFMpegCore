@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
@@ -263,7 +262,7 @@ namespace FFMpegCore
                 return;
             }
 
-            var processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            var processed = MediaAnalysisUtils.ParseDuration(match.Groups[1].Value);
             _onTimeProgress?.Invoke(processed);
 
             if (_onPercentageProgress == null || _totalTimespan == null)

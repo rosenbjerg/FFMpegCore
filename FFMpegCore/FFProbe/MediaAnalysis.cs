@@ -30,9 +30,12 @@ namespace FFMpegCore
             };
         }
 
+        private string GetValue(string tagName, Dictionary<string, string>? tags, string defaultValue) =>
+            tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;
+
         private ChapterData ParseChapter(Chapter analysisChapter)
         {
-            var title = analysisChapter.Tags.FirstOrDefault(t => t.Key == "title").Value;
+            var title = GetValue("title", analysisChapter.Tags, "TitleValueNotSet");
             var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);
             var end = MediaAnalysisUtils.ParseDuration(analysisChapter.EndTime);
 
@@ -87,6 +90,11 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
+                Level = stream.Level,
+                ColorRange = stream.ColorRange,
+                ColorSpace = stream.ColorSpace,
+                ColorTransfer = stream.ColorTransfer,
+                ColorPrimaries = stream.ColorPrimaries,
                 Rotation = MediaAnalysisUtils.ParseRotation(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),

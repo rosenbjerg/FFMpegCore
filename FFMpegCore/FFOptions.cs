@@ -23,9 +23,19 @@ namespace FFMpegCore
 
         [JsonIgnore]
         /// <summary>
+        /// Encoding web name used to persist encoding <see cref="Encoding"/>
+        /// </summary>
+        public string EncodingWebName { get; set; } = Encoding.Default.WebName;
+
+        /// <summary>
         /// Encoding used for parsing stdout/stderr on ffmpeg and ffprobe processes
         /// </summary>
-        public Encoding Encoding { get; set; } = Encoding.Default;
+        [JsonIgnore]
+        public Encoding Encoding
+        {
+            get => Encoding.GetEncoding(EncodingWebName);
+            set => EncodingWebName = value?.WebName ?? Encoding.Default.WebName;
+        }
 
         /// <summary>
         /// The log level to use when calling of the ffmpeg executable.
