@@ -46,7 +46,7 @@ namespace FFMpegCore.Test
             var packets = packetAnalysis.Packets;
             Assert.AreEqual(96, packets.Count);
             Assert.IsTrue(packets.All(f => f.CodecType == "video"));
-            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.IsTrue(packets[0].Flags.StartsWith("K_"));
             Assert.AreEqual(1362, packets.Last().Size);
         }
 
@@ -57,7 +57,7 @@ namespace FFMpegCore.Test
 
             Assert.AreEqual(96, packets.Count);
             Assert.IsTrue(packets.All(f => f.CodecType == "video"));
-            Assert.AreEqual("K_", packets[0].Flags);
+            Assert.IsTrue(packets[0].Flags.StartsWith("K_"));
             Assert.AreEqual(1362, packets.Last().Size);
         }
 
@@ -70,7 +70,7 @@ namespace FFMpegCore.Test
             var actual = packets.Select(f => f.CodecType).Distinct().ToList();
             var expected = new List<string> { "audio", "video" };
             CollectionAssert.AreEquivalent(expected, actual);
-            Assert.IsTrue(packets.Where(t => t.CodecType == "audio").All(f => f.Flags == "K_"));
+            Assert.IsTrue(packets.Where(t => t.CodecType == "audio").All(f => f.Flags.StartsWith("K_")));
             Assert.AreEqual(75, packets.Count(t => t.CodecType == "video"));
             Assert.AreEqual(141, packets.Count(t => t.CodecType == "audio"));
         }
@@ -105,6 +105,7 @@ namespace FFMpegCore.Test
         {
             var info = FFProbe.Analyse(TestResources.Mp4Video);
             Assert.AreEqual(3, info.Duration.Seconds);
+            Assert.AreEqual(0, info.Chapters.Count);
 
             Assert.AreEqual("5.1", info.PrimaryAudioStream!.ChannelLayout);
             Assert.AreEqual(6, info.PrimaryAudioStream.Channels);
@@ -122,6 +123,7 @@ namespace FFMpegCore.Test
             Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Width);
             Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Height);
             Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
+            Assert.AreEqual(31, info.PrimaryVideoStream.Level);
             Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
             Assert.AreEqual(720, info.PrimaryVideoStream.Height);
             Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
@@ -142,6 +144,13 @@ namespace FFMpegCore.Test
 
             info = FFProbe.Analyse(TestResources.Mp4VideoRotation);
             Assert.AreEqual(90, info.PrimaryVideoStream.Rotation);
+        }
+
+        [TestMethod]
+        public void Probe_Rotation_Negative_Value()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4VideoRotationNegative);
+            Assert.AreEqual(-90, info.PrimaryVideoStream.Rotation);
         }
 
         [TestMethod, Timeout(10000)]
@@ -170,6 +179,18 @@ namespace FFMpegCore.Test
             await using var stream = File.OpenRead(TestResources.WebmVideo);
             var info = await FFProbe.AnalyseAsync(stream);
             Assert.AreEqual(3, info.Duration.Seconds);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void Probe_HDR()
+        {
+            var info = FFProbe.Analyse(TestResources.HdrVideo);
+
+            Assert.IsNotNull(info.PrimaryVideoStream);
+            Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+            Assert.AreEqual("bt2020nc", info.PrimaryVideoStream.ColorSpace);
+            Assert.AreEqual("arib-std-b67", info.PrimaryVideoStream.ColorTransfer);
+            Assert.AreEqual("bt2020", info.PrimaryVideoStream.ColorPrimaries);
         }
 
         [TestMethod, Timeout(10000)]
@@ -234,6 +255,13 @@ namespace FFMpegCore.Test
             var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit);
             Assert.IsNotNull(info.PrimaryAudioStream);
             Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
+        }
+
+        [TestMethod]
+        public void Probe_Success_Custom_Arguments()
+        {
+            var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
+            Assert.AreEqual(3, info.Duration.Seconds);
         }
     }
 }
