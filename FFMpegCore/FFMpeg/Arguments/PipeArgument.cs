@@ -14,7 +14,7 @@ namespace FFMpegCore.Arguments
 
         protected PipeArgument(PipeDirection direction)
         {
-            PipeName = PipeHelpers.GetUnqiuePipeName();
+            PipeName = PipeHelpers.GetUniquePipeName();
             _direction = direction;
         }
 
