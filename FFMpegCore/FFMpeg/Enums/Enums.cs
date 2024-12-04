@@ -28,6 +28,8 @@
         public static Codec Ac3 => FFMpeg.GetCodec("ac3");
         public static Codec Eac3 => FFMpeg.GetCodec("eac3");
         public static Codec LibMp3Lame => FFMpeg.GetCodec("libmp3lame");
+        public static Codec Copy => new Codec("copy", CodecType.Audio);
+
     }
 
     public static class VideoType
