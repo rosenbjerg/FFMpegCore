@@ -47,7 +47,8 @@ jobs:
 
     - if: matrix.os == 'windows-latest'
       name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
-        directory: FFMpegCore.Test/TestResults
         fail_ci_if_error: true
+        directory: FFMpegCore.Test/TestResults
+        token: ${{ secrets.CODECOV_TOKEN }}
