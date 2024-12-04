@@ -58,3 +58,4 @@ jobs:
         fail_ci_if_error: true
         directory: FFMpegCore.Test/TestResults
         token: ${{ secrets.CODECOV_TOKEN }}
+        os: windows
