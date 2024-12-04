@@ -17,6 +17,7 @@
         public static Codec LibTheora => FFMpeg.GetCodec("libtheora");
         public static Codec Png => FFMpeg.GetCodec("png");
         public static Codec MpegTs => FFMpeg.GetCodec("mpegts");
+        public static Codec LibaomAv1 => FFMpeg.GetCodec("libaom-av1");
     }
 
     public static class AudioCodec
@@ -27,6 +28,8 @@
         public static Codec Ac3 => FFMpeg.GetCodec("ac3");
         public static Codec Eac3 => FFMpeg.GetCodec("eac3");
         public static Codec LibMp3Lame => FFMpeg.GetCodec("libmp3lame");
+        public static Codec Copy => new Codec("copy", CodecType.Audio);
+
     }
 
     public static class VideoType
