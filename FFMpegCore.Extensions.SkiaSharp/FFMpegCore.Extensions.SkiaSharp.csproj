@@ -3,7 +3,7 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <Description>Image extension for FFMpegCore using SkiaSharp</Description>
-        <PackageVersion>5.0.0</PackageVersion>
+        <PackageVersion>5.0.1</PackageVersion>
         <PackageOutputPath>../nupkg</PackageOutputPath>
         <PackageReleaseNotes>
         </PackageReleaseNotes>
@@ -13,8 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SkiaSharp" Version="2.88.6" />
-      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
+      <PackageReference Include="SkiaSharp" Version="3.116.0" />
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.0" />
     </ItemGroup>
 
     <ItemGroup>
