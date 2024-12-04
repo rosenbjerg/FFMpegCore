@@ -97,6 +97,18 @@ namespace FFMpegCore
 
         [JsonPropertyName("side_data_list")]
         public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
+
+        [JsonPropertyName("color_range")]
+        public string ColorRange { get; set; } = null!;
+
+        [JsonPropertyName("color_space")]
+        public string ColorSpace { get; set; } = null!;
+
+        [JsonPropertyName("color_transfer")]
+        public string ColorTransfer { get; set; } = null!;
+
+        [JsonPropertyName("color_primaries")]
+        public string ColorPrimaries { get; set; } = null!;
     }
 
     public class Format : ITagsContainer

@@ -175,6 +175,18 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(10000)]
+        public void Probe_HDR()
+        {
+            var info = FFProbe.Analyse(TestResources.HdrVideo);
+
+            Assert.IsNotNull(info.PrimaryVideoStream);
+            Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+            Assert.AreEqual("bt2020nc", info.PrimaryVideoStream.ColorSpace);
+            Assert.AreEqual("arib-std-b67", info.PrimaryVideoStream.ColorTransfer);
+            Assert.AreEqual("bt2020", info.PrimaryVideoStream.ColorPrimaries);
+        }
+
+        [TestMethod, Timeout(10000)]
         public async Task Probe_Success_Subtitle_Async()
         {
             var info = await FFProbe.AnalyseAsync(TestResources.SrtSubtitle);
