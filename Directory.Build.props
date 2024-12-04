@@ -13,5 +13,14 @@
         <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <NeutralLanguage>en</NeutralLanguage>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources> 
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup> 
 </Project>
