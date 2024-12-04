@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <PackageVersion>5.1.0</PackageVersion>
+    <PackageVersion>5.1.1</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <PackageReleaseNotes>
     </PackageReleaseNotes>
@@ -18,7 +18,9 @@
 
   <ItemGroup>
     <PackageReference Include="Instances" Version="3.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
+  
+  
 
 </Project>
