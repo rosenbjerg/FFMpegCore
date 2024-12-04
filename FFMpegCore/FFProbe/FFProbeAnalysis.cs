@@ -83,6 +83,9 @@ namespace FFMpegCore
         [JsonPropertyName("pix_fmt")]
         public string PixelFormat { get; set; } = null!;
 
+        [JsonPropertyName("level")]
+        public int Level { get; set; }
+
         [JsonPropertyName("sample_rate")]
         public string SampleRate { get; set; } = null!;
 

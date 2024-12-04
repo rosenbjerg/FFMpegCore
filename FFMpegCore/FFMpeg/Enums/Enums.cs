@@ -17,6 +17,7 @@
         public static Codec LibTheora => FFMpeg.GetCodec("libtheora");
         public static Codec Png => FFMpeg.GetCodec("png");
         public static Codec MpegTs => FFMpeg.GetCodec("mpegts");
+        public static Codec LibaomAv1 => FFMpeg.GetCodec("libaom-av1");
     }
 
     public static class AudioCodec
