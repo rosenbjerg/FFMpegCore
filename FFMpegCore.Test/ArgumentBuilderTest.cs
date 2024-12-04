@@ -665,7 +665,7 @@ namespace FFMpegCore.Test
                 Path.GetTempFileName(),
                 "file2.mp4",
                 "file3.mp4"
-            };  
+            };
             var argument = new MultiInputArgument(true, filePaths);
             try
             {
