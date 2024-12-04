@@ -5,7 +5,7 @@ namespace FFMpegCore.Helpers
 {
     public static class FFMpegHelper
     {
-        private static bool _ffmpegVerified;
+        private static string? _ffmpegPathVerified;
 
         public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
             => ConversionSizeExceptionCheck(info.PrimaryVideoStream!.Width, info.PrimaryVideoStream.Height);
@@ -37,22 +37,23 @@ namespace FFMpegCore.Helpers
 
         public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
         {
-            if (_ffmpegVerified)
+            var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions);
+            if (_ffmpegPathVerified != null && _ffmpegPathVerified == binaryPath)
             {
                 return;
             }
 
             try
             {
-                var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-                _ffmpegVerified = result.ExitCode == 0;
+                var result = Instance.Finish(binaryPath, "-version");
+                _ffmpegPathVerified = result.ExitCode == 0 ? binaryPath : null;
             }
             catch (Exception e)
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system", e);
             }
 
-            if (!_ffmpegVerified)
+            if (_ffmpegPathVerified == null)
             {
                 throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
             }
