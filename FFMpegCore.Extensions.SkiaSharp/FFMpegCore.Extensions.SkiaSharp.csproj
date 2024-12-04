@@ -13,8 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SkiaSharp" Version="2.88.6" />
-      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
+      <PackageReference Include="SkiaSharp" Version="3.116.0" />
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.0" />
     </ItemGroup>
 
     <ItemGroup>
