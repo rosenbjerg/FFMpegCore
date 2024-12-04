@@ -3,7 +3,7 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <Description>Image extension for FFMpegCore using SkiaSharp</Description>
-        <PackageVersion>5.0.0</PackageVersion>
+        <PackageVersion>5.0.1</PackageVersion>
         <PackageOutputPath>../nupkg</PackageOutputPath>
         <PackageReleaseNotes>
         </PackageReleaseNotes>
