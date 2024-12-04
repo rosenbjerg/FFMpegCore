@@ -64,7 +64,7 @@ public static class SnapshotArgumentBuilder
         }
 
         var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
-        if (source.PrimaryVideoStream.Rotation == 90 || source.PrimaryVideoStream.Rotation == 180)
+        if (IsRotated(source.PrimaryVideoStream.Rotation))
         {
             currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
         }
@@ -87,5 +87,11 @@ public static class SnapshotArgumentBuilder
         }
 
         return null;
+    }
+
+    private static bool IsRotated(int rotation)
+    {
+        var absRotation = Math.Abs(rotation);
+        return absRotation == 90 || absRotation == 180;
     }
 }
