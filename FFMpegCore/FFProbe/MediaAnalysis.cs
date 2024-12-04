@@ -87,6 +87,7 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
+                Level = stream.Level,
                 ColorRange = stream.ColorRange,
                 ColorSpace = stream.ColorSpace,
                 ColorTransfer = stream.ColorTransfer,
