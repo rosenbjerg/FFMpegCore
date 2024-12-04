@@ -31,7 +31,7 @@ namespace FFMpegCore
         }
 
         private string GetValue(string tagName, Dictionary<string, string>? tags, string defaultValue) =>
-            tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;    
+            tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;
 
         private ChapterData ParseChapter(Chapter analysisChapter)
         {

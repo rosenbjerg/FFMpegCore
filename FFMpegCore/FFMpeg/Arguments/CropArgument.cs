@@ -6,7 +6,7 @@ namespace FFMpegCore.Arguments
     {
         public readonly Size? Size;
         public readonly int Top;
-        public readonly int Left;   
+        public readonly int Left;
 
         public CropArgument(Size? size, int top, int left)
         {
