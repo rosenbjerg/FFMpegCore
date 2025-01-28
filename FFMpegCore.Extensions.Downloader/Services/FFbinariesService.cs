@@ -37,7 +37,7 @@ internal class FFbinariesService
         return versionInfo ??
                throw new FFMpegDownloaderException($"Failed to deserialize version info from {versionUri}", jsonString);
     }
-    
+
     /// <summary>
     ///     Download file from uri
     /// </summary>

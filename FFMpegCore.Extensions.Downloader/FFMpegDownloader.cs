@@ -20,13 +20,13 @@ public class FFMpegDownloader
     {
         // get all available versions
         var versionInfo = await FFbinariesService.GetVersionInfo(version);
-        
+
         // get the download info for the current platform
         var downloadInfo = versionInfo.BinaryInfo?.GetCompatibleDownloadInfo(platformOverride) ??
                            throw new FFMpegDownloaderException("Failed to get compatible download info");
-        
+
         var successList = new List<string>();
-        
+
         // download ffmpeg if selected
         if (binaries.HasFlag(FFMpegBinaries.FFMpeg) && downloadInfo.FFMpeg is not null)
         {
@@ -51,4 +51,3 @@ public class FFMpegDownloader
         return successList;
     }
 }
-
