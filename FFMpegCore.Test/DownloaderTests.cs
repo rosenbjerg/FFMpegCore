@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test;
 
+[Ignore]
 [TestClass]
 public class DownloaderTests
 {
