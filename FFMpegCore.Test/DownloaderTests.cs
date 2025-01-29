@@ -11,7 +11,7 @@ public class DownloaderTests
     public void GetSpecificVersionTest()
     {
         var binaries = FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1).Result;
-        Assert.IsTrue(binaries.Count == 1);
+        Assert.IsTrue(binaries.Count == 2);
     }
 
     [TestMethod]
