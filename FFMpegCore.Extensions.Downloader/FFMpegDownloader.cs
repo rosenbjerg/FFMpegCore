@@ -30,21 +30,21 @@ public class FFMpegDownloader
         // download ffmpeg if selected
         if (binaries.HasFlag(FFMpegBinaries.FFMpeg) && downloadInfo.FFMpeg is not null)
         {
-            var zipStream = FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFMpeg));
+            await using var zipStream = await FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFMpeg));
             successList.AddRange(FFbinariesService.ExtractZipAndSave(zipStream));
         }
 
         // download ffprobe if selected
         if (binaries.HasFlag(FFMpegBinaries.FFProbe) && downloadInfo.FFProbe is not null)
         {
-            var zipStream = FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFProbe));
+            await using var zipStream = await FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFProbe));
             successList.AddRange(FFbinariesService.ExtractZipAndSave(zipStream));
         }
 
         // download ffplay if selected
         if (binaries.HasFlag(FFMpegBinaries.FFPlay) && downloadInfo.FFPlay is not null)
         {
-            var zipStream = FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFPlay));
+            await using var zipStream = await FFbinariesService.DownloadFileAsSteam(new Uri(downloadInfo.FFPlay));
             successList.AddRange(FFbinariesService.ExtractZipAndSave(zipStream));
         }
 
