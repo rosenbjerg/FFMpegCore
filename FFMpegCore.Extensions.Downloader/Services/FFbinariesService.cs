@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using System.Net;
 using System.Text.Json;
 using FFMpegCore.Extensions.Downloader.Enums;
 using FFMpegCore.Extensions.Downloader.Exceptions;
