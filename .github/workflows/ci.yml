@@ -36,7 +36,7 @@ jobs:
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
