@@ -333,7 +333,10 @@ namespace FFMpegCore
             }
 
             return FFMpegArguments
-                .FromUrlInput(uri)
+                .FromUrlInput(uri, options =>
+                {
+                    options.WithCopyCodec();
+                })
                 .OutputToFile(output)
                 .ProcessSynchronously();
         }

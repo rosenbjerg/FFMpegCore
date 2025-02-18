@@ -13,8 +13,13 @@ namespace FFMpegCore
         public int Height { get; set; }
         public double FrameRate { get; set; }
         public string PixelFormat { get; set; } = null!;
+        public int Level { get; set; }
         public int Rotation { get; set; }
         public double AverageFrameRate { get; set; }
+        public string ColorRange { get; set; } = null!;
+        public string ColorSpace { get; set; } = null!;
+        public string ColorTransfer { get; set; } = null!;
+        public string ColorPrimaries { get; set; } = null!;
 
         public PixelFormat GetPixelFormatInfo() => FFMpeg.GetPixelFormat(PixelFormat);
     }

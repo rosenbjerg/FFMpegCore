@@ -2,7 +2,7 @@
 
 namespace FFMpegCore
 {
-    public abstract class MediaStream
+    public abstract class MediaStream : ITagsContainer
     {
         public int Index { get; set; }
         public string CodecName { get; set; } = null!;

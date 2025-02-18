@@ -1,6 +1,6 @@
 ﻿namespace FFMpegCore
 {
-    public class MediaFormat
+    public class MediaFormat : ITagsContainer
     {
         public TimeSpan Duration { get; set; }
         public TimeSpan StartTime { get; set; }

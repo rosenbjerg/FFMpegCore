@@ -87,7 +87,7 @@ FFMpeg.Join(@"..\joined_video.mp4",
 ``` csharp
 FFMpeg.SubVideo(inputPath, 
     outputPath,
-    TimeSpan.FromSeconds(0)
+    TimeSpan.FromSeconds(0),
     TimeSpan.FromSeconds(30)
 );
 ```

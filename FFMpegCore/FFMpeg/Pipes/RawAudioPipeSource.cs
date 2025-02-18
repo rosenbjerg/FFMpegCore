@@ -27,7 +27,7 @@
 
         public async Task WriteAsync(Stream outputStream, CancellationToken cancellationToken)
         {
-            if (_sampleEnumerator.Current != null)
+            if (_sampleEnumerator.MoveNext() && _sampleEnumerator.Current != null)
             {
                 await _sampleEnumerator.Current.SerializeAsync(outputStream, cancellationToken).ConfigureAwait(false);
             }
