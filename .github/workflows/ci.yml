@@ -36,6 +36,7 @@ jobs:
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v3
       with:
+        ffmpeg-version: 6.1.0
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test with dotnet
