@@ -21,6 +21,7 @@ namespace FFMpegCore
         public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
         public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(verifyExists, filePath), addArguments);
+        public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new MultiInputArgument(verifyExists, filePath), addArguments);
         public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public static FFMpegArguments FromUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
         public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => new FFMpegArguments().WithInput(new InputDeviceArgument(device), addArguments);
@@ -35,6 +36,7 @@ namespace FFMpegCore
         public FFMpegArguments AddConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new ConcatArgument(filePaths), addArguments);
         public FFMpegArguments AddDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new DemuxConcatArgument(filePaths), addArguments);
         public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(verifyExists, filePath), addArguments);
+        public FFMpegArguments AddFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new MultiInputArgument(verifyExists, filePath), addArguments);
         public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
         public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
         public FFMpegArguments AddDeviceInput(string device, Action<FFMpegArgumentOptions>? addArguments = null) => WithInput(new InputDeviceArgument(device), addArguments);
@@ -68,6 +70,21 @@ namespace FFMpegCore
             addArguments?.Invoke(args);
             Arguments.AddRange(args.Arguments);
             Arguments.Add(argument);
+            return new FFMpegArgumentProcessor(this);
+        }
+
+        public FFMpegArgumentProcessor OutputToTee(Action<FFMpegMultiOutputOptions> addOutputs, Action<FFMpegArgumentOptions>? addArguments = null)
+        {
+            var outputs = new FFMpegMultiOutputOptions();
+            addOutputs(outputs);
+            return ToProcessor(new OutputTeeArgument(outputs), addArguments);
+        }
+
+        public FFMpegArgumentProcessor MultiOutput(Action<FFMpegMultiOutputOptions> addOutputs)
+        {
+            var args = new FFMpegMultiOutputOptions();
+            addOutputs(args);
+            Arguments.AddRange(args.Arguments);
             return new FFMpegArgumentProcessor(this);
         }
 

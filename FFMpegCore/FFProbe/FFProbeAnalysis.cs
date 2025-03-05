@@ -11,6 +11,9 @@ namespace FFMpegCore
         [JsonPropertyName("format")]
         public Format Format { get; set; } = null!;
 
+        [JsonPropertyName("chapters")]
+        public List<Chapter> Chapters { get; set; } = null!;
+
         [JsonIgnore]
         public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
     }
@@ -80,6 +83,9 @@ namespace FFMpegCore
         [JsonPropertyName("pix_fmt")]
         public string PixelFormat { get; set; } = null!;
 
+        [JsonPropertyName("level")]
+        public int Level { get; set; }
+
         [JsonPropertyName("sample_rate")]
         public string SampleRate { get; set; } = null!;
 
@@ -87,10 +93,22 @@ namespace FFMpegCore
         public Dictionary<string, int> Disposition { get; set; } = null!;
 
         [JsonPropertyName("tags")]
-        public Dictionary<string, string> Tags { get; set; } = null!;
+        public Dictionary<string, string>? Tags { get; set; }
 
         [JsonPropertyName("side_data_list")]
         public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
+
+        [JsonPropertyName("color_range")]
+        public string ColorRange { get; set; } = null!;
+
+        [JsonPropertyName("color_space")]
+        public string ColorSpace { get; set; } = null!;
+
+        [JsonPropertyName("color_transfer")]
+        public string ColorTransfer { get; set; } = null!;
+
+        [JsonPropertyName("color_primaries")]
+        public string ColorPrimaries { get; set; } = null!;
     }
 
     public class Format : ITagsContainer
@@ -126,7 +144,31 @@ namespace FFMpegCore
         public int ProbeScore { get; set; }
 
         [JsonPropertyName("tags")]
-        public Dictionary<string, string> Tags { get; set; } = null!;
+        public Dictionary<string, string>? Tags { get; set; }
+    }
+
+    public class Chapter : ITagsContainer
+    {
+        [JsonPropertyName("id")]
+        public long Id { get; set; }
+
+        [JsonPropertyName("time_base")]
+        public string TimeBase { get; set; } = null!;
+
+        [JsonPropertyName("start")]
+        public long Start { get; set; }
+
+        [JsonPropertyName("start_time")]
+        public string StartTime { get; set; } = null!;
+
+        [JsonPropertyName("end")]
+        public long End { get; set; }
+
+        [JsonPropertyName("end_time")]
+        public string EndTime { get; set; } = null!;
+
+        [JsonPropertyName("tags")]
+        public Dictionary<string, string>? Tags { get; set; }
     }
 
     public interface IDispositionContainer
@@ -136,7 +178,7 @@ namespace FFMpegCore
 
     public interface ITagsContainer
     {
-        Dictionary<string, string> Tags { get; set; }
+        Dictionary<string, string>? Tags { get; set; }
     }
 
     public static class TagExtensions

@@ -9,6 +9,7 @@ namespace FFMpegCore.Test
     public class ArgumentBuilderTest
     {
         private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
+        private readonly string[] _multiFiles = { "1.mp3", "2.mp3", "3.mp3", "4.mp3" };
 
         [TestMethod]
         public void Builder_BuildString_IO_1()
@@ -570,6 +571,127 @@ namespace FFMpegCore.Test
             Assert.AreEqual($"""
                 -i "input.mp4" -filter_complex "[{streamIndex}:v] fps=10,split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
                 """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_MultiOutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .MultiOutput(args => args
+                    .OutputToFile("output.mp4", overwrite: true, args => args.CopyChannel())
+                    .OutputToFile("output.ts", overwrite: false, args => args.CopyChannel().ForceFormat("mpegts"))
+                    .OutputToUrl("http://server/path", options => options.ForceFormat("webm")))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -c:a copy -c:v copy "output.mp4" -y -c:a copy -c:v copy -f mpegts "output.ts" -f webm http://server/path
+                """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_MBROutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .MultiOutput(args => args
+                    .OutputToFile("sd.mp4", overwrite: true, args => args.Resize(1200, 720))
+                    .OutputToFile("hd.mp4", overwrite: false, args => args.Resize(1920, 1080)))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -s 1200x720 "sd.mp4" -y -s 1920x1080 "hd.mp4"
+                """, str);
+        }
+
+        [TestMethod]
+        public void Builder_BuildString_TeeOutput()
+        {
+            var str = FFMpegArguments.FromFileInput("input.mp4")
+                .OutputToTee(args => args
+                    .OutputToFile("output.mp4", overwrite: false, args => args.WithFastStart())
+                    .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").SelectStream(0, channel: Channel.Video)))
+                    .Arguments;
+            Assert.AreEqual($"""
+                -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'0:v:0\']http://server/path"
+                """, str);
+        }
+        [TestMethod]
+        public void Builder_BuildString_MultiInput()
+        {
+            var audioStreams = string.Join("", _multiFiles.Select((item, index) => $"[{index}:0]"));
+            var mixFilter = $"{audioStreams}amix=inputs={_multiFiles.Length}:duration=longest:dropout_transition=1:normalize=0[final]";
+            var ffmpegArgs = $"-filter_complex \"{mixFilter}\" -map \"[final]\"";
+            var str = FFMpegArguments
+                .FromFileInput(_multiFiles)
+                .OutputToFile("output.mp3", overwrite: true, options => options
+                    .WithCustomArgument(ffmpegArgs)
+                    .WithAudioCodec(AudioCodec.LibMp3Lame) // Set the audio codec to MP3
+                    .WithAudioBitrate(128) // Set the bitrate to 128kbps
+                    .WithAudioSamplingRate(48000) // Set the sample rate to 48kHz
+                    .WithoutMetadata() // Remove metadata
+                    .WithCustomArgument("-ac 2 -write_xing 0 -id3v2_version 0")) // Force 2 Channels
+                .Arguments;
+            Assert.AreEqual($"-i \"1.mp3\" -i \"2.mp3\" -i \"3.mp3\" -i \"4.mp3\" -filter_complex \"[0:0][1:0][2:0][3:0]amix=inputs=4:duration=longest:dropout_transition=1:normalize=0[final]\" -map \"[final]\" -c:a libmp3lame -b:a 128k -ar 48000 -map_metadata -1 -ac 2 -write_xing 0 -id3v2_version 0 \"output.mp3\" -y", str);
+        }
+        [TestMethod]
+        public void Pre_VerifyExists_AllFilesExist()
+        {
+            // Arrange
+            var filePaths = new List<string>
+            {
+                Path.GetTempFileName(),
+                Path.GetTempFileName(),
+                Path.GetTempFileName()
+            };
+            var argument = new MultiInputArgument(true, filePaths);
+            try
+            {
+                // Act & Assert
+                argument.Pre(); // No exception should be thrown
+            }
+            finally
+            {
+                // Cleanup
+                foreach (var filePath in filePaths)
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Pre_VerifyExists_SomeFilesNotExist()
+        {
+            // Arrange
+            var filePaths = new List<string>
+            {
+                Path.GetTempFileName(),
+                "file2.mp4",
+                "file3.mp4"
+            };
+            var argument = new MultiInputArgument(true, filePaths);
+            try
+            {
+                // Act & Assert
+                Assert.ThrowsException<FileNotFoundException>(() => argument.Pre());
+            }
+            finally
+            {
+                // Cleanup
+                File.Delete(filePaths[0]);
+            }
+        }
+
+        [TestMethod]
+        public void Pre_VerifyExists_NoFilesExist()
+        {
+            // Arrange
+            var filePaths = new List<string>
+            {
+                "file1.mp4",
+                "file2.mp4",
+                "file3.mp4"
+            };
+            var argument = new MultiInputArgument(true, filePaths);
+            // Act & Assert
+            Assert.ThrowsException<FileNotFoundException>(() => argument.Pre());
         }
     }
 }

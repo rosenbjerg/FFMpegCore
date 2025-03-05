@@ -1,9 +1,12 @@
-﻿namespace FFMpegCore
+﻿using FFMpegCore.Builders.MetaData;
+
+namespace FFMpegCore
 {
     public interface IMediaAnalysis
     {
         TimeSpan Duration { get; }
         MediaFormat Format { get; }
+        List<ChapterData> Chapters { get; }
         AudioStream? PrimaryAudioStream { get; }
         VideoStream? PrimaryVideoStream { get; }
         SubtitleStream? PrimarySubtitleStream { get; }

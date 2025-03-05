@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using FFMpegCore.Builders.MetaData;
 
 namespace FFMpegCore
 {
@@ -7,6 +8,7 @@ namespace FFMpegCore
         internal MediaAnalysis(FFProbeAnalysis analysis)
         {
             Format = ParseFormat(analysis.Format);
+            Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
             VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
             AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
             SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
@@ -28,6 +30,18 @@ namespace FFMpegCore
             };
         }
 
+        private string GetValue(string tagName, Dictionary<string, string>? tags, string defaultValue) =>
+            tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;
+
+        private ChapterData ParseChapter(Chapter analysisChapter)
+        {
+            var title = GetValue("title", analysisChapter.Tags, "TitleValueNotSet");
+            var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);
+            var end = MediaAnalysisUtils.ParseDuration(analysisChapter.EndTime);
+
+            return new ChapterData(title, start, end);
+        }
+
         public TimeSpan Duration => new[]
         {
             Format.Duration,
@@ -36,6 +50,8 @@ namespace FFMpegCore
         }.Max();
 
         public MediaFormat Format { get; }
+
+        public List<ChapterData> Chapters { get; }
 
         public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
         public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
@@ -74,6 +90,11 @@ namespace FFMpegCore
                 Width = stream.Width ?? 0,
                 Profile = stream.Profile,
                 PixelFormat = stream.PixelFormat,
+                Level = stream.Level,
+                ColorRange = stream.ColorRange,
+                ColorSpace = stream.ColorSpace,
+                ColorTransfer = stream.ColorTransfer,
+                ColorPrimaries = stream.ColorPrimaries,
                 Rotation = MediaAnalysisUtils.ParseRotation(stream),
                 Language = stream.GetLanguage(),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),

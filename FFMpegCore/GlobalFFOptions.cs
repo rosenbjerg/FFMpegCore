@@ -30,12 +30,23 @@ namespace FFMpegCore
             }
 
             var target = Environment.Is64BitProcess ? "x64" : "x86";
-            if (Directory.Exists(Path.Combine(ffOptions.BinaryFolder, target)))
+            var possiblePaths = new List<string>()
             {
-                ffName = Path.Combine(target, ffName);
+                Path.Combine(ffOptions.BinaryFolder, target),
+                ffOptions.BinaryFolder
+            };
+
+            foreach (var possiblePath in possiblePaths)
+            {
+                var possibleFFMpegPath = Path.Combine(possiblePath, ffName);
+                if (File.Exists(possibleFFMpegPath))
+                {
+                    return possibleFFMpegPath;
+                }
             }
 
-            return Path.Combine(ffOptions.BinaryFolder, ffName);
+            //Fall back to the assumption this tool exists in the PATH
+            return ffName;
         }
 
         private static FFOptions LoadFFOptions()
