@@ -20,16 +20,11 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static bool Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
-            if (Path.GetExtension(output) != FileExtension.Png)
-            {
-                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
-            }
+            CheckSnapshotOutputExtension(ref output);
 
             var source = FFProbe.Analyse(input);
-            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
 
-            return arguments
-                .OutputToFile(output, true, outputOptions)
+            return SnapshotProcess(input, output, source, size, captureTime, streamIndex, inputFileIndex)
                 .ProcessSynchronously();
         }
         /// <summary>
@@ -44,24 +39,37 @@ namespace FFMpegCore
         /// <returns>Bitmap with the requested snapshot.</returns>
         public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
         {
-            if (Path.GetExtension(output) != FileExtension.Png)
-            {
-                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Png);
-            }
+            CheckSnapshotOutputExtension(ref output);
 
             var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
-            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
 
-            return await arguments
-                .OutputToFile(output, true, outputOptions)
+            return await SnapshotProcess(input, output, source, size, captureTime, streamIndex, inputFileIndex)
                 .ProcessAsynchronously();
+        }
+
+        private static FFMpegArgumentProcessor SnapshotProcess(string input, string output, IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+        {
+            var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex, inputFileIndex);
+
+            return arguments
+                .OutputToFile(output, true, outputOptions);
+        }
+
+        private static void CheckSnapshotOutputExtension(ref string output)
+        {
+            if (!FileExtension.Image.All.Contains(Path.GetExtension(output).ToLower()))
+            {
+                throw new ArgumentException(
+                    $"Invalid snapshot output extension: {output}, needed: {string.Join(",", FileExtension.Image.All)}");
+            }
         }
 
         public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null, int? streamIndex = null)
         {
             if (Path.GetExtension(output)?.ToLower() != FileExtension.Gif)
             {
-                output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output) + FileExtension.Gif);
+                throw new ArgumentException(
+                    $"Invalid snapshot output extension: {output}, needed: {FileExtension.Gif}");
             }
 
             var source = FFProbe.Analyse(input);
