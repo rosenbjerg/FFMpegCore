@@ -3,10 +3,15 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <PackageVersion>5.1.1</PackageVersion>
+    <PackageVersion>5.2.0</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>- **Instances and Packages Updates**: Updates to various instances and packages by rosenbjerg.
+- **Audio and Video Enhancements**: Additions include a Copy option to Audio Codec and a Crop option to Arguments by brett-baker; video-stream level added to FFProbe analysis by Kaaybi; AV1 support for smaller snapshots and videos by BenediktBertsch; multiple input files support by AddyMills; HDR color properties support added to FFProbe analysis by Tomiscout.
+- **System.Text.Json Bump**: Update by Kaaybi.
+- **FFMpeg Processors and Utilities**: Modification for handling durations over 24 hours in `FFMpegArgumentProcessor` by alahane-techtel; fix for snapshots with correct width/height from rotated videos by Hagfjall.
+- **Feature Additions and Fixes**: Support for multiple outputs and tee muxer by duggaraju; custom ffprob arguments by vfrz; fix for null reference exception with tags container by rosenbjerg; Chapter Modell change by vortex852456; codec copy added to the SaveM3U8Stream method by rpaschoal.
+- **Closed and Non-merged Contributions**: Notable closed contributions include JSON source generators usage by onionware-github; Snapshot overload by 3UR; FromRawInput method by pedoc; runtime ffmpeg suite installation by yuqian5; and support for scale_npp by vicwilliam.
+- **Miscellaneous Fixes**: Minor readme corrections by NaBian; fix for ffmpeg path issue by devedse.</PackageReleaseNotes>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -17,10 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Instances" Version="3.0.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="Instances" Version="3.0.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
-  
-  
 
 </Project>

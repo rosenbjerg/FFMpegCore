@@ -1,16 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/ci.yml
-      - Directory.Build.props
-      - FFMpegCore/**
-      - FFMpegCore.Test/**
-      - FFMpegCore.Extensions.SkiaSharp/**
-      - FFMpegCore.Extensions.System.Drawing.Common/**
   pull_request:
     branches:
       - main
@@ -46,7 +36,8 @@ jobs:
     - name: Prepare FFMpeg
       uses: FedericoCarboni/setup-ffmpeg@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        ffmpeg-version: 6.0.1
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions

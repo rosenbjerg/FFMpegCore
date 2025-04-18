@@ -3,18 +3,17 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <Description>Image extension for FFMpegCore using SkiaSharp</Description>
-        <PackageVersion>5.0.1</PackageVersion>
+        <PackageVersion>5.0.2</PackageVersion>
         <PackageOutputPath>../nupkg</PackageOutputPath>
-        <PackageReleaseNotes>
-        </PackageReleaseNotes>
+        <PackageReleaseNotes>Bump dependencies</PackageReleaseNotes>
         <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing skiasharp</PackageTags>
         <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SkiaSharp" Version="3.116.0" />
-      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.0" />
+      <PackageReference Include="SkiaSharp" Version="3.116.1" />
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
     </ItemGroup>
 
     <ItemGroup>
