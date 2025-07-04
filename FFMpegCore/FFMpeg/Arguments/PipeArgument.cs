@@ -31,8 +31,12 @@ namespace FFMpegCore.Arguments
         public void Post()
         {
             Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
-            Pipe?.Dispose();
-            Pipe = null!;
+            lock(Pipe)
+            {
+
+                Pipe?.Dispose();
+                Pipe = null!;
+            }
         }
 
         public async Task During(CancellationToken cancellationToken = default)
@@ -48,9 +52,15 @@ namespace FFMpegCore.Arguments
             finally
             {
                 Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
-                if (Pipe is { IsConnected: true })
+                lock (Pipe ?? new object()) 
+                    //if Pipe is null, then the lock doesnt matter,
+                    //Because the next code will not execute anyways.
+                    //so we can use a new object
                 {
-                    Pipe.Disconnect();
+                    if (Pipe is { IsConnected: true })
+                    {
+                        Pipe.Disconnect();
+                    }
                 }
             }
         }
