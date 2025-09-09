@@ -36,8 +36,8 @@ namespace FFMpegCore.Arguments
 
     public interface IVideoFilterArgument
     {
-        public string Key { get; }
-        public string Value { get; }
+        string Key { get; }
+        string Value { get; }
     }
 
     public class VideoFilterOptions

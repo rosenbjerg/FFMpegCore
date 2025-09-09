@@ -9,6 +9,30 @@ public static class SnapshotArgumentBuilder
 {
     public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
         string input,
+        string output,
+        IMediaAnalysis source,
+        Size? size = null,
+        TimeSpan? captureTime = null,
+        int? streamIndex = null,
+        int inputFileIndex = 0)
+    {
+        return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex, inputFileIndex);
+    }
+
+    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+        string input,
+        IMediaAnalysis source,
+        Size? size = null,
+        TimeSpan? captureTime = null,
+        int? streamIndex = null,
+        int inputFileIndex = 0)
+    {
+        return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex, inputFileIndex);
+    }
+
+    private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+        string input,
+        Codec codec,
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
@@ -26,7 +50,7 @@ public static class SnapshotArgumentBuilder
                     .Seek(captureTime)),
             options => options
                 .SelectStream((int)streamIndex, inputFileIndex)
-                .WithVideoCodec(VideoCodec.Png)
+                .WithVideoCodec(codec)
                 .WithFrameOutputCount(1)
                 .Resize(size));
     }
