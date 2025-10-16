@@ -7,10 +7,12 @@ namespace FFMpegCore.Arguments;
 public abstract class PipeArgument
 {
     private readonly PipeDirection _direction;
+    private readonly object _pipeLock;
 
     protected PipeArgument(PipeDirection direction)
     {
         PipeName = PipeHelpers.GetUnqiuePipeName();
+        _pipeLock = new object();
         _direction = direction;
     }
 
@@ -33,7 +35,7 @@ public abstract class PipeArgument
     public void Post()
     {
         Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
-        lock (Pipe)
+        lock (_pipeLock)
         {
             Pipe?.Dispose();
             Pipe = null!;
@@ -53,11 +55,7 @@ public abstract class PipeArgument
         finally
         {
             Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
-
-            //if Pipe is null, then the lock doesnt matter,
-            //Because the next code will not execute anyways.
-            //so we can use a new object
-            lock (Pipe ?? new object())
+            lock (_pipeLock)
             {
                 if (Pipe is { IsConnected: true })
                 {
