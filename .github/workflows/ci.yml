@@ -34,13 +34,13 @@ jobs:
       name: Lint with dotnet
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
         
-    - if: runner.os != 'macOS' || runner.arch != 'ARM64'
+    - if: runner.os != 'macOS' 
       uses: AnimMouse/setup-ffmpeg@ae28d57dabbb148eff63170b6bf7f2b60062cbae # 1.1.0
       with:
-        version: 7.1.1
+        version: 7.1
         token: ${{ github.token }}
         
-    - if: runner.os == 'macOS' && runner.arch == 'ARM64'
+    - if: runner.os == 'macOS'
       uses: AnimMouse/setup-ffmpeg@ae28d57dabbb148eff63170b6bf7f2b60062cbae # 1.1.0
       with:
         version: 711
