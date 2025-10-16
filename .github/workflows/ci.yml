@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     timeout-minutes: 7
     steps:
 
@@ -30,14 +30,15 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Lint with dotnet
+    - if: matrix.os == 'ubuntu-latest'
+      name: Lint with dotnet
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
 
-    - name: Prepare FFMpeg
-      uses: FedericoCarboni/setup-ffmpeg@v3
+    - name: Setup FFmpeg
+      uses: AnimMouse/setup-ffmpeg@ae28d57dabbb148eff63170b6bf7f2b60062cbae # 1.1.0
       with:
-        ffmpeg-version: 6.0.1
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        version: ${{ matrix.os != 'macos-latest' && '7.1' || '711' }}
+        token: ${{ github.token }}
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions

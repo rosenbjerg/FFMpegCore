@@ -8,6 +8,6 @@
         /// <param name="context"></param>
         /// <returns></returns>
         //public string GetText(StringBuilder context);
-        public string GetText(IEnumerable<IArgument> context);
+        string GetText(IEnumerable<IArgument> context);
     }
 }
