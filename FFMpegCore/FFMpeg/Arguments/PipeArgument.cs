@@ -7,12 +7,11 @@ namespace FFMpegCore.Arguments;
 public abstract class PipeArgument
 {
     private readonly PipeDirection _direction;
-    private readonly object _pipeLock;
+    private readonly object _pipeLock = new();
 
     protected PipeArgument(PipeDirection direction)
     {
         PipeName = PipeHelpers.GetUnqiuePipeName();
-        _pipeLock = new object();
         _direction = direction;
     }
 
