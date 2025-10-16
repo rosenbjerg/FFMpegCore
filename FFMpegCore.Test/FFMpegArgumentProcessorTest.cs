@@ -11,7 +11,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Processor_GlobalOptions_GetUsed()
+    public void ZZZ_Processor_GlobalOptions_GetUsed()
     {
         var globalWorkingDir = "Whatever";
         var processor = CreateArgumentProcessor();
@@ -43,7 +43,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Processor_Options_CanBeOverridden_And_Configured()
+    public void ZZZ_Processor_Options_CanBeOverridden_And_Configured()
     {
         var globalConfig = "Whatever";
 
@@ -73,7 +73,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Options_Global_And_Session_Options_Can_Differ()
+    public void ZZZ_Options_Global_And_Session_Options_Can_Differ()
     {
         var globalWorkingDir = "Whatever";
 

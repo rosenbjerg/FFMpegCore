@@ -27,15 +27,12 @@ public class FFMpegOptionsTest
     }
 
     [TestMethod]
-    public void Options_Set_Programmatically()
+    public void ZZZ_Options_Set_Programmatically()
     {
         try
         {
             GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "Whatever" });
-            Assert.AreEqual(
-                "Whatever",
-                GlobalFFOptions.Current.BinaryFolder
-            );
+            Assert.AreEqual("Whatever", GlobalFFOptions.Current.BinaryFolder);
         }
         finally
         {
