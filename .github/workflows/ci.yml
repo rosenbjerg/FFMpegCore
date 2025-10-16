@@ -35,12 +35,12 @@ jobs:
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
         
     - if: runner.os != 'macOS' || runner.arch != 'ARM64'
-      uses: AnimMouse/setup-ffmpeg@v1
+      uses: AnimMouse/setup-ffmpeg@ae28d57 # 1.1.0
       with:
         version: 7.1.1
         
     - if: runner.os == 'macOS' && runner.arch == 'ARM64'
-      uses: AnimMouse/setup-ffmpeg@v1
+      uses: AnimMouse/setup-ffmpeg@ae28d57 # 1.1.0
       with:
         version: 711
 
