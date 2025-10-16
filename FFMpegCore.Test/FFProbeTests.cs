@@ -5,6 +5,8 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class FFProbeTests
 {
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public async Task Audio_FromStream_Duration()
     {
@@ -97,7 +99,8 @@ public class FFProbeTests
     [Ignore("Consistently fails on GitHub Workflow ubuntu agents")]
     public async Task Uri_Duration()
     {
-        var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"), cancellationToken: TestContext.CancellationToken);
+        var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"),
+            cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(fileAnalysis);
     }
 
@@ -282,6 +285,4 @@ public class FFProbeTests
         var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
         Assert.AreEqual(3, info.Duration.Seconds);
     }
-
-    public TestContext TestContext { get; set; }
 }
