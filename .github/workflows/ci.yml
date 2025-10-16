@@ -35,13 +35,14 @@ jobs:
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
         
     - if: runner.os != 'macOS' || runner.arch != 'ARM64'
-      uses: FedericoCarboni/setup-ffmpeg@v3
+      uses: AnimMouse/setup-ffmpeg@v1
       with:
-        ffmpeg-version: 6.0.1
-        github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+        version: 7.1.1
         
     - if: runner.os == 'macOS' && runner.arch == 'ARM64'
-      run: brew install ffmpeg@6
+      uses: AnimMouse/setup-ffmpeg@v1
+      with:
+        version: 711
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
