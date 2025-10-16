@@ -8,9 +8,9 @@ public class FFProbeTests
     [TestMethod]
     public async Task Audio_FromStream_Duration()
     {
-        var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo);
+        var fileAnalysis = await FFProbe.AnalyseAsync(TestResources.WebmVideo, cancellationToken: TestContext.CancellationToken);
         await using var inputStream = File.OpenRead(TestResources.WebmVideo);
-        var streamAnalysis = await FFProbe.AnalyseAsync(inputStream);
+        var streamAnalysis = await FFProbe.AnalyseAsync(inputStream, cancellationToken: TestContext.CancellationToken);
         Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
     }
 
@@ -29,7 +29,7 @@ public class FFProbeTests
     [TestMethod]
     public async Task FrameAnalysis_Async()
     {
-        var frameAnalysis = await FFProbe.GetFramesAsync(TestResources.WebmVideo);
+        var frameAnalysis = await FFProbe.GetFramesAsync(TestResources.WebmVideo, cancellationToken: TestContext.CancellationToken);
 
         Assert.HasCount(90, frameAnalysis.Frames);
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
@@ -41,7 +41,7 @@ public class FFProbeTests
     [TestMethod]
     public async Task PacketAnalysis_Async()
     {
-        var packetAnalysis = await FFProbe.GetPacketsAsync(TestResources.WebmVideo);
+        var packetAnalysis = await FFProbe.GetPacketsAsync(TestResources.WebmVideo, cancellationToken: TestContext.CancellationToken);
         var packets = packetAnalysis.Packets;
         Assert.HasCount(96, packets);
         Assert.IsTrue(packets.All(f => f.CodecType == "video"));
@@ -97,7 +97,7 @@ public class FFProbeTests
     [Ignore("Consistently fails on GitHub Workflow ubuntu agents")]
     public async Task Uri_Duration()
     {
-        var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"));
+        var fileAnalysis = await FFProbe.AnalyseAsync(new Uri("https://github.com/rosenbjerg/FFMpegCore/raw/master/FFMpegCore.Test/Resources/input_3sec.webm"), cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(fileAnalysis);
     }
 
@@ -161,7 +161,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Async_Success()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
+        var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(3, info.Duration.Seconds);
         Assert.IsNotNull(info.PrimaryVideoStream);
         Assert.AreEqual(8, info.PrimaryVideoStream.BitDepth);
@@ -186,7 +186,7 @@ public class FFProbeTests
     public async Task Probe_Success_FromStream_Async()
     {
         await using var stream = File.OpenRead(TestResources.WebmVideo);
-        var info = await FFProbe.AnalyseAsync(stream);
+        var info = await FFProbe.AnalyseAsync(stream, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(3, info.Duration.Seconds);
     }
 
@@ -207,7 +207,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_Subtitle_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.SrtSubtitle);
+        var info = await FFProbe.AnalyseAsync(TestResources.SrtSubtitle, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimarySubtitleStream);
         Assert.HasCount(1, info.SubtitleStreams);
         Assert.IsEmpty(info.AudioStreams);
@@ -220,7 +220,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_Disposition_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video);
+        var info = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryAudioStream);
         Assert.IsNotNull(info.PrimaryAudioStream.Disposition);
         Assert.IsTrue(info.PrimaryAudioStream.Disposition["default"]);
@@ -231,7 +231,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_Mp3AudioBitDepthNull_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.Mp3Audio);
+        var info = await FFProbe.AnalyseAsync(TestResources.Mp3Audio, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryAudioStream);
         // mp3 is lossy, so bit depth is meaningless.
         Assert.IsNull(info.PrimaryAudioStream.BitDepth);
@@ -241,7 +241,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_VocAudioBitDepth_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.AiffAudio);
+        var info = await FFProbe.AnalyseAsync(TestResources.AiffAudio, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryAudioStream);
         Assert.AreEqual(16, info.PrimaryAudioStream.BitDepth);
     }
@@ -250,7 +250,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_MkvVideoBitDepth_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.MkvVideo);
+        var info = await FFProbe.AnalyseAsync(TestResources.MkvVideo, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryVideoStream);
         Assert.AreEqual(8, info.PrimaryVideoStream.BitDepth);
 
@@ -262,7 +262,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_24BitWavBitDepth_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.Wav24Bit);
+        var info = await FFProbe.AnalyseAsync(TestResources.Wav24Bit, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryAudioStream);
         Assert.AreEqual(24, info.PrimaryAudioStream.BitDepth);
     }
@@ -271,7 +271,7 @@ public class FFProbeTests
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_32BitWavBitDepth_Async()
     {
-        var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit);
+        var info = await FFProbe.AnalyseAsync(TestResources.Wav32Bit, cancellationToken: TestContext.CancellationToken);
         Assert.IsNotNull(info.PrimaryAudioStream);
         Assert.AreEqual(32, info.PrimaryAudioStream.BitDepth);
     }
@@ -282,4 +282,6 @@ public class FFProbeTests
         var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
         Assert.AreEqual(3, info.Duration.Seconds);
     }
+
+    public TestContext TestContext { get; set; }
 }

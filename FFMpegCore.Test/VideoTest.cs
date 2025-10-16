@@ -907,7 +907,7 @@ public class VideoTest
             .CancellableThrough(out var cancel)
             .ProcessAsynchronously(false);
 
-        await Task.Delay(300);
+        await Task.Delay(300, TestContext.CancellationToken);
         cancel();
 
         var result = await task;
@@ -930,7 +930,7 @@ public class VideoTest
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(out var cancel);
 
-        Task.Delay(300).ContinueWith(_ => cancel());
+        Task.Delay(300, TestContext.CancellationToken).ContinueWith(_ => cancel(), TestContext.CancellationToken);
 
         var result = task.ProcessSynchronously(false);
 
@@ -954,12 +954,12 @@ public class VideoTest
             .CancellableThrough(out var cancel, 10000)
             .ProcessAsynchronously(false);
 
-        await Task.Delay(300);
+        await Task.Delay(300, TestContext.CancellationToken);
         cancel();
 
         await task;
 
-        var outputInfo = await FFProbe.AnalyseAsync(outputFile);
+        var outputInfo = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
 
         Assert.IsNotNull(outputInfo);
         Assert.AreEqual(320, outputInfo.PrimaryVideoStream!.Width);
@@ -1064,7 +1064,7 @@ public class VideoTest
 
         await task;
 
-        var outputInfo = await FFProbe.AnalyseAsync(outputFile);
+        var outputInfo = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
 
         Assert.IsNotNull(outputInfo);
         Assert.AreEqual(320, outputInfo.PrimaryVideoStream!.Width);
@@ -1072,4 +1072,6 @@ public class VideoTest
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
     }
+
+    public TestContext TestContext { get; set; }
 }
