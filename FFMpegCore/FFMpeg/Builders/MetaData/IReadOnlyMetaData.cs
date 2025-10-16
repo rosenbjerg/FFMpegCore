@@ -1,9 +1,7 @@
-﻿namespace FFMpegCore.Builders.MetaData
-{
+﻿namespace FFMpegCore.Builders.MetaData;
 
-    public interface IReadOnlyMetaData
-    {
-        IReadOnlyList<ChapterData> Chapters { get; }
-        IReadOnlyDictionary<string, string> Entries { get; }
-    }
+public interface IReadOnlyMetaData
+{
+    IReadOnlyList<ChapterData> Chapters { get; }
+    IReadOnlyDictionary<string, string> Entries { get; }
 }

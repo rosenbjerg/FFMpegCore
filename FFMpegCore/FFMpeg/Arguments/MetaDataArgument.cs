@@ -1,33 +1,41 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+public class MetaDataArgument : IInputArgument, IDynamicArgument
 {
-    public class MetaDataArgument : IInputArgument, IDynamicArgument
+    private readonly string _metaDataContent;
+    private readonly string _tempFileName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"metadata_{Guid.NewGuid()}.txt");
+
+    public MetaDataArgument(string metaDataContent)
     {
-        private readonly string _metaDataContent;
-        private readonly string _tempFileName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"metadata_{Guid.NewGuid()}.txt");
+        _metaDataContent = metaDataContent;
+    }
 
-        public MetaDataArgument(string metaDataContent)
-        {
-            _metaDataContent = metaDataContent;
-        }
+    public string GetText(IEnumerable<IArgument>? arguments)
+    {
+        arguments ??= Enumerable.Empty<IArgument>();
 
-        public string Text => GetText(null);
+        var index = arguments
+            .TakeWhile(x => x != this)
+            .OfType<IInputArgument>()
+            .Count();
 
-        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        return $"-i \"{_tempFileName}\" -map_metadata {index}";
+    }
 
-        public void Pre() => File.WriteAllText(_tempFileName, _metaDataContent);
+    public string Text => GetText(null);
 
-        public void Post() => File.Delete(_tempFileName);
+    public Task During(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 
-        public string GetText(IEnumerable<IArgument>? arguments)
-        {
-            arguments ??= Enumerable.Empty<IArgument>();
+    public void Pre()
+    {
+        File.WriteAllText(_tempFileName, _metaDataContent);
+    }
 
-            var index = arguments
-                .TakeWhile(x => x != this)
-                .OfType<IInputArgument>()
-                .Count();
-
-            return $"-i \"{_tempFileName}\" -map_metadata {index}";
-        }
+    public void Post()
+    {
+        File.Delete(_tempFileName);
     }
 }

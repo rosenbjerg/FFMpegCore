@@ -61,7 +61,7 @@ var outputStream = new MemoryStream();
 }
 
 {
-    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1, @"..\1.png", @"..\2.png", @"..\3.png");
+    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", 1, @"..\1.png", @"..\2.png", @"..\3.png");
 }
 
 {
@@ -90,7 +90,11 @@ var inputImagePath = "/path/to/input/image";
     skiaSharpImage.AddAudio(inputAudioPath, outputPath);
 }
 
-IVideoFrame GetNextFrame() => throw new NotImplementedException();
+IVideoFrame GetNextFrame()
+{
+    throw new NotImplementedException();
+}
+
 {
     IEnumerable<IVideoFrame> CreateFrames(int count)
     {
@@ -100,10 +104,11 @@ IVideoFrame GetNextFrame() => throw new NotImplementedException();
         }
     }
 
-    var videoFramesSource = new RawVideoPipeSource(CreateFrames(64)) //pass IEnumerable<IVideoFrame> or IEnumerator<IVideoFrame> to constructor of RawVideoPipeSource
-    {
-        FrameRate = 30 //set source frame rate
-    };
+    var videoFramesSource =
+        new RawVideoPipeSource(CreateFrames(64)) //pass IEnumerable<IVideoFrame> or IEnumerator<IVideoFrame> to constructor of RawVideoPipeSource
+        {
+            FrameRate = 30 //set source frame rate
+        };
     await FFMpegArguments
         .FromPipeInput(videoFramesSource)
         .OutputToFile(outputPath, false, options => options
