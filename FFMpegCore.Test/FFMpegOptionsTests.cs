@@ -15,7 +15,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void Options_Defaults_Configured()
         {
-            Assert.AreEqual(new FFOptions().BinaryFolder, $"");
+            Assert.AreEqual("", new FFOptions().BinaryFolder);
         }
 
         [TestMethod]
@@ -35,8 +35,8 @@ namespace FFMpegCore.Test
             {
                 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "Whatever" });
                 Assert.AreEqual(
-                    GlobalFFOptions.Current.BinaryFolder,
-                    "Whatever"
+                    "Whatever",
+                    GlobalFFOptions.Current.BinaryFolder
                 );
             }
             finally

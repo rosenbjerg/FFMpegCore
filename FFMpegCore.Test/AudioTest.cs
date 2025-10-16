@@ -3,7 +3,6 @@ using FFMpegCore.Exceptions;
 using FFMpegCore.Extend;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test
 {
@@ -18,8 +17,8 @@ namespace FFMpegCore.Test
             FFMpeg.Mute(TestResources.Mp4Video, outputFile);
             var analysis = FFProbe.Analyse(outputFile);
 
-            Assert.IsTrue(analysis.VideoStreams.Any());
-            Assert.IsTrue(!analysis.AudioStreams.Any());
+            Assert.IsNotEmpty(analysis.VideoStreams);
+            Assert.IsEmpty(analysis.AudioStreams);
         }
 
         [TestMethod]
@@ -30,9 +29,10 @@ namespace FFMpegCore.Test
             FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile);
             var analysis = FFProbe.Analyse(outputFile);
 
-            Assert.IsTrue(!analysis.VideoStreams.Any());
-            Assert.IsTrue(analysis.AudioStreams.Any());
+            Assert.IsNotEmpty(analysis.AudioStreams);
+            Assert.IsEmpty(analysis.VideoStreams);
         }
+
         [TestMethod]
         public async Task Audio_FromRaw()
         {
@@ -65,19 +65,19 @@ namespace FFMpegCore.Test
             using var outputFile = new TemporaryFile("out.mp4");
             FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
             var analysis = FFProbe.Analyse(TestResources.Mp3Audio);
-            Assert.IsTrue(analysis.Duration.TotalSeconds > 0);
+            Assert.IsGreaterThan(0, analysis.Duration.TotalSeconds);
             Assert.IsTrue(File.Exists(outputFile));
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToAAC_Args_Pipe()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
             var samples = new List<IAudioSample>
             {
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
+                new PcmAudioSampleWrapper([0, 0]),
+                new PcmAudioSampleWrapper([0, 0]),
             };
 
             var audioSamplesSource = new RawAudioPipeSource(samples)
@@ -95,15 +95,15 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToLibVorbis_Args_Pipe()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
             var samples = new List<IAudioSample>
             {
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
+                new PcmAudioSampleWrapper([0, 0]),
+                new PcmAudioSampleWrapper([0, 0]),
             };
 
             var audioSamplesSource = new RawAudioPipeSource(samples)
@@ -121,15 +121,15 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public async Task Audio_ToAAC_Args_Pipe_Async()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
             var samples = new List<IAudioSample>
             {
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
+                new PcmAudioSampleWrapper([0, 0]),
+                new PcmAudioSampleWrapper([0, 0]),
             };
 
             var audioSamplesSource = new RawAudioPipeSource(samples)
@@ -147,15 +147,15 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToAAC_Args_Pipe_ValidDefaultConfiguration()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
             var samples = new List<IAudioSample>
             {
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
-                new PcmAudioSampleWrapper(new byte[] { 0, 0 }),
+                new PcmAudioSampleWrapper([0, 0]),
+                new PcmAudioSampleWrapper([0, 0]),
             };
 
             var audioSamplesSource = new RawAudioPipeSource(samples);
@@ -168,7 +168,7 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToAAC_Args_Pipe_InvalidChannels()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -178,14 +178,14 @@ namespace FFMpegCore.Test
                 Channels = 0,
             };
 
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+            Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
                 .FromPipeInput(audioSamplesSource)
                 .OutputToFile(outputFile, false, opt => opt
                     .WithAudioCodec(AudioCodec.Aac))
                 .ProcessSynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToAAC_Args_Pipe_InvalidFormat()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -195,14 +195,14 @@ namespace FFMpegCore.Test
                 Format = "s8le",
             };
 
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+            Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
                 .FromPipeInput(audioSamplesSource)
                 .OutputToFile(outputFile, false, opt => opt
                     .WithAudioCodec(AudioCodec.Aac))
                 .ProcessSynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_ToAAC_Args_Pipe_InvalidSampleRate()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -212,14 +212,14 @@ namespace FFMpegCore.Test
                 SampleRate = 0,
             };
 
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments
+            Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
                 .FromPipeInput(audioSamplesSource)
                 .OutputToFile(outputFile, false, opt => opt
                     .WithAudioCodec(AudioCodec.Aac))
                 .ProcessSynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_Pan_ToMono()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -233,11 +233,11 @@ namespace FFMpegCore.Test
             var mediaAnalysis = FFProbe.Analyse(outputFile);
 
             Assert.IsTrue(success);
-            Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
+            Assert.HasCount(1, mediaAnalysis.AudioStreams);
             Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_Pan_ToMonoNoDefinitions()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -251,35 +251,35 @@ namespace FFMpegCore.Test
             var mediaAnalysis = FFProbe.Analyse(outputFile);
 
             Assert.IsTrue(success);
-            Assert.AreEqual(1, mediaAnalysis.AudioStreams.Count);
+            Assert.HasCount(1, mediaAnalysis.AudioStreams);
             Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_Pan_ToMonoChannelsToOutputDefinitionsMismatch()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var ex = Assert.ThrowsException<ArgumentException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
+            Assert.ThrowsExactly<ArgumentException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan(1, "c0=c0", "c1=c1")))
                 .ProcessSynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_Pan_ToMonoChannelsLayoutToOutputDefinitionsMismatch()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var ex = Assert.ThrowsException<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
+            Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions
                         .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
                 .ProcessSynchronously());
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_DynamicNormalizer_WithDefaultValues()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -293,7 +293,7 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         public void Audio_DynamicNormalizer_WithNonDefaultValues()
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -308,7 +308,7 @@ namespace FFMpegCore.Test
             Assert.IsTrue(success);
         }
 
-        [DataTestMethod, Timeout(10000)]
+        [TestMethod, Timeout(10000, CooperativeCancellation = true)]
         [DataRow(2)]
         [DataRow(32)]
         [DataRow(8)]
@@ -316,7 +316,7 @@ namespace FFMpegCore.Test
         {
             using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-            var ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => FFMpegArguments
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => FFMpegArguments
                 .FromFileInput(TestResources.Mp3Audio)
                 .OutputToFile(outputFile, true,
                     argumentOptions => argumentOptions

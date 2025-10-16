@@ -670,7 +670,7 @@ namespace FFMpegCore.Test
             try
             {
                 // Act & Assert
-                Assert.ThrowsException<FileNotFoundException>(() => argument.Pre());
+                Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre());
             }
             finally
             {
@@ -691,7 +691,7 @@ namespace FFMpegCore.Test
             };
             var argument = new MultiInputArgument(true, filePaths);
             // Act & Assert
-            Assert.ThrowsException<FileNotFoundException>(() => argument.Pre());
+            Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre());
         }
     }
 }

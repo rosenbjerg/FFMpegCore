@@ -10,7 +10,7 @@ namespace FFMpegCore.Test
         public void PixelFormats_Enumerate()
         {
             var formats = FFMpeg.GetPixelFormats();
-            Assert.IsTrue(formats.Count > 0);
+            Assert.IsNotEmpty(formats);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace FFMpegCore.Test
         [TestMethod]
         public void PixelFormats_GetNotExisting()
         {
-            Assert.ThrowsException<FFMpegException>(() => FFMpeg.GetPixelFormat("yuv420pppUnknown"));
+            Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.GetPixelFormat("yuv420pppUnknown"));
         }
     }
 }
