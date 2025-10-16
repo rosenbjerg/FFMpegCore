@@ -1,1 +1,1 @@
-﻿[assembly: Parallelize]
+﻿[assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]

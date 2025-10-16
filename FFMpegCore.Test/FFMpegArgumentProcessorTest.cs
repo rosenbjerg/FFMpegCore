@@ -1,6 +1,4 @@
-﻿using FFMpegCore.Arguments;
-
-namespace FFMpegCore.Test;
+﻿namespace FFMpegCore.Test;
 
 [TestClass]
 public class FFMpegArgumentProcessorTest

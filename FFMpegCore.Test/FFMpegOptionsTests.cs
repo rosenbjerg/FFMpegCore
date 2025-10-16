@@ -29,7 +29,6 @@ public class FFMpegOptionsTest
     [TestMethod]
     public void Options_Set_Programmatically()
     {
-        var original = GlobalFFOptions.Current;
         try
         {
             GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "Whatever" });
@@ -40,7 +39,7 @@ public class FFMpegOptionsTest
         }
         finally
         {
-            GlobalFFOptions.Configure(original);
+            GlobalFFOptions.Configure(new FFOptions());
         }
     }
 }
