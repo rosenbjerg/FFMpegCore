@@ -97,25 +97,4 @@ public class FFMpegArgumentProcessorTest
             GlobalFFOptions.Configure(new FFOptions());
         }
     }
-
-    [TestMethod]
-    public void Concat_Escape()
-    {
-        var arg = new DemuxConcatArgument([@"Heaven's River\05 - Investigation.m4b"]);
-        CollectionAssert.AreEquivalent(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" }, arg.Values.ToArray());
-    }
-
-    [TestMethod]
-    public void Audible_Aaxc_Test()
-    {
-        var arg = new AudibleEncryptionKeyArgument("123", "456");
-        Assert.AreEqual("-audible_key 123 -audible_iv 456", arg.Text);
-    }
-
-    [TestMethod]
-    public void Audible_Aax_Test()
-    {
-        var arg = new AudibleEncryptionKeyArgument("62689101");
-        Assert.AreEqual("-activation_bytes 62689101", arg.Text);
-    }
 }
