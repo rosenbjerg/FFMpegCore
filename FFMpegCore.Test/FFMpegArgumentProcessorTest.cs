@@ -1,19 +1,10 @@
-﻿using System.Reflection;
-using FFMpegCore.Arguments;
+﻿using FFMpegCore.Arguments;
 
 namespace FFMpegCore.Test;
 
 [TestClass]
 public class FFMpegArgumentProcessorTest
 {
-    [TestCleanup]
-    public void TestInitialize()
-
-    {
-        // After testing reset global configuration to null, to be not wrong for other test relying on configuration
-        typeof(GlobalFFOptions).GetField("_current", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(GlobalFFOptions.Current, null);
-    }
-
     private static FFMpegArgumentProcessor CreateArgumentProcessor()
     {
         return FFMpegArguments
@@ -37,7 +28,7 @@ public class FFMpegArgumentProcessorTest
         }
         finally
         {
-            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = string.Empty });
+            GlobalFFOptions.Configure(new FFOptions());
         }
     }
 
@@ -70,13 +61,16 @@ public class FFMpegArgumentProcessorTest
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
             var options = processor.GetConfiguredOptions(overrideOptions);
 
-            Assert.AreSame(options, overrideOptions);
+            Assert.AreEqual(options.WorkingDirectory, overrideOptions.WorkingDirectory);
+            Assert.AreEqual(options.TemporaryFilesFolder, overrideOptions.TemporaryFilesFolder);
+            Assert.AreEqual(options.BinaryFolder, overrideOptions.BinaryFolder);
+
             Assert.AreEqual(sessionTempDir, options.TemporaryFilesFolder);
             Assert.AreNotEqual(globalConfig, options.BinaryFolder);
         }
         finally
         {
-            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = string.Empty });
+            GlobalFFOptions.Configure(new FFOptions());
         }
     }
 
@@ -100,7 +94,7 @@ public class FFMpegArgumentProcessorTest
         }
         finally
         {
-            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = string.Empty });
+            GlobalFFOptions.Configure(new FFOptions());
         }
     }
 
