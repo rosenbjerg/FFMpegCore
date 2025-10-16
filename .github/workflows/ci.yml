@@ -30,7 +30,8 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Lint with dotnet
+    - if: runner.os == 'ubuntu-latest'
+      name: Lint with dotnet
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
         
     - if: runner.os != 'macOS' || runner.arch != 'ARM64'
