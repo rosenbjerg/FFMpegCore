@@ -24,12 +24,15 @@ public abstract class PipeArgument
 
     public void Pre()
     {
-        if (Pipe != null)
+        lock (_pipeLock)
         {
-            throw new InvalidOperationException("Pipe already has been opened");
-        }
+            if (Pipe != null)
+            {
+                throw new InvalidOperationException("Pipe already has been opened");
+            }
 
-        Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        }
     }
 
     public void Post()
