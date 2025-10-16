@@ -1,17 +1,18 @@
-﻿namespace FFMpegCore.Arguments
+﻿using System.Globalization;
+
+namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents frame rate parameter
+/// </summary>
+public class FrameRateArgument : IArgument
 {
-    /// <summary>
-    /// Represents frame rate parameter
-    /// </summary>
-    public class FrameRateArgument : IArgument
+    public readonly double Framerate;
+
+    public FrameRateArgument(double framerate)
     {
-        public readonly double Framerate;
-
-        public FrameRateArgument(double framerate)
-        {
-            Framerate = framerate;
-        }
-
-        public string Text => $"-r {Framerate.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+        Framerate = framerate;
     }
+
+    public string Text => $"-r {Framerate.ToString(CultureInfo.InvariantCulture)}";
 }

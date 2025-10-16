@@ -1,15 +1,14 @@
-﻿namespace FFMpegCore.Enums
+﻿namespace FFMpegCore.Enums;
+
+public enum Speed
 {
-    public enum Speed
-    {
-        VerySlow,
-        Slower,
-        Slow,
-        Medium,
-        Fast,
-        Faster,
-        VeryFast,
-        SuperFast,
-        UltraFast
-    }
+    VerySlow,
+    Slower,
+    Slow,
+    Medium,
+    Fast,
+    Faster,
+    VeryFast,
+    SuperFast,
+    UltraFast
 }

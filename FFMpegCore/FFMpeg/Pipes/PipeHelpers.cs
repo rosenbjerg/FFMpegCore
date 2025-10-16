@@ -1,19 +1,21 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace FFMpegCore.Pipes
+namespace FFMpegCore.Pipes;
+
+internal static class PipeHelpers
 {
-    internal static class PipeHelpers
+    public static string GetUnqiuePipeName()
     {
-        public static string GetUnqiuePipeName() => $"FFMpegCore_{Guid.NewGuid().ToString("N").Substring(0, 5)}";
+        return $"FFMpegCore_{Guid.NewGuid().ToString("N").Substring(0, 5)}";
+    }
 
-        public static string GetPipePath(string pipeName)
+    public static string GetPipePath(string pipeName)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return $@"\\.\pipe\{pipeName}";
-            }
-
-            return $"unix:{Path.Combine(Path.GetTempPath(), $"CoreFxPipe_{pipeName}")}";
+            return $@"\\.\pipe\{pipeName}";
         }
+
+        return $"unix:{Path.Combine(Path.GetTempPath(), $"CoreFxPipe_{pipeName}")}";
     }
 }

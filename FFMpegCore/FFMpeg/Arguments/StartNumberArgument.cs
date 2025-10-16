@@ -1,17 +1,16 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents start number parameter
+/// </summary>
+public class StartNumberArgument : IArgument
 {
-    /// <summary>
-    /// Represents start number parameter
-    /// </summary>
-    public class StartNumberArgument : IArgument
+    public readonly int StartNumber;
+
+    public StartNumberArgument(int startNumber)
     {
-        public readonly int StartNumber;
-
-        public StartNumberArgument(int startNumber)
-        {
-            StartNumber = startNumber;
-        }
-
-        public string Text => $"-start_number {StartNumber}";
+        StartNumber = startNumber;
     }
+
+    public string Text => $"-start_number {StartNumber}";
 }

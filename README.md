@@ -1,27 +1,34 @@
-# [FFMpegCore](https://www.nuget.org/packages/FFMpegCore/) 
+# [FFMpegCore](https://www.nuget.org/packages/FFMpegCore/)
+
 [![NuGet Version](https://img.shields.io/nuget/v/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
 [![GitHub stars](https://img.shields.io/github/stars/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/stargazers)
 [![GitHub](https://img.shields.io/github/license/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/rosenbjerg/FFMpegCore/branch/main/graph/badge.svg)](https://codecov.io/gh/rosenbjerg/FFMpegCore)
 [![CI](https://github.com/rosenbjerg/FFMpegCore/workflows/CI/badge.svg)](https://github.com/rosenbjerg/FFMpegCore/actions/workflows/ci.yml)
 [![GitHub code contributors](https://img.shields.io/github/contributors/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/graphs/contributors)
 
-A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both synchronous and asynchronous calls
+A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both
+synchronous and asynchronous calls
 
 # API
 
 ## FFProbe
+
 Use FFProbe to analyze media files:
 
 ```csharp
 var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
 ```
-or 
+
+or
+
 ```csharp
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
 ## FFMpeg
+
 Use FFMpeg to convert your media files.
 Easily build your FFMpeg arguments using the fluent argument builder:
 
@@ -42,6 +49,7 @@ FFMpegArguments
 ```
 
 Convert to and/or from streams
+
 ```csharp
 await FFMpegArguments
     .FromPipeInput(new StreamPipeSource(inputStream))
@@ -52,9 +60,11 @@ await FFMpegArguments
 ```
 
 ## Helper methods
+
 The provided helper methods makes it simple to perform common operations.
 
 ### Easily capture snapshots from a video file:
+
 ```csharp
 // process the snapshot in-memory and use the Bitmap directly
 var bitmap = FFMpeg.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
@@ -64,6 +74,7 @@ FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(
 ```
 
 ### You can also capture GIF snapshots from a video file:
+
 ```csharp
 FFMpeg.GifSnapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10));
 
@@ -75,6 +86,7 @@ await FFMpeg.GifSnapshotAsync(inputPath, outputPath, new Size(480, -1), TimeSpan
 ```
 
 ### Join video parts into one single file:
+
 ```csharp
 FFMpeg.Join(@"..\joined_video.mp4",
     @"..\part1.mp4",
@@ -84,6 +96,7 @@ FFMpeg.Join(@"..\joined_video.mp4",
 ```
 
 ### Create a sub video
+
 ``` csharp
 FFMpeg.SubVideo(inputPath, 
     outputPath,
@@ -93,6 +106,7 @@ FFMpeg.SubVideo(inputPath,
 ```
 
 ### Join images into a video:
+
 ```csharp
 FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
     ImageInfo.FromPath(@"..\1.png"),
@@ -102,21 +116,25 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
 ```
 
 ### Mute the audio of a video file:
+
 ```csharp
 FFMpeg.Mute(inputPath, outputPath);
 ```
 
 ### Extract the audio track from a video file:
+
 ```csharp
 FFMpeg.ExtractAudio(inputPath, outputPath);
 ```
 
 ### Add or replace the audio track of a video file:
+
 ```csharp
 FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath);
 ```
 
 ### Combine an image with audio file, for youtube or similar platforms
+
 ```csharp
 FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
 // or
@@ -127,13 +145,17 @@ image.AddAudio(inputAudioPath, outputPath);
 Other available arguments could be found in `FFMpegCore.Arguments` namespace.
 
 ## Input piping
-With input piping it is possible to write video frames directly from program memory without saving them to jpeg or png and then passing path to input of ffmpeg. This feature also allows for converting video on-the-fly while frames are being generated or received.
 
-An object implementing the `IPipeSource` interface is used as the source of data. Currently, the `IPipeSource` interface has two implementations; `StreamPipeSource` for streams, and `RawVideoPipeSource` for raw video frames.
+With input piping it is possible to write video frames directly from program memory without saving them to jpeg or png and then passing path
+to input of ffmpeg. This feature also allows for converting video on-the-fly while frames are being generated or received.
+
+An object implementing the `IPipeSource` interface is used as the source of data. Currently, the `IPipeSource` interface has two
+implementations; `StreamPipeSource` for streams, and `RawVideoPipeSource` for raw video frames.
 
 ### Working with raw video frames
 
 Method for generating bitmap frames:
+
 ```csharp
 IEnumerable<IVideoFrame> CreateFrames(int count)
 {
@@ -145,6 +167,7 @@ IEnumerable<IVideoFrame> CreateFrames(int count)
 ```
 
 Then create a `RawVideoPipeSource` that utilises your video frame source
+
 ```csharp
 var videoFramesSource = new RawVideoPipeSource(CreateFrames(64))
 {
@@ -159,27 +182,30 @@ await FFMpegArguments
 
 If you want to use `System.Drawing.Bitmap`s as `IVideoFrame`s, a `BitmapVideoFrameWrapper` wrapper class is provided.
 
-
 # Binaries
 
 ## Installation
-If you prefer to manually download them, visit [ffbinaries](https://ffbinaries.com/downloads) or [zeranoe Windows builds](https://ffmpeg.zeranoe.com/builds/).
+
+If you prefer to manually download them, visit [ffbinaries](https://ffbinaries.com/downloads)
+or [zeranoe Windows builds](https://ffmpeg.zeranoe.com/builds/).
 
 ### Windows (using choco)
+
 command: `choco install ffmpeg -y`
 
 location: `C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin`
 
 ### Mac OSX
+
 command: `brew install ffmpeg mono-libgdiplus`
 
 location: `/usr/local/bin`
 
 ### Ubuntu
+
 command: `sudo apt-get install -y ffmpeg libgdiplus`
 
 location: `/usr/bin`
-
 
 ## Path Configuration
 
@@ -216,7 +242,8 @@ await FFMpegArguments
 
 ### Option 2
 
-The root and temp directory for the ffmpeg binaries can be configured via the `ffmpeg.config.json` file, which will be read on first use only.
+The root and temp directory for the ffmpeg binaries can be configured via the `ffmpeg.config.json` file, which will be read on first use
+only.
 
 ```json
 {
@@ -226,8 +253,10 @@ The root and temp directory for the ffmpeg binaries can be configured via the `f
 ```
 
 ### Supporting both 32 and 64 bit processes
-If you wish to support multiple client processor architectures, you can do so by creating two folders, `x64` and `x86`, in the `BinaryFolder` directory.
-Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) built for the respective architectures. 
+
+If you wish to support multiple client processor architectures, you can do so by creating two folders, `x64` and `x86`, in the
+`BinaryFolder` directory.
+Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) built for the respective architectures.
 
 By doing so, the library will attempt to use either `/{BinaryFolder}/{ARCH}/(ffmpeg|ffprobe).exe`.
 
@@ -235,19 +264,20 @@ If these folders are not defined, it will try to find the binaries in `/{BinaryF
 
 (`.exe` is only appended on Windows)
 
-
 # Compatibility
-Older versions of ffmpeg might not support all ffmpeg arguments available through this library. The library has been tested with version `3.3` to `4.2`
 
+Older versions of ffmpeg might not support all ffmpeg arguments available through this library. The library has been tested with version
+`3.3` to `4.2`
 
 ## Code contributors
+
 <a href="https://github.com/rosenbjerg/ffmpegcore/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
 </a>
 
 ## Other contributors
-<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
 
+<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
 
 ### License
 
