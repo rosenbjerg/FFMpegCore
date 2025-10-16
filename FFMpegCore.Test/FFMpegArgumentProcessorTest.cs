@@ -15,7 +15,7 @@ public class FFMpegArgumentProcessorTest
     [TestMethod]
     public void Processor_GlobalOptions_GetUsed()
     {
-        var globalWorkingDir = "Whatever";
+        var globalWorkingDir = "Whatever1";
         var processor = CreateArgumentProcessor();
 
         try
@@ -47,7 +47,7 @@ public class FFMpegArgumentProcessorTest
     [TestMethod]
     public void Processor_Options_CanBeOverridden_And_Configured()
     {
-        var globalConfig = "Whatever";
+        var globalConfig = "Whatever2";
 
         try
         {
@@ -59,14 +59,14 @@ public class FFMpegArgumentProcessorTest
             var overrideOptions = new FFOptions { WorkingDirectory = "override" };
 
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
-            var options = processor.GetConfiguredOptions(overrideOptions);
+            var configuredOptions = processor.GetConfiguredOptions(overrideOptions);
 
-            Assert.AreEqual(options.WorkingDirectory, overrideOptions.WorkingDirectory);
-            Assert.AreEqual(options.TemporaryFilesFolder, overrideOptions.TemporaryFilesFolder);
-            Assert.AreEqual(options.BinaryFolder, overrideOptions.BinaryFolder);
+            Assert.AreEqual(configuredOptions.WorkingDirectory, overrideOptions.WorkingDirectory);
+            Assert.AreEqual(configuredOptions.TemporaryFilesFolder, overrideOptions.TemporaryFilesFolder);
+            Assert.AreEqual(configuredOptions.BinaryFolder, overrideOptions.BinaryFolder);
 
-            Assert.AreEqual(sessionTempDir, options.TemporaryFilesFolder);
-            Assert.AreNotEqual(globalConfig, options.BinaryFolder);
+            Assert.AreEqual(sessionTempDir, configuredOptions.TemporaryFilesFolder);
+            Assert.AreNotEqual(globalConfig, configuredOptions.BinaryFolder);
         }
         finally
         {
@@ -77,7 +77,7 @@ public class FFMpegArgumentProcessorTest
     [TestMethod]
     public void Options_Global_And_Session_Options_Can_Differ()
     {
-        var globalWorkingDir = "Whatever";
+        var globalWorkingDir = "Whatever3";
 
         try
         {
