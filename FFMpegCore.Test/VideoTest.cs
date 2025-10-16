@@ -467,7 +467,7 @@ namespace FFMpegCore.Test
         }
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
-        public void Video_Snapshot_PersistSnapshot()
+        public void Video_Snapshot_Png_PersistSnapshot()
         {
             using var outputPath = new TemporaryFile("out.png");
             var input = FFProbe.Analyse(TestResources.Mp4Video);
@@ -478,6 +478,63 @@ namespace FFMpegCore.Test
             Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
             Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
             Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_Snapshot_Jpg_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.jpg");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+
+            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("mjpeg", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_Snapshot_Bmp_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.bmp");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+
+            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("bmp", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_Snapshot_Webp_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.webp");
+            var input = FFProbe.Analyse(TestResources.Mp4Video);
+
+            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+
+            var analysis = FFProbe.Analyse(outputPath);
+            Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+            Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+            Assert.AreEqual("webp", analysis.PrimaryVideoStream!.CodecName);
+        }
+
+        [TestMethod, Timeout(BaseTimeoutMilliseconds)]
+        public void Video_Snapshot_Exception_PersistSnapshot()
+        {
+            using var outputPath = new TemporaryFile("out.asd");
+
+            try
+            {
+                FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex is ArgumentException);
+            }
         }
 
         [TestMethod, Timeout(BaseTimeoutMilliseconds)]
