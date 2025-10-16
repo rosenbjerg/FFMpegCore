@@ -1,9 +1,8 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+public interface IInputOutputArgument : IArgument
 {
-    public interface IInputOutputArgument : IArgument
-    {
-        void Pre();
-        Task During(CancellationToken cancellationToken = default);
-        void Post();
-    }
+    void Pre();
+    Task During(CancellationToken cancellationToken = default);
+    void Post();
 }

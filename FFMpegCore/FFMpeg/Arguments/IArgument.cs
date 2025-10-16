@@ -1,10 +1,9 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+public interface IArgument
 {
-    public interface IArgument
-    {
-        /// <summary>
-        /// The textual representation of the argument
-        /// </summary>
-        string Text { get; }
-    }
+    /// <summary>
+    ///     The textual representation of the argument
+    /// </summary>
+    string Text { get; }
 }

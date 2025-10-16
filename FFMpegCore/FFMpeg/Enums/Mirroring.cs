@@ -1,8 +1,7 @@
-﻿namespace FFMpegCore.Enums
+﻿namespace FFMpegCore.Enums;
+
+public enum Mirroring
 {
-    public enum Mirroring
-    {
-        Vertical,
-        Horizontal
-    }
+    Vertical,
+    Horizontal
 }

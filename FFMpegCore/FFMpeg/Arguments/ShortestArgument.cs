@@ -1,17 +1,16 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents shortest parameter
+/// </summary>
+public class ShortestArgument : IArgument
 {
-    /// <summary>
-    /// Represents shortest parameter
-    /// </summary>
-    public class ShortestArgument : IArgument
+    public readonly bool Shortest;
+
+    public ShortestArgument(bool shortest)
     {
-        public readonly bool Shortest;
-
-        public ShortestArgument(bool shortest)
-        {
-            Shortest = shortest;
-        }
-
-        public string Text => Shortest ? "-shortest" : string.Empty;
+        Shortest = shortest;
     }
+
+    public string Text => Shortest ? "-shortest" : string.Empty;
 }

@@ -1,16 +1,15 @@
 ﻿using FFMpegCore.Enums;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+public class HardwareAccelerationArgument : IArgument
 {
-    public class HardwareAccelerationArgument : IArgument
+    public HardwareAccelerationArgument(HardwareAccelerationDevice hardwareAccelerationDevice)
     {
-        public HardwareAccelerationDevice HardwareAccelerationDevice { get; }
-
-        public HardwareAccelerationArgument(HardwareAccelerationDevice hardwareAccelerationDevice)
-        {
-            HardwareAccelerationDevice = hardwareAccelerationDevice;
-        }
-
-        public string Text => $"-hwaccel {HardwareAccelerationDevice.ToString().ToLower()}";
+        HardwareAccelerationDevice = hardwareAccelerationDevice;
     }
+
+    public HardwareAccelerationDevice HardwareAccelerationDevice { get; }
+
+    public string Text => $"-hwaccel {HardwareAccelerationDevice.ToString().ToLower()}";
 }

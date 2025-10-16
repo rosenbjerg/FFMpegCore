@@ -2,63 +2,101 @@
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+public class VideoFiltersArgument : IArgument
 {
-    public class VideoFiltersArgument : IArgument
-    {
-        public readonly VideoFilterOptions Options;
+    public readonly VideoFilterOptions Options;
 
-        public VideoFiltersArgument(VideoFilterOptions options)
+    public VideoFiltersArgument(VideoFilterOptions options)
+    {
+        Options = options;
+    }
+
+    public string Text => GetText();
+
+    private string GetText()
+    {
+        if (!Options.Arguments.Any())
         {
-            Options = options;
+            throw new FFMpegArgumentException("No video-filter arguments provided");
         }
 
-        public string Text => GetText();
-
-        private string GetText()
-        {
-            if (!Options.Arguments.Any())
+        var arguments = Options.Arguments
+            .Where(arg => !string.IsNullOrEmpty(arg.Value))
+            .Select(arg =>
             {
-                throw new FFMpegArgumentException("No video-filter arguments provided");
-            }
+                var escapedValue = arg.Value.Replace(",", "\\,");
+                return string.IsNullOrEmpty(arg.Key) ? escapedValue : $"{arg.Key}={escapedValue}";
+            });
 
-            var arguments = Options.Arguments
-                .Where(arg => !string.IsNullOrEmpty(arg.Value))
-                .Select(arg =>
-                {
-                    var escapedValue = arg.Value.Replace(",", "\\,");
-                    return string.IsNullOrEmpty(arg.Key) ? escapedValue : $"{arg.Key}={escapedValue}";
-                });
+        return $"-vf \"{string.Join(", ", arguments)}\"";
+    }
+}
 
-            return $"-vf \"{string.Join(", ", arguments)}\"";
-        }
+public interface IVideoFilterArgument
+{
+    string Key { get; }
+    string Value { get; }
+}
+
+public class VideoFilterOptions
+{
+    public List<IVideoFilterArgument> Arguments { get; } = new();
+
+    public VideoFilterOptions Scale(VideoSize videoSize)
+    {
+        return WithArgument(new ScaleArgument(videoSize));
     }
 
-    public interface IVideoFilterArgument
+    public VideoFilterOptions Scale(int width, int height)
     {
-        string Key { get; }
-        string Value { get; }
+        return WithArgument(new ScaleArgument(width, height));
     }
 
-    public class VideoFilterOptions
+    public VideoFilterOptions Scale(Size size)
     {
-        public List<IVideoFilterArgument> Arguments { get; } = new();
+        return WithArgument(new ScaleArgument(size));
+    }
 
-        public VideoFilterOptions Scale(VideoSize videoSize) => WithArgument(new ScaleArgument(videoSize));
-        public VideoFilterOptions Scale(int width, int height) => WithArgument(new ScaleArgument(width, height));
-        public VideoFilterOptions Scale(Size size) => WithArgument(new ScaleArgument(size));
-        public VideoFilterOptions Transpose(Transposition transposition) => WithArgument(new TransposeArgument(transposition));
-        public VideoFilterOptions Mirror(Mirroring mirroring) => WithArgument(new SetMirroringArgument(mirroring));
-        public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions) => WithArgument(new DrawTextArgument(drawTextOptions));
-        public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions) => WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
-        public VideoFilterOptions BlackDetect(double minimumDuration = 2.0, double pictureBlackRatioThreshold = 0.98, double pixelBlackThreshold = 0.1) => WithArgument(new BlackDetectArgument(minimumDuration, pictureBlackRatioThreshold, pixelBlackThreshold));
-        public VideoFilterOptions BlackFrame(int amount = 98, int threshold = 32) => WithArgument(new BlackFrameArgument(amount, threshold));
-        public VideoFilterOptions Pad(PadOptions padOptions) => WithArgument(new PadArgument(padOptions));
+    public VideoFilterOptions Transpose(Transposition transposition)
+    {
+        return WithArgument(new TransposeArgument(transposition));
+    }
 
-        private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
-        {
-            Arguments.Add(argument);
-            return this;
-        }
+    public VideoFilterOptions Mirror(Mirroring mirroring)
+    {
+        return WithArgument(new SetMirroringArgument(mirroring));
+    }
+
+    public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions)
+    {
+        return WithArgument(new DrawTextArgument(drawTextOptions));
+    }
+
+    public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions)
+    {
+        return WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
+    }
+
+    public VideoFilterOptions BlackDetect(double minimumDuration = 2.0, double pictureBlackRatioThreshold = 0.98, double pixelBlackThreshold = 0.1)
+    {
+        return WithArgument(new BlackDetectArgument(minimumDuration, pictureBlackRatioThreshold, pixelBlackThreshold));
+    }
+
+    public VideoFilterOptions BlackFrame(int amount = 98, int threshold = 32)
+    {
+        return WithArgument(new BlackFrameArgument(amount, threshold));
+    }
+
+    public VideoFilterOptions Pad(PadOptions padOptions)
+    {
+        return WithArgument(new PadArgument(padOptions));
+    }
+
+    private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
+    {
+        Arguments.Add(argument);
+        return this;
     }
 }

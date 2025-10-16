@@ -1,23 +1,22 @@
 ﻿using System.Drawing;
 
-namespace FFMpegCore.Extensions.System.Drawing.Common
+namespace FFMpegCore.Extensions.System.Drawing.Common;
+
+public static class BitmapExtensions
 {
-    public static class BitmapExtensions
+    public static bool AddAudio(this Image poster, string audio, string output)
     {
-        public static bool AddAudio(this Image poster, string audio, string output)
+        var destination = $"{Environment.TickCount}.png";
+        poster.Save(destination);
+        try
         {
-            var destination = $"{Environment.TickCount}.png";
-            poster.Save(destination);
-            try
+            return FFMpeg.PosterWithAudio(destination, audio, output);
+        }
+        finally
+        {
+            if (File.Exists(destination))
             {
-                return FFMpeg.PosterWithAudio(destination, audio, output);
-            }
-            finally
-            {
-                if (File.Exists(destination))
-                {
-                    File.Delete(destination);
-                }
+                File.Delete(destination);
             }
         }
     }

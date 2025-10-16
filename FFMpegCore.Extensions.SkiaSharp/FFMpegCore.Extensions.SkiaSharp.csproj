@@ -1,23 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsPackable>true</IsPackable>
-        <Description>Image extension for FFMpegCore using SkiaSharp</Description>
-        <PackageVersion>5.0.2</PackageVersion>
-        <PackageOutputPath>../nupkg</PackageOutputPath>
-        <PackageReleaseNotes>Bump dependencies</PackageReleaseNotes>
-        <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing skiasharp</PackageTags>
-        <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
-        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>Image extension for FFMpegCore using SkiaSharp</Description>
+    <PackageVersion>5.0.3</PackageVersion>
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+    <PackageReleaseNotes>Bump dependencies</PackageReleaseNotes>
+    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing skiasharp</PackageTags>
+    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="SkiaSharp" Version="3.116.1" />
-      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="3.119.1"/>
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj"/>
+  </ItemGroup>
 
 </Project>

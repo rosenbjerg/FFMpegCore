@@ -1,67 +1,68 @@
 ﻿using FFMpegCore.Enums;
 
-namespace FFMpegCore
+namespace FFMpegCore;
+
+internal static class FFMpegCache
 {
-    internal static class FFMpegCache
+    private static readonly object _syncObject = new();
+    private static Dictionary<string, PixelFormat>? _pixelFormats;
+    private static Dictionary<string, Codec>? _codecs;
+    private static Dictionary<string, ContainerFormat>? _containers;
+
+    public static IReadOnlyDictionary<string, PixelFormat> PixelFormats
     {
-        private static readonly object _syncObject = new();
-        private static Dictionary<string, PixelFormat>? _pixelFormats;
-        private static Dictionary<string, Codec>? _codecs;
-        private static Dictionary<string, ContainerFormat>? _containers;
-
-        public static IReadOnlyDictionary<string, PixelFormat> PixelFormats
+        get
         {
-            get
+            if (_pixelFormats == null) //First check not thread safe
             {
-                if (_pixelFormats == null) //First check not thread safe
+                lock (_syncObject)
                 {
-                    lock (_syncObject)
+                    if (_pixelFormats == null) //Second check thread safe
                     {
-                        if (_pixelFormats == null)//Second check thread safe
-                        {
-                            _pixelFormats = FFMpeg.GetPixelFormatsInternal().ToDictionary(x => x.Name);
-                        }
+                        _pixelFormats = FFMpeg.GetPixelFormatsInternal().ToDictionary(x => x.Name);
                     }
                 }
-
-                return _pixelFormats;
             }
+
+            return _pixelFormats;
         }
-        public static IReadOnlyDictionary<string, Codec> Codecs
+    }
+
+    public static IReadOnlyDictionary<string, Codec> Codecs
+    {
+        get
         {
-            get
+            if (_codecs == null) //First check not thread safe
             {
-                if (_codecs == null) //First check not thread safe
+                lock (_syncObject)
                 {
-                    lock (_syncObject)
+                    if (_codecs == null) //Second check thread safe
                     {
-                        if (_codecs == null)//Second check thread safe
-                        {
-                            _codecs = FFMpeg.GetCodecsInternal();
-                        }
+                        _codecs = FFMpeg.GetCodecsInternal();
                     }
                 }
-
-                return _codecs;
             }
+
+            return _codecs;
         }
-        public static IReadOnlyDictionary<string, ContainerFormat> ContainerFormats
+    }
+
+    public static IReadOnlyDictionary<string, ContainerFormat> ContainerFormats
+    {
+        get
         {
-            get
+            if (_containers == null) //First check not thread safe
             {
-                if (_containers == null) //First check not thread safe
+                lock (_syncObject)
                 {
-                    lock (_syncObject)
+                    if (_containers == null) //Second check thread safe
                     {
-                        if (_containers == null)//Second check thread safe
-                        {
-                            _containers = FFMpeg.GetContainersFormatsInternal().ToDictionary(x => x.Name);
-                        }
+                        _containers = FFMpeg.GetContainersFormatsInternal().ToDictionary(x => x.Name);
                     }
                 }
-
-                return _containers;
             }
+
+            return _containers;
         }
     }
 }

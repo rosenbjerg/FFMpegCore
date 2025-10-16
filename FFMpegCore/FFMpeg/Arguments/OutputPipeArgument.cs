@@ -1,28 +1,27 @@
 ﻿using System.IO.Pipes;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+public class OutputPipeArgument : PipeArgument, IOutputArgument
 {
-    public class OutputPipeArgument : PipeArgument, IOutputArgument
+    public readonly IPipeSink Reader;
+
+    public OutputPipeArgument(IPipeSink reader) : base(PipeDirection.In)
     {
-        public readonly IPipeSink Reader;
+        Reader = reader;
+    }
 
-        public OutputPipeArgument(IPipeSink reader) : base(PipeDirection.In)
+    public override string Text => $"\"{PipePath}\" -y";
+
+    protected override async Task ProcessDataAsync(CancellationToken token)
+    {
+        await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
+        if (!Pipe.IsConnected)
         {
-            Reader = reader;
+            throw new TaskCanceledException();
         }
 
-        public override string Text => $"\"{PipePath}\" -y";
-
-        protected override async Task ProcessDataAsync(CancellationToken token)
-        {
-            await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
-            if (!Pipe.IsConnected)
-            {
-                throw new TaskCanceledException();
-            }
-
-            await Reader.ReadAsync(Pipe, token).ConfigureAwait(false);
-        }
+        await Reader.ReadAsync(Pipe, token).ConfigureAwait(false);
     }
 }

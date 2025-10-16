@@ -1,6 +1,5 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+public interface IOutputArgument : IInputOutputArgument
 {
-    public interface IOutputArgument : IInputOutputArgument
-    {
-    }
 }

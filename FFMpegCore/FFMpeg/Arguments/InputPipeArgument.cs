@@ -1,31 +1,30 @@
 ﻿using System.IO.Pipes;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents input parameter for a named pipe
+/// </summary>
+public class InputPipeArgument : PipeArgument, IInputArgument
 {
-    /// <summary>
-    /// Represents input parameter for a named pipe
-    /// </summary>
-    public class InputPipeArgument : PipeArgument, IInputArgument
+    public readonly IPipeSource Writer;
+
+    public InputPipeArgument(IPipeSource writer) : base(PipeDirection.Out)
     {
-        public readonly IPipeSource Writer;
+        Writer = writer;
+    }
 
-        public InputPipeArgument(IPipeSource writer) : base(PipeDirection.Out)
+    public override string Text => $"{Writer.GetStreamArguments()} -i \"{PipePath}\"";
+
+    protected override async Task ProcessDataAsync(CancellationToken token)
+    {
+        await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
+        if (!Pipe.IsConnected)
         {
-            Writer = writer;
+            throw new OperationCanceledException();
         }
 
-        public override string Text => $"{Writer.GetStreamArguments()} -i \"{PipePath}\"";
-
-        protected override async Task ProcessDataAsync(CancellationToken token)
-        {
-            await Pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
-            if (!Pipe.IsConnected)
-            {
-                throw new OperationCanceledException();
-            }
-
-            await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
-        }
+        await Writer.WriteAsync(Pipe, token).ConfigureAwait(false);
     }
 }

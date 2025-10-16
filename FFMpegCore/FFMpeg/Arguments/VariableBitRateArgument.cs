@@ -1,22 +1,21 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Variable Bitrate Argument (VBR) argument
+/// </summary>
+public class VariableBitRateArgument : IArgument
 {
-    /// <summary>
-    /// Variable Bitrate Argument (VBR) argument
-    /// </summary>
-    public class VariableBitRateArgument : IArgument
+    public readonly int Vbr;
+
+    public VariableBitRateArgument(int vbr)
     {
-        public readonly int Vbr;
-
-        public VariableBitRateArgument(int vbr)
+        if (vbr < 0 || vbr > 5)
         {
-            if (vbr < 0 || vbr > 5)
-            {
-                throw new ArgumentException("Argument is outside range (0 - 5)", nameof(vbr));
-            }
-
-            Vbr = vbr;
+            throw new ArgumentException("Argument is outside range (0 - 5)", nameof(vbr));
         }
 
-        public string Text => $"-vbr {Vbr}";
+        Vbr = vbr;
     }
+
+    public string Text => $"-vbr {Vbr}";
 }

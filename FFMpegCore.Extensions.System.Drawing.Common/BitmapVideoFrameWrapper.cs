@@ -3,85 +3,84 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Extensions.System.Drawing.Common
+namespace FFMpegCore.Extensions.System.Drawing.Common;
+
+public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
 {
-    public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
+    public BitmapVideoFrameWrapper(Bitmap bitmap)
     {
-        public int Width => Source.Width;
+        Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
+        Format = ConvertStreamFormat(bitmap.PixelFormat);
+    }
 
-        public int Height => Source.Height;
+    public Bitmap Source { get; }
 
-        public string Format { get; private set; }
+    public void Dispose()
+    {
+        Source.Dispose();
+    }
 
-        public Bitmap Source { get; private set; }
+    public int Width => Source.Width;
 
-        public BitmapVideoFrameWrapper(Bitmap bitmap)
+    public int Height => Source.Height;
+
+    public string Format { get; }
+
+    public void Serialize(Stream stream)
+    {
+        var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
+
+        try
         {
-            Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
-            Format = ConvertStreamFormat(bitmap.PixelFormat);
+            var buffer = new byte[data.Stride * data.Height];
+            Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
+            stream.Write(buffer, 0, buffer.Length);
         }
-
-        public void Serialize(Stream stream)
+        finally
         {
-            var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
-
-            try
-            {
-                var buffer = new byte[data.Stride * data.Height];
-                Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                stream.Write(buffer, 0, buffer.Length);
-            }
-            finally
-            {
-                Source.UnlockBits(data);
-            }
+            Source.UnlockBits(data);
         }
+    }
 
-        public async Task SerializeAsync(Stream stream, CancellationToken token)
+    public async Task SerializeAsync(Stream stream, CancellationToken token)
+    {
+        var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
+
+        try
         {
-            var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
-
-            try
-            {
-                var buffer = new byte[data.Stride * data.Height];
-                Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-                await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
-            }
-            finally
-            {
-                Source.UnlockBits(data);
-            }
+            var buffer = new byte[data.Stride * data.Height];
+            Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
+            await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
         }
-
-        public void Dispose()
+        finally
         {
-            Source.Dispose();
+            Source.UnlockBits(data);
         }
+    }
 
-        private static string ConvertStreamFormat(PixelFormat fmt)
+    private static string ConvertStreamFormat(PixelFormat fmt)
+    {
+        switch (fmt)
         {
-            switch (fmt)
-            {
-                case PixelFormat.Format16bppGrayScale:
-                    return "gray16le";
-                case PixelFormat.Format16bppRgb555:
-                    return "bgr555le";
-                case PixelFormat.Format16bppRgb565:
-                    return "bgr565le";
-                case PixelFormat.Format24bppRgb:
-                    return "bgr24";
-                case PixelFormat.Format32bppArgb:
-                    return "bgra";
-                case PixelFormat.Format32bppPArgb:
-                    //This is not really same as argb32
-                    return "argb";
-                case PixelFormat.Format32bppRgb:
-                    return "rgba";
-                case PixelFormat.Format48bppRgb:
-                    return "rgb48le";
-                default:
-                    throw new NotSupportedException($"Not supported pixel format {fmt}");
-            }
+            case PixelFormat.Format16bppGrayScale:
+                return "gray16le";
+            case PixelFormat.Format16bppRgb555:
+                return "bgr555le";
+            case PixelFormat.Format16bppRgb565:
+                return "bgr565le";
+            case PixelFormat.Format24bppRgb:
+                return "bgr24";
+            case PixelFormat.Format32bppArgb:
+                return "bgra";
+            case PixelFormat.Format32bppPArgb:
+                //This is not really same as argb32
+                return "argb";
+            case PixelFormat.Format32bppRgb:
+                return "rgba";
+            case PixelFormat.Format48bppRgb:
+                return "rgb48le";
+            default:
+                throw new NotSupportedException($"Not supported pixel format {fmt}");
         }
     }
 }

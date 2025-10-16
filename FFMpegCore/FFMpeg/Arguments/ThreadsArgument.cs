@@ -1,19 +1,19 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents threads parameter
+///     Number of threads used for video encoding
+/// </summary>
+public class ThreadsArgument : IArgument
 {
-    /// <summary>
-    /// Represents threads parameter
-    /// Number of threads used for video encoding
-    /// </summary>
-    public class ThreadsArgument : IArgument
+    public readonly int Threads;
+
+    public ThreadsArgument(int threads)
     {
-        public readonly int Threads;
-        public ThreadsArgument(int threads)
-        {
-            Threads = threads;
-        }
-
-        public ThreadsArgument(bool isMultiThreaded) : this(isMultiThreaded ? Environment.ProcessorCount : 1) { }
-
-        public string Text => $"-threads {Threads}";
+        Threads = threads;
     }
+
+    public ThreadsArgument(bool isMultiThreaded) : this(isMultiThreaded ? Environment.ProcessorCount : 1) { }
+
+    public string Text => $"-threads {Threads}";
 }

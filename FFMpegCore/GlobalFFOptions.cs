@@ -1,59 +1,63 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 
-namespace FFMpegCore
+namespace FFMpegCore;
+
+public static class GlobalFFOptions
 {
-    public static class GlobalFFOptions
+    private const string ConfigFile = "ffmpeg.config.json";
+    private static FFOptions? _current;
+
+    public static FFOptions Current => _current ??= LoadFFOptions();
+
+    public static void Configure(Action<FFOptions> optionsAction)
     {
-        private const string ConfigFile = "ffmpeg.config.json";
-        private static FFOptions? _current;
+        optionsAction.Invoke(Current);
+    }
 
-        public static FFOptions Current => _current ??= LoadFFOptions();
+    public static void Configure(FFOptions ffOptions)
+    {
+        _current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
+    }
 
-        public static void Configure(Action<FFOptions> optionsAction) => optionsAction.Invoke(Current);
+    public static string GetFFMpegBinaryPath(FFOptions? ffOptions = null)
+    {
+        return GetFFBinaryPath("FFMpeg", ffOptions ?? Current);
+    }
 
-        public static void Configure(FFOptions ffOptions)
+    public static string GetFFProbeBinaryPath(FFOptions? ffOptions = null)
+    {
+        return GetFFBinaryPath("FFProbe", ffOptions ?? Current);
+    }
+
+    private static string GetFFBinaryPath(string name, FFOptions ffOptions)
+    {
+        var ffName = name.ToLowerInvariant();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            _current = ffOptions ?? throw new ArgumentNullException(nameof(ffOptions));
+            ffName += ".exe";
         }
 
-        public static string GetFFMpegBinaryPath(FFOptions? ffOptions = null) => GetFFBinaryPath("FFMpeg", ffOptions ?? Current);
+        var target = Environment.Is64BitProcess ? "x64" : "x86";
+        var possiblePaths = new List<string> { Path.Combine(ffOptions.BinaryFolder, target), ffOptions.BinaryFolder };
 
-        public static string GetFFProbeBinaryPath(FFOptions? ffOptions = null) => GetFFBinaryPath("FFProbe", ffOptions ?? Current);
-
-        private static string GetFFBinaryPath(string name, FFOptions ffOptions)
+        foreach (var possiblePath in possiblePaths)
         {
-            var ffName = name.ToLowerInvariant();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            var possibleFFMpegPath = Path.Combine(possiblePath, ffName);
+            if (File.Exists(possibleFFMpegPath))
             {
-                ffName += ".exe";
+                return possibleFFMpegPath;
             }
-
-            var target = Environment.Is64BitProcess ? "x64" : "x86";
-            var possiblePaths = new List<string>()
-            {
-                Path.Combine(ffOptions.BinaryFolder, target),
-                ffOptions.BinaryFolder
-            };
-
-            foreach (var possiblePath in possiblePaths)
-            {
-                var possibleFFMpegPath = Path.Combine(possiblePath, ffName);
-                if (File.Exists(possibleFFMpegPath))
-                {
-                    return possibleFFMpegPath;
-                }
-            }
-
-            //Fall back to the assumption this tool exists in the PATH
-            return ffName;
         }
 
-        private static FFOptions LoadFFOptions()
-        {
-            return File.Exists(ConfigFile)
-                ? JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!
-                : new FFOptions();
-        }
+        //Fall back to the assumption this tool exists in the PATH
+        return ffName;
+    }
+
+    private static FFOptions LoadFFOptions()
+    {
+        return File.Exists(ConfigFile)
+            ? JsonSerializer.Deserialize<FFOptions>(File.ReadAllText(ConfigFile))!
+            : new FFOptions();
     }
 }
