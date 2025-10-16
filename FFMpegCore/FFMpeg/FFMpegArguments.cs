@@ -151,7 +151,12 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
         return ToProcessor(new OutputPipeArgument(reader), addArguments);
     }
-        public FFMpegArgumentProcessor OutPutToSegmentedFiles(SegmentArgument segmentArgument, Action<FFMpegArgumentOptions>? addArguments = null) => ToProcessor(new OutputSegmentArgument(segmentArgument), addArguments);
+
+    public FFMpegArgumentProcessor OutPutToSegmentedFiles(SegmentArgument segmentArgument, Action<FFMpegArgumentOptions>? addArguments = null)
+    {
+        return ToProcessor(new OutputSegmentArgument(segmentArgument), addArguments);
+    }
+
     private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
     {
         var args = new FFMpegArgumentOptions();
