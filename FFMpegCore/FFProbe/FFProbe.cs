@@ -184,7 +184,7 @@ public static class FFProbe
         var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeFrames>(json,
             new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true, 
+                PropertyNameCaseInsensitive = true,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString
             });
 
@@ -197,7 +197,7 @@ public static class FFProbe
         var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbePackets>(json,
             new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true, 
+                PropertyNameCaseInsensitive = true,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString
             });
 
@@ -243,8 +243,8 @@ public static class FFProbe
         FFProbeHelper.VerifyFFProbeExists(ffOptions);
         var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(ffOptions), $"{arguments} {customArguments}")
         {
-            StandardOutputEncoding = ffOptions.Encoding, 
-            StandardErrorEncoding = ffOptions.Encoding, 
+            StandardOutputEncoding = ffOptions.Encoding,
+            StandardErrorEncoding = ffOptions.Encoding,
             WorkingDirectory = ffOptions.WorkingDirectory
         };
         return new ProcessArguments(startInfo);

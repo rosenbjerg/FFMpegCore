@@ -40,8 +40,8 @@ public class ContainerFormat
 
         fmt = new ContainerFormat(match.Groups[3].Value)
         {
-            DemuxingSupported = match.Groups[1].Value != " ", 
-            MuxingSupported = match.Groups[2].Value != " ", 
+            DemuxingSupported = match.Groups[1].Value != " ",
+            MuxingSupported = match.Groups[2].Value != " ",
             Description = match.Groups[4].Value
         };
         return true;
