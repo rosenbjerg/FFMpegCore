@@ -25,12 +25,12 @@ public class FFMpegArgumentProcessorTest
     public void Processor_GlobalOptions_GetUsed()
     {
         var globalWorkingDir = "Whatever";
+        var processor = CreateArgumentProcessor();
 
         try
         {
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
 
-            var processor = CreateArgumentProcessor();
             var options = processor.GetConfiguredOptions(null);
 
             Assert.AreEqual(globalWorkingDir, options.WorkingDirectory);
@@ -57,7 +57,6 @@ public class FFMpegArgumentProcessorTest
     public void Processor_Options_CanBeOverridden_And_Configured()
     {
         var globalConfig = "Whatever";
-        GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
 
         try
         {
@@ -67,6 +66,8 @@ public class FFMpegArgumentProcessorTest
             processor.Configure(options => options.TemporaryFilesFolder = sessionTempDir);
 
             var overrideOptions = new FFOptions { WorkingDirectory = "override" };
+
+            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
             var options = processor.GetConfiguredOptions(overrideOptions);
 
             Assert.AreSame(options, overrideOptions);
@@ -83,17 +84,24 @@ public class FFMpegArgumentProcessorTest
     public void Options_Global_And_Session_Options_Can_Differ()
     {
         var globalWorkingDir = "Whatever";
-        GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
 
-        var processor1 = CreateArgumentProcessor();
-        var sessionWorkingDir = "./CurrentRunWorkingDir";
-        processor1.Configure(options => options.WorkingDirectory = sessionWorkingDir);
-        var options1 = processor1.GetConfiguredOptions(null);
-        Assert.AreEqual(sessionWorkingDir, options1.WorkingDirectory);
+        try
+        {
+            var processor1 = CreateArgumentProcessor();
+            var sessionWorkingDir = "./CurrentRunWorkingDir";
+            processor1.Configure(options => options.WorkingDirectory = sessionWorkingDir);
+            var options1 = processor1.GetConfiguredOptions(null);
+            Assert.AreEqual(sessionWorkingDir, options1.WorkingDirectory);
 
-        var processor2 = CreateArgumentProcessor();
-        var options2 = processor2.GetConfiguredOptions(null);
-        Assert.AreEqual(globalWorkingDir, options2.WorkingDirectory);
+            var processor2 = CreateArgumentProcessor();
+            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
+            var options2 = processor2.GetConfiguredOptions(null);
+            Assert.AreEqual(globalWorkingDir, options2.WorkingDirectory);
+        }
+        finally
+        {
+            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = string.Empty });
+        }
     }
 
     [TestMethod]
