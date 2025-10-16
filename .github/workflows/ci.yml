@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     timeout-minutes: 7
     steps:
 
@@ -32,12 +32,15 @@ jobs:
 
     - name: Lint with dotnet
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
-
-    - name: Prepare FFMpeg
+        
+    - if: runner.os != 'macOS' || runner.arch != 'ARM64'
       uses: FedericoCarboni/setup-ffmpeg@v3
       with:
         ffmpeg-version: 6.0.1
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+        
+    - if: runner.os == 'macOS' && runner.arch == 'ARM64'
+      run: brew install ffmpeg@6
 
     - name: Test with dotnet
       run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
