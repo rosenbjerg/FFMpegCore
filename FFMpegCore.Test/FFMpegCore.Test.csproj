@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
     <LangVersion>default</LangVersion>
+    <OrderTestsByNameInClass>true</OrderTestsByNameInClass>
   </PropertyGroup>
 
   <ItemGroup>

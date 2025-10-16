@@ -1,6 +1,4 @@
-﻿using FFMpegCore.Arguments;
-
-namespace FFMpegCore.Test;
+﻿namespace FFMpegCore.Test;
 
 [TestClass]
 public class FFMpegArgumentProcessorTest
@@ -13,7 +11,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Processor_GlobalOptions_GetUsed()
+    public void ZZZ_Processor_GlobalOptions_GetUsed()
     {
         var globalWorkingDir = "Whatever";
         var processor = CreateArgumentProcessor();
@@ -45,7 +43,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Processor_Options_CanBeOverridden_And_Configured()
+    public void ZZZ_Processor_Options_CanBeOverridden_And_Configured()
     {
         var globalConfig = "Whatever";
 
@@ -75,7 +73,7 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
-    public void Options_Global_And_Session_Options_Can_Differ()
+    public void ZZZ_Options_Global_And_Session_Options_Can_Differ()
     {
         var globalWorkingDir = "Whatever";
 
@@ -96,26 +94,5 @@ public class FFMpegArgumentProcessorTest
         {
             GlobalFFOptions.Configure(new FFOptions());
         }
-    }
-
-    [TestMethod]
-    public void Concat_Escape()
-    {
-        var arg = new DemuxConcatArgument([@"Heaven's River\05 - Investigation.m4b"]);
-        CollectionAssert.AreEquivalent(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" }, arg.Values.ToArray());
-    }
-
-    [TestMethod]
-    public void Audible_Aaxc_Test()
-    {
-        var arg = new AudibleEncryptionKeyArgument("123", "456");
-        Assert.AreEqual("-audible_key 123 -audible_iv 456", arg.Text);
-    }
-
-    [TestMethod]
-    public void Audible_Aax_Test()
-    {
-        var arg = new AudibleEncryptionKeyArgument("62689101");
-        Assert.AreEqual("-activation_bytes 62689101", arg.Text);
     }
 }

@@ -824,7 +824,6 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
         var dataReceived = false;
 
-        GlobalFFOptions.Configure(opt => opt.Encoding = Encoding.UTF8);
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .WithGlobalOptions(options => options
@@ -832,6 +831,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithDuration(TimeSpan.FromSeconds(2)))
             .NotifyOnError(_ => dataReceived = true)
+            .Configure(opt => opt.Encoding = Encoding.UTF8)
             .ProcessSynchronously();
 
         Assert.IsTrue(dataReceived);
