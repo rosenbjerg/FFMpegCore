@@ -35,12 +35,14 @@ jobs:
       run: dotnet format FFMpegCore.sln --severity warn --verify-no-changes
         
     - if: matrix.os != 'macos-latest' 
+      name: Setup FFmpeg (non-macOS)
       uses: AnimMouse/setup-ffmpeg@ae28d57dabbb148eff63170b6bf7f2b60062cbae # 1.1.0
       with:
         version: 7.1
         token: ${{ github.token }}
         
     - if: matrix.os == 'macos-latest'
+      name: Setup FFmpeg (macOS)
       uses: AnimMouse/setup-ffmpeg@ae28d57dabbb148eff63170b6bf7f2b60062cbae # 1.1.0
       with:
         version: 711
