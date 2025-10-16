@@ -59,8 +59,8 @@ public class OutputSegmentArgument : IOutputArgument
 
 public interface ISegmentArgument
 {
-    public string Key { get; }
-    public string Value { get; }
+    string Key { get; }
+    string Value { get; }
 }
 
 public class SegmentArgumentOptions
