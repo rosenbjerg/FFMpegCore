@@ -53,10 +53,11 @@ public abstract class PipeArgument
         finally
         {
             Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
+
+            //if Pipe is null, then the lock doesnt matter,
+            //Because the next code will not execute anyways.
+            //so we can use a new object
             lock (Pipe ?? new object())
-                //if Pipe is null, then the lock doesnt matter,
-                //Because the next code will not execute anyways.
-                //so we can use a new object
             {
                 if (Pipe is { IsConnected: true })
                 {
