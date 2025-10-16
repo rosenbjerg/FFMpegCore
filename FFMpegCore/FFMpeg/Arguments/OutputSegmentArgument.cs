@@ -1,88 +1,114 @@
 ﻿using FFMpegCore.Exceptions;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents output parameter
+/// </summary>
+public class OutputSegmentArgument : IOutputArgument
 {
-    /// <summary>
-    /// Represents output parameter
-    /// </summary>
-    public class OutputSegmentArgument : IOutputArgument
+    public readonly SegmentArgumentOptions Options;
+    public readonly bool Overwrite;
+    public readonly string SegmentPattern;
+
+    public OutputSegmentArgument(SegmentArgument segmentArgument)
     {
-        public readonly string SegmentPattern;
-        public readonly bool Overwrite;
-        public readonly SegmentArgumentOptions Options;
-        public OutputSegmentArgument(SegmentArgument segmentArgument)
+        SegmentPattern = segmentArgument.SegmentPattern;
+        Overwrite = segmentArgument.Overwrite;
+        var segmentArgumentobj = new SegmentArgumentOptions();
+        segmentArgument.Options?.Invoke(segmentArgumentobj);
+        Options = segmentArgumentobj;
+    }
+
+    public void Pre()
+    {
+        if (int.TryParse(Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value, out var result) && result < 1)
         {
-            SegmentPattern = segmentArgument.SegmentPattern;
-            Overwrite = segmentArgument.Overwrite;
-            var segmentArgumentobj = new SegmentArgumentOptions();
-            segmentArgument.Options?.Invoke(segmentArgumentobj);
-            Options = segmentArgumentobj;
+            throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentTime cannot be negative or equal to zero");
         }
 
-        public void Pre()
+        if (Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value == "0")
         {
-            if (int.TryParse(Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value, out var result) && result < 1)
+            throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentWrap cannot equal to zero");
+        }
+    }
+
+    public Task During(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void Post()
+    {
+    }
+
+    public string Text => GetText();
+
+    private string GetText()
+    {
+        var arguments = Options.Arguments
+            .Where(arg => !string.IsNullOrWhiteSpace(arg.Value) && !string.IsNullOrWhiteSpace(arg.Key))
+            .Select(arg =>
             {
-                throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentTime cannot be negative or equal to zero");
-            }
+                return arg.Value;
+            });
 
-            if (Options.Arguments.FirstOrDefault(x => x.Key == "segment_time").Value == "0")
-            {
-                throw new FFMpegException(FFMpegExceptionType.Process, "Parameter SegmentWrap cannot equal to zero");
-            }
-        }
-        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public void Post()
-        {
-        }
+        return $"-f segment {string.Join(" ", arguments)} \"{SegmentPattern}\"{(Overwrite ? " -y" : string.Empty)}";
+    }
+}
 
-        public string Text => GetText();
-        private string GetText()
-        {
-            var arguments = Options.Arguments
-                .Where(arg => !string.IsNullOrWhiteSpace(arg.Value) && !string.IsNullOrWhiteSpace(arg.Key))
-                .Select(arg =>
-                {
-                    return arg.Value;
-                });
+public interface ISegmentArgument
+{
+    public string Key { get; }
+    public string Value { get; }
+}
 
-            return $"-f segment {string.Join(" ", arguments)} \"{SegmentPattern}\"{(Overwrite ? " -y" : string.Empty)}";
-        }
+public class SegmentArgumentOptions
+{
+    public List<ISegmentArgument> Arguments { get; } = new();
+
+    public SegmentArgumentOptions ResetTimeStamps(bool resetTimestamps = true)
+    {
+        return WithArgument(new SegmentResetTimeStampsArgument(resetTimestamps));
     }
 
-    public interface ISegmentArgument
+    public SegmentArgumentOptions Strftime(bool enable = false)
     {
-        public string Key { get; }
-        public string Value { get; }
+        return WithArgument(new SegmentStrftimeArgument(enable));
     }
 
-    public class SegmentArgumentOptions
+    public SegmentArgumentOptions Time(int time = 60)
     {
-        public List<ISegmentArgument> Arguments { get; } = new();
-
-        public SegmentArgumentOptions ResetTimeStamps(bool resetTimestamps = true) => WithArgument(new SegmentResetTimeStampsArgument(resetTimestamps));
-        public SegmentArgumentOptions Strftime(bool enable = false) => WithArgument(new SegmentStrftimeArgument(enable));
-        public SegmentArgumentOptions Time(int time = 60) => WithArgument(new SegmentTimeArgument(time));
-        public SegmentArgumentOptions Wrap(int limit = -1) => WithArgument(new SegmentWrapArgument(limit));
-        public SegmentArgumentOptions WithCustomArgument(string argument) => WithArgument(new SegmentCustomArgument(argument));
-        private SegmentArgumentOptions WithArgument(ISegmentArgument argument)
-        {
-            Arguments.Add(argument);
-            return this;
-        }
+        return WithArgument(new SegmentTimeArgument(time));
     }
 
-    public class SegmentArgument
+    public SegmentArgumentOptions Wrap(int limit = -1)
     {
-        public readonly string SegmentPattern;
-        public readonly bool Overwrite;
-        public readonly Action<SegmentArgumentOptions> Options;
+        return WithArgument(new SegmentWrapArgument(limit));
+    }
 
-        public SegmentArgument(string segmentPattern, bool overwrite, Action<SegmentArgumentOptions> options)
-        {
-            SegmentPattern = segmentPattern;
-            Overwrite = overwrite;
-            Options = options;
-        }
+    public SegmentArgumentOptions WithCustomArgument(string argument)
+    {
+        return WithArgument(new SegmentCustomArgument(argument));
+    }
+
+    private SegmentArgumentOptions WithArgument(ISegmentArgument argument)
+    {
+        Arguments.Add(argument);
+        return this;
+    }
+}
+
+public class SegmentArgument
+{
+    public readonly Action<SegmentArgumentOptions> Options;
+    public readonly bool Overwrite;
+    public readonly string SegmentPattern;
+
+    public SegmentArgument(string segmentPattern, bool overwrite, Action<SegmentArgumentOptions> options)
+    {
+        SegmentPattern = segmentPattern;
+        Overwrite = overwrite;
+        Options = options;
     }
 }
