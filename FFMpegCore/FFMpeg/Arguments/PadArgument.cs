@@ -1,64 +1,62 @@
 ﻿using FFMpegCore.Extend;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+public class PadArgument : IVideoFilterArgument
 {
-    public class PadArgument : IVideoFilterArgument
+    private readonly PadOptions _options;
+
+    public PadArgument(PadOptions options)
     {
-        private readonly PadOptions _options;
-
-        public PadArgument(PadOptions options)
-        {
-            _options = options;
-        }
-
-        public string Key => "pad";
-        public string Value => _options.TextInternal;
-
+        _options = options;
     }
 
-    public class PadOptions
+    public string Key => "pad";
+    public string Value => _options.TextInternal;
+}
+
+public class PadOptions
+{
+    public readonly Dictionary<string, string> Parameters = new();
+
+    private PadOptions(string? width, string? height)
     {
-        public readonly Dictionary<string, string> Parameters = new();
-
-        internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
-
-        public static PadOptions Create(string? width, string? height)
+        if (width == null && height == null)
         {
-            return new PadOptions(width, height);
+            throw new Exception("At least one of the parameters must be not null");
         }
 
-        public static PadOptions Create(string aspectRatio)
+        if (width != null)
         {
-            return new PadOptions(aspectRatio);
+            Parameters.Add("width", width);
         }
 
-        public PadOptions WithParameter(string key, string value)
+        if (height != null)
         {
-            Parameters.Add(key, value);
-            return this;
+            Parameters.Add("height", height);
         }
+    }
 
-        private PadOptions(string? width, string? height)
-        {
-            if (width == null && height == null)
-            {
-                throw new Exception("At least one of the parameters must be not null");
-            }
+    private PadOptions(string aspectRatio)
+    {
+        Parameters.Add("aspect", aspectRatio);
+    }
 
-            if (width != null)
-            {
-                Parameters.Add("width", width);
-            }
+    internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
 
-            if (height != null)
-            {
-                Parameters.Add("height", height);
-            }
-        }
+    public static PadOptions Create(string? width, string? height)
+    {
+        return new PadOptions(width, height);
+    }
 
-        private PadOptions(string aspectRatio)
-        {
-            Parameters.Add("aspect", aspectRatio);
-        }
+    public static PadOptions Create(string aspectRatio)
+    {
+        return new PadOptions(aspectRatio);
+    }
+
+    public PadOptions WithParameter(string key, string value)
+    {
+        Parameters.Add(key, value);
+        return this;
     }
 }

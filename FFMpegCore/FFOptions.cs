@@ -21,7 +21,6 @@ namespace FFMpegCore
         /// </summary>
         public string TemporaryFilesFolder { get; set; } = Path.GetTempPath();
 
-        [JsonIgnore]
         /// <summary>
         /// Encoding web name used to persist encoding <see cref="Encoding"/>
         /// </summary>

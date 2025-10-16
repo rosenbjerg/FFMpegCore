@@ -1,53 +1,52 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+public class MapMetadataArgument : IInputArgument, IDynamicArgument
 {
-    public class MapMetadataArgument : IInputArgument, IDynamicArgument
+    private readonly int? _inputIndex;
+
+    /// <summary>
+    ///     Null means it takes the last input used before this argument
+    /// </summary>
+    /// <param name="inputIndex"></param>
+    public MapMetadataArgument(int? inputIndex = null)
     {
-        private readonly int? _inputIndex;
+        _inputIndex = inputIndex;
+    }
 
-        public string Text => GetText(null);
+    public string GetText(IEnumerable<IArgument>? arguments)
+    {
+        arguments ??= Enumerable.Empty<IArgument>();
 
-        /// <summary>
-        /// Null means it takes the last input used before this argument
-        /// </summary>
-        /// <param name="inputIndex"></param>
-        public MapMetadataArgument(int? inputIndex = null)
+        var index = 0;
+        if (_inputIndex is null)
         {
-            _inputIndex = inputIndex;
+            index = arguments
+                .TakeWhile(x => x != this)
+                .OfType<IInputArgument>()
+                .Count();
+
+            index = Math.Max(index - 1, 0);
+        }
+        else
+        {
+            index = _inputIndex.Value;
         }
 
-        public string GetText(IEnumerable<IArgument>? arguments)
-        {
-            arguments ??= Enumerable.Empty<IArgument>();
+        return $"-map_metadata {index}";
+    }
 
-            var index = 0;
-            if (_inputIndex is null)
-            {
-                index = arguments
-                   .TakeWhile(x => x != this)
-                   .OfType<IInputArgument>()
-                   .Count();
+    public string Text => GetText(null);
 
-                index = Math.Max(index - 1, 0);
-            }
-            else
-            {
-                index = _inputIndex.Value;
-            }
+    public Task During(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 
-            return $"-map_metadata {index}";
-        }
+    public void Post()
+    {
+    }
 
-        public Task During(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public void Post()
-        {
-        }
-
-        public void Pre()
-        {
-        }
+    public void Pre()
+    {
     }
 }

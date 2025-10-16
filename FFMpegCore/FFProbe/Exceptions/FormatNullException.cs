@@ -1,9 +1,8 @@
-﻿namespace FFMpegCore.Exceptions
+﻿namespace FFMpegCore.Exceptions;
+
+public class FormatNullException : FFProbeException
 {
-    public class FormatNullException : FFProbeException
+    public FormatNullException() : base("Format not specified")
     {
-        public FormatNullException() : base("Format not specified")
-        {
-        }
     }
 }

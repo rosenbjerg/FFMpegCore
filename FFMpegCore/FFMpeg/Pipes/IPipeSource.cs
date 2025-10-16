@@ -1,11 +1,10 @@
-﻿namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes;
+
+/// <summary>
+///     Interface for ffmpeg pipe source data IO
+/// </summary>
+public interface IPipeSource
 {
-    /// <summary>
-    /// Interface for ffmpeg pipe source data IO
-    /// </summary>
-    public interface IPipeSource
-    {
-        string GetStreamArguments();
-        Task WriteAsync(Stream outputStream, CancellationToken cancellationToken);
-    }
+    string GetStreamArguments();
+    Task WriteAsync(Stream outputStream, CancellationToken cancellationToken);
 }

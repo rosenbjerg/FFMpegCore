@@ -1,9 +1,8 @@
 ﻿using FFMpegCore.Arguments;
 
-namespace FFMpegCore
+namespace FFMpegCore;
+
+public abstract class FFMpegArgumentsBase
 {
-    public abstract class FFMpegArgumentsBase
-    {
-        internal readonly List<IArgument> Arguments = new();
-    }
+    internal readonly List<IArgument> Arguments = new();
 }

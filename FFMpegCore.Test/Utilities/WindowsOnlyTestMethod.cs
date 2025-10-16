@@ -1,23 +1,28 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FFMpegCore.Test.Utilities;
 
 public class WindowsOnlyTestMethod : TestMethodAttribute
 {
-    public override TestResult[] Execute(ITestMethod testMethod)
+    public WindowsOnlyTestMethod([CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1)
+        : base(callerFilePath, callerLineNumber)
+    {
+    }
+
+    public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var message = $"Test not executed on other platforms than Windows";
+            var message = "Test not executed on other platforms than Windows";
             {
-                return new[]
-                {
+                return
+                [
                     new TestResult { Outcome = UnitTestOutcome.Inconclusive, TestFailureException = new AssertInconclusiveException(message) }
-                };
+                ];
             }
         }
 
-        return base.Execute(testMethod);
+        return await base.ExecuteAsync(testMethod);
     }
 }
