@@ -19,6 +19,8 @@ public class VideoTest
 {
     private const int BaseTimeoutMilliseconds = 15_000;
 
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToOGV()
@@ -1072,6 +1074,4 @@ public class VideoTest
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
     }
-
-    public TestContext TestContext { get; set; }
 }
