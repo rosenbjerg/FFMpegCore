@@ -258,7 +258,7 @@ public class FFMpegArgumentOptions : FFMpegArgumentsBase
         return WithArgument(new ID3V2VersionArgument(id3v2Version));
     }
 
-    public FFMpegArgumentOptions WithGifPaletteArgument(int streamIndex, Size? size, int fps = 12)
+    public FFMpegArgumentOptions WithGifPaletteArgument(int streamIndex, Size? size, double fps = 12)
     {
         return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
     }
