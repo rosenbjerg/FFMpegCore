@@ -12,6 +12,8 @@ public class FFMpegArgumentProcessor
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
+    private CancellationTokenRegistration? _cancellationTokenRegistration;
+    private bool _cancelled;
     private FFMpegLogLevel? _logLevel;
     private Action<string>? _onError;
     private Action<string>? _onOutput;
@@ -69,15 +71,22 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
+    private void Cancel(int timeout)
+    {
+        _cancelled = true;
+        CancelEvent?.Invoke(this, timeout);
+    }
+
     public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
     {
-        cancel = () => CancelEvent?.Invoke(this, timeout);
+        cancel = () => Cancel(timeout);
         return this;
     }
 
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
-        token.Register(() => CancelEvent?.Invoke(this, timeout));
+        _cancellationTokenRegistration?.Dispose();
+        _cancellationTokenRegistration = token.Register(() => Cancel(timeout));
         return this;
     }
 
@@ -101,7 +110,8 @@ public class FFMpegArgumentProcessor
     public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
-        var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
+        var processArguments = PrepareProcessArguments(options);
+        using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         try
@@ -122,7 +132,8 @@ public class FFMpegArgumentProcessor
     public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
-        var processArguments = PrepareProcessArguments(options, out var cancellationTokenSource);
+        var processArguments = PrepareProcessArguments(options);
+        using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         try
@@ -143,15 +154,18 @@ public class FFMpegArgumentProcessor
     private async Task<IProcessResult> Process(ProcessArguments processArguments, CancellationTokenSource cancellationTokenSource)
     {
         IProcessResult processResult = null!;
+        if (_cancelled)
+        {
+            _cancellationTokenRegistration?.Dispose();
+            throw new OperationCanceledException("cancelled before starting processing");
+        }
 
         _ffMpegArguments.Pre();
 
         using var instance = processArguments.Start();
-        var cancelled = false;
 
         void OnCancelEvent(object sender, int timeout)
         {
-            cancelled = true;
             instance.SendInput("q");
 
             if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
@@ -172,8 +186,9 @@ public class FFMpegArgumentProcessor
                 _ffMpegArguments.Post();
             }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
 
-            if (cancelled)
+            if (_cancelled)
             {
+                _cancellationTokenRegistration?.Dispose();
                 throw new OperationCanceledException("ffmpeg processing was cancelled");
             }
 
@@ -182,6 +197,7 @@ public class FFMpegArgumentProcessor
         finally
         {
             CancelEvent -= OnCancelEvent;
+            _cancellationTokenRegistration?.Dispose();
         }
     }
 
@@ -214,8 +230,7 @@ public class FFMpegArgumentProcessor
         return options;
     }
 
-    private ProcessArguments PrepareProcessArguments(FFOptions ffOptions,
-        out CancellationTokenSource cancellationTokenSource)
+    private ProcessArguments PrepareProcessArguments(FFOptions ffOptions)
     {
         FFMpegHelper.RootExceptionCheck();
         FFMpegHelper.VerifyFFMpegExists(ffOptions);
@@ -245,7 +260,6 @@ public class FFMpegArgumentProcessor
             WorkingDirectory = ffOptions.WorkingDirectory
         };
         var processArguments = new ProcessArguments(startInfo);
-        cancellationTokenSource = new CancellationTokenSource();
 
         if (_onOutput != null)
         {
