@@ -9,6 +9,8 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class AudioTest
 {
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public void Audio_Remove()
     {
@@ -41,6 +43,7 @@ public class AudioTest
         await FFMpegArguments
             .FromPipeInput(new StreamPipeSource(file), options => options.ForceFormat("s16le"))
             .OutputToPipe(new StreamPipeSink(memoryStream), options => options.ForceFormat("mp3"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
     }
 
@@ -83,6 +86,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -101,6 +105,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.LibVorbis))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -119,6 +124,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success);
     }
@@ -137,6 +143,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -153,6 +160,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
@@ -168,6 +176,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
@@ -183,6 +192,7 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
@@ -196,6 +206,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1, "c0 < 0.9 * c0 + 0.1 * c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
@@ -215,6 +226,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
@@ -234,6 +246,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1, "c0=c0", "c1=c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
@@ -247,6 +260,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
@@ -260,6 +274,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer()))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(success);
@@ -275,6 +290,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer(250, 7, 0.9, 2, 1, false, true, true, 0.5)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(success);
@@ -294,6 +310,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer(filterWindow: filterWindow)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 }

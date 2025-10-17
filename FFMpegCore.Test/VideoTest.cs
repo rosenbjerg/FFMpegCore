@@ -30,6 +30,7 @@ public class VideoTest
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
             .OutputToFile(outputFile, false)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -43,6 +44,7 @@ public class VideoTest
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
             .OutputToFile(outputFile, false)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -58,6 +60,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264)
                 .ForcePixelFormat("yuv444p"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
         var analysis = FFProbe.Analyse(outputFile);
@@ -74,6 +77,7 @@ public class VideoTest
             .FromFileInput(TestResources.WebmVideo)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -88,6 +92,7 @@ public class VideoTest
             .FromFileInput(TestResources.WebmVideo)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX265))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -99,7 +104,7 @@ public class VideoTest
     [DataRow(PixelFormat.Format32bppArgb)]
     public void Video_ToMP4_Args_Pipe_WindowsOnly(PixelFormat pixelFormat)
     {
-        Video_ToMP4_Args_Pipe_Internal(pixelFormat);
+        Video_ToMP4_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
     [TestMethod]
@@ -108,10 +113,10 @@ public class VideoTest
     [DataRow(SKColorType.Bgra8888)]
     public void Video_ToMP4_Args_Pipe(SKColorType pixelFormat)
     {
-        Video_ToMP4_Args_Pipe_Internal(pixelFormat);
+        Video_ToMP4_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
-    private static void Video_ToMP4_Args_Pipe_Internal(dynamic pixelFormat)
+    private static void Video_ToMP4_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
@@ -120,6 +125,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -129,17 +135,17 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_Pipe_DifferentImageSizes_WindowsOnly()
     {
-        Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(PixelFormat.Format24bppRgb);
+        Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(PixelFormat.Format24bppRgb, TestContext.CancellationToken);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_Pipe_DifferentImageSizes()
     {
-        Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(SKColorType.Rgb565);
+        Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(SKColorType.Rgb565, TestContext.CancellationToken);
     }
 
-    private static void Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(dynamic pixelFormat)
+    private static void Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
@@ -153,6 +159,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessSynchronously());
     }
 
@@ -161,17 +168,17 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_WindowsOnly_Async()
     {
-        await Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(PixelFormat.Format24bppRgb);
+        await Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(PixelFormat.Format24bppRgb, TestContext.CancellationToken);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Async()
     {
-        await Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(SKColorType.Rgb565);
+        await Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(SKColorType.Rgb565, TestContext.CancellationToken);
     }
 
-    private static async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(dynamic pixelFormat)
+    private static async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
@@ -185,6 +192,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessAsynchronously());
     }
 
@@ -194,19 +202,21 @@ public class VideoTest
     public void Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly()
     {
         Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(PixelFormat.Format24bppRgb,
-            PixelFormat.Format32bppRgb);
+            PixelFormat.Format32bppRgb, TestContext.CancellationToken);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_Pipe_DifferentPixelFormats()
     {
-        Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(SKColorType.Rgb565, SKColorType.Bgra8888);
+        Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(SKColorType.Rgb565, SKColorType.Bgra8888, TestContext.CancellationToken);
     }
 
-    private static void Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2)
+    private static void Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2,
+        CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
 
         var frames = new List<IVideoFrame>
         {
@@ -218,6 +228,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessSynchronously());
     }
 
@@ -227,17 +238,18 @@ public class VideoTest
     public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly_Async()
     {
         await Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(PixelFormat.Format24bppRgb,
-            PixelFormat.Format32bppRgb);
+            PixelFormat.Format32bppRgb, TestContext.CancellationToken);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Async()
     {
-        await Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(SKColorType.Rgb565, SKColorType.Bgra8888);
+        await Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(SKColorType.Rgb565, SKColorType.Bgra8888, TestContext.CancellationToken);
     }
 
-    private static async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2)
+    private static async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2,
+        CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
@@ -251,6 +263,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessAsynchronously());
     }
 
@@ -265,6 +278,7 @@ public class VideoTest
             .FromPipeInput(new StreamPipeSource(input))
             .OutputToFile(output, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -280,6 +294,7 @@ public class VideoTest
             await FFMpegArguments
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToPipe(pipeSource, opt => opt.ForceFormat("mp4"))
+                .CancellableThrough(TestContext.CancellationToken)
                 .ProcessAsynchronously();
         });
     }
@@ -295,6 +310,7 @@ public class VideoTest
                 .ForceFormat("webm"))
             .OutputToPipe(new StreamPipeSink(output), opt => opt
                 .ForceFormat("mpegts"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         output.Position = 0;
@@ -313,6 +329,7 @@ public class VideoTest
                 .FromFileInput(TestResources.Mp4Video)
                 .OutputToPipe(new StreamPipeSink(ms), opt => opt
                     .ForceFormat("mkv"))
+                .CancellableThrough(TestContext.CancellationToken)
                 .ProcessSynchronously();
         });
     }
@@ -328,6 +345,7 @@ public class VideoTest
             .OutputToPipe(pipeSource, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264)
                 .ForceFormat("matroska"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
     }
 
@@ -338,11 +356,13 @@ public class VideoTest
         FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile("temporary.mp4")
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile("temporary.mp4")
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
 
         File.Delete("temporary.mp4");
@@ -358,6 +378,7 @@ public class VideoTest
             .OutputToPipe(new StreamPipeSink(output), opt => opt
                 .WithVideoCodec(VideoCodec.LibVpx)
                 .ForceFormat("matroska"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
 
@@ -376,6 +397,7 @@ public class VideoTest
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -392,6 +414,7 @@ public class VideoTest
                 .CopyChannel()
                 .WithBitStreamFilter(Channel.Video, Filter.H264_Mp4ToAnnexB)
                 .ForceFormat(VideoType.MpegTs))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -403,7 +426,7 @@ public class VideoTest
     [DataRow(PixelFormat.Format32bppArgb)]
     public async Task Video_ToTS_Args_Pipe_WindowsOnly(PixelFormat pixelFormat)
     {
-        await Video_ToTS_Args_Pipe_Internal(pixelFormat);
+        await Video_ToTS_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
     [TestMethod]
@@ -412,10 +435,10 @@ public class VideoTest
     [DataRow(SKColorType.Bgra8888)]
     public async Task Video_ToTS_Args_Pipe(SKColorType pixelFormat)
     {
-        await Video_ToTS_Args_Pipe_Internal(pixelFormat);
+        await Video_ToTS_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
-    private static async Task Video_ToTS_Args_Pipe_Internal(dynamic pixelFormat)
+    private static async Task Video_ToTS_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var output = new TemporaryFile($"out{VideoType.Ts.Extension}");
         var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
@@ -424,6 +447,7 @@ public class VideoTest
             .FromPipeInput(input)
             .OutputToFile(output, false, opt => opt
                 .ForceFormat(VideoType.Ts))
+            .CancellableThrough(cancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success);
 
@@ -441,6 +465,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .Resize(200, 200)
                 .WithVideoCodec(VideoCodec.LibTheora))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success);
     }
@@ -461,6 +486,7 @@ public class VideoTest
                 .WithVideoFilters(filterOptions => filterOptions
                     .Scale(VideoSize.Ed))
                 .WithVideoCodec(VideoCodec.LibTheora))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputFile);
@@ -478,6 +504,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .UsingMultithreading(true)
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -490,7 +517,7 @@ public class VideoTest
     // [DataRow(PixelFormat.Format48bppRgb)]
     public void Video_ToMP4_Resize_Args_Pipe(PixelFormat pixelFormat)
     {
-        Video_ToMP4_Resize_Args_Pipe_Internal(pixelFormat);
+        Video_ToMP4_Resize_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
     [TestMethod]
@@ -499,10 +526,10 @@ public class VideoTest
     [DataRow(SKColorType.Bgra8888)]
     public void Video_ToMP4_Resize_Args_Pipe(SKColorType pixelFormat)
     {
-        Video_ToMP4_Resize_Args_Pipe_Internal(pixelFormat);
+        Video_ToMP4_Resize_Args_Pipe_Internal(pixelFormat, TestContext.CancellationToken);
     }
 
-    private static void Video_ToMP4_Resize_Args_Pipe_Internal(dynamic pixelFormat)
+    private static void Video_ToMP4_Resize_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
         var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
@@ -511,6 +538,7 @@ public class VideoTest
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
@@ -764,6 +792,7 @@ public class VideoTest
         FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt.WithDuration(TimeSpan.FromSeconds(video.Duration.TotalSeconds - 2)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(File.Exists(outputFile));
@@ -807,6 +836,7 @@ public class VideoTest
                 .WithDuration(analysis.Duration))
             .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
             .NotifyOnProgress(OnTimeProgess)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(success);
@@ -832,6 +862,7 @@ public class VideoTest
                 .WithDuration(TimeSpan.FromSeconds(2)))
             .NotifyOnError(_ => dataReceived = true)
             .Configure(opt => opt.Encoding = Encoding.UTF8)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(dataReceived);
@@ -844,17 +875,17 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TranscodeInMemory_WindowsOnly()
     {
-        Video_TranscodeInMemory_Internal(PixelFormat.Format24bppRgb);
+        Video_TranscodeInMemory_Internal(PixelFormat.Format24bppRgb, TestContext.CancellationToken);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TranscodeInMemory()
     {
-        Video_TranscodeInMemory_Internal(SKColorType.Rgb565);
+        Video_TranscodeInMemory_Internal(SKColorType.Rgb565, TestContext.CancellationToken);
     }
 
-    private static void Video_TranscodeInMemory_Internal(dynamic pixelFormat)
+    private static void Video_TranscodeInMemory_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var resStream = new MemoryStream();
         var reader = new StreamPipeSink(resStream);
@@ -865,6 +896,7 @@ public class VideoTest
             .OutputToPipe(reader, opt => opt
                 .WithVideoCodec("vp9")
                 .ForceFormat("webm"))
+            .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
 
         resStream.Position = 0;
@@ -884,6 +916,7 @@ public class VideoTest
             .OutputToPipe(new StreamPipeSink(memoryStream), opt => opt
                 .WithVideoCodec("vp9")
                 .ForceFormat("webm"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         memoryStream.Position = 0;
@@ -907,6 +940,8 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(out var cancel)
+            .CancellableThrough(TestContext.CancellationToken)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
         await Task.Delay(300, TestContext.CancellationToken);
@@ -930,11 +965,13 @@ public class VideoTest
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
-            .CancellableThrough(out var cancel);
+            .CancellableThrough(out var cancel)
+            .CancellableThrough(TestContext.CancellationToken);
 
         Task.Delay(300, TestContext.CancellationToken).ContinueWith(_ => cancel(), TestContext.CancellationToken);
 
-        var result = task.ProcessSynchronously(false);
+        var result = task.CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(false);
 
         Assert.IsFalse(result);
     }
@@ -954,6 +991,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(out var cancel, 10000)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
         await Task.Delay(300, TestContext.CancellationToken);
@@ -987,6 +1025,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
         cts.CancelAfter(300);
@@ -1013,6 +1052,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
 
         cts.CancelAfter(300);
@@ -1040,7 +1080,8 @@ public class VideoTest
 
         cts.CancelAfter(300);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously());
     }
 
     [TestMethod]
@@ -1062,7 +1103,8 @@ public class VideoTest
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously());
     }
 
     [TestMethod]
@@ -1082,6 +1124,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token, 8000)
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
         cts.CancelAfter(300);
