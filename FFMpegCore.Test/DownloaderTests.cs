@@ -14,7 +14,7 @@ public class DownloaderTests
     {
         var tempDownloadFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDownloadFolder);
-        _ffOptions = new FFOptions { BinaryFolder = Path.GetTempPath() };
+        _ffOptions = new FFOptions { BinaryFolder = tempDownloadFolder };
     }
 
     [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
