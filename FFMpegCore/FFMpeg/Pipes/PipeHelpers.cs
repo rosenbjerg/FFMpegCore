@@ -4,7 +4,7 @@ namespace FFMpegCore.Pipes;
 
 internal static class PipeHelpers
 {
-    public static string GetUnqiuePipeName()
+    public static string GetUniquePipeName()
     {
         return $"FFMpegCore_{Guid.NewGuid().ToString("N").Substring(0, 16)}";
     }

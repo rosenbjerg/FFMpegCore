@@ -11,7 +11,7 @@ public abstract class PipeArgument
 
     protected PipeArgument(PipeDirection direction)
     {
-        PipeName = PipeHelpers.GetUnqiuePipeName();
+        PipeName = PipeHelpers.GetUniquePipeName();
         _direction = direction;
     }
 
