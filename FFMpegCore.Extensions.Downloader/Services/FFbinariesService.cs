@@ -42,7 +42,7 @@ internal class FFbinariesService
     /// </summary>
     /// <param name="address">uri of the file</param>
     /// <returns></returns>
-    internal static async Task<Stream> DownloadFileAsSteam(Uri address)
+    internal static async Task<Stream> DownloadFileAsStream(Uri address)
     {
         var client = new HttpClient();
         return await client.GetStreamAsync(address);
