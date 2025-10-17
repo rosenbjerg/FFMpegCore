@@ -9,6 +9,7 @@ namespace FFMpegCore.Test;
 public class ArgumentBuilderTest
 {
     private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
+    private readonly int _macOsMaxPipePathLength = 104;
     private readonly string[] _multiFiles = { "1.mp3", "2.mp3", "3.mp3", "4.mp3" };
 
     [TestMethod]
@@ -709,13 +710,13 @@ public class ArgumentBuilderTest
     public void InputPipe_MaxLength_ShorterThanMacOsMax()
     {
         var pipePath = new InputPipeArgument(new StreamPipeSource(Stream.Null)).PipePath;
-        Assert.IsLessThan(104, pipePath.Length);
+        Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
     }
 
     [TestMethod]
     public void OutputPipe_MaxLength_ShorterThanMacOsMax()
     {
         var pipePath = new OutputPipeArgument(new StreamPipeSink(Stream.Null)).PipePath;
-        Assert.IsLessThan(104, pipePath.Length);
+        Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
     }
 }
