@@ -151,7 +151,7 @@ public static class TagExtensions
 
     public static string? GetCreationTime(this ITagsContainer tagsContainer)
     {
-        return TryGetTagValue(tagsContainer, "creation_time ");
+        return TryGetTagValue(tagsContainer, "creation_time");
     }
 
     public static string? GetRotate(this ITagsContainer tagsContainer)
