@@ -1,8 +1,7 @@
-﻿namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes;
+
+public interface IPipeSink
 {
-    public interface IPipeSink
-    {
-        Task ReadAsync(Stream inputStream, CancellationToken cancellationToken);
-        string GetFormat();
-    }
+    Task ReadAsync(Stream inputStream, CancellationToken cancellationToken);
+    string GetFormat();
 }

@@ -1,21 +1,26 @@
-﻿namespace FFMpegCore.Pipes
+﻿namespace FFMpegCore.Pipes;
+
+/// <summary>
+///     Implementation of <see cref="IPipeSource" /> used for stream redirection
+/// </summary>
+public class StreamPipeSource : IPipeSource
 {
-    /// <summary>
-    /// Implementation of <see cref="IPipeSource"/> used for stream redirection
-    /// </summary>
-    public class StreamPipeSource : IPipeSource
+    public StreamPipeSource(Stream source)
     {
-        public Stream Source { get; }
-        public int BlockSize { get; } = 4096;
-        public string StreamFormat { get; } = string.Empty;
+        Source = source;
+    }
 
-        public StreamPipeSource(Stream source)
-        {
-            Source = source;
-        }
+    public Stream Source { get; }
+    public int BlockSize { get; } = 4096;
+    public string StreamFormat { get; } = string.Empty;
 
-        public string GetStreamArguments() => StreamFormat;
+    public string GetStreamArguments()
+    {
+        return StreamFormat;
+    }
 
-        public Task WriteAsync(Stream outputStream, CancellationToken cancellationToken) => Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
+    public Task WriteAsync(Stream outputStream, CancellationToken cancellationToken)
+    {
+        return Source.CopyToAsync(outputStream, BlockSize, cancellationToken);
     }
 }

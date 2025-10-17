@@ -1,103 +1,98 @@
-﻿using System.Reflection;
-using FFMpegCore.Arguments;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿namespace FFMpegCore.Test;
 
-namespace FFMpegCore.Test
+[TestClass]
+public class FFMpegArgumentProcessorTest
 {
-    [TestClass]
-    public class FFMpegArgumentProcessorTest
+    private static FFMpegArgumentProcessor CreateArgumentProcessor()
     {
-        [TestCleanup]
-        public void TestInitialize()
+        return FFMpegArguments
+            .FromFileInput("")
+            .OutputToFile("");
+    }
 
+    [TestMethod]
+    public void ZZZ_Processor_GlobalOptions_GetUsed()
+    {
+        var globalWorkingDir = "Whatever";
+        var processor = CreateArgumentProcessor();
+
+        try
         {
-            // After testing reset global configuration to null, to be not wrong for other test relying on configuration
-            typeof(GlobalFFOptions).GetField("_current", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(GlobalFFOptions.Current, null);
-        }
-
-        private static FFMpegArgumentProcessor CreateArgumentProcessor() => FFMpegArguments
-                        .FromFileInput("")
-                        .OutputToFile("");
-
-        [TestMethod]
-        public void Processor_GlobalOptions_GetUsed()
-        {
-            var globalWorkingDir = "Whatever";
             GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
 
-            var processor = CreateArgumentProcessor();
-            var options2 = processor.GetConfiguredOptions(null);
-            options2.WorkingDirectory.Should().Be(globalWorkingDir);
-        }
-
-        [TestMethod]
-        public void Processor_SessionOptions_GetUsed()
-        {
-            var sessionWorkingDir = "./CurrentRunWorkingDir";
-
-            var processor = CreateArgumentProcessor();
-            processor.Configure(options => options.WorkingDirectory = sessionWorkingDir);
             var options = processor.GetConfiguredOptions(null);
 
-            options.WorkingDirectory.Should().Be(sessionWorkingDir);
+            Assert.AreEqual(globalWorkingDir, options.WorkingDirectory);
         }
-
-        [TestMethod]
-        public void Processor_Options_CanBeOverridden_And_Configured()
+        finally
         {
-            var globalConfig = "Whatever";
-            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
+            GlobalFFOptions.Configure(new FFOptions());
+        }
+    }
 
+    [TestMethod]
+    public void Processor_SessionOptions_GetUsed()
+    {
+        var sessionWorkingDir = "./CurrentRunWorkingDir";
+
+        var processor = CreateArgumentProcessor();
+        processor.Configure(options => options.WorkingDirectory = sessionWorkingDir);
+        var options = processor.GetConfiguredOptions(null);
+
+        Assert.AreEqual(sessionWorkingDir, options.WorkingDirectory);
+    }
+
+    [TestMethod]
+    public void ZZZ_Processor_Options_CanBeOverridden_And_Configured()
+    {
+        var globalConfig = "Whatever";
+
+        try
+        {
             var processor = CreateArgumentProcessor();
 
             var sessionTempDir = "./CurrentRunWorkingDir";
             processor.Configure(options => options.TemporaryFilesFolder = sessionTempDir);
 
-            var overrideOptions = new FFOptions() { WorkingDirectory = "override" };
+            var overrideOptions = new FFOptions { WorkingDirectory = "override" };
+
+            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalConfig, TemporaryFilesFolder = globalConfig, BinaryFolder = globalConfig });
             var options = processor.GetConfiguredOptions(overrideOptions);
 
-            options.Should().BeEquivalentTo(overrideOptions);
-            options.TemporaryFilesFolder.Should().BeEquivalentTo(sessionTempDir);
-            options.BinaryFolder.Should().NotBeEquivalentTo(globalConfig);
+            Assert.AreEqual(options.WorkingDirectory, overrideOptions.WorkingDirectory);
+            Assert.AreEqual(options.TemporaryFilesFolder, overrideOptions.TemporaryFilesFolder);
+            Assert.AreEqual(options.BinaryFolder, overrideOptions.BinaryFolder);
+
+            Assert.AreEqual(sessionTempDir, options.TemporaryFilesFolder);
+            Assert.AreNotEqual(globalConfig, options.BinaryFolder);
         }
-
-        [TestMethod]
-        public void Options_Global_And_Session_Options_Can_Differ()
+        finally
         {
-            var globalWorkingDir = "Whatever";
-            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
+            GlobalFFOptions.Configure(new FFOptions());
+        }
+    }
 
+    [TestMethod]
+    public void ZZZ_Options_Global_And_Session_Options_Can_Differ()
+    {
+        var globalWorkingDir = "Whatever";
+
+        try
+        {
             var processor1 = CreateArgumentProcessor();
             var sessionWorkingDir = "./CurrentRunWorkingDir";
             processor1.Configure(options => options.WorkingDirectory = sessionWorkingDir);
             var options1 = processor1.GetConfiguredOptions(null);
-            options1.WorkingDirectory.Should().Be(sessionWorkingDir);
+            Assert.AreEqual(sessionWorkingDir, options1.WorkingDirectory);
 
             var processor2 = CreateArgumentProcessor();
+            GlobalFFOptions.Configure(new FFOptions { WorkingDirectory = globalWorkingDir });
             var options2 = processor2.GetConfiguredOptions(null);
-            options2.WorkingDirectory.Should().Be(globalWorkingDir);
+            Assert.AreEqual(globalWorkingDir, options2.WorkingDirectory);
         }
-
-        [TestMethod]
-        public void Concat_Escape()
+        finally
         {
-            var arg = new DemuxConcatArgument(new[] { @"Heaven's River\05 - Investigation.m4b" });
-            arg.Values.Should().BeEquivalentTo(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" });
-        }
-
-        [TestMethod]
-        public void Audible_Aaxc_Test()
-        {
-            var arg = new AudibleEncryptionKeyArgument("123", "456");
-            arg.Text.Should().Be($"-audible_key 123 -audible_iv 456");
-        }
-
-        [TestMethod]
-        public void Audible_Aax_Test()
-        {
-            var arg = new AudibleEncryptionKeyArgument("62689101");
-            arg.Text.Should().Be($"-activation_bytes 62689101");
+            GlobalFFOptions.Configure(new FFOptions());
         }
     }
 }

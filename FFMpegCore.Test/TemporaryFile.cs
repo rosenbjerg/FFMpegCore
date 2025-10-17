@@ -1,21 +1,24 @@
-﻿namespace FFMpegCore.Test
+﻿namespace FFMpegCore.Test;
+
+public class TemporaryFile : IDisposable
 {
-    public class TemporaryFile : IDisposable
+    private readonly string _path;
+
+    public TemporaryFile(string filename)
     {
-        private readonly string _path;
+        _path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-{filename}");
+    }
 
-        public TemporaryFile(string filename)
+    public void Dispose()
+    {
+        if (File.Exists(_path))
         {
-            _path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-{filename}");
+            File.Delete(_path);
         }
+    }
 
-        public static implicit operator string(TemporaryFile temporaryFile) => temporaryFile._path;
-        public void Dispose()
-        {
-            if (File.Exists(_path))
-            {
-                File.Delete(_path);
-            }
-        }
+    public static implicit operator string(TemporaryFile temporaryFile)
+    {
+        return temporaryFile._path;
     }
 }

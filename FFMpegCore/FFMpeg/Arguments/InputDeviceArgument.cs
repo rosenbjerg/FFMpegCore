@@ -1,23 +1,25 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents an input device parameter
+/// </summary>
+public class InputDeviceArgument : IInputArgument
 {
-    /// <summary>
-    /// Represents an input device parameter
-    /// </summary>
-    public class InputDeviceArgument : IInputArgument
+    private readonly string Device;
+
+    public InputDeviceArgument(string device)
     {
-        private readonly string Device;
-
-        public InputDeviceArgument(string device)
-        {
-            Device = device;
-        }
-
-        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-        public void Pre() { }
-
-        public void Post() { }
-
-        public string Text => $"-i {Device}";
+        Device = device;
     }
+
+    public Task During(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void Pre() { }
+
+    public void Post() { }
+
+    public string Text => $"-i {Device}";
 }

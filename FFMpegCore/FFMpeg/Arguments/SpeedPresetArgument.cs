@@ -1,19 +1,18 @@
 ﻿using FFMpegCore.Enums;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents speed parameter
+/// </summary>
+public class SpeedPresetArgument : IArgument
 {
-    /// <summary>
-    /// Represents speed parameter
-    /// </summary>
-    public class SpeedPresetArgument : IArgument
+    public readonly Speed Speed;
+
+    public SpeedPresetArgument(Speed speed)
     {
-        public readonly Speed Speed;
-
-        public SpeedPresetArgument(Speed speed)
-        {
-            Speed = speed;
-        }
-
-        public string Text => $"-preset {Speed.ToString().ToLowerInvariant()}";
+        Speed = speed;
     }
+
+    public string Text => $"-preset {Speed.ToString().ToLowerInvariant()}";
 }
