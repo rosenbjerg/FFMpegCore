@@ -78,23 +78,22 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
+    private void Cancel(int timeout)
+    {
+        _cancelled = true;
+        CancelEvent?.Invoke(this, timeout);
+    }
+
     public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
     {
-        cancel = () =>
-        {
-            _cancelled = true;
-            CancelEvent?.Invoke(this, timeout);
-        };
+        cancel = () => Cancel(timeout);
         return this;
     }
 
+
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
-        _cancellationTokenRegistration = token.Register(() =>
-        {
-            _cancelled = true;
-            CancelEvent?.Invoke(this, timeout);
-        });
+        _cancellationTokenRegistration = token.Register(() => Cancel(timeout));
         return this;
     }
 
