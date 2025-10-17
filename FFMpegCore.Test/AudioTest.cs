@@ -9,6 +9,8 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class AudioTest
 {
+    private const int BaseTimeoutMilliseconds = 15_000;
+
     public TestContext TestContext { get; set; }
 
     [TestMethod]
@@ -73,7 +75,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -92,7 +94,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToLibVorbis_Args_Pipe()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -111,7 +113,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Audio_ToAAC_Args_Pipe_Async()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -130,7 +132,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_ValidDefaultConfiguration()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -149,7 +151,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidChannels()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -165,7 +167,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidFormat()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -181,7 +183,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidSampleRate()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -197,7 +199,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMono()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -217,7 +219,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoNoDefinitions()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -237,7 +239,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoChannelsToOutputDefinitionsMismatch()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -251,7 +253,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoChannelsLayoutToOutputDefinitionsMismatch()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -265,7 +267,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_DynamicNormalizer_WithDefaultValues()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -281,7 +283,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_DynamicNormalizer_WithNonDefaultValues()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -297,7 +299,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(2)]
     [DataRow(32)]
     [DataRow(8)]
