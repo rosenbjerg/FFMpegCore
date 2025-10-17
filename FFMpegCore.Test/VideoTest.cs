@@ -812,9 +812,10 @@ public class VideoTest
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputFile));
         Assert.AreNotEqual(0.0, percentageDone);
+        Assert.IsGreaterThan(1, events.Count);
         CollectionAssert.AllItemsAreUnique(events);
         Assert.AreNotEqual(100.0, events.First());
-        Assert.AreEqual(100.0, events.Last());
+        Assert.AreEqual(100.0, events.Last(), 0.001);
         Assert.AreNotEqual(TimeSpan.Zero, timeDone);
         Assert.AreNotEqual(analysis.Duration, timeDone);
     }
