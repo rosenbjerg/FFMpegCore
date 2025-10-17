@@ -55,6 +55,11 @@ internal class FFbinariesService
     /// <returns></returns>
     internal static IEnumerable<string> ExtractZipAndSave(Stream zipStream)
     {
+        if (string.IsNullOrEmpty(GlobalFFOptions.Current.BinaryFolder))
+        {
+            throw new FFMpegDownloaderException("Binary folder not specified");
+        }
+
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
         List<string> files = new();
         foreach (var entry in archive.Entries)
