@@ -1123,7 +1123,6 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token, 8000)
-            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
         cts.CancelAfter(300);
