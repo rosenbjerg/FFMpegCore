@@ -766,7 +766,7 @@ public class VideoTest
         Assert.IsTrue(success);
         var result = FFProbe.Analyse(outputFile);
 
-        Assert.AreEqual(1, result.Duration.Seconds);
+        Assert.AreEqual(3, result.Duration.Seconds);
         Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Width, result.PrimaryVideoStream!.Width);
         Assert.AreEqual(imageAnalysis.PrimaryVideoStream!.Height, result.PrimaryVideoStream.Height);
     }

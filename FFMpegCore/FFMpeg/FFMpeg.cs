@@ -132,7 +132,8 @@ public static class FFMpeg
             }
 
             return FFMpegArguments
-                .FromFileInput(Path.Combine(tempFolderName, $"%09d{fileExtension}"), false)
+                .FromFileInput(Path.Combine(tempFolderName, $"%09d{fileExtension}"), false, options => options
+                    .WithFramerate(frameRate))
                 .OutputToFile(output, true, options => options
                     .ForcePixelFormat("yuv420p")
                     .Resize(width!.Value, height!.Value)
