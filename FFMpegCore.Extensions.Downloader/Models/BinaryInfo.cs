@@ -4,23 +4,23 @@ using FFMpegCore.Extensions.Downloader.Enums;
 
 namespace FFMpegCore.Extensions.Downloader.Models;
 
-internal record BinaryInfo
+internal class BinaryInfo
 {
-    [JsonPropertyName("windows-64")] public DownloadInfo? Windows64 { get; set; }
+    [JsonPropertyName("windows-64")] public Dictionary<string, string>? Windows64 { get; set; }
 
-    [JsonPropertyName("windows-32")] public DownloadInfo? Windows32 { get; set; }
+    [JsonPropertyName("windows-32")] public Dictionary<string, string>? Windows32 { get; set; }
 
-    [JsonPropertyName("linux-32")] public DownloadInfo? Linux32 { get; set; }
+    [JsonPropertyName("linux-32")] public Dictionary<string, string>? Linux32 { get; set; }
 
-    [JsonPropertyName("linux-64")] public DownloadInfo? Linux64 { get; set; }
+    [JsonPropertyName("linux-64")] public Dictionary<string, string>? Linux64 { get; set; }
 
-    [JsonPropertyName("linux-armhf")] public DownloadInfo? LinuxArmhf { get; set; }
+    [JsonPropertyName("linux-armhf")] public Dictionary<string, string>? LinuxArmhf { get; set; }
 
-    [JsonPropertyName("linux-armel")] public DownloadInfo? LinuxArmel { get; set; }
+    [JsonPropertyName("linux-armel")] public Dictionary<string, string>? LinuxArmel { get; set; }
 
-    [JsonPropertyName("linux-arm64")] public DownloadInfo? LinuxArm64 { get; set; }
+    [JsonPropertyName("linux-arm64")] public Dictionary<string, string>? LinuxArm64 { get; set; }
 
-    [JsonPropertyName("osx-64")] public DownloadInfo? Osx64 { get; set; }
+    [JsonPropertyName("osx-64")] public Dictionary<string, string>? Osx64 { get; set; }
 
     /// <summary>
     ///     Automatically get the compatible download info for current os and architecture
@@ -29,7 +29,7 @@ internal record BinaryInfo
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="PlatformNotSupportedException"></exception>
-    public DownloadInfo? GetCompatibleDownloadInfo(SupportedPlatforms? platformOverride = null)
+    public Dictionary<string, string>? GetCompatibleDownloadInfo(SupportedPlatforms? platformOverride = null)
     {
         if (platformOverride is not null)
         {
@@ -64,7 +64,7 @@ internal record BinaryInfo
             };
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.X64)
         {
             return Osx64;
         }
