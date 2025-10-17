@@ -1,26 +1,26 @@
 <Project>
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <NeutralLanguage>en</NeutralLanguage>
-        <AssemblyVersion>5.0.0.0</AssemblyVersion>
-        <LangVersion>default</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
 
-        <RepositoryType>GitHub</RepositoryType>
-        <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <NeutralLanguage>en</NeutralLanguage>
+    <RepositoryType>GitHub</RepositoryType>
+    <RepositoryUrl>https://github.com/rosenbjerg/FFMpegCore</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/rosenbjerg/FFMpegCore</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en</NeutralLanguage>
 
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources> 
-    </PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup> 
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 </Project>

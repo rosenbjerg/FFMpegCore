@@ -1,32 +1,35 @@
-﻿namespace FFMpegCore.Arguments
+﻿namespace FFMpegCore.Arguments;
+
+/// <summary>
+///     Represents input parameter
+/// </summary>
+public class InputArgument : IInputArgument
 {
-    /// <summary>
-    /// Represents input parameter
-    /// </summary>
-    public class InputArgument : IInputArgument
+    public readonly string FilePath;
+    public readonly bool VerifyExists;
+
+    public InputArgument(bool verifyExists, string filePaths)
     {
-        public readonly bool VerifyExists;
-        public readonly string FilePath;
-
-        public InputArgument(bool verifyExists, string filePaths)
-        {
-            VerifyExists = verifyExists;
-            FilePath = filePaths;
-        }
-
-        public InputArgument(string path, bool verifyExists) : this(verifyExists, path) { }
-
-        public void Pre()
-        {
-            if (VerifyExists && !File.Exists(FilePath))
-            {
-                throw new FileNotFoundException("Input file not found", FilePath);
-            }
-        }
-
-        public Task During(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public void Post() { }
-
-        public string Text => $"-i \"{FilePath}\"";
+        VerifyExists = verifyExists;
+        FilePath = filePaths;
     }
+
+    public InputArgument(string path, bool verifyExists) : this(verifyExists, path) { }
+
+    public void Pre()
+    {
+        if (VerifyExists && !File.Exists(FilePath))
+        {
+            throw new FileNotFoundException("Input file not found", FilePath);
+        }
+    }
+
+    public Task During(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void Post() { }
+
+    public string Text => $"-i \"{FilePath}\"";
 }

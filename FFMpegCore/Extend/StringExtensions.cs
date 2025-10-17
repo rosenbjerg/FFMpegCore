@@ -1,69 +1,68 @@
 ﻿using System.Text;
 
-namespace FFMpegCore.Extend
+namespace FFMpegCore.Extend;
+
+internal static class StringExtensions
 {
-    internal static class StringExtensions
+    private static Dictionary<char, string> CharactersSubstitution { get; } = new()
     {
-        private static Dictionary<char, string> CharactersSubstitution { get; } = new()
-        {
-            { '\\', @"\\" },
-            { ':', @"\:" },
-            { '[', @"\[" },
-            { ']', @"\]" },
-            { '\'', @"'\\\''" }
-        };
+        { '\\', @"\\" },
+        { ':', @"\:" },
+        { '[', @"\[" },
+        { ']', @"\]" },
+        { '\'', @"'\\\''" }
+    };
 
-        /// <summary>
-        ///     Enclose string between quotes if contains an space character
-        /// </summary>
-        /// <param name="input">The input</param>
-        /// <returns>The enclosed string</returns>
-        public static string EncloseIfContainsSpace(string input)
-        {
-            return input.Contains(" ") ? $"'{input}'" : input;
-        }
+    /// <summary>
+    ///     Enclose string between quotes if contains an space character
+    /// </summary>
+    /// <param name="input">The input</param>
+    /// <returns>The enclosed string</returns>
+    public static string EncloseIfContainsSpace(string input)
+    {
+        return input.Contains(" ") ? $"'{input}'" : input;
+    }
 
-        /// <summary>
-        /// Enclose an string in quotes
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string EncloseInQuotes(string input)
-        {
-            return $"'{input}'";
-        }
+    /// <summary>
+    ///     Enclose an string in quotes
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static string EncloseInQuotes(string input)
+    {
+        return $"'{input}'";
+    }
 
-        /// <summary>
-        ///     Scape several characters in subtitle path used by FFmpeg
-        /// </summary>
-        /// <remarks>
-        ///     This is needed because internally FFmpeg use Libav Filters
-        ///     and the info send to it must be in an specific format
-        /// </remarks>
-        /// <param name="source"></param>
-        /// <returns>Scaped path</returns>
-        public static string ToFFmpegLibavfilterPath(string source)
-        {
-            return source.Replace(CharactersSubstitution);
-        }
+    /// <summary>
+    ///     Scape several characters in subtitle path used by FFmpeg
+    /// </summary>
+    /// <remarks>
+    ///     This is needed because internally FFmpeg use Libav Filters
+    ///     and the info send to it must be in an specific format
+    /// </remarks>
+    /// <param name="source"></param>
+    /// <returns>Scaped path</returns>
+    public static string ToFFmpegLibavfilterPath(string source)
+    {
+        return source.Replace(CharactersSubstitution);
+    }
 
-        public static string Replace(this string str, Dictionary<char, string> replaceList)
-        {
-            var parsedString = new StringBuilder();
+    public static string Replace(this string str, Dictionary<char, string> replaceList)
+    {
+        var parsedString = new StringBuilder();
 
-            foreach (var l in str)
+        foreach (var l in str)
+        {
+            if (replaceList.ContainsKey(l))
             {
-                if (replaceList.ContainsKey(l))
-                {
-                    parsedString.Append(replaceList[l]);
-                }
-                else
-                {
-                    parsedString.Append(l);
-                }
+                parsedString.Append(replaceList[l]);
             }
-
-            return parsedString.ToString();
+            else
+            {
+                parsedString.Append(l);
+            }
         }
+
+        return parsedString.ToString();
     }
 }

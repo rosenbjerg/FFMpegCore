@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore", "FFMpegCore\FFMpegCore.csproj", "{19DE2EC2-9955-4712-8096-C22EF6713E4F}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Extensions.System.Drawing.Common", "FFMpegCore.Extensions.System.Drawing.Common\FFMpegCore.Extensions.System.Drawing.Common.csproj", "{9C1A4930-9369-4A18-AD98-929A2A510D80}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Extensions.SkiaSharp", "FFMpegCore.Extensions.SkiaSharp\FFMpegCore.Extensions.SkiaSharp.csproj", "{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.Extensions.Downloader", "FFMpegCore.Extensions.Downloader\FFMpegCore.Extensions.Downloader.csproj", "{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA30158-CAB0-44FD-AD98-C31F5E3D5A56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

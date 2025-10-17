@@ -2,23 +2,28 @@
 using System.IO.Pipes;
 using FFMpegCore.Pipes;
 
-namespace FFMpegCore.Arguments
+namespace FFMpegCore.Arguments;
+
+public abstract class PipeArgument
 {
-    public abstract class PipeArgument
+    private readonly PipeDirection _direction;
+    private readonly object _pipeLock = new();
+
+    protected PipeArgument(PipeDirection direction)
     {
-        private string PipeName { get; }
-        public string PipePath => PipeHelpers.GetPipePath(PipeName);
+        PipeName = PipeHelpers.GetUniquePipeName();
+        _direction = direction;
+    }
 
-        protected NamedPipeServerStream Pipe { get; private set; } = null!;
-        private readonly PipeDirection _direction;
+    private string PipeName { get; }
+    public string PipePath => PipeHelpers.GetPipePath(PipeName);
 
-        protected PipeArgument(PipeDirection direction)
-        {
-            PipeName = PipeHelpers.GetUnqiuePipeName();
-            _direction = direction;
-        }
+    protected NamedPipeServerStream Pipe { get; private set; } = null!;
+    public abstract string Text { get; }
 
-        public void Pre()
+    public void Pre()
+    {
+        lock (_pipeLock)
         {
             if (Pipe != null)
             {
@@ -27,35 +32,40 @@ namespace FFMpegCore.Arguments
 
             Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
+    }
 
-        public void Post()
+    public void Post()
+    {
+        Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
+        lock (_pipeLock)
         {
-            Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
             Pipe?.Dispose();
             Pipe = null!;
         }
+    }
 
-        public async Task During(CancellationToken cancellationToken = default)
+    public async Task During(CancellationToken cancellationToken = default)
+    {
+        try
         {
-            try
+            await ProcessDataAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"ProcessDataAsync on {GetType().Name} cancelled");
+        }
+        finally
+        {
+            Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
+            lock (_pipeLock)
             {
-                await ProcessDataAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.WriteLine($"ProcessDataAsync on {GetType().Name} cancelled");
-            }
-            finally
-            {
-                Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
                 if (Pipe is { IsConnected: true })
                 {
                     Pipe.Disconnect();
                 }
             }
         }
-
-        protected abstract Task ProcessDataAsync(CancellationToken token);
-        public abstract string Text { get; }
     }
+
+    protected abstract Task ProcessDataAsync(CancellationToken token);
 }
