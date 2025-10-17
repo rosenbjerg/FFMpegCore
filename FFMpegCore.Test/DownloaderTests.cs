@@ -22,7 +22,7 @@ public class DownloaderTests
         }
     }
 
-    [TestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
     public async Task GetAllLatestSuiteTest()
     {
         var options = new FFOptions { BinaryFolder = Path.GetTempPath() };
