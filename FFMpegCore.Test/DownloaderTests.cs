@@ -1,6 +1,5 @@
 ﻿using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.Downloader.Enums;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FFMpegCore.Test;
 
@@ -8,16 +7,16 @@ namespace FFMpegCore.Test;
 public class DownloaderTests
 {
     [TestMethod]
-    public void GetSpecificVersionTest()
+    public async Task GetSpecificVersionTest()
     {
-        var binaries = FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1).Result;
-        Assert.IsTrue(binaries.Count == 2);
+        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1);
+        Assert.HasCount(2, binaries);
     }
 
     [TestMethod]
-    public void GetAllLatestSuiteTest()
+    public async Task GetAllLatestSuiteTest()
     {
-        var binaries = FFMpegDownloader.DownloadFFMpegSuite().Result;
-        Assert.IsTrue(binaries.Count == 2); // many platforms have only ffmpeg and ffprobe
+        var binaries = await FFMpegDownloader.DownloadFFMpegSuite();
+        Assert.HasCount(2, binaries);
     }
 }
