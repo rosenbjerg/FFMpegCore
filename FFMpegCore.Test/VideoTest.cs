@@ -813,12 +813,12 @@ public class VideoTest
         var timeDone = TimeSpan.Zero;
         var analysis = FFProbe.Analyse(TestResources.Mp4Video);
 
+        var events = new List<double>();
+
         void OnPercentageProgess(double percentage)
         {
-            if (percentage < 100)
-            {
-                percentageDone = percentage;
-            }
+            events.Add(percentage);
+            percentageDone = percentage;
         }
 
         void OnTimeProgess(TimeSpan time)
@@ -841,7 +841,10 @@ public class VideoTest
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputFile));
         Assert.AreNotEqual(0.0, percentageDone);
-        Assert.AreNotEqual(100.0, percentageDone);
+        Assert.IsGreaterThan(1, events.Count);
+        CollectionAssert.AllItemsAreUnique(events);
+        Assert.AreNotEqual(100.0, events.First());
+        Assert.AreEqual(100.0, events.Last(), 0.001);
         Assert.AreNotEqual(TimeSpan.Zero, timeDone);
         Assert.AreNotEqual(analysis.Duration, timeDone);
     }
