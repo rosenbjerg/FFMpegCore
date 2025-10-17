@@ -70,17 +70,14 @@ public static class FFMpegDownloader
     private static IEnumerable<string> ExtractZipAndSave(Stream zipStream, string binaryFolder)
     {
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-        List<string> files = new();
         foreach (var entry in archive.Entries)
         {
             if (entry.Name is "ffmpeg" or "ffmpeg.exe" or "ffprobe.exe" or "ffprobe" or "ffplay.exe" or "ffplay")
             {
                 var filePath = Path.Combine(binaryFolder, entry.Name);
                 entry.ExtractToFile(filePath, true);
-                files.Add(filePath);
+                yield return filePath;
             }
         }
-
-        return files;
     }
 }
