@@ -10,7 +10,6 @@ namespace FFMpegCore;
 public class FFMpegArgumentProcessor
 {
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
     private CancellationTokenRegistration? _cancellationTokenRegistration;
@@ -31,12 +30,6 @@ public class FFMpegArgumentProcessor
     public string Arguments => _ffMpegArguments.Text;
 
     private event EventHandler<int> CancelEvent = null!;
-
-    ~FFMpegArgumentProcessor()
-    {
-        _cancellationTokenSource.Dispose();
-        _cancellationTokenRegistration?.Dispose();
-    }
 
     /// <summary>
     ///     Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed and progress percentage is
@@ -92,6 +85,7 @@ public class FFMpegArgumentProcessor
 
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
+        _cancellationTokenRegistration?.Dispose();
         _cancellationTokenRegistration = token.Register(() => Cancel(timeout));
         return this;
     }
@@ -117,11 +111,12 @@ public class FFMpegArgumentProcessor
     {
         var options = GetConfiguredOptions(ffMpegOptions);
         var processArguments = PrepareProcessArguments(options);
+        using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         try
         {
-            processResult = Process(processArguments).ConfigureAwait(false).GetAwaiter().GetResult();
+            processResult = Process(processArguments, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         catch (OperationCanceledException)
         {
@@ -138,11 +133,12 @@ public class FFMpegArgumentProcessor
     {
         var options = GetConfiguredOptions(ffMpegOptions);
         var processArguments = PrepareProcessArguments(options);
+        using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         try
         {
-            processResult = await Process(processArguments).ConfigureAwait(false);
+            processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -155,11 +151,12 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
     }
 
-    private async Task<IProcessResult> Process(ProcessArguments processArguments)
+    private async Task<IProcessResult> Process(ProcessArguments processArguments, CancellationTokenSource cancellationTokenSource)
     {
         IProcessResult processResult = null!;
         if (_cancelled)
         {
+            _cancellationTokenRegistration?.Dispose();
             throw new OperationCanceledException("cancelled before starting processing");
         }
 
@@ -171,9 +168,9 @@ public class FFMpegArgumentProcessor
         {
             instance.SendInput("q");
 
-            if (!_cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+            if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
             {
-                _cancellationTokenSource.Cancel();
+                cancellationTokenSource.Cancel();
                 instance.Kill();
             }
         }
@@ -185,12 +182,13 @@ public class FFMpegArgumentProcessor
             await Task.WhenAll(instance.WaitForExitAsync().ContinueWith(t =>
             {
                 processResult = t.Result;
-                _cancellationTokenSource.Cancel();
+                cancellationTokenSource.Cancel();
                 _ffMpegArguments.Post();
-            }), _ffMpegArguments.During(_cancellationTokenSource.Token)).ConfigureAwait(false);
+            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
 
             if (_cancelled)
             {
+                _cancellationTokenRegistration?.Dispose();
                 throw new OperationCanceledException("ffmpeg processing was cancelled");
             }
 
@@ -199,6 +197,7 @@ public class FFMpegArgumentProcessor
         finally
         {
             CancelEvent -= OnCancelEvent;
+            _cancellationTokenRegistration?.Dispose();
         }
     }
 
