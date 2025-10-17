@@ -13,7 +13,7 @@
     <PackageReleaseNotes>
     </PackageReleaseNotes>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze download</PackageTags>
-    <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Kerry Cao</Authors>
+    <Authors>Kerry Cao, Malte Rosenbjerg</Authors>
   </PropertyGroup>
 
   <ItemGroup>
