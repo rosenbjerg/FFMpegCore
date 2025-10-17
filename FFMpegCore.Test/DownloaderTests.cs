@@ -1,12 +1,13 @@
 ﻿using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.Downloader.Enums;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test;
 
 [TestClass]
 public class DownloaderTests
 {
-    [TestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
     public async Task GetSpecificVersionTest()
     {
         var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1);
@@ -20,7 +21,7 @@ public class DownloaderTests
         }
     }
 
-    [TestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
     public async Task GetAllLatestSuiteTest()
     {
         var binaries = await FFMpegDownloader.DownloadFFMpegSuite();
