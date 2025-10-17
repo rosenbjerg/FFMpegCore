@@ -217,7 +217,6 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-
         var frames = new List<IVideoFrame>
         {
             BitmapSource.CreateVideoFrame(0, pixelFormatFrame1, 255, 255, 1, 0), BitmapSource.CreateVideoFrame(0, pixelFormatFrame2, 255, 255, 1, 0)
