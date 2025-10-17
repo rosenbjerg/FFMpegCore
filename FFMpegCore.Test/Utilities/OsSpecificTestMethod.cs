@@ -7,9 +7,9 @@ namespace FFMpegCore.Test.Utilities;
 [Flags]
 internal enum OsPlatforms : ushort
 {
-    Windows,
-    Linux,
-    MacOS
+    Windows = 1,
+    Linux = 2,
+    MacOS = 4
 }
 
 internal class OsSpecificTestMethod : TestMethodAttribute
