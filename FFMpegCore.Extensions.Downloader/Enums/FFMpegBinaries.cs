@@ -3,7 +3,7 @@
 [Flags]
 public enum FFMpegBinaries : ushort
 {
-    FFMpeg,
-    FFProbe,
-    FFPlay
+    FFMpeg = 1,
+    FFProbe = 2,
+    FFPlay = 4
 }
