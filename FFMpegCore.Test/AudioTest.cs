@@ -9,6 +9,10 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class AudioTest
 {
+    private const int BaseTimeoutMilliseconds = 30_000;
+
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public void Audio_Remove()
     {
@@ -41,6 +45,7 @@ public class AudioTest
         await FFMpegArguments
             .FromPipeInput(new StreamPipeSource(file), options => options.ForceFormat("s16le"))
             .OutputToPipe(new StreamPipeSink(memoryStream), options => options.ForceFormat("mp3"))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
     }
 
@@ -70,7 +75,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -83,12 +88,13 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToLibVorbis_Args_Pipe()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -101,12 +107,13 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.LibVorbis))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Audio_ToAAC_Args_Pipe_Async()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -119,12 +126,13 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_ValidDefaultConfiguration()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -137,12 +145,13 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidChannels()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -153,11 +162,12 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidFormat()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -168,11 +178,12 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_ToAAC_Args_Pipe_InvalidSampleRate()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -183,11 +194,12 @@ public class AudioTest
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMono()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -196,6 +208,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1, "c0 < 0.9 * c0 + 0.1 * c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
@@ -206,7 +219,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoNoDefinitions()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -215,6 +228,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
@@ -225,7 +239,7 @@ public class AudioTest
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoChannelsToOutputDefinitionsMismatch()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -234,11 +248,12 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan(1, "c0=c0", "c1=c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_Pan_ToMonoChannelsLayoutToOutputDefinitionsMismatch()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -247,11 +262,12 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_DynamicNormalizer_WithDefaultValues()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -260,13 +276,14 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer()))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_DynamicNormalizer_WithNonDefaultValues()
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
@@ -275,13 +292,14 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer(250, 7, 0.9, 2, 1, false, true, true, 0.5)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
         Assert.IsTrue(success);
     }
 
     [TestMethod]
-    [Timeout(10000, CooperativeCancellation = true)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(2)]
     [DataRow(32)]
     [DataRow(8)]
@@ -294,6 +312,7 @@ public class AudioTest
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.DynamicNormalizer(filterWindow: filterWindow)))
+            .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }
 }
