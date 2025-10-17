@@ -90,7 +90,6 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
         _cancellationTokenRegistration = token.Register(() => Cancel(timeout));
