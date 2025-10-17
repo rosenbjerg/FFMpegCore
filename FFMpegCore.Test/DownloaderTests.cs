@@ -17,6 +17,12 @@ public class DownloaderTests
         _ffOptions = new FFOptions { BinaryFolder = tempDownloadFolder };
     }
 
+    [TestCleanup]
+    public void DeleteTestFolder()
+    {
+        Directory.Delete(_ffOptions.BinaryFolder, true);
+    }
+
     [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
     public async Task GetSpecificVersionTest()
     {
