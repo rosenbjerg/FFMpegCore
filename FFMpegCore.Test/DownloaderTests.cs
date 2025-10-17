@@ -10,13 +10,27 @@ public class DownloaderTests
     public async Task GetSpecificVersionTest()
     {
         var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1);
-        Assert.HasCount(2, binaries);
+        try
+        {
+            Assert.HasCount(2, binaries);
+        }
+        finally
+        {
+            binaries.ForEach(File.Delete);
+        }
     }
 
     [TestMethod]
     public async Task GetAllLatestSuiteTest()
     {
         var binaries = await FFMpegDownloader.DownloadFFMpegSuite();
-        Assert.HasCount(2, binaries);
+        try
+        {
+            Assert.HasCount(2, binaries);
+        }
+        finally
+        {
+            binaries.ForEach(File.Delete);
+        }
     }
 }
