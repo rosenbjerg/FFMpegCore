@@ -5,7 +5,7 @@
 /// </summary>
 public class FFMpegDownloaderException : Exception
 {
-    public string Detail { get; set; } = "";
+    public readonly string Detail = "";
 
     public FFMpegDownloaderException(string message) : base(message)
     {
