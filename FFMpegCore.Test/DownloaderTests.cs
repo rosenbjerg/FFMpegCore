@@ -11,7 +11,7 @@ public class DownloaderTests
     public async Task GetSpecificVersionTest()
     {
         var options = new FFOptions { BinaryFolder = Path.GetTempPath() };
-        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1, options: options);
+        var binaries = await FFMpegDownloader.DownloadBinaries(FFMpegVersions.V6_1, options: options);
         try
         {
             Assert.HasCount(2, binaries);
@@ -26,7 +26,7 @@ public class DownloaderTests
     public async Task GetAllLatestSuiteTest()
     {
         var options = new FFOptions { BinaryFolder = Path.GetTempPath() };
-        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(options: options);
+        var binaries = await FFMpegDownloader.DownloadBinaries(options: options);
         try
         {
             Assert.HasCount(2, binaries);

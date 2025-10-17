@@ -17,8 +17,8 @@ public static class FFMpegDownloader
     /// <param name="options">used for specifying binary folder to download binaries into. If not provided, GlobalFFOptions are used</param>
     /// <param name="platformOverride">used to explicitly state the os and architecture you want to download</param>
     /// <returns>a list of the binaries that have been successfully downloaded</returns>
-    public static async Task<List<string>> DownloadFFMpegSuite(
         FFMpegVersions version = FFMpegVersions.Latest,
+    public static async Task<List<string>> DownloadBinaries(
         FFMpegBinaries binaries = FFMpegBinaries.FFMpeg | FFMpegBinaries.FFProbe,
         FFOptions? options = null,
         SupportedPlatforms? platformOverride = null)
