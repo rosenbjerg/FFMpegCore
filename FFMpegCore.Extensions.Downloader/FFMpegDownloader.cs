@@ -41,7 +41,7 @@ public static class FFMpegDownloader
         {
             if (binariesDictionary.TryGetValue(binaryFlag.ToString().ToLowerInvariant(), out var binaryUrl))
             {
-                await using var zipStream = await httpClient.GetStreamAsync(new Uri(binaryUrl));
+                using var zipStream = await httpClient.GetStreamAsync(new Uri(binaryUrl));
                 var extracted = ExtractZipAndSave(zipStream, relevantOptions.BinaryFolder);
                 successList.AddRange(extracted);
             }
