@@ -707,14 +707,14 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void InputPipe_MaxLength_ShorterThanMacOsMax()
+    public void InputPipe_MaxLength_ShorterThanMacOSMax()
     {
         var pipePath = new InputPipeArgument(new StreamPipeSource(Stream.Null)).PipePath;
-        Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
+        Assert.IsLessThan(104, pipePath.Length);
     }
 
     [TestMethod]
-    public void OutputPipe_MaxLength_ShorterThanMacOsMax()
+    public void OutputPipe_MaxLength_ShorterThanMacOSMax()
     {
         var pipePath = new OutputPipeArgument(new StreamPipeSink(Stream.Null)).PipePath;
         Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
