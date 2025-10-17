@@ -184,7 +184,12 @@ If you want to use `System.Drawing.Bitmap`s as `IVideoFrame`s, a `BitmapVideoFra
 
 # Binaries
 
-## Installation
+## Runtime Auto Installation
+You can install a version of ffmpeg suite at runtime using `FFMpegDownloader.DownloadFFMpegSuite();`
+
+This feature uses the api from [ffbinaries](https://ffbinaries.com/api).
+
+## Manual Installation
 
 If you prefer to manually download them, visit [ffbinaries](https://ffbinaries.com/downloads)
 or [zeranoe Windows builds](https://ffmpeg.zeranoe.com/builds/).

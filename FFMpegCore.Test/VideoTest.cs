@@ -110,7 +110,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(PixelFormat.Format24bppRgb)]
     [DataRow(PixelFormat.Format32bppArgb)]
@@ -142,7 +142,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_Pipe_DifferentImageSizes_WindowsOnly()
     {
@@ -174,7 +174,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_WindowsOnly_Async()
     {
@@ -206,7 +206,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly()
     {
@@ -239,7 +239,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_WindowsOnly_Async()
     {
@@ -414,7 +414,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(PixelFormat.Format24bppRgb)]
     [DataRow(PixelFormat.Format32bppArgb)]
@@ -463,7 +463,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(SKColorType.Rgb565)]
     [DataRow(SKColorType.Bgra8888)]
@@ -500,7 +500,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(PixelFormat.Format24bppRgb)]
     [DataRow(PixelFormat.Format32bppArgb)]
@@ -533,7 +533,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SystemDrawingCommon()
     {
@@ -857,7 +857,7 @@ public class VideoTest
     }
 
     [SupportedOSPlatform("windows")]
-    [WindowsOnlyTestMethod]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TranscodeInMemory_WindowsOnly()
     {

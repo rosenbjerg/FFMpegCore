@@ -7,10 +7,11 @@ namespace FFMpegCore.Arguments;
 public abstract class PipeArgument
 {
     private readonly PipeDirection _direction;
+    private readonly object _pipeLock = new();
 
     protected PipeArgument(PipeDirection direction)
     {
-        PipeName = PipeHelpers.GetUnqiuePipeName();
+        PipeName = PipeHelpers.GetUniquePipeName();
         _direction = direction;
     }
 
@@ -22,19 +23,25 @@ public abstract class PipeArgument
 
     public void Pre()
     {
-        if (Pipe != null)
+        lock (_pipeLock)
         {
-            throw new InvalidOperationException("Pipe already has been opened");
-        }
+            if (Pipe != null)
+            {
+                throw new InvalidOperationException("Pipe already has been opened");
+            }
 
-        Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            Pipe = new NamedPipeServerStream(PipeName, _direction, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        }
     }
 
     public void Post()
     {
         Debug.WriteLine($"Disposing NamedPipeServerStream on {GetType().Name}");
-        Pipe?.Dispose();
-        Pipe = null!;
+        lock (_pipeLock)
+        {
+            Pipe?.Dispose();
+            Pipe = null!;
+        }
     }
 
     public async Task During(CancellationToken cancellationToken = default)
@@ -50,9 +57,12 @@ public abstract class PipeArgument
         finally
         {
             Debug.WriteLine($"Disconnecting NamedPipeServerStream on {GetType().Name}");
-            if (Pipe is { IsConnected: true })
+            lock (_pipeLock)
             {
-                Pipe.Disconnect();
+                if (Pipe is { IsConnected: true })
+                {
+                    Pipe.Disconnect();
+                }
             }
         }
     }

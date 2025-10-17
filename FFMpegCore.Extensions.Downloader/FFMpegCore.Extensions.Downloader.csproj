@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>FFMpeg downloader extension for FFMpegCore</Description>
+    <PackageVersion>5.0.0</PackageVersion>
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+    <PackageReleaseNotes>
+      - Updated dependencies
+    </PackageReleaseNotes>
+    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze download install</PackageTags>
+    <Authors>Kerry Cao, Malte Rosenbjerg</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj"/>
+  </ItemGroup>
+
+</Project>

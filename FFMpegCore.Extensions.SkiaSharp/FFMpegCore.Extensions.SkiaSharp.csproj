@@ -5,8 +5,10 @@
     <Description>Image extension for FFMpegCore using SkiaSharp</Description>
     <PackageVersion>5.0.3</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
-    <PackageReleaseNotes>Bump dependencies</PackageReleaseNotes>
-    <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing skiasharp</PackageTags>
+    <PackageReleaseNotes>
+      - Updated dependencies
+    </PackageReleaseNotes>
+    <PackageTags>ffmpeg ffprobe convert video audio image mediafile resize analyze muxing skia skiasharp</PackageTags>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev, Dimitri Vranken</Authors>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
   </PropertyGroup>
