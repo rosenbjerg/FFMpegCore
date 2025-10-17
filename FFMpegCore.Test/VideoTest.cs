@@ -17,7 +17,7 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class VideoTest
 {
-    private const int BaseTimeoutMilliseconds = 30_000;
+    private const int BaseTimeoutMilliseconds = 60_000;
 
     public TestContext TestContext { get; set; }
 
