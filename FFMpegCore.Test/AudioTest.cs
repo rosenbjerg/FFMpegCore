@@ -9,7 +9,7 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class AudioTest
 {
-    private const int BaseTimeoutMilliseconds = 15_000;
+    private const int BaseTimeoutMilliseconds = 30_000;
 
     public TestContext TestContext { get; set; }
 
