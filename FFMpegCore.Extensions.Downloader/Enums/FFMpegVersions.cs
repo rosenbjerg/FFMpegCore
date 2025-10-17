@@ -5,7 +5,7 @@ namespace FFMpegCore.Extensions.Downloader.Enums;
 public enum FFMpegVersions : ushort
 {
     [Description("https://ffbinaries.com/api/v1/version/latest")]
-    Latest,
+    LatestAvailable,
 
     [Description("https://ffbinaries.com/api/v1/version/6.1")]
     V6_1,
