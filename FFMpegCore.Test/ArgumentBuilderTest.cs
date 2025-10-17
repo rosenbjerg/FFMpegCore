@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test;
 
@@ -702,5 +703,19 @@ public class ArgumentBuilderTest
     {
         var arg = new AudibleEncryptionKeyArgument("62689101");
         Assert.AreEqual("-activation_bytes 62689101", arg.Text);
+    }
+
+    [TestMethod]
+    public void InputPipe_MaxLength_ShorterThanMacOsMax()
+    {
+        var pipePath = new InputPipeArgument(new StreamPipeSource(Stream.Null)).PipePath;
+        Assert.IsLessThan(104, pipePath.Length);
+    }
+
+    [TestMethod]
+    public void OutputPipe_MaxLength_ShorterThanMacOsMax()
+    {
+        var pipePath = new OutputPipeArgument(new StreamPipeSink(Stream.Null)).PipePath;
+        Assert.IsLessThan(104, pipePath.Length);
     }
 }
