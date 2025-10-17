@@ -2,9 +2,9 @@
 
 namespace FFMpegCore.Extensions.Downloader.Extensions;
 
-internal static class EnumExtensions
+public static class EnumExtensions
 {
-    public static string GetDescription(this Enum enumValue)
+    internal static string GetDescription(this Enum enumValue)
     {
         var field = enumValue.GetType().GetField(enumValue.ToString());
         if (field == null)
@@ -18,5 +18,14 @@ internal static class EnumExtensions
         }
 
         return enumValue.ToString();
+    }
+
+    public static TEnum[] GetFlags<TEnum>(this TEnum input) where TEnum : Enum
+    {
+        return Enum.GetValues(input.GetType())
+            .Cast<Enum>()
+            .Where(input.HasFlag)
+            .Cast<TEnum>()
+            .ToArray();
     }
 }

@@ -10,7 +10,8 @@ public class DownloaderTests
     [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
     public async Task GetSpecificVersionTest()
     {
-        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1);
+        var options = new FFOptions { BinaryFolder = Path.GetTempPath() };
+        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(FFMpegVersions.V6_1, options: options);
         try
         {
             Assert.HasCount(2, binaries);
@@ -21,10 +22,11 @@ public class DownloaderTests
         }
     }
 
-    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
+    [TestMethod]
     public async Task GetAllLatestSuiteTest()
     {
-        var binaries = await FFMpegDownloader.DownloadFFMpegSuite();
+        var options = new FFOptions { BinaryFolder = Path.GetTempPath() };
+        var binaries = await FFMpegDownloader.DownloadFFMpegSuite(options: options);
         try
         {
             Assert.HasCount(2, binaries);

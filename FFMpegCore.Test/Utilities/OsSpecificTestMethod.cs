@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using FFMpegCore.Extensions.Downloader.Enums;
+using FFMpegCore.Extensions.Downloader.Extensions;
 
 namespace FFMpegCore.Test.Utilities;
 
