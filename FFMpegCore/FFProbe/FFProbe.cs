@@ -185,7 +185,9 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
+        ffprobeAnalysis.OutputData = instance.OutputData;
         ffprobeAnalysis.ErrorData = instance.ErrorData;
+
         return new MediaAnalysis(ffprobeAnalysis);
     }
 
