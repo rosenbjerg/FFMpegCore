@@ -13,13 +13,18 @@ public static class FFProbe
 {
     public static IMediaAnalysis Analyse(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
     {
+        return new MediaAnalysis(GetAnalysis(filePath, ffOptions, customArguments));
+    }
+
+    public static FFProbeAnalysis GetAnalysis(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
+    {
         ThrowIfInputFileDoesNotExist(filePath);
 
         var processArguments = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = processArguments.StartAndWaitForExit();
         ThrowIfExitCodeNotZero(result);
 
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static FFProbeFrames GetFrames(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
@@ -46,14 +51,24 @@ public static class FFProbe
 
     public static IMediaAnalysis Analyse(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
     {
+        return new MediaAnalysis(GetAnalysis(uri, ffOptions, customArguments));
+    }
+
+    public static FFProbeAnalysis GetAnalysis(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
+    {
         var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = instance.StartAndWaitForExit();
         ThrowIfExitCodeNotZero(result);
 
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static IMediaAnalysis Analyse(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return new MediaAnalysis(GetAnalysis(stream, ffOptions, customArguments));
+    }
+
+    public static FFProbeAnalysis GetAnalysis(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
     {
         var streamPipeSource = new StreamPipeSource(stream);
         var pipeArgument = new InputPipeArgument(streamPipeSource);
@@ -74,10 +89,16 @@ public static class FFProbe
         var result = task.ConfigureAwait(false).GetAwaiter().GetResult();
         ThrowIfExitCodeNotZero(result);
 
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
+        string? customArguments = null)
+    {
+        return new MediaAnalysis(await GetAnalysisAsync(filePath, ffOptions, cancellationToken, customArguments));
+    }
+
+    public static async Task<FFProbeAnalysis> GetAnalysisAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
         string? customArguments = null)
     {
         ThrowIfInputFileDoesNotExist(filePath);
@@ -86,7 +107,7 @@ public static class FFProbe
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
         ThrowIfExitCodeNotZero(result);
 
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static FFProbeFrames GetFrames(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
@@ -121,14 +142,24 @@ public static class FFProbe
     public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
         string? customArguments = null)
     {
+        return new MediaAnalysis(await GetAnalysisAsync(uri, ffOptions, cancellationToken, customArguments));
+    }
+    public static async Task<FFProbeAnalysis> GetAnalysisAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
+        string? customArguments = null)
+    {
         var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
         ThrowIfExitCodeNotZero(result);
 
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
+        string? customArguments = null)
+    {
+        return new MediaAnalysis(await GetAnalysisAsync(stream, ffOptions, cancellationToken, customArguments));
+    }
+    public static async Task<FFProbeAnalysis> GetAnalysisAsync(Stream stream, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
         string? customArguments = null)
     {
         var streamPipeSource = new StreamPipeSource(stream);
@@ -153,7 +184,7 @@ public static class FFProbe
         ThrowIfExitCodeNotZero(result);
 
         pipeArgument.Post();
-        return ParseOutput(result);
+        return DeserializeOutput(result);
     }
 
     public static async Task<FFProbeFrames> GetFramesAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
@@ -164,7 +195,7 @@ public static class FFProbe
         return ParseFramesOutput(result);
     }
 
-    private static IMediaAnalysis ParseOutput(IProcessResult instance)
+    private static FFProbeAnalysis DeserializeOutput(IProcessResult instance)
     {
         var json = string.Join(string.Empty, instance.OutputData);
         var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -175,7 +206,7 @@ public static class FFProbe
         }
 
         ffprobeAnalysis.ErrorData = instance.ErrorData;
-        return new MediaAnalysis(ffprobeAnalysis);
+        return ffprobeAnalysis;
     }
 
     private static FFProbeFrames ParseFramesOutput(IProcessResult instance)
