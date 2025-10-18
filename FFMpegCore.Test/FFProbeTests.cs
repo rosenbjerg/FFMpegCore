@@ -285,4 +285,13 @@ public class FFProbeTests
         var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
         Assert.AreEqual(3, info.Duration.Seconds);
     }
+
+    [TestMethod]
+    public void Probe_Success_Output_Data()
+    {
+        var info = FFProbe.Analyse(TestResources.Mp4Video);
+
+        Assert.AreNotEqual(0, info.OutputData.Count);
+        CollectionAssert.Contains(info.OutputData.ToList(), "            \"codec_long_name\": \"H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10\",");
+    }
 }

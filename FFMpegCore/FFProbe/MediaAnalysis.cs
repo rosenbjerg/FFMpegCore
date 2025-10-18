@@ -9,10 +9,11 @@ internal class MediaAnalysis : IMediaAnalysis
     internal MediaAnalysis(FFProbeAnalysis analysis)
     {
         Format = ParseFormat(analysis.Format);
-        Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
+        Chapters = analysis.Chapters.Select(ParseChapter).ToList();
         VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
         AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
         SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
+        OutputData = analysis.OutputData;
         ErrorData = analysis.ErrorData;
     }
 
@@ -29,6 +30,7 @@ internal class MediaAnalysis : IMediaAnalysis
     public List<VideoStream> VideoStreams { get; }
     public List<AudioStream> AudioStreams { get; }
     public List<SubtitleStream> SubtitleStreams { get; }
+    public IReadOnlyList<string> OutputData { get; }
     public IReadOnlyList<string> ErrorData { get; }
 
     private MediaFormat ParseFormat(Format analysisFormat)
