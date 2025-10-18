@@ -4,9 +4,9 @@ using FFMpegCore.Builders.MetaData;
 
 namespace FFMpegCore;
 
-internal class MediaAnalysis : IMediaAnalysis
+public class MediaAnalysis : IMediaAnalysis
 {
-    internal MediaAnalysis(FFProbeAnalysis analysis)
+    public MediaAnalysis(FFProbeAnalysis analysis)
     {
         Format = ParseFormat(analysis.Format);
         Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
