@@ -37,16 +37,19 @@ public static class FFMpeg
     /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
     public static async Task<bool> SnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0)
+        int inputFileIndex = 0, CancellationToken cancellationToken = default)
     {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
-        var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+        var source = await FFProbe.AnalyseAsync(input, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return await SnapshotProcess(input, output, source, size, captureTime, streamIndex, inputFileIndex)
-            .ProcessAsynchronously();
+            .CancellableThrough(cancellationToken)
+            .ProcessAsynchronously()
+            .ConfigureAwait(false);
     }
 
     public static bool GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
@@ -61,14 +64,16 @@ public static class FFMpeg
     }
 
     public static async Task<bool> GifSnapshotAsync(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
-        int? streamIndex = null)
+        int? streamIndex = null, CancellationToken cancellationToken = default)
     {
         CheckSnapshotOutputExtension(output, [FileExtension.Gif]);
 
-        var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+        var source = await FFProbe.AnalyseAsync(input, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return await GifSnapshotProcess(input, output, source, size, captureTime, duration, streamIndex)
-            .ProcessAsynchronously();
+            .CancellableThrough(cancellationToken)
+            .ProcessAsynchronously()
+            .ConfigureAwait(false);
     }
 
     private static FFMpegArgumentProcessor SnapshotProcess(string input, string output, IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null,
@@ -321,11 +326,15 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="startTime">The start time of when the sub video needs to start</param>
     /// <param name="endTime">The end time of where the sub video needs to  end</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Output video information.</returns>
-    public static async Task<bool> SubVideoAsync(string input, string output, TimeSpan startTime, TimeSpan endTime)
+    public static async Task<bool> SubVideoAsync(string input, string output, TimeSpan startTime, TimeSpan endTime,
+        CancellationToken cancellationToken = default)
     {
         return await BaseSubVideo(input, output, startTime, endTime)
-            .ProcessAsynchronously();
+            .CancellableThrough(cancellationToken)
+            .ProcessAsynchronously()
+            .ConfigureAwait(false);
     }
 
     /// <summary>
