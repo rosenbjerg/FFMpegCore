@@ -166,12 +166,28 @@ public class FFMpegArgumentProcessor
 
         void OnCancelEvent(object sender, int timeout)
         {
-            instance.SendInput("q");
+            ExecuteIgnoringFinishedProcessExceptions(() => instance.SendInput("q"));
 
             if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
             {
                 cancellationTokenSource.Cancel();
-                instance.Kill();
+                ExecuteIgnoringFinishedProcessExceptions(() => instance.Kill());
+            }
+
+            static void ExecuteIgnoringFinishedProcessExceptions(Action action)
+            {
+                try
+                {
+                    action();
+                }
+                catch (Instances.Exceptions.InstanceProcessAlreadyExitedException)
+                {
+                    //ignore
+                }
+                catch (ObjectDisposedException)
+                {
+                    //ignore
+                }
             }
         }
 
