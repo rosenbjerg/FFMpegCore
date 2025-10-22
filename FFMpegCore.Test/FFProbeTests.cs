@@ -285,4 +285,61 @@ public class FFProbeTests
         var info = FFProbe.Analyse(TestResources.Mp4Video, customArguments: "-headers \"Hello: World\"");
         Assert.AreEqual(3, info.Duration.Seconds);
     }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Parallel_FFProbe_Cancellation_Should_Throw_Only_OperationCanceledException()
+    {
+        // Warm up FFMpegCore environment
+        Helpers.FFProbeHelper.VerifyFFProbeExists(GlobalFFOptions.Current);
+
+        var mp4 = TestResources.Mp4Video;
+        if (!File.Exists(mp4))
+        {
+            Assert.Inconclusive($"Test video not found: {mp4}");
+            return;
+        }
+
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        var token = cts.Token;
+        using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
+        var tasks = Enumerable.Range(0, 50).Select(x => Task.Run(async () =>
+        {
+            await semaphore.WaitAsync(token);
+            try
+            {
+                var analysis = await FFProbe.AnalyseAsync(mp4, cancellationToken: token);
+                return analysis;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }, token)).ToList();
+
+        // Wait for 2 tasks to finish, then cancel all
+        await Task.WhenAny(tasks);
+        await Task.WhenAny(tasks);
+        await cts.CancelAsync();
+        cts.Dispose();
+
+        var exceptions = new List<Exception>();
+        foreach (var task in tasks)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception e)
+            {
+                exceptions.Add(e);
+            }
+        }
+
+        Assert.IsNotEmpty(exceptions, "No exceptions were thrown on cancellation. Test was useless. " +
+                                      ".Try adjust cancellation timings to make cancellation at the moment, when ffprobe is still running.");
+
+        // Check that all exceptions are OperationCanceledException
+        CollectionAssert.AllItemsAreInstancesOfType(exceptions, typeof(OperationCanceledException));
+    }
 }
