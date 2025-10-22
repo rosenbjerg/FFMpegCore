@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Test.Resources;
+﻿using FFMpegCore.Exceptions;
+using FFMpegCore.Test.Resources;
 
 namespace FFMpegCore.Test;
 
@@ -341,5 +342,14 @@ public class FFProbeTests
 
         // Check that all exceptions are OperationCanceledException
         CollectionAssert.AllItemsAreInstancesOfType(exceptions, typeof(OperationCanceledException));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task FFProbe_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    {
+        var input = TestResources.SrtSubtitle; //non media file
+        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.AnalyseAsync(input,
+            cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
     }
 }
