@@ -214,11 +214,11 @@ public static class FFProbe
 
     private static void ThrowIfExitCodeNotZero(IProcessResult result, CancellationToken cancellationToken = default)
     {
-        // if cancellation requested, then we are not interested in the exit code, just throw the cancellation exception
-        // to get consistent and expected behavior.
-        cancellationToken.ThrowIfCancellationRequested();
         if (result.ExitCode != 0)
         {
+            // if cancellation requested, then we are not interested in the exit code, just throw the cancellation exception
+            // to get consistent and expected behavior.
+            cancellationToken.ThrowIfCancellationRequested();
             var message = $"ffprobe exited with non-zero exit-code ({result.ExitCode} - {string.Join("\n", result.ErrorData)})";
             throw new FFMpegException(FFMpegExceptionType.Process, message, null, string.Join("\n", result.ErrorData));
         }
