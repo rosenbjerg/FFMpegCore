@@ -54,7 +54,6 @@ public class FFMetadataBuilder
         return sb.ToString();
     }
 
-
     private class FFMetadataChapter(string title, long durationMs)
     {
         public string Title { get; } = title;
