@@ -84,6 +84,40 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_MetadataBuilder()
+    {
+        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
+
+        await FFMpegArguments
+            .FromFileInput(TestResources.WebmVideo)
+            .AddMetaData(FFMetadataBuilder.Empty()
+                .WithTag("title", "noname")
+                .WithTag("artist", "unknown")
+                .WithChapter("Chapter 1", 1.1)
+                .WithChapter("Chapter 2", 1.23))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithVideoCodec(VideoCodec.LibX264))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
+
+        var analysis = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
+        Assert.IsTrue(analysis.Format.Tags!.TryGetValue("title", out var title));
+        Assert.IsTrue(analysis.Format.Tags!.TryGetValue("artist", out var artist));
+        Assert.AreEqual("noname", title);
+        Assert.AreEqual("unknown", artist);
+
+        Assert.HasCount(2, analysis.Chapters);
+        Assert.AreEqual("Chapter 1", analysis.Chapters.First().Title);
+        Assert.AreEqual(1.1, analysis.Chapters.First().Duration.TotalSeconds);
+        Assert.AreEqual(1.1, analysis.Chapters.First().End.TotalSeconds);
+
+        Assert.AreEqual("Chapter 2", analysis.Chapters.Last().Title);
+        Assert.AreEqual(1.23, analysis.Chapters.Last().Duration.TotalSeconds);
+        Assert.AreEqual(1.1 + 1.23, analysis.Chapters.Last().End.TotalSeconds);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToH265_MKV_Args()
     {
         using var outputFile = new TemporaryFile("out.mkv");
