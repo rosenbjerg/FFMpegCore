@@ -62,7 +62,7 @@ public static class SnapshotArgumentBuilder
         TimeSpan? captureTime = null,
         TimeSpan? duration = null,
         int? streamIndex = null,
-        int fps = 12)
+        double fps = 12)
     {
         var defaultGifOutputSize = new Size(480, -1);
 

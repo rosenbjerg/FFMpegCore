@@ -3,13 +3,15 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications</Description>
-    <PackageVersion>5.3.0</PackageVersion>
+    <PackageVersion>5.4.0</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <PackageReleaseNotes>
-      - **Fixed race condition on Named pipe dispose/disconnect** by techtel-pstevens
-      - **More extensions for snapshot function(jpg, bmp, webp)** by GorobVictor
-      - **Include more GUID characters in pipe path** by reima, rosenbjerg
-      - **Updated dependencies and minor cleanup**: by rosenbjerg
+      - Fixed exception thrown on cancelling ffprobe analysis - by snechaev
+      - Support for cancellationtoken in SnapsnotAsync methods - by snechaev
+      - Added FFMetadataBuilder - by rosenbjerg
+      - Fix JoinImageSequence by passing framerate argument to input as well as output - by rosenbjerg
+      - Change fps input from int to double - by rosenbjerg
+      - Fix GetCreationTime method on ITagsContainer - by rosenbjerg
     </PackageReleaseNotes>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze muxing</PackageTags>
     <Authors>Malte Rosenbjerg, Vlad Jerca, Max Bagryantsev</Authors>
