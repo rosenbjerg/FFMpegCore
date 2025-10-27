@@ -154,7 +154,7 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
         var success = FFMpegArguments
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
@@ -474,7 +474,7 @@ public class VideoTest
     private static async Task Video_ToTS_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var output = new TemporaryFile($"out{VideoType.Ts.Extension}");
-        var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = await FFMpegArguments
             .FromPipeInput(input)
@@ -511,7 +511,7 @@ public class VideoTest
     public void RawVideoPipeSource_Ogv_Scale(SKColorType pixelFormat)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         FFMpegArguments
             .FromPipeInput(videoFramesSource)
@@ -565,7 +565,7 @@ public class VideoTest
     private static void Video_ToMP4_Resize_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = FFMpegArguments
             .FromPipeInput(videoFramesSource)
@@ -927,7 +927,7 @@ public class VideoTest
     {
         using var resStream = new MemoryStream();
         var reader = new StreamPipeSink(resStream);
-        var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 128, 128));
+        var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 128, 128));
 
         FFMpegArguments
             .FromPipeInput(writer)
