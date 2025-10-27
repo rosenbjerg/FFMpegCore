@@ -84,7 +84,8 @@ public static class FFProbe
 
         var instance = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        ThrowIfExitCodeNotZero(result, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
 
         return ParseOutput(result);
     }
@@ -123,7 +124,8 @@ public static class FFProbe
     {
         var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        ThrowIfExitCodeNotZero(result, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
 
         return ParseOutput(result);
     }
@@ -150,7 +152,8 @@ public static class FFProbe
         }
 
         var result = await task.ConfigureAwait(false);
-        ThrowIfExitCodeNotZero(result, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
 
         pipeArgument.Post();
         return ParseOutput(result);
@@ -212,13 +215,10 @@ public static class FFProbe
         }
     }
 
-    private static void ThrowIfExitCodeNotZero(IProcessResult result, CancellationToken cancellationToken = default)
+    private static void ThrowIfExitCodeNotZero(IProcessResult result)
     {
         if (result.ExitCode != 0)
         {
-            // if cancellation requested, then we are not interested in the exit code, just throw the cancellation exception
-            // to get consistent and expected behavior.
-            cancellationToken.ThrowIfCancellationRequested();
             var message = $"ffprobe exited with non-zero exit-code ({result.ExitCode} - {string.Join("\n", result.ErrorData)})";
             throw new FFMpegException(FFMpegExceptionType.Process, message, null, string.Join("\n", result.ErrorData));
         }
