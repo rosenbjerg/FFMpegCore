@@ -1,4 +1,5 @@
 ﻿using FFMpegCore.Exceptions;
+using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
 
 namespace FFMpegCore.Test;
@@ -292,7 +293,7 @@ public class FFProbeTests
     public async Task Parallel_FFProbe_Cancellation_Should_Throw_Only_OperationCanceledException()
     {
         // Warm up FFMpegCore environment
-        Helpers.FFProbeHelper.VerifyFFProbeExists(GlobalFFOptions.Current);
+        FFProbeHelper.VerifyFFProbeExists(GlobalFFOptions.Current);
 
         var mp4 = TestResources.Mp4Video;
         if (!File.Exists(mp4))
@@ -301,28 +302,26 @@ public class FFProbeTests
             return;
         }
 
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
-        var token = cts.Token;
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
         using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
         var tasks = Enumerable.Range(0, 50).Select(x => Task.Run(async () =>
         {
-            await semaphore.WaitAsync(token);
+            await semaphore.WaitAsync(cts.Token);
             try
             {
-                var analysis = await FFProbe.AnalyseAsync(mp4, cancellationToken: token);
+                var analysis = await FFProbe.AnalyseAsync(mp4, cancellationToken: cts.Token);
                 return analysis;
             }
             finally
             {
                 semaphore.Release();
             }
-        }, token)).ToList();
+        }, cts.Token)).ToList();
 
         // Wait for 2 tasks to finish, then cancel all
         await Task.WhenAny(tasks);
         await Task.WhenAny(tasks);
         await cts.CancelAsync();
-        cts.Dispose();
 
         var exceptions = new List<Exception>();
         foreach (var task in tasks)
