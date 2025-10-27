@@ -84,6 +84,7 @@ public static class FFProbe
 
         var instance = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
         ThrowIfExitCodeNotZero(result);
 
         return ParseOutput(result);
@@ -123,6 +124,7 @@ public static class FFProbe
     {
         var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
         ThrowIfExitCodeNotZero(result);
 
         return ParseOutput(result);
@@ -150,6 +152,7 @@ public static class FFProbe
         }
 
         var result = await task.ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
         ThrowIfExitCodeNotZero(result);
 
         pipeArgument.Post();
