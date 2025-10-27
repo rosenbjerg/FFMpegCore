@@ -732,7 +732,8 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.gif");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0));
+        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0),
+            cancellationToken: TestContext.CancellationToken);
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -748,7 +749,8 @@ public class VideoTest
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var desiredGifSize = new Size(320, 240);
 
-        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0));
+        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0),
+            cancellationToken: TestContext.CancellationToken);
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, desiredGifSize.Width);

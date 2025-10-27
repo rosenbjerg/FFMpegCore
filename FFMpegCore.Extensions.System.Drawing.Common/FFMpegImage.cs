@@ -38,18 +38,21 @@ public static class FFMpegImage
     /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
     public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0)
+        int inputFileIndex = 0, CancellationToken cancellationToken = default)
     {
-        var source = await FFProbe.AnalyseAsync(input).ConfigureAwait(false);
+        var source = await FFProbe.AnalyseAsync(input, cancellationToken: cancellationToken).ConfigureAwait(false);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
         using var ms = new MemoryStream();
 
         await arguments
             .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                 .ForceFormat("rawvideo")))
-            .ProcessAsynchronously();
+            .CancellableThrough(cancellationToken)
+            .ProcessAsynchronously()
+            .ConfigureAwait(false);
 
         ms.Position = 0;
         return new Bitmap(ms);
