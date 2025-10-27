@@ -154,7 +154,7 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
 
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
         var success = FFMpegArguments
             .FromPipeInput(videoFramesSource)
             .OutputToFile(outputFile, false, opt => opt
@@ -474,7 +474,7 @@ public class VideoTest
     private static async Task Video_ToTS_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var output = new TemporaryFile($"out{VideoType.Ts.Extension}");
-        var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = await FFMpegArguments
             .FromPipeInput(input)
@@ -511,7 +511,7 @@ public class VideoTest
     public void RawVideoPipeSource_Ogv_Scale(SKColorType pixelFormat)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Ogv.Extension}");
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         FFMpegArguments
             .FromPipeInput(videoFramesSource)
@@ -565,7 +565,7 @@ public class VideoTest
     private static void Video_ToMP4_Resize_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
         using var outputFile = new TemporaryFile($"out{VideoType.Mp4.Extension}");
-        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 256, 256));
+        var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = FFMpegArguments
             .FromPipeInput(videoFramesSource)
@@ -927,7 +927,7 @@ public class VideoTest
     {
         using var resStream = new MemoryStream();
         var reader = new StreamPipeSink(resStream);
-        var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(128, pixelFormat, 128, 128));
+        var writer = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 128, 128));
 
         FFMpegArguments
             .FromPipeInput(writer)
@@ -1122,13 +1122,12 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Cancel_CancellationToken_Before_Throws()
+    public void Video_Cancel_CancellationToken_BeforeProcessing_Throws()
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
 
-        cts.Cancel();
         var task = FFMpegArguments
             .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
                 .WithCustomArgument("-re")
@@ -1139,8 +1138,29 @@ public class VideoTest
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
-            .ProcessSynchronously());
+        cts.Cancel();
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Cancel_CancellationToken_BeforePassing_Throws()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        cts.Cancel();
+
+        var task = FFMpegArguments
+            .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                .WithCustomArgument("-re")
+                .ForceFormat("lavfi"))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithSpeedPreset(Speed.VeryFast));
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(cts.Token));
     }
 
     [TestMethod]
