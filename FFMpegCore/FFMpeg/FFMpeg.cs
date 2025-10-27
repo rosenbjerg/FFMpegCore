@@ -297,7 +297,7 @@ public static class FFMpeg
     {
         if (Path.GetExtension(input) != Path.GetExtension(output))
         {
-            output = Path.Combine(Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), Path.GetExtension(input));
+            output = Path.ChangeExtension(output, Path.GetExtension(input));
         }
 
         return FFMpegArguments
