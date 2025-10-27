@@ -1122,13 +1122,12 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Cancel_CancellationToken_Before_Throws()
+    public void Video_Cancel_CancellationToken_BeforeProcessing_Throws()
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
 
-        cts.Cancel();
         var task = FFMpegArguments
             .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
                 .WithCustomArgument("-re")
@@ -1139,8 +1138,29 @@ public class VideoTest
                 .WithSpeedPreset(Speed.VeryFast))
             .CancellableThrough(cts.Token);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
-            .ProcessSynchronously());
+        cts.Cancel();
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Cancel_CancellationToken_BeforePassing_Throws()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        cts.Cancel();
+
+        var task = FFMpegArguments
+            .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                .WithCustomArgument("-re")
+                .ForceFormat("lavfi"))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithSpeedPreset(Speed.VeryFast));
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(cts.Token));
     }
 
     [TestMethod]
