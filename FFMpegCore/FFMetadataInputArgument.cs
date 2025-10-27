@@ -26,8 +26,7 @@ public class FFMetadataBuilder
 
     public FFMetadataBuilder WithChapter(string title, double durationSeconds)
     {
-        Chapters.Add(new FFMetadataChapter(title, Convert.ToInt64(durationSeconds * 1000)));
-        return this;
+        return WithChapter(title, Convert.ToInt64(durationSeconds * 1000));
     }
 
     public string GetMetadataFileContent()
