@@ -19,7 +19,24 @@ public class VideoTest
 {
     private const int BaseTimeoutMilliseconds = 60_000;
 
+    private string _segmentPathSource = "";
+
     public TestContext TestContext { get; set; }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _segmentPathSource = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-");
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(_segmentPathSource), Path.GetFileName(_segmentPathSource) + "*"))
+        {
+            File.Delete(file);
+        }
+    }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
@@ -1193,5 +1210,100 @@ public class VideoTest
         Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Segmented_File_Output()
+    {
+        using var input = File.OpenRead(TestResources.WebmVideo);
+        var success = FFMpegArguments
+            .FromPipeInput(new StreamPipeSource(input))
+            .OutPutToSegmentedFiles(
+                new SegmentArgument($"{_segmentPathSource}%Y-%m-%d_%H-%M-%S.mkv", true, segmentOptions => segmentOptions
+                    .Strftime(true)
+                    .Wrap()
+                    .Time()
+                    .ResetTimeStamps()),
+                options => options
+                    .CopyChannel()
+                    .WithVideoCodec("h264")
+                    .ForceFormat("matroska")
+                    .WithConstantRateFactor(21)
+                    .WithVideoBitrate(3000)
+                    .WithFastStart()
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .Scale(VideoSize.Hd)
+                        .DrawText(DrawTextOptions.Create(@"'%{localtime}.%{eif\:1M*t-1K*trunc(t*1K)\:d\:3}'",
+                                @"C:/Users/yan.gauthier/AppData/Local/Microsoft/Windows/Fonts/Roboto-Regular.ttf")
+                            .WithParameter("fontcolor", "yellow")
+                            .WithParameter("fontsize", "40")
+                            .WithParameter("x", "(w-text_w)")
+                            .WithParameter("y", "(h - text_h)")
+                            .WithParameter("rate", "19")
+                        )
+                    )
+            )
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(false);
+        Assert.IsTrue(success);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_MultiOutput_With_Segmented_File_Output()
+    {
+        using var input = File.OpenRead(TestResources.WebmVideo);
+        var success = FFMpegArguments
+            .FromPipeInput(new StreamPipeSource(input))
+            .MultiOutput(args => args
+                .OutputToFile($"{_segmentPathSource}2", true, options => options
+                    .CopyChannel()
+                    .WithVideoCodec("mjpeg")
+                    .ForceFormat("matroska")
+                    .WithConstantRateFactor(21)
+                    .WithVideoBitrate(4000)
+                    .WithFastStart()
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .Scale(VideoSize.Hd)
+                        .DrawText(DrawTextOptions.Create(@"'%{localtime}.%{eif\:1M*t-1K*trunc(t*1K)\:d\:3}'",
+                                @"C:/Users/yan.gauthier/AppData/Local/Microsoft/Windows/Fonts/Roboto-Regular.ttf")
+                            .WithParameter("fontcolor", "yellow")
+                            .WithParameter("fontsize", "40")
+                            .WithParameter("x", "(w-text_w)")
+                            .WithParameter("y", "(h - text_h)")
+                            .WithParameter("rate", "19")
+                        )
+                    )
+                )
+                .OutPutToSegmentedFiles(
+                    new SegmentArgument($"{_segmentPathSource}%Y-%m-%d_%H-%M-%S.mkv", true, segmentOptions => segmentOptions
+                        .Strftime(true)
+                        .Wrap()
+                        .Time()
+                        .ResetTimeStamps()),
+                    options => options
+                        .CopyChannel()
+                        .WithVideoCodec("h264")
+                        .ForceFormat("matroska")
+                        .WithConstantRateFactor(21)
+                        .WithVideoBitrate(3000)
+                        .WithFastStart()
+                        .WithVideoFilters(filterOptions => filterOptions
+                            .Scale(VideoSize.Hd)
+                            .DrawText(DrawTextOptions.Create(@"'%{localtime}.%{eif\:1M*t-1K*trunc(t*1K)\:d\:3}'",
+                                    @"C:/Users/yan.gauthier/AppData/Local/Microsoft/Windows/Fonts/Roboto-Regular.ttf")
+                                .WithParameter("fontcolor", "yellow")
+                                .WithParameter("fontsize", "40")
+                                .WithParameter("x", "(w-text_w)")
+                                .WithParameter("y", "(h - text_h)")
+                                .WithParameter("rate", "19")
+                            )
+                        )
+                )
+            )
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(false);
+        Assert.IsTrue(success);
     }
 }
