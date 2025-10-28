@@ -94,6 +94,14 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_DemuxConcat()
+    {
+        var str = FFMpegArguments.FromDemuxConcatInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
+        Assert.Contains("-f concat -safe 0 -i", str);
+        Assert.Contains("\"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Copy_Audio()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
