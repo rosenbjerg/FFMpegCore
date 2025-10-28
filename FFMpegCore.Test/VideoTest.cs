@@ -821,17 +821,17 @@ public class VideoTest
         Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
         Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
     }
-    
+
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Convert_Webm()
     {
         using var outputPath = new TemporaryFile("out.webm");
-        
+
         var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM);
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputPath));
-        
+
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var result = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.Duration.Days, result.Duration.Days);
@@ -841,17 +841,17 @@ public class VideoTest
         Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
         Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
     }
-    
+
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Convert_Ogv()
     {
         using var outputPath = new TemporaryFile("out.ogv");
-        
+
         var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv);
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputPath));
-        
+
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var result = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.Duration.Days, result.Duration.Days);
