@@ -589,6 +589,19 @@ public class VideoTest
         Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
     }
 
+    [SupportedOSPlatform("windows")]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SnapshotAsync_InMemory_SystemDrawingCommon()
+    {
+        using var bitmap = await FFMpegImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+
+        var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+        Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
+        Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+        Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+    }
+
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SkiaSharp()
@@ -604,12 +617,40 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SnapshotAsync_InMemory_SkiaSharp()
+    {
+        using var bitmap = await Extensions.SkiaSharp.FFMpegImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+
+        var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+        Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
+        Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+        // Note: The resulting ColorType is dependent on the execution environment and therefore not assessed,
+        // e.g. Bgra8888 on Windows and Rgba8888 on macOS.
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_Png_PersistSnapshot()
     {
         using var outputPath = new TemporaryFile("out.png");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
         FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+
+        var analysis = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
+        Assert.AreEqual(input.PrimaryVideoStream.Height, analysis.PrimaryVideoStream!.Height);
+        Assert.AreEqual("png", analysis.PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SnapshotAsync_Png_PersistSnapshot()
+    {
+        using var outputPath = new TemporaryFile("out.png");
+        var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+
+        await FFMpeg.SnapshotAsync(TestResources.Mp4Video, outputPath, cancellationToken: TestContext.CancellationToken);
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -777,6 +818,46 @@ public class VideoTest
         Assert.AreEqual(expectedDuration.Hours, result.Duration.Hours);
         Assert.AreEqual(expectedDuration.Minutes, result.Duration.Minutes);
         Assert.AreEqual(expectedDuration.Seconds, result.Duration.Seconds);
+        Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
+        Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_Webm()
+    {
+        using var outputPath = new TemporaryFile("out.webm");
+
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM);
+        Assert.IsTrue(success);
+        Assert.IsTrue(File.Exists(outputPath));
+
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(input.Duration.Days, result.Duration.Days);
+        Assert.AreEqual(input.Duration.Hours, result.Duration.Hours);
+        Assert.AreEqual(input.Duration.Minutes, result.Duration.Minutes);
+        Assert.AreEqual(input.Duration.Seconds, result.Duration.Seconds);
+        Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
+        Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_Ogv()
+    {
+        using var outputPath = new TemporaryFile("out.ogv");
+
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv);
+        Assert.IsTrue(success);
+        Assert.IsTrue(File.Exists(outputPath));
+
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(input.Duration.Days, result.Duration.Days);
+        Assert.AreEqual(input.Duration.Hours, result.Duration.Hours);
+        Assert.AreEqual(input.Duration.Minutes, result.Duration.Minutes);
+        Assert.AreEqual(input.Duration.Seconds, result.Duration.Seconds);
         Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
         Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
     }
