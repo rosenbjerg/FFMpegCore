@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using FFMpegCore.Arguments.VideoFilters;
+using FFMpegCore.Arguments.VideoFilters.Vaapi;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 
@@ -94,7 +96,32 @@ public class VideoFilterOptions
         return WithArgument(new PadArgument(padOptions));
     }
 
-    private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
+    /// <summary>
+    /// <inheritdoc cref="VideoFilterFormatArgument"/>
+    /// </summary>
+    /// <param name="pixelFormats"></param>
+    /// <returns></returns>
+    public VideoFilterOptions Format(params ReadOnlySpan<string?> pixelFormats)
+    {
+        return WithArgument(new VideoFilterFormatArgument(pixelFormats));
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="VideoFilterHardwareUploadArgument"/>
+    /// </summary>
+    /// <returns></returns>
+    public VideoFilterOptions HardwareUpload()
+    {
+        return WithArgument(new VideoFilterHardwareUploadArgument());
+    }
+
+    public VideoFilterOptions WithVaapiVideoFilter(Action<VaapiVideoFilterOptions> setupAction)
+    {
+        setupAction(new VaapiVideoFilterOptions(this));
+        return this;
+    }
+
+    public VideoFilterOptions WithArgument(IVideoFilterArgument argument)
     {
         Arguments.Add(argument);
         return this;

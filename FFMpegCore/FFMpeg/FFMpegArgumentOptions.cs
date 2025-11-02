@@ -1,5 +1,11 @@
 ﻿using System.Drawing;
 using FFMpegCore.Arguments;
+using FFMpegCore.Arguments.Codecs.Vaapi;
+using FFMpegCore.Arguments.Codecs.Vaapi.h264Vaapi;
+using FFMpegCore.Arguments.Formats;
+using FFMpegCore.Arguments.Formats.image2;
+using FFMpegCore.Arguments.Formats.segment;
+using FFMpegCore.Arguments.Protocols.Rtsp;
 using FFMpegCore.Enums;
 
 namespace FFMpegCore;
@@ -266,6 +272,70 @@ public class FFMpegArgumentOptions : FFMpegArgumentsBase
     public FFMpegArgumentOptions WithCopyCodec()
     {
         return WithArgument(new CopyCodecArgument());
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="WithUseWallclockAsTimestamps"/>
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public FFMpegArgumentOptions WithUseWallclockAsTimestamps(bool value = true)
+    {
+        return WithArgument(new UseWallclockAsTimestampsArgument(value));
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="AnalyzeDurationArgument"/>
+    /// </summary>
+    /// <param name="duration"></param>
+    /// <returns></returns>
+    public FFMpegArgumentOptions WithAnalyzeDuration(TimeSpan duration)
+    {
+        return WithArgument(new AnalyzeDurationArgument(duration));
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="ProbeSizeArgument"/>
+    /// </summary>
+    /// <param name="probesizeInBytes"></param>
+    /// <returns></returns>
+    public FFMpegArgumentOptions WithProbeSize(long probesizeInBytes = 5000000)
+    {
+        return WithArgument(new ProbeSizeArgument(probesizeInBytes));
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="VaapiRcModeArgument"/>
+    /// </summary>
+    /// <param name="rcMode"></param>
+    /// <returns></returns>
+    public FFMpegArgumentOptions WithVaapiRcMode(VaapiRcMode rcMode)
+    {
+        return WithArgument(new VaapiRcModeArgument(rcMode));
+    }
+
+    public FFMpegArgumentOptions WithImage2Options(Action<Image2ArgumentOptions> setupAction)
+    {
+        setupAction(new Image2ArgumentOptions(this));
+        return this;
+    }
+
+    public FFMpegArgumentOptions WithSegmentOptions(Action<SegmentArgumentOptions> setupAction)
+    {
+        setupAction(new SegmentArgumentOptions(this));
+        return this;
+    }
+
+    public FFMpegArgumentOptions WithH264VaapiOptions(Action<H264VaapiArgumentOptions> setupAction)
+    {
+        setupAction(new H264VaapiArgumentOptions(this));
+        return this;
+    }
+
+    public FFMpegArgumentOptions WithRtspProtocolOptions(Action<RtspArgumentOptions> setupAction)
+    {
+        setupAction(new RtspArgumentOptions(this));
+        return this;
     }
 
     public FFMpegArgumentOptions WithArgument(IArgument argument)

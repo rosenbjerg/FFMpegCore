@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using FFMpegCore.Arguments;
+using FFMpegCore.Arguments.MainOptions;
 using FFMpegCore.Enums;
 using FFMpegCore.Pipes;
 
@@ -44,6 +45,38 @@ public class ArgumentBuilderTest
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", true, opt => opt.WithAudioBitrate(AudioQuality.Normal)).Arguments;
         Assert.AreEqual("-i \"input.mp4\" -b:a 128k \"output.mp4\" -y", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HideBanner()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").WithGlobalOptions(opt => opt.WithHideBanner())
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-hide_banner -i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_NoStats()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").WithGlobalOptions(opt => opt.WithNoStats())
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-nostats -i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_With_Explicit_Stats()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").WithGlobalOptions(opt => opt.WithArgument(new Stats(true)))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-stats -i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HardwareAccelerationOutputFormat()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").WithGlobalOptions(opt => opt.WithHardwareAccelerationOutputFormat(HardwareAccelerationDevice.Auto))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-hwaccel_output_format auto -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -549,6 +582,191 @@ public class ArgumentBuilderTest
 
         Assert.AreEqual(
             "-i \"input.mp4\" -vf \"pad=aspect=4/3:x=(ow-iw)/2:y=(oh-ih)/2:color=violet:eval=frame\" \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_Vaapi_Scale()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Format("nv12", "vaapi")
+                    .HardwareUpload()
+                    .WithVaapiVideoFilter(options => options
+                        .Scale(VideoSize.FullHd)
+                    )
+                )
+                .WithVaapiRcMode(VaapiRcMode.CQP)
+                .WithH264VaapiOptions(options => options
+                    .WithQuantizer(28)
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -vf \"format=pix_fmts=nv12|vaapi, hwupload, scale_vaapi=-1:1080\" -rc_mode CQP -qp 28 \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_Vaapi_Scale2()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Format("nv12", "vaapi")
+                    .HardwareUpload()
+                    .WithVaapiVideoFilter(options => options
+                        .Scale(2560, 1440)
+                    )
+                )
+                .WithVaapiRcMode(VaapiRcMode.CQP)
+                .WithH264VaapiOptions(options => options
+                    .WithQuantizer(28)
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -vf \"format=pix_fmts=nv12|vaapi, hwupload, scale_vaapi=2560:1440\" -rc_mode CQP -qp 28 \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_Vaapi_Scale3()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Format("nv12", "vaapi")
+                    .HardwareUpload()
+                    .WithVaapiVideoFilter(options => options
+                        .Scale(new Size(1280, 720))
+                    )
+                )
+                .WithVaapiRcMode(VaapiRcMode.CQP)
+                .WithH264VaapiOptions(options => options
+                    .WithQuantizer(28)
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -vf \"format=pix_fmts=nv12|vaapi, hwupload, scale_vaapi=1280:720\" -rc_mode CQP -qp 28 \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_Vaapi_Scale4()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Format("nv12", "vaapi")
+                    .HardwareUpload()
+                    .WithVaapiVideoFilter(options => options
+                        .Scale(VideoSize.Original)
+                    )
+                )
+                .WithVaapiRcMode(VaapiRcMode.CQP)
+                .WithH264VaapiOptions(options => options
+                    .WithQuantizer(28)
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -vf \"format=pix_fmts=nv12|vaapi, hwupload\" -rc_mode CQP -qp 28 \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Single_Image()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.jpg")
+            .OutputToFile("output.jpg", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Scale(-1, 120)
+                )
+                .WithImage2Options(options => options
+                    .WithUpdate()
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.jpg\" -vf \"scale=-1:120\" -update 1 \"output.jpg\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Segments()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output-%Y%m%d-%s.mp4", false, opt => opt
+                .WithUseWallclockAsTimestamps()
+                .ForceFormat("segment")
+                .WithSegmentOptions(options => options
+                    .WithSegmentAtClocktime()
+                    .WithSegmentTime(TimeSpan.FromMinutes(10))
+                    .WithMinimumSegmentDuration(TimeSpan.FromMinutes(5))
+                    .WithResetTimestamps()
+                    .WithStrftime()
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -use_wallclock_as_timestamps 1 -f segment -segment_atclocktime 1 -segment_time 600 -min_seg_duration 300 -reset_timestamps 1 -strftime 1 \"output-%Y%m%d-%s.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Segments_WUseWallclockTimestamps()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output-%Y%m%d-%s.mp4", false, opt => opt
+                .WithUseWallclockAsTimestamps(false)
+                .ForceFormat("segment")
+                .WithSegmentOptions(options => options
+                    .WithSegmentAtClocktime()
+                    .WithSegmentTime(TimeSpan.FromMinutes(10))
+                    .WithMinimumSegmentDuration(TimeSpan.FromMinutes(5))
+                    .WithResetTimestamps()
+                    .WithStrftime()
+                )
+            )
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -use_wallclock_as_timestamps 0 -f segment -segment_atclocktime 1 -segment_time 600 -min_seg_duration 300 -reset_timestamps 1 -strftime 1 \"output-%Y%m%d-%s.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Rtsp_Stream()
+    {
+        var str = FFMpegArguments
+            .FromUrlInput(new Uri("rtsp://server/stream?query"), options => options
+                .WithAnalyzeDuration(TimeSpan.FromSeconds(1))
+                .WithProbeSize(1_000_000)
+                .WithRtspProtocolOptions(argumentOptions => argumentOptions
+                    .WithRtspTransport(RtspTransportProtocol.tcp)
+                )
+            )
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        Assert.AreEqual(
+            "-analyzeduration 1000000 -probesize 1000000 -rtsp_transport tcp -i \"rtsp://server/stream?query\" \"output.mp4\"",
             str);
     }
 
