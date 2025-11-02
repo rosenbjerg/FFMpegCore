@@ -29,6 +29,11 @@ public class FFMpegMultiOutputOptions
         return AddOutput(new OutputPipeArgument(reader), addArguments);
     }
 
+    public FFMpegMultiOutputOptions OutPutToSegmentedFiles(SegmentArgument segmentArgument, Action<FFMpegArgumentOptions>? addArguments = null)
+    {
+        return AddOutput(new OutputSegmentArgument(segmentArgument), addArguments);
+    }
+
     public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
     {
         var args = new FFMpegArgumentOptions();
