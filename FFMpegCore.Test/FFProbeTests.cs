@@ -31,9 +31,47 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void FrameAnalysis_FromStream_Sync()
+    {
+        using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frameAnalysis = FFProbe.GetFrames(stream);
+
+        Assert.HasCount(90, frameAnalysis.Frames);
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+    }
+
+    [TestMethod]
+    public void FrameAnalysis_FromUri_Sync()
+    {
+        var frameAnalysis = FFProbe.GetFrames(new Uri(Path.GetFullPath(TestResources.WebmVideo)));
+
+        Assert.HasCount(90, frameAnalysis.Frames);
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+    }
+
+    [TestMethod]
     public async Task FrameAnalysis_Async()
     {
         var frameAnalysis = await FFProbe.GetFramesAsync(TestResources.WebmVideo, cancellationToken: TestContext.CancellationToken);
+
+        Assert.HasCount(90, frameAnalysis.Frames);
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+    }
+
+    [TestMethod]
+    public async Task FrameAnalysis_FromStream_Async()
+    {
+        using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frameAnalysis = await FFProbe.GetFramesAsync(stream, cancellationToken: TestContext.CancellationToken);
 
         Assert.HasCount(90, frameAnalysis.Frames);
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p"));
