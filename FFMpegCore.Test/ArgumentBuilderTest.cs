@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test;
@@ -139,6 +140,62 @@ public class ArgumentBuilderTest
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Video)).Arguments;
         Assert.AreEqual("-i \"input.mp4\" -vn \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_Subtitle()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Subtitle)).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -sn \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_Data()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Data)).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -dn \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_Multiple()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+        .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Audio).DisableChannel(Channel.Video)).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -an -vn \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_Both_InvalidChannel()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Both)).Arguments);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_All_InvalidChannel()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.All)).Arguments);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_Attachments_UnsupportedChannel()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.Attachments)).Arguments);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DisableChannel_VideoNoAttachedPic_UnsupportedChannel()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DisableChannel(Channel.VideoNoAttachedPic)).Arguments);
     }
 
     [TestMethod]
