@@ -30,7 +30,66 @@ public static class GlobalFFOptions
         return GetFFBinaryPath("FFProbe", ffOptions ?? Current);
     }
 
+    public static Task<string> GetFFMpegBinaryPathAsync(FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
+    {
+        return GetFFBinaryPathAsync("FFMpeg", ffOptions ?? Current, cancellationToken);
+    }
+
+    public static Task<string> GetFFProbeBinaryPathAsync(FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
+    {
+        return GetFFBinaryPathAsync("FFProbe", ffOptions ?? Current, cancellationToken);
+    }
+
     private static string GetFFBinaryPath(string name, FFOptions ffOptions)
+    {
+        var ffName = GetFFName(name);
+
+        foreach (var possiblePath in GetPossiblePaths(ffName, ffOptions))
+        {
+            if (File.Exists(possiblePath))
+            {
+                return possiblePath;
+            }
+        }
+
+        //Fall back to the assumption this tool exists in the PATH
+        return ffName;
+    }
+
+    private static async Task<string> GetFFBinaryPathAsync(string name, FFOptions ffOptions, CancellationToken cancellationToken = default)
+    {
+        var ffName = GetFFName(name);
+
+        var results = await
+            Task.WhenAll(
+                GetPossiblePaths(ffName, ffOptions)
+                    .Select(async possiblePath => await CheckPathAsync(possiblePath, cancellationToken).ConfigureAwait(false)))
+            .ConfigureAwait(false);
+
+        var foundPath = results.FirstOrDefault(path => path is not null);
+
+        if (foundPath is not null)
+        {
+            return foundPath;
+        }
+
+        //Fall back to the assumption this tool exists in the PATH
+        return ffName;
+    }
+
+    private static async Task<string?> CheckPathAsync(string possiblePath, CancellationToken cancellationToken)
+    {
+        var exists = await Task.Run(() => File.Exists(possiblePath), cancellationToken).ConfigureAwait(false);
+
+        if (exists)
+        {
+            return possiblePath;
+        }
+
+        return null;
+    }
+
+    private static string GetFFName(string name)
     {
         var ffName = name.ToLowerInvariant();
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -38,20 +97,16 @@ public static class GlobalFFOptions
             ffName += ".exe";
         }
 
-        var target = Environment.Is64BitProcess ? "x64" : "x86";
-        var possiblePaths = new List<string> { Path.Combine(ffOptions.BinaryFolder, target), ffOptions.BinaryFolder };
-
-        foreach (var possiblePath in possiblePaths)
-        {
-            var possibleFFMpegPath = Path.Combine(possiblePath, ffName);
-            if (File.Exists(possibleFFMpegPath))
-            {
-                return possibleFFMpegPath;
-            }
-        }
-
-        //Fall back to the assumption this tool exists in the PATH
         return ffName;
+    }
+
+    private static HashSet<string> GetPossiblePaths(string ffName, FFOptions ffOptions)
+    {
+        var target = Environment.Is64BitProcess ? "x64" : "x86";
+
+        var paths = new HashSet<string> { Path.Combine(ffOptions.BinaryFolder, target), ffOptions.BinaryFolder };
+
+        return [.. paths.Select(possible => Path.Combine(possible, ffName))];
     }
 
     private static FFOptions LoadFFOptions()

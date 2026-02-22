@@ -130,10 +130,10 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
     }
 
-    public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+    public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null, CancellationToken cancellationToken = default)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
-        var processArguments = PrepareProcessArguments(options);
+        var processArguments = await PrepareProcessArgumentsAsync(options, cancellationToken).ConfigureAwait(false);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
@@ -141,7 +141,7 @@ public class FFMpegArgumentProcessor
         {
             processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (throwOnError)
         {
             if (throwOnError)
             {
@@ -252,6 +252,23 @@ public class FFMpegArgumentProcessor
         FFMpegHelper.RootExceptionCheck();
         FFMpegHelper.VerifyFFMpegExists(ffOptions);
 
+        var fileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions);
+
+        return GetProcessArguments(ffOptions, fileName);
+    }
+
+    public async Task<ProcessArguments> PrepareProcessArgumentsAsync(FFOptions ffOptions, CancellationToken cancellationToken = default)
+    {
+        FFMpegHelper.RootExceptionCheck();
+        await FFMpegHelper.VerifyFFMpegExistsAsync(ffOptions, cancellationToken).ConfigureAwait(false);
+
+        var fileName = await GlobalFFOptions.GetFFMpegBinaryPathAsync(ffOptions, cancellationToken).ConfigureAwait(false);
+
+        return GetProcessArguments(ffOptions, fileName);
+    }
+
+    private ProcessArguments GetProcessArguments(FFOptions ffOptions, string fileName)
+    {
         var arguments = _ffMpegArguments.Text;
 
         //If local loglevel is null, set the global.
@@ -270,7 +287,7 @@ public class FFMpegArgumentProcessor
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions),
+            FileName = fileName,
             Arguments = arguments,
             StandardOutputEncoding = ffOptions.Encoding,
             StandardErrorEncoding = ffOptions.Encoding,

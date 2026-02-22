@@ -6,6 +6,7 @@ namespace FFMpegCore.Helpers;
 public static class FFMpegHelper
 {
     private static bool _ffmpegVerified;
+    private static readonly object _syncObject = new();
 
     public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
     {
@@ -31,7 +32,7 @@ public static class FFMpegHelper
 
     public static void RootExceptionCheck()
     {
-        if (GlobalFFOptions.Current.BinaryFolder == null)
+        if (string.IsNullOrWhiteSpace(GlobalFFOptions.Current.BinaryFolder))
         {
             throw new FFOptionsException("FFMpeg root is not configured in app config. Missing key 'BinaryFolder'.");
         }
@@ -45,7 +46,31 @@ public static class FFMpegHelper
         }
 
         var result = Instance.Finish(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-        _ffmpegVerified = result.ExitCode == 0;
+
+        VerifyResult(result);
+    }
+
+    public static async Task VerifyFFMpegExistsAsync(FFOptions ffMpegOptions, CancellationToken cancellationToken = default)
+    {
+        if (_ffmpegVerified)
+        {
+            return;
+        }
+
+        var ffmpegPath = await GlobalFFOptions.GetFFMpegBinaryPathAsync(ffMpegOptions, cancellationToken).ConfigureAwait(false);
+
+        var result = await Instance.FinishAsync(ffmpegPath, "-version", cancellationToken).ConfigureAwait(false);
+
+        VerifyResult(result);
+    }
+
+    private static void VerifyResult(IProcessResult result)
+    {
+        lock (_syncObject)
+        {
+            _ffmpegVerified = result.ExitCode is 0;
+        }
+
         if (!_ffmpegVerified)
         {
             throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");

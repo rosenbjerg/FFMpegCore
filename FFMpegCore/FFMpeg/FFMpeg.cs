@@ -459,11 +459,46 @@ public static class FFMpeg
         return list.AsReadOnly();
     }
 
+    internal static async Task<IReadOnlyList<PixelFormat>> GetPixelFormatsInternalAsync(CancellationToken cancellationToken = default)
+    {
+        FFMpegHelper.RootExceptionCheck();
+
+        var apa = await GlobalFFOptions.GetFFMpegBinaryPathAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var list = new List<PixelFormat>();
+        var processArguments = new ProcessArguments(apa, "-pix_fmts");
+        processArguments.OutputDataReceived += (e, data) =>
+        {
+            if (PixelFormat.TryParse(data, out var format))
+            {
+                list.Add(format);
+            }
+        };
+
+        var result = await processArguments.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        if (result.ExitCode != 0)
+        {
+            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+
+        return list.AsReadOnly();
+    }
+
     public static IReadOnlyList<PixelFormat> GetPixelFormats()
     {
         if (!GlobalFFOptions.Current.UseCache)
         {
             return GetPixelFormatsInternal();
+        }
+
+        return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
+    }
+
+    public static async Task<IReadOnlyList<PixelFormat>> GetPixelFormatsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!GlobalFFOptions.Current.UseCache)
+        {
+            return await GetPixelFormatsInternalAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
@@ -522,6 +557,36 @@ public static class FFMpeg
         }
     }
 
+    private static async Task ParsePartOfCodecsAsync(Dictionary<string, Codec> codecs, string arguments, Func<string, Codec?> parser, CancellationToken cancellationToken = default)
+    {
+        FFMpegHelper.RootExceptionCheck();
+
+        var ffmpegPath = await GlobalFFOptions.GetFFMpegBinaryPathAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var processArguments = new ProcessArguments(ffmpegPath, arguments);
+        processArguments.OutputDataReceived += (e, data) =>
+        {
+            var codec = parser(data);
+            if (codec != null)
+            {
+                if (codecs.TryGetValue(codec.Name, out var parentCodec))
+                {
+                    parentCodec.Merge(codec);
+                }
+                else
+                {
+                    codecs.Add(codec.Name, codec);
+                }
+            }
+        };
+
+        var result = await processArguments.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        if (result.ExitCode != 0)
+        {
+            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+    }
+
     internal static Dictionary<string, Codec> GetCodecsInternal()
     {
         var res = new Dictionary<string, Codec>();
@@ -556,11 +621,56 @@ public static class FFMpeg
         return res;
     }
 
+    internal static async Task<Dictionary<string, Codec>> GetCodecsInternalAsync(CancellationToken cancellationToken = default)
+    {
+        var res = new Dictionary<string, Codec>();
+        await ParsePartOfCodecsAsync(res, "-codecs", s =>
+        {
+            if (Codec.TryParseFromCodecs(s, out var codec))
+            {
+                return codec;
+            }
+
+            return null;
+        }, cancellationToken).ConfigureAwait(false);
+        await ParsePartOfCodecsAsync(res, "-encoders", s =>
+        {
+            if (Codec.TryParseFromEncodersDecoders(s, out var codec, true))
+            {
+                return codec;
+            }
+
+            return null;
+        }, cancellationToken).ConfigureAwait(false);
+        await ParsePartOfCodecsAsync(res, "-decoders", s =>
+        {
+            if (Codec.TryParseFromEncodersDecoders(s, out var codec, false))
+            {
+                return codec;
+            }
+
+            return null;
+        }, cancellationToken).ConfigureAwait(false);
+
+        return res;
+    }
+
     public static IReadOnlyList<Codec> GetCodecs()
     {
         if (!GlobalFFOptions.Current.UseCache)
         {
             return GetCodecsInternal().Values.ToList().AsReadOnly();
+        }
+
+        return FFMpegCache.Codecs.Values.ToList().AsReadOnly();
+    }
+
+    public static async Task<IReadOnlyList<Codec>> GetCodecsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!GlobalFFOptions.Current.UseCache)
+        {
+            var codecs = await GetCodecsInternalAsync(cancellationToken).ConfigureAwait(false);
+            return codecs.Values.ToList().AsReadOnly();
         }
 
         return FFMpegCache.Codecs.Values.ToList().AsReadOnly();
@@ -644,11 +754,46 @@ public static class FFMpeg
         return list.AsReadOnly();
     }
 
+    internal static async Task<IReadOnlyList<ContainerFormat>> GetContainersFormatsInternalAsync(CancellationToken cancellationToken = default)
+    {
+        FFMpegHelper.RootExceptionCheck();
+
+        var ffmpegPath = await GlobalFFOptions.GetFFMpegBinaryPathAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var list = new List<ContainerFormat>();
+        var instance = new ProcessArguments(ffmpegPath, "-formats");
+        instance.OutputDataReceived += (e, data) =>
+        {
+            if (ContainerFormat.TryParse(data, out var fmt))
+            {
+                list.Add(fmt);
+            }
+        };
+
+        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        if (result.ExitCode != 0)
+        {
+            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+
+        return list.AsReadOnly();
+    }
+
     public static IReadOnlyList<ContainerFormat> GetContainerFormats()
     {
         if (!GlobalFFOptions.Current.UseCache)
         {
             return GetContainersFormatsInternal();
+        }
+
+        return FFMpegCache.ContainerFormats.Values.ToList().AsReadOnly();
+    }
+
+    public static async Task<IReadOnlyList<ContainerFormat>> GetContainerFormatsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!GlobalFFOptions.Current.UseCache)
+        {
+            return await GetContainersFormatsInternalAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return FFMpegCache.ContainerFormats.Values.ToList().AsReadOnly();
