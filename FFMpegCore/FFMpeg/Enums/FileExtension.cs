@@ -14,11 +14,11 @@ public static class FileExtension
         return type.Name switch
         {
             "libx264" => Mp4,
-            "libxvpx" => WebM,
-            "libxtheora" => Ogv,
+            "libvpx" => WebM,
+            "libtheora" => Ogv,
             "mpegts" => Ts,
             "png" => Image.Png,
-            "jpg" => Image.Jpg,
+            "mjpeg" => Image.Jpg,
             "bmp" => Image.Bmp,
             "webp" => Image.Webp,
             _ => throw new Exception("The extension for this video type is not defined.")
