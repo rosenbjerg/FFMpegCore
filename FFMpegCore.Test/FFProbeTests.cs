@@ -1,6 +1,7 @@
 ﻿using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test;
 
@@ -350,5 +351,60 @@ public class FFProbeTests
         var input = TestResources.SrtSubtitle; //non media file
         await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.AnalyseAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task FFProbe_GetFramesAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    {
+        var input = TestResources.SrtSubtitle; //non media file
+        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetFramesAsync(input,
+            cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    {
+        var input = TestResources.SrtSubtitle; //non media file
+        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetPacketsAsync(input,
+            cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+    }
+
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Uri_Sync()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var info = FFProbe.Analyse(uri);
+        var frames = FFProbe.GetFrames(uri);
+
+        Assert.AreEqual(3, info.Duration.Seconds);
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Uri_GetFrames_Async()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var frames = await FFProbe.GetFramesAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    [TestMethod]
+    public void Probe_MissingFile_Throws()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
+
+        var exception = Assert.ThrowsExactly<FFMpegException>(() => FFProbe.Analyse(missing));
+        Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
+        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetFrames(missing));
+        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetPackets(missing));
     }
 }
