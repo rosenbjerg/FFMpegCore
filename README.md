@@ -66,11 +66,12 @@ The provided helper methods makes it simple to perform common operations.
 ### Easily capture snapshots from a video file:
 
 ```csharp
-// process the snapshot in-memory and use the Bitmap directly
-var bitmap = FFMpeg.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
-
-// or persists the image on the drive
+// persist the image on the drive
 FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+
+// or process the snapshot in-memory using one of the image extension packages
+// (FFMpegCore.Extensions.System.Drawing.Common or FFMpegCore.Extensions.SkiaSharp)
+var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 ```
 
 ### You can also capture GIF snapshots from a video file:
@@ -109,9 +110,9 @@ FFMpeg.SubVideo(inputPath,
 
 ```csharp
 FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
-    ImageInfo.FromPath(@"..\1.png"),
-    ImageInfo.FromPath(@"..\2.png"),
-    ImageInfo.FromPath(@"..\3.png")
+    @"..\1.png",
+    @"..\2.png",
+    @"..\3.png"
 );
 ```
 
@@ -185,7 +186,12 @@ If you want to use `System.Drawing.Bitmap`s as `IVideoFrame`s, a `BitmapVideoFra
 # Binaries
 
 ## Runtime Auto Installation
-You can install a version of ffmpeg suite at runtime using `FFMpegDownloader.DownloadFFMpegSuite();`
+The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at runtime into the configured `BinaryFolder`:
+
+```csharp
+GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
+await FFMpegDownloader.DownloadBinaries();
+```
 
 This feature uses the api from [ffbinaries](https://ffbinaries.com/api).
 
@@ -271,8 +277,8 @@ If these folders are not defined, it will try to find the binaries in `/{BinaryF
 
 # Compatibility
 
-Older versions of ffmpeg might not support all ffmpeg arguments available through this library. The library has been tested with version
-`3.3` to `4.2`
+Older versions of ffmpeg might not support all ffmpeg arguments available through this library. CI runs the test suite against
+ffmpeg `7.1`.
 
 ## Code contributors
 
