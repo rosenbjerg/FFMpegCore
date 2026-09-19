@@ -278,7 +278,7 @@ If these folders are not defined, it will try to find the binaries in `/{BinaryF
 # Compatibility
 
 Older versions of ffmpeg might not support all ffmpeg arguments available through this library. CI runs the test suite against
-ffmpeg `7.1`.
+ffmpeg `8.1`.
 
 ## Code contributors
 
