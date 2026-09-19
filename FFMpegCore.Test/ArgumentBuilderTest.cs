@@ -727,4 +727,160 @@ public class ArgumentBuilderTest
         var pipePath = new OutputPipeArgument(new StreamPipeSink(Stream.Null)).PipePath;
         Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
     }
+
+    [TestMethod]
+    public void Builder_BuildString_LowPassFilterDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.LowPass()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_LowPassFilterWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .LowPass(5000, 1, "h", 2, 0.5, "FL", true, "svf", "f32", 256)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=5000.00:p=1:t=h:w=2.00:m=0.50:c=FL:n=1:a=svf:r=f32:b=256\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HighPassFilterDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.HighPass()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HighPassFilterWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .HighPass(200, 1, "o", 1.5, 0.25, "FR", true, "tdii", "s16", 128)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=200.00:p=1:t=o:w=1.50:m=0.25:c=FR:n=1:a=tdii:r=s16:b=128\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(-1.0, 2, "q", 1.0, "auto")]
+    [DataRow(3000.0, 3, "q", 1.0, "auto")]
+    [DataRow(3000.0, 2, "x", 1.0, "auto")]
+    [DataRow(3000.0, 2, "q", 1.5, "auto")]
+    [DataRow(3000.0, 2, "q", 1.0, "s8")]
+    public void Builder_LowPassFilter_Rejects_InvalidArguments(double frequency, int poles, string widthType, double mix, string precision)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new LowPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new HighPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioGateDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.AudioGate()))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -af \"agate=level_in=1.00:mode=downward:range=0.06:threshold=0.13:ratio=2:attack=20.00:release=250.00:makeup=1:knee=2.83:detection=rms:link=average\" \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioGateWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .AudioGate(0.5, "upward", 0.5, 0.25, 4, 10, 100, 2, 4, "peak", "maximum")))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -af \"agate=level_in=0.50:mode=upward:range=0.50:threshold=0.25:ratio=4:attack=10.00:release=100.00:makeup=2:knee=4.00:detection=peak:link=maximum\" \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    [DataRow(0.001, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "sideways", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.0, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 1.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 0, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 0.001, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 9001.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 65, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 0.5, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "loudness", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "minimum")]
+    public void Builder_AudioGate_Rejects_InvalidArguments(double levelIn, string mode, double range, double threshold, int ratio, double attack,
+        double release, int makeup, double knee, string detection, string link)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_SilenceDetectDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=60.0dB:d=2.00:m=0\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_SilenceDetectAmplitudeRatio()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect("ar", 0.05, 1.5, true)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=0.05:d=1.50:m=1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_SilenceDetect_Rejects_UnknownNoiseType()
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SilenceDetectArgument("lufs"));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_BlackDetect()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithVideoFilters(filterOptions => filterOptions.BlackDetect()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"blackdetect=d=2:pic_th=0.98:pix_th=0.1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_BlackFrame()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithVideoFilters(filterOptions => filterOptions.BlackFrame(90, 40)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"blackframe=amount=90:threshold=40\" \"output.mp4\"", str);
+    }
 }
