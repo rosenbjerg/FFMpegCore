@@ -5,6 +5,7 @@ using System.Text;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extend;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
@@ -1378,6 +1379,23 @@ public class VideoTest
         Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.SaveM3U8Stream(new Uri("https://example.com/stream.m3u8"), "out.mkv"));
     }
 
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_DemuxConcat()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpegArguments
+            .FromDemuxConcatInput(new[] { Path.GetFullPath(TestResources.Mp4Video), Path.GetFullPath(TestResources.Mp4Video) })
+            .OutputToFile(outputFile, true, options => options.CopyChannel())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(success);
+
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputFile);
+        Assert.AreEqual((input.Duration * 2).Seconds, result.Duration.Seconds);
+    }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
@@ -1400,5 +1418,15 @@ public class VideoTest
         Assert.AreEqual(3, FFProbe.Analyse(second).Duration.Seconds);
     }
 
+    [TestMethod]
+    public void Video_Join_Image_Sequence_RejectsMixedExtensions()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.JoinImageSequence("out.mp4", 1, "a.png", "b.jpg"));
+    }
 
+    [TestMethod]
+    public void Video_SaveStream_Extension_RejectsNonHttpUri()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => new Uri("ftp://example.com/stream.m3u8").SaveStream("out.mp4"));
+    }
 }

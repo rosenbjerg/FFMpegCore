@@ -1071,6 +1071,19 @@ public class ArgumentBuilderTest
         Assert.ThrowsExactly<FFMpegArgumentException>(() => audio.Arguments);
     }
 
+    [TestMethod]
+    public void Builder_BuildString_MapMetaData_ExplicitIndex()
+    {
+        var str = FFMpegArguments.FromFileInput("video.mp4")
+            .AddFileInput("audio.mp3")
+            .MapMetaData(1)
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        Assert.AreEqual("-i \"video.mp4\" -i \"audio.mp3\" -map_metadata 1 \"output.mp4\"", str);
+        Assert.AreEqual("-map_metadata 0", new MapMetadataArgument().Text);
+        Assert.AreEqual("-map_metadata 2", new MapMetadataArgument(2).Text);
+    }
 
     [TestMethod]
     public void Builder_BuildString_TeeOutput_OverwriteIsHoistedOutOfBranches()
@@ -1084,5 +1097,22 @@ public class ArgumentBuilderTest
         Assert.AreEqual("-i \"input.mp4\" -f tee \"[f=mp4]first.mp4|[f=mp4]second.mp4\" -y", str);
     }
 
+    [TestMethod]
+    public void Builder_TeeOutput_RequiresAtLeastOneOutput()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpegArguments.FromFileInput("input.mp4").OutputToTee(_ => { }));
+    }
 
+    [TestMethod]
+    public void Builder_BuildString_MultiOutput_UrlAndPipe()
+    {
+        var sink = new StreamPipeSink(Stream.Null);
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .MultiOutput(outputs => outputs
+                .OutputToUrl(new Uri("rtmp://example.com/live"), options => options.ForceFormat("flv"))
+                .OutputToPipe(sink, options => options.ForceFormat("mpegts")))
+            .Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -f flv rtmp://example.com/live -f mpegts \".+\" -y$"));
+    }
 }
