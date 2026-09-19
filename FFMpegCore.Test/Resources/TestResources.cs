@@ -7,6 +7,8 @@ public static class TestResources
     public static readonly string Mp4VideoRotationNegative = "./Resources/input_3sec_rotation_negative_90deg.mp4";
     public static readonly string WebmVideo = "./Resources/input_3sec.webm";
     public static readonly string HdrVideo = "./Resources/input_hdr.mov";
+    public static readonly string DoviVideo = "./Resources/input_dovi.mp4";
+    public static readonly string InterlacedVideo = "./Resources/input_interlaced.mp4";
     public static readonly string Mp4WithoutVideo = "./Resources/input_audio_only_10sec.mp4";
     public static readonly string Mp4WithoutAudio = "./Resources/input_video_only_3sec.mp4";
     public static readonly string RawAudio = "./Resources/audio.raw";

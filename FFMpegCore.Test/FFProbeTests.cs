@@ -131,6 +131,7 @@ public class FFProbeTests
         Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Height);
         Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
         Assert.AreEqual(31, info.PrimaryVideoStream.Level);
+        Assert.AreEqual("progressive", info.PrimaryVideoStream.FieldOrder);
         Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
         Assert.AreEqual(720, info.PrimaryVideoStream.Height);
         Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
@@ -207,6 +208,43 @@ public class FFProbeTests
         Assert.AreEqual("bt2020nc", info.PrimaryVideoStream.ColorSpace);
         Assert.AreEqual("arib-std-b67", info.PrimaryVideoStream.ColorTransfer);
         Assert.AreEqual("bt2020", info.PrimaryVideoStream.ColorPrimaries);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Dovi()
+    {
+        var info = FFProbe.Analyse(TestResources.DoviVideo);
+
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+        Assert.HasCount(1, info.PrimaryVideoStream.SideData);
+        Assert.AreEqual("DOVI configuration record", (string)info.PrimaryVideoStream.SideData[0]["side_data_type"]);
+        Assert.AreEqual(5, (int)info.PrimaryVideoStream.SideData[0]["dv_profile"]);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void FrameAnalysis_Dovi()
+    {
+        var frameAnalysis = FFProbe.GetFrames(TestResources.DoviVideo);
+
+        Assert.HasCount(32, frameAnalysis.Frames);
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p10le"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.SideData.Count == 2));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => (int)f.SideData[1]["signal_color_space"] == 2));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Interlaced()
+    {
+        var info = FFProbe.Analyse(TestResources.InterlacedVideo);
+
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+        Assert.AreEqual("tt", info.PrimaryVideoStream.FieldOrder);
     }
 
     [TestMethod]
