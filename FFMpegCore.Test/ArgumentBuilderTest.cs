@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using FFMpegCore.Arguments;
 using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test;
@@ -1058,5 +1059,15 @@ public class ArgumentBuilderTest
         var str = FFMpegArguments.FromFileInput("input.mp4").AddMetaData(metaData).OutputToFile("output.mp4", false).Arguments;
 
         StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -map_metadata 1 \"output.mp4\"$"));
+    }
+
+    [TestMethod]
+    public void Builder_EmptyFilterOptions_Throw()
+    {
+        var video = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(_ => { }));
+        var audio = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(_ => { }));
+
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => video.Arguments);
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => audio.Arguments);
     }
 }
