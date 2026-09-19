@@ -47,7 +47,13 @@ internal class OutputTeeArgument : IOutputArgument
 
         var output = option.Arguments.OfType<IOutputArgument>().Single();
         var target = output is OutputArgument file ? file.Path : output.Text.Trim('"');
-        return $"{optionPrefix}{target}";
+        return $"{optionPrefix}{EscapeTarget(target)}";
+    }
+
+    // The tee muxer tokenises slave specs itself: backslash escapes, single quotes group, | separates slaves
+    private static string EscapeTarget(string target)
+    {
+        return target.Replace("\\", "\\\\").Replace("'", "\\'").Replace("|", "\\|");
     }
 
     private static string MapArgument(IArgument argument)

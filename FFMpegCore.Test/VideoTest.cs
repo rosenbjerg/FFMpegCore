@@ -1400,7 +1400,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TeeOutput_WritesEveryTarget()
     {
-        using var first = new TemporaryFile("first.mp4");
+        using var first = new TemporaryFile("tee'first.mp4");
         using var second = new TemporaryFile("second.mp4");
 
         var success = FFMpegArguments

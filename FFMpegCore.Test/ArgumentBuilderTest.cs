@@ -1133,6 +1133,18 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_TeeOutput_EscapesTargets()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToFile(@"C:\out\it's.mp4", false, options => options.ForceFormat("mp4"))
+                .OutputToFile("a|b.mp4", false, options => options.ForceFormat("mp4")))
+            .Arguments;
+
+        Assert.AreEqual(@"-i ""input.mp4"" -f tee ""[f=mp4]C:\\out\\it\'s.mp4|[f=mp4]a\|b.mp4""", str);
+    }
+
+    [TestMethod]
     public void Builder_TeeOutput_RequiresAtLeastOneOutput()
     {
         Assert.ThrowsExactly<ArgumentException>(() => FFMpegArguments.FromFileInput("input.mp4").OutputToTee(_ => { }));
