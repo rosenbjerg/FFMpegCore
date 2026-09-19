@@ -254,18 +254,10 @@ public class FFMpegArgumentProcessor
 
         var arguments = _ffMpegArguments.Text;
 
-        //If local loglevel is null, set the global.
-        if (_logLevel == null)
+        var logLevel = _logLevel ?? ffOptions.LogLevel;
+        if (logLevel != null)
         {
-            _logLevel = ffOptions.LogLevel;
-        }
-
-        //If neither local nor global loglevel is null, set the argument.
-        if (_logLevel != null)
-        {
-            var normalizedLogLevel = _logLevel.ToString()
-                .ToLower();
-            arguments += $" -v {normalizedLogLevel}";
+            arguments += $" -v {logLevel.ToString().ToLower()}";
         }
 
         var startInfo = new ProcessStartInfo
