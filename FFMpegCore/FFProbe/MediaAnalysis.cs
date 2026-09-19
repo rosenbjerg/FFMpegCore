@@ -94,7 +94,8 @@ internal class MediaAnalysis : IMediaAnalysis
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
             Tags = stream.Tags.ToCaseInsensitive(),
-            BitDepth = GetBitDepth(stream)
+            BitDepth = GetBitDepth(stream),
+            SideData = stream.SideData
         };
     }
 
@@ -117,7 +118,8 @@ internal class MediaAnalysis : IMediaAnalysis
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
             Tags = stream.Tags.ToCaseInsensitive(),
-            BitDepth = GetBitDepth(stream)
+            BitDepth = GetBitDepth(stream),
+            SideData = stream.SideData
         };
     }
 
@@ -133,7 +135,8 @@ internal class MediaAnalysis : IMediaAnalysis
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
-            Tags = stream.Tags.ToCaseInsensitive()
+            Tags = stream.Tags.ToCaseInsensitive(),
+            SideData = stream.SideData
         };
     }
 }

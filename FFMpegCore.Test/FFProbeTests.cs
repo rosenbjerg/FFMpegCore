@@ -211,6 +211,32 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Dovi()
+    {
+        var info = FFProbe.Analyse(TestResources.DoviVideo);
+
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+        Assert.HasCount(1, info.PrimaryVideoStream.SideData);
+        Assert.AreEqual("DOVI configuration record", (string)info.PrimaryVideoStream.SideData[0]["side_data_type"]);
+        Assert.AreEqual(5, (int)info.PrimaryVideoStream.SideData[0]["dv_profile"]);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void FrameAnalysis_Dovi()
+    {
+        var frameAnalysis = FFProbe.GetFrames(TestResources.DoviVideo);
+
+        Assert.HasCount(32, frameAnalysis.Frames);
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.PixelFormat == "yuv420p10le"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => f.SideData.Count == 2));
+        Assert.IsTrue(frameAnalysis.Frames.All(f => (int)f.SideData[1]["signal_color_space"] == 2));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_Subtitle_Async()
     {
         var info = await FFProbe.AnalyseAsync(TestResources.SrtSubtitle, cancellationToken: TestContext.CancellationToken);
