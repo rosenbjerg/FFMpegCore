@@ -1,6 +1,7 @@
 ﻿using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test;
 
@@ -370,7 +371,8 @@ public class FFProbeTests
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
     }
 
-    [TestMethod]
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
     [Timeout(10000, CooperativeCancellation = true)]
     public void Probe_Uri_Sync()
     {
@@ -383,7 +385,8 @@ public class FFProbeTests
         Assert.IsNotEmpty(frames.Frames);
     }
 
-    [TestMethod]
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Uri_GetFrames_Async()
     {
