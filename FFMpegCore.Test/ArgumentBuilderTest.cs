@@ -700,7 +700,42 @@ public class ArgumentBuilderTest
     public void Concat_Escape()
     {
         var arg = new DemuxConcatArgument([@"Heaven's River\05 - Investigation.m4b"]);
-        CollectionAssert.AreEquivalent(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" }, arg.Values.ToArray());
+        var expected = "file '" + Path.GetFullPath(@"Heaven's River\05 - Investigation.m4b").Replace("'", @"'\''") + "'";
+        CollectionAssert.AreEquivalent(new[] { expected }, arg.Values.ToArray());
+    }
+
+    [TestMethod]
+    public void Concat_ResolvesRelativePaths_KeepsAbsolutePathsAndUrls()
+    {
+        var absolute = Path.Combine(Path.GetTempPath(), "a.mp4");
+        var arg = new DemuxConcatArgument(["Resources/a.mp4", absolute, "https://host/a.mp4", "concat:a.mp4|b.mp4"]);
+
+        CollectionAssert.AreEqual(new[]
+        {
+            $"file '{Path.GetFullPath("Resources/a.mp4")}'",
+            $"file '{absolute}'",
+            "file 'https://host/a.mp4'",
+            "file 'concat:a.mp4|b.mp4'"
+        }, arg.Values.ToArray());
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void Concat_ResolvesRelativePaths_AgainstGlobalWorkingDirectory()
+    {
+        var workingDirectory = Path.GetTempPath();
+        try
+        {
+            GlobalFFOptions.Configure(options => options.WorkingDirectory = workingDirectory);
+
+            var arg = new DemuxConcatArgument(["a.mp4"]);
+
+            CollectionAssert.AreEqual(new[] { $"file '{Path.GetFullPath(Path.Combine(workingDirectory, "a.mp4"))}'" }, arg.Values.ToArray());
+        }
+        finally
+        {
+            GlobalFFOptions.Configure(new FFOptions());
+        }
     }
 
     [TestMethod]

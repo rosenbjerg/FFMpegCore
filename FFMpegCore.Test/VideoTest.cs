@@ -1385,7 +1385,7 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
 
         var success = FFMpegArguments
-            .FromDemuxConcatInput(new[] { Path.GetFullPath(TestResources.Mp4Video), Path.GetFullPath(TestResources.Mp4Video) })
+            .FromDemuxConcatInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
             .OutputToFile(outputFile, true, options => options.CopyChannel())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();

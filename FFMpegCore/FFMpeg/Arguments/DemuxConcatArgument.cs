@@ -11,7 +11,7 @@ public class DemuxConcatArgument : IInputArgument
 
     public DemuxConcatArgument(IEnumerable<string> values)
     {
-        Values = values.Select(value => $"file '{Escape(value)}'");
+        Values = values.Select(value => $"file '{Escape(Resolve(value))}'");
     }
 
     public void Pre()
@@ -40,5 +40,13 @@ public class DemuxConcatArgument : IInputArgument
     private string Escape(string value)
     {
         return value.Replace("'", @"'\''");
+    }
+
+    // The concat demuxer resolves relative entries against the list file, which lives in TemporaryFilesFolder
+    private static string Resolve(string value)
+    {
+        return Uri.TryCreate(value, UriKind.Absolute, out _)
+            ? value
+            : Path.GetFullPath(Path.Combine(GlobalFFOptions.Current.WorkingDirectory, value));
     }
 }
