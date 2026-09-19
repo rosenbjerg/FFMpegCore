@@ -1275,4 +1275,106 @@ public class VideoTest
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
     }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_SubVideo()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+        Assert.IsTrue(success);
+
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SubVideo_Async()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = await FFMpeg.SubVideoAsync(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2),
+            TestContext.CancellationToken);
+        Assert.IsTrue(success);
+
+        var analysis = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
+        Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_SubVideo_KeepsInputExtension()
+    {
+        using var requestedOutput = new TemporaryFile("out.mkv");
+        var actualOutput = Path.ChangeExtension(requestedOutput, ".mp4");
+        try
+        {
+            var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
+            Assert.IsTrue(success);
+            Assert.IsFalse(File.Exists(requestedOutput));
+            Assert.IsTrue(File.Exists(actualOutput));
+        }
+        finally
+        {
+            File.Delete(actualOutput);
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_Mp4_Scaled_Multithreaded()
+    {
+        using var outputPath = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true);
+        Assert.IsTrue(success);
+
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(360, result.PrimaryVideoStream!.Height);
+        Assert.AreEqual("h264", result.PrimaryVideoStream.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_MpegTs()
+    {
+        using var outputPath = new TemporaryFile("out.ts");
+
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts);
+        Assert.IsTrue(success);
+
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual("mpegts", result.Format.FormatName);
+        Assert.AreEqual("h264", result.PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_UnsupportedFormat_Throws()
+    {
+        using var outputPath = new TemporaryFile("out.avi");
+
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Avi));
+    }
+
+    [TestMethod]
+    public void Video_Convert_WrongOutputExtension_Throws()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.Convert(TestResources.Mp4Video, "out.mkv", VideoType.Mp4));
+    }
+
+    [TestMethod]
+    public void Video_SaveM3U8Stream_RejectsNonHttpUri()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.SaveM3U8Stream(new Uri("ftp://example.com/stream.m3u8"), "out.mp4"));
+    }
+
+    [TestMethod]
+    public void Video_SaveM3U8Stream_RejectsNonMp4Output()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.SaveM3U8Stream(new Uri("https://example.com/stream.m3u8"), "out.mkv"));
+    }
 }
