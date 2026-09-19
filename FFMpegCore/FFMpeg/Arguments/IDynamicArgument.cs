@@ -7,6 +7,5 @@ public interface IDynamicArgument
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    //public string GetText(StringBuilder context);
     string GetText(IEnumerable<IArgument> context);
 }
