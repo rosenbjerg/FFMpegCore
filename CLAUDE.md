@@ -18,7 +18,7 @@ dotnet pack FFMpegCore.sln -c Release                                   # packag
 
 `TreatWarningsAsErrors` is on solution-wide, which turns NuGet's vulnerability-audit warning (NU1900) into a restore failure when the audit can't reach nuget.org. If restore fails with NU1900, append `-p:NuGetAudit=false`.
 
-CI (`.github/workflows/ci.yml`) runs on PRs to `main`/`release` across Windows/Ubuntu/macOS with ffmpeg 8.1 (the version string is set per OS because Linux/Windows pull from BtbN's builds and macOS from osxexperts.net); lint runs on Ubuntu only. Pushing to the `release` branch packs and publishes to NuGet.
+CI (`.github/workflows/ci.yml`) runs on PRs to `main`/`release` across Windows/Ubuntu/macOS with ffmpeg 8.1 (the version string is set per OS because Linux/Windows pull from BtbN's builds and macOS from osxexperts.net); lint runs on Ubuntu only. Pushing to the `release` branch packs and publishes to NuGet via trusted publishing (`release.yml`): `NuGet/login` exchanges the job's GitHub OIDC token for a short-lived API key, so there is no NuGet secret in the repo. The matching policy lives on nuget.org under the `rosenbjergsoftworks` account (owner `rosenbjerg`, repo `FFMpegCore`, workflow `release.yml`, no environment) — renaming the workflow file or the repo requires updating that policy.
 
 ## Solution layout
 
