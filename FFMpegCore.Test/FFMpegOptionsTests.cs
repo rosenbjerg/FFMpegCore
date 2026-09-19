@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace FFMpegCore.Test;
 
 [TestClass]
-public class FFMpegOptionsTest
+public class FFMpegOptionsTests
 {
     [TestMethod]
     public void Options_Initialized()
@@ -22,7 +22,7 @@ public class FFMpegOptionsTest
     {
         Assert.AreEqual(
             GlobalFFOptions.Current.BinaryFolder,
-            JsonConvert.DeserializeObject<FFOptions>(File.ReadAllText("ffmpeg.config.json")).BinaryFolder
+            JsonSerializer.Deserialize<FFOptions>(File.ReadAllText("ffmpeg.config.json")).BinaryFolder
         );
     }
 
