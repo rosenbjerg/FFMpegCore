@@ -18,7 +18,7 @@ dotnet pack FFMpegCore.sln -c Release                                   # packag
 
 `TreatWarningsAsErrors` is on solution-wide, which turns NuGet's vulnerability-audit warning (NU1900) into a restore failure when the audit can't reach nuget.org. If restore fails with NU1900, append `-p:NuGetAudit=false`.
 
-CI (`.github/workflows/ci.yml`) runs on PRs to `main`/`release` across Windows/Ubuntu/macOS with ffmpeg 8.1 (the version string is set per OS because Linux/Windows pull from BtbN's builds and macOS from osxexperts.net); lint runs on Ubuntu only. Pushing to the `release` branch packs and publishes to NuGet via trusted publishing (`release.yml`): `NuGet/login` exchanges the job's GitHub OIDC token for a short-lived API key, so there is no NuGet secret in the repo. The matching policy lives on nuget.org under the `rosenbjergsoftworks` account (owner `rosenbjerg`, repo `FFMpegCore`, workflow `release.yml`, no environment) — renaming the workflow file or the repo requires updating that policy.
+`.github/workflows/ci.yml` is the only workflow and has three jobs. `ci` runs on PRs to `main` and on pushes to `main`: the test matrix across Windows/Ubuntu/macOS with ffmpeg 8.1 (the version string is set per OS because Linux/Windows pull from BtbN's builds and macOS from osxexperts.net); lint runs on Ubuntu only. On pushes to `main`, `version` evaluates every csproj with `IsPackable=true` and asks nuget.org's flat-container index whether its `PackageVersion` already exists; `release` then fans out over the ones that don't and, per package, packs, pushes and creates a GitHub release. Bumping `PackageVersion` on `main` is therefore the release trigger — there is no release branch, tag push or button, and a push where every version is already on nuget.org is a no-op. `release` is gated on the full test matrix and is idempotent (`--skip-duplicate`; re-run it on failure). Tags are `vX.Y.Z` for `FFMpegCore` and `<PackageId>/vX.Y.Z` for the extensions; only `FFMpegCore` releases are marked "latest". Release notes are GitHub's auto-generated notes (merged PRs) between the package's previous tag and the release commit; the same text is written to the nupkg via `PackageReleaseNotesFile` (see `Directory.Build.props`), so don't set `PackageReleaseNotes` in a csproj — it would override the generated notes. Publishing uses trusted publishing: `NuGet/login` exchanges the job's GitHub OIDC token for a short-lived API key, so there is no NuGet secret in the repo. The matching policy lives on nuget.org under the `rosenbjergsoftworks` account (owner `rosenbjerg`, repo `FFMpegCore`, workflow `ci.yml`, no environment) — renaming the workflow file or the repo requires updating that policy.
 
 ## Solution layout
 
@@ -32,7 +32,7 @@ CI (`.github/workflows/ci.yml`) runs on PRs to `main`/`release` across Windows/U
 
 `Directory.Build.props` sets the shared defaults (netstandard2.0, nullable, implicit usings, warnings-as-errors). Test and Examples override to net8.0; the test project disables nullable.
 
-Each packable csproj carries its own `PackageVersion` and `PackageReleaseNotes` — bump those in the csproj when releasing; there is no central version file.
+Each packable csproj carries its own `PackageVersion`; there is no central version file. Bumping it and merging to `main` is what releases that package (see CI above). Don't add `GeneratePackageOnBuild` — it makes `dotnet pack` skip the build and fail with NU5026 on a clean checkout.
 
 ## Core architecture
 
