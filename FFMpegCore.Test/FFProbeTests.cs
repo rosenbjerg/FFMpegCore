@@ -351,4 +351,22 @@ public class FFProbeTests
         await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.AnalyseAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
     }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task FFProbe_GetFramesAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    {
+        var input = TestResources.SrtSubtitle; //non media file
+        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetFramesAsync(input,
+            cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    {
+        var input = TestResources.SrtSubtitle; //non media file
+        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetPacketsAsync(input,
+            cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+    }
 }
