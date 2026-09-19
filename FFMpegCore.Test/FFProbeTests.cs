@@ -131,6 +131,7 @@ public class FFProbeTests
         Assert.AreEqual(1, info.PrimaryVideoStream.SampleAspectRatio.Height);
         Assert.AreEqual("yuv420p", info.PrimaryVideoStream.PixelFormat);
         Assert.AreEqual(31, info.PrimaryVideoStream.Level);
+        Assert.AreEqual("progressive", info.PrimaryVideoStream.FieldOrder);
         Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
         Assert.AreEqual(720, info.PrimaryVideoStream.Height);
         Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
@@ -233,6 +234,17 @@ public class FFProbeTests
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.SideData.Count == 2));
         Assert.IsTrue(frameAnalysis.Frames.All(f => (int)f.SideData[1]["signal_color_space"] == 2));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Interlaced()
+    {
+        var info = FFProbe.Analyse(TestResources.InterlacedVideo);
+
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual("tv", info.PrimaryVideoStream.ColorRange);
+        Assert.AreEqual("tt", info.PrimaryVideoStream.FieldOrder);
     }
 
     [TestMethod]
