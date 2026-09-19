@@ -106,6 +106,9 @@ public static class FFProbe
 
         var instance = PrepareFrameAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
+
         return ParseFramesOutput(result);
     }
 
@@ -116,6 +119,9 @@ public static class FFProbe
 
         var instance = PreparePacketAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
+
         return ParsePacketsOutput(result);
     }
 
@@ -155,7 +161,6 @@ public static class FFProbe
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfExitCodeNotZero(result);
 
-        pipeArgument.Post();
         return ParseOutput(result);
     }
 
@@ -164,6 +169,9 @@ public static class FFProbe
     {
         var instance = PrepareFrameAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
         var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
+
         return ParseFramesOutput(result);
     }
 
