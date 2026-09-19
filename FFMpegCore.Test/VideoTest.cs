@@ -1198,8 +1198,7 @@ public class VideoTest
 
         cts.CancelAfter(300);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
-            .ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
     }
 
     [TestMethod]
