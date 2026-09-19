@@ -1,4 +1,8 @@
-﻿namespace FFMpegCore.Test;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
+using FFMpegCore.Test.Resources;
+
+namespace FFMpegCore.Test;
 
 [TestClass]
 public class FFMpegArgumentProcessorTest
@@ -98,4 +102,100 @@ public class FFMpegArgumentProcessorTest
             GlobalFFOptions.Configure(new FFOptions());
         }
     }
+
+    private static FFMpegArgumentProcessor CreateCopyProcessor(string output)
+    {
+        return FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(output, true, options => options.CopyChannel());
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_WithLogLevel_ControlsStderrVolume()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var quietLines = new List<string>();
+        var infoLines = new List<string>();
+
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Quiet).NotifyOnError(quietLines.Add).ProcessSynchronously();
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).NotifyOnError(infoLines.Add).ProcessSynchronously();
+
+        Assert.IsEmpty(quietLines);
+        Assert.IsNotEmpty(infoLines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_LogLevel_FromOptions_IsNotStickyAcrossRuns()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var lines = new List<string>();
+        var processor = CreateCopyProcessor(output).NotifyOnError(lines.Add);
+
+        processor.ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Quiet });
+        Assert.IsEmpty(lines);
+
+        processor.ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Info });
+        Assert.IsNotEmpty(lines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_ExplicitLogLevel_OverridesOptions()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var lines = new List<string>();
+
+        CreateCopyProcessor(output)
+            .WithLogLevel(FFMpegLogLevel.Quiet)
+            .NotifyOnError(lines.Add)
+            .ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Info });
+
+        Assert.IsEmpty(lines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Processor_NotifyOnOutput_ReceivesStdout()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var lines = new List<string>();
+
+        var success = await FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("-progress pipe:1"))
+            .OutputToFile(output, true, options => options.CopyChannel())
+            .NotifyOnOutput(lines.Add)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
+
+        Assert.IsTrue(success);
+        Assert.Contains("progress=end", lines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_MissingInput_ThrowsBeforeStartingFFMpeg()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
+
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(missing).OutputToFile(output).ProcessSynchronously());
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_ExistingOutput_ThrowsWhenOverwriteDisabled()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        File.WriteAllText(output, string.Empty);
+
+        var exception = Assert.ThrowsExactly<FFMpegException>(() =>
+            FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile(output, false).ProcessSynchronously());
+
+        Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
+    }
+
+    public TestContext TestContext { get; set; }
 }
