@@ -27,7 +27,8 @@ public class FFMpegOptionsTest
     }
 
     [TestMethod]
-    public void ZZZ_Options_Set_Programmatically()
+    [DoNotParallelize]
+    public void Options_Set_Programmatically()
     {
         try
         {
