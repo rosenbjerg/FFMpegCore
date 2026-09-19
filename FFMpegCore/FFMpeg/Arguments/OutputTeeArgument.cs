@@ -14,7 +14,14 @@ internal class OutputTeeArgument : IOutputArgument
         _options = options;
     }
 
-    public string Text => $"-f tee \"{string.Join("|", _options.Outputs.Select(MapOptions))}\"";
+    public string Text
+    {
+        get
+        {
+            var overwrite = _options.Outputs.SelectMany(o => o.Arguments).OfType<OutputArgument>().Any(o => o.Overwrite);
+            return $"-f tee \"{string.Join("|", _options.Outputs.Select(MapOptions))}\"{(overwrite ? " -y" : string.Empty)}";
+        }
+    }
 
     public Task During(CancellationToken cancellationToken = default)
     {
@@ -39,7 +46,8 @@ internal class OutputTeeArgument : IOutputArgument
         }
 
         var output = option.Arguments.OfType<IOutputArgument>().Single();
-        return $"{optionPrefix}{output.Text.Trim('"')}";
+        var target = output is OutputArgument file ? file.Path : output.Text.Trim('"');
+        return $"{optionPrefix}{target}";
     }
 
     private static string MapArgument(IArgument argument)

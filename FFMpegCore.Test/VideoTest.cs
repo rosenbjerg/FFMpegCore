@@ -1377,4 +1377,28 @@ public class VideoTest
     {
         Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.SaveM3U8Stream(new Uri("https://example.com/stream.m3u8"), "out.mkv"));
     }
+
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TeeOutput_WritesEveryTarget()
+    {
+        using var first = new TemporaryFile("first.mp4");
+        using var second = new TemporaryFile("second.mp4");
+
+        var success = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                    .OutputToFile(first, true, options => options.ForceFormat("mp4"))
+                    .OutputToFile(second, true, options => options.ForceFormat("mp4")),
+                options => options.WithCustomArgument("-map 0").CopyChannel())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(success);
+
+        Assert.AreEqual(3, FFProbe.Analyse(first).Duration.Seconds);
+        Assert.AreEqual(3, FFProbe.Analyse(second).Duration.Seconds);
+    }
+
+
 }

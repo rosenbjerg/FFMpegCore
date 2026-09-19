@@ -1070,4 +1070,19 @@ public class ArgumentBuilderTest
         Assert.ThrowsExactly<FFMpegArgumentException>(() => video.Arguments);
         Assert.ThrowsExactly<FFMpegArgumentException>(() => audio.Arguments);
     }
+
+
+    [TestMethod]
+    public void Builder_BuildString_TeeOutput_OverwriteIsHoistedOutOfBranches()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToFile("first.mp4", true, options => options.ForceFormat("mp4"))
+                .OutputToFile("second.mp4", false, options => options.ForceFormat("mp4")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -f tee \"[f=mp4]first.mp4|[f=mp4]second.mp4\" -y", str);
+    }
+
+
 }
