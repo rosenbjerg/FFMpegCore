@@ -235,12 +235,12 @@ public class FFMpegArgumentOptions : FFMpegArgumentsBase
 
     public FFMpegArgumentOptions ForcePixelFormat(string pixelFormat)
     {
-        return WithArgument(new ForcePixelFormat(pixelFormat));
+        return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
     public FFMpegArgumentOptions ForcePixelFormat(PixelFormat pixelFormat)
     {
-        return WithArgument(new ForcePixelFormat(pixelFormat));
+        return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
     public FFMpegArgumentOptions WithAudibleEncryptionKeys(string key, string iv)
