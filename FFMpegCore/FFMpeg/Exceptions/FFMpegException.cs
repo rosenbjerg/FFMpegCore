@@ -34,27 +34,3 @@ public class FFMpegException : Exception
     public FFMpegExceptionType Type { get; }
     public string FFMpegErrorOutput { get; }
 }
-
-public class FFOptionsException : Exception
-{
-    public FFOptionsException(string message, Exception? innerException = null)
-        : base(message, innerException)
-    {
-    }
-}
-
-public class FFMpegArgumentException : Exception
-{
-    public FFMpegArgumentException(string? message = null, Exception? innerException = null)
-        : base(message, innerException)
-    {
-    }
-}
-
-public class FFMpegStreamFormatException : FFMpegException
-{
-    public FFMpegStreamFormatException(FFMpegExceptionType type, string message, Exception? innerException = null)
-        : base(type, message, innerException)
-    {
-    }
-}

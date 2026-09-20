@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Text.RegularExpressions;
 using FFMpegCore.Arguments;
+using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
@@ -754,7 +756,42 @@ public class ArgumentBuilderTest
     public void Concat_Escape()
     {
         var arg = new DemuxConcatArgument([@"Heaven's River\05 - Investigation.m4b"]);
-        CollectionAssert.AreEquivalent(new[] { @"file 'Heaven'\''s River\05 - Investigation.m4b'" }, arg.Values.ToArray());
+        var expected = "file '" + Path.GetFullPath(@"Heaven's River\05 - Investigation.m4b").Replace("'", @"'\''") + "'";
+        CollectionAssert.AreEquivalent(new[] { expected }, arg.Values.ToArray());
+    }
+
+    [TestMethod]
+    public void Concat_ResolvesRelativePaths_KeepsAbsolutePathsAndUrls()
+    {
+        var absolute = Path.Combine(Path.GetTempPath(), "a.mp4");
+        var arg = new DemuxConcatArgument(["Resources/a.mp4", absolute, "https://host/a.mp4", "concat:a.mp4|b.mp4"]);
+
+        CollectionAssert.AreEqual(new[]
+        {
+            $"file '{Path.GetFullPath("Resources/a.mp4")}'",
+            $"file '{absolute}'",
+            "file 'https://host/a.mp4'",
+            "file 'concat:a.mp4|b.mp4'"
+        }, arg.Values.ToArray());
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void Concat_ResolvesRelativePaths_AgainstGlobalWorkingDirectory()
+    {
+        var workingDirectory = Path.GetTempPath();
+        try
+        {
+            GlobalFFOptions.Configure(options => options.WorkingDirectory = workingDirectory);
+
+            var arg = new DemuxConcatArgument(["a.mp4"]);
+
+            CollectionAssert.AreEqual(new[] { $"file '{Path.GetFullPath(Path.Combine(workingDirectory, "a.mp4"))}'" }, arg.Values.ToArray());
+        }
+        finally
+        {
+            GlobalFFOptions.Configure(new FFOptions());
+        }
     }
 
     [TestMethod]
@@ -783,5 +820,402 @@ public class ArgumentBuilderTest
     {
         var pipePath = new OutputPipeArgument(new StreamPipeSink(Stream.Null)).PipePath;
         Assert.IsLessThan(_macOsMaxPipePathLength, pipePath.Length);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_LowPassFilterDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.LowPass()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_LowPassFilterWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .LowPass(5000, 1, "h", 2, 0.5, "FL", true, "svf", "f32", 256)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=5000.00:p=1:t=h:w=2.00:m=0.50:c=FL:n=1:a=svf:r=f32:b=256\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HighPassFilterDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.HighPass()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_HighPassFilterWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .HighPass(200, 1, "o", 1.5, 0.25, "FR", true, "tdii", "s16", 128)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=200.00:p=1:t=o:w=1.50:m=0.25:c=FR:n=1:a=tdii:r=s16:b=128\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(-1.0, 2, "q", 1.0, "auto")]
+    [DataRow(3000.0, 3, "q", 1.0, "auto")]
+    [DataRow(3000.0, 2, "x", 1.0, "auto")]
+    [DataRow(3000.0, 2, "q", 1.5, "auto")]
+    [DataRow(3000.0, 2, "q", 1.0, "s8")]
+    public void Builder_LowPassFilter_Rejects_InvalidArguments(double frequency, int poles, string widthType, double mix, string precision)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new LowPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new HighPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioGateDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.AudioGate()))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -af \"agate=level_in=1.00:mode=downward:range=0.06:threshold=0.13:ratio=2:attack=20.00:release=250.00:makeup=1:knee=2.83:detection=rms:link=average\" \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioGateWithValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions
+                    .AudioGate(0.5, "upward", 0.5, 0.25, 4, 10, 100, 2, 4, "peak", "maximum")))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mp4\" -af \"agate=level_in=0.50:mode=upward:range=0.50:threshold=0.25:ratio=4:attack=10.00:release=100.00:makeup=2:knee=4.00:detection=peak:link=maximum\" \"output.mp4\"",
+            str);
+    }
+
+    [TestMethod]
+    [DataRow(0.001, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "sideways", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.0, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 1.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 0, 20.0, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 0.001, 250.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 9001.0, 1, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 65, 2.0, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 0.5, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "loudness", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "minimum")]
+    public void Builder_AudioGate_Rejects_InvalidArguments(double levelIn, string mode, double range, double threshold, int ratio, double attack,
+        double release, int makeup, double knee, string detection, string link)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+            new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_SilenceDetectDefault()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=60.0dB:d=2.00:m=0\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_SilenceDetectAmplitudeRatio()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect("ar", 0.05, 1.5, true)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=0.05:d=1.50:m=1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_SilenceDetect_Rejects_UnknownNoiseType()
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SilenceDetectArgument("lufs"));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_BlackDetect()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithVideoFilters(filterOptions => filterOptions.BlackDetect()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"blackdetect=d=2:pic_th=0.98:pix_th=0.1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_BlackFrame()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false,
+                opt => opt.WithVideoFilters(filterOptions => filterOptions.BlackFrame(90, 40)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"blackframe=amount=90:threshold=40\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Crop()
+    {
+        var bySize = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.Crop(new Size(640, 480), 10, 20))
+            .Arguments;
+        var byDimensions = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.Crop(640, 480, 10, 20))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf crop=640:480:10:20 \"output.mp4\"", bySize);
+        Assert.AreEqual(bySize, byDimensions);
+    }
+
+    [TestMethod]
+    public void Builder_Crop_WithoutSize_IsEmpty()
+    {
+        Assert.AreEqual(string.Empty, new CropArgument(null, 0, 0).Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_SelectStreams()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.SelectStreams(new[] { 0, 2 }, 1, Channel.Video))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -map 1:v:0 -map 1:v:2 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DeselectStream()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DeselectStream(1))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -map -0:1 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DeselectStreams()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.DeselectStreams(new[] { 1, 2 }, 0, Channel.Audio))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -map -0:a:1 -map -0:a:2 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_MapStream_TreatsBothAsAll()
+    {
+        Assert.AreEqual("-map 0:1", new MapStreamArgument(1, 0, Channel.Both).Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ForcePixelFormat_FromPixelFormat()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.ForcePixelFormat(new PixelFormat("yuv444p")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -pix_fmt yuv444p \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioCodec_FromName()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioCodec("libopus"))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -c:a libopus \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_CopyCodec()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithCopyCodec())
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -codec copy \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudibleActivationBytes()
+    {
+        var str = FFMpegArguments.FromFileInput("input.aax", false, opt => opt.WithAudibleActivationBytes("62689101"))
+            .OutputToFile("output.m4b", false)
+            .Arguments;
+
+        Assert.AreEqual("-activation_bytes 62689101 -i \"input.aax\" \"output.m4b\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_FileInput_FromFileInfo()
+    {
+        var fileInfo = new FileInfo("input.mp4");
+        var fromInput = FFMpegArguments.FromFileInput(fileInfo).OutputToFile("output.mp4", false).Arguments;
+        var addInput = FFMpegArguments.FromFileInput("first.mp4").AddFileInput(fileInfo).OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual($"-i \"{fileInfo.FullName}\" \"output.mp4\"", fromInput);
+        Assert.AreEqual($"-i \"first.mp4\" -i \"{fileInfo.FullName}\" \"output.mp4\"", addInput);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_UrlInput()
+    {
+        var uri = new Uri("https://example.com/stream.m3u8");
+        var fromInput = FFMpegArguments.FromUrlInput(uri).OutputToFile("output.mp4", false).Arguments;
+        var addInput = FFMpegArguments.FromFileInput("first.mp4").AddUrlInput(uri).OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual("-i \"https://example.com/stream.m3u8\" \"output.mp4\"", fromInput);
+        Assert.AreEqual("-i \"first.mp4\" -i \"https://example.com/stream.m3u8\" \"output.mp4\"", addInput);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DeviceInput()
+    {
+        var fromInput = FFMpegArguments.FromDeviceInput("video=Camera").OutputToFile("output.mp4", false).Arguments;
+        var addInput = FFMpegArguments.FromFileInput("first.mp4").AddDeviceInput("video=Camera").OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual("-i video=Camera \"output.mp4\"", fromInput);
+        Assert.AreEqual("-i \"first.mp4\" -i video=Camera \"output.mp4\"", addInput);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddFileInputs()
+    {
+        var single = FFMpegArguments.FromFileInput("first.mp4").AddFileInput("second.mp4", false).OutputToFile("output.mp4", false).Arguments;
+        var multiple = FFMpegArguments.FromFileInput("first.mp4").AddFileInput(_multiFiles, false).OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual("-i \"first.mp4\" -i \"second.mp4\" \"output.mp4\"", single);
+        Assert.AreEqual("-i \"first.mp4\" -i \"1.mp3\" -i \"2.mp3\" -i \"3.mp3\" -i \"4.mp3\" \"output.mp4\"", multiple);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddConcatInput()
+    {
+        var str = FFMpegArguments.FromFileInput("first.mp4").AddConcatInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual("-i \"first.mp4\" -i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddPipeInput()
+    {
+        var pipeSource = new StreamPipeSource(Stream.Null);
+        var str = FFMpegArguments.FromFileInput("first.mp4").AddPipeInput(pipeSource).OutputToFile("output.mp4", false).Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \"first.mp4\"\\s+-i \".+\" \"output.mp4\"$"));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_OutputToUrl()
+    {
+        var byString = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl("rtmp://example.com/live/key").Arguments;
+        var byUri = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl(new Uri("rtmp://example.com/live/key")).Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" rtmp://example.com/live/key", byString);
+        Assert.AreEqual(byString, byUri);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetaData_FromReadOnlyMetaData()
+    {
+        var metaData = new MetaDataBuilder().WithTitle("Title").Build();
+        var str = FFMpegArguments.FromFileInput("input.mp4").AddMetaData(metaData).OutputToFile("output.mp4", false).Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -map_metadata 1 \"output.mp4\"$"));
+    }
+
+    [TestMethod]
+    public void Builder_EmptyFilterOptions_Throw()
+    {
+        var video = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(_ => { }));
+        var audio = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(_ => { }));
+
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => video.Arguments);
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => audio.Arguments);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_MapMetaData_ExplicitIndex()
+    {
+        var str = FFMpegArguments.FromFileInput("video.mp4")
+            .AddFileInput("audio.mp3")
+            .MapMetaData(1)
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        Assert.AreEqual("-i \"video.mp4\" -i \"audio.mp3\" -map_metadata 1 \"output.mp4\"", str);
+        Assert.AreEqual("-map_metadata 0", new MapMetadataArgument().Text);
+        Assert.AreEqual("-map_metadata 2", new MapMetadataArgument(2).Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_TeeOutput_OverwriteIsHoistedOutOfBranches()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToFile("first.mp4", true, options => options.ForceFormat("mp4"))
+                .OutputToFile("second.mp4", false, options => options.ForceFormat("mp4")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -f tee \"[f=mp4]first.mp4|[f=mp4]second.mp4\" -y", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_TeeOutput_EscapesTargets()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToFile(@"C:\out\it's.mp4", false, options => options.ForceFormat("mp4"))
+                .OutputToFile("a|b.mp4", false, options => options.ForceFormat("mp4")))
+            .Arguments;
+
+        Assert.AreEqual(@"-i ""input.mp4"" -f tee ""[f=mp4]C:\\out\\it\'s.mp4|[f=mp4]a\|b.mp4""", str);
+    }
+
+    [TestMethod]
+    public void Builder_TeeOutput_RequiresAtLeastOneOutput()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpegArguments.FromFileInput("input.mp4").OutputToTee(_ => { }));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_MultiOutput_UrlAndPipe()
+    {
+        var sink = new StreamPipeSink(Stream.Null);
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .MultiOutput(outputs => outputs
+                .OutputToUrl(new Uri("rtmp://example.com/live"), options => options.ForceFormat("flv"))
+                .OutputToPipe(sink, options => options.ForceFormat("mpegts")))
+            .Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -f flv rtmp://example.com/live -f mpegts \".+\" -y$"));
     }
 }

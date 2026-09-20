@@ -371,7 +371,6 @@ public static class FFMpeg
     {
         var source = FFProbe.Analyse(input);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
-        // FFMpegHelper.ExtensionExceptionCheck(output, source.Extension);
 
         return FFMpegArguments
             .FromFileInput(input)
@@ -410,7 +409,6 @@ public static class FFMpeg
     {
         var source = FFProbe.Analyse(input);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
-        // FFMpegHelper.ExtensionExceptionCheck(output, source.Format.);
 
         return FFMpegArguments
             .FromFileInput(input)

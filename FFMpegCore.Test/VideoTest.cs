@@ -5,6 +5,7 @@ using System.Text;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extend;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
@@ -1197,8 +1198,7 @@ public class VideoTest
 
         cts.CancelAfter(300);
 
-        Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(TestContext.CancellationToken)
-            .ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
     }
 
     [TestMethod]
@@ -1274,5 +1274,158 @@ public class VideoTest
         Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_SubVideo()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+        Assert.IsTrue(success);
+
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SubVideo_Async()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = await FFMpeg.SubVideoAsync(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2),
+            TestContext.CancellationToken);
+        Assert.IsTrue(success);
+
+        var analysis = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
+        Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_SubVideo_KeepsInputExtension()
+    {
+        using var requestedOutput = new TemporaryFile("out.mkv");
+        var actualOutput = Path.ChangeExtension(requestedOutput, ".mp4");
+        try
+        {
+            var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
+            Assert.IsTrue(success);
+            Assert.IsFalse(File.Exists(requestedOutput));
+            Assert.IsTrue(File.Exists(actualOutput));
+        }
+        finally
+        {
+            File.Delete(actualOutput);
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_Mp4_Scaled_Multithreaded()
+    {
+        using var outputPath = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true);
+        Assert.IsTrue(success);
+
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(360, result.PrimaryVideoStream!.Height);
+        Assert.AreEqual("h264", result.PrimaryVideoStream.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_MpegTs()
+    {
+        using var outputPath = new TemporaryFile("out.ts");
+
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts);
+        Assert.IsTrue(success);
+
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual("mpegts", result.Format.FormatName);
+        Assert.AreEqual("h264", result.PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Convert_UnsupportedFormat_Throws()
+    {
+        using var outputPath = new TemporaryFile("out.avi");
+
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Avi));
+    }
+
+    [TestMethod]
+    public void Video_Convert_WrongOutputExtension_Throws()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.Convert(TestResources.Mp4Video, "out.mkv", VideoType.Mp4));
+    }
+
+    [TestMethod]
+    public void Video_SaveM3U8Stream_RejectsNonHttpUri()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.SaveM3U8Stream(new Uri("ftp://example.com/stream.m3u8"), "out.mp4"));
+    }
+
+    [TestMethod]
+    public void Video_SaveM3U8Stream_RejectsNonMp4Output()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.SaveM3U8Stream(new Uri("https://example.com/stream.m3u8"), "out.mkv"));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_DemuxConcat()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpegArguments
+            .FromDemuxConcatInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
+            .OutputToFile(outputFile, true, options => options.CopyChannel())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(success);
+
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputFile);
+        Assert.AreEqual((input.Duration * 2).Seconds, result.Duration.Seconds);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TeeOutput_WritesEveryTarget()
+    {
+        using var first = new TemporaryFile("tee'first.mp4");
+        using var second = new TemporaryFile("second.mp4");
+
+        var success = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                    .OutputToFile(first, true, options => options.ForceFormat("mp4"))
+                    .OutputToFile(second, true, options => options.ForceFormat("mp4")),
+                options => options.WithCustomArgument("-map 0").CopyChannel())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(success);
+
+        Assert.AreEqual(3, FFProbe.Analyse(first).Duration.Seconds);
+        Assert.AreEqual(3, FFProbe.Analyse(second).Duration.Seconds);
+    }
+
+    [TestMethod]
+    public void Video_Join_Image_Sequence_RejectsMixedExtensions()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.JoinImageSequence("out.mp4", 1, "a.png", "b.jpg"));
+    }
+
+    [TestMethod]
+    public void Video_SaveStream_Extension_RejectsNonHttpUri()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => new Uri("ftp://example.com/stream.m3u8").SaveStream("out.mp4"));
     }
 }
