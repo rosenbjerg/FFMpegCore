@@ -767,6 +767,13 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_Null_Output()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToNull(opt => opt.WithCustomArgument("-filter_complex ebur128")).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -filter_complex ebur128 -f null -", str);
+    }
+  
+    [TestMethod]
     public void Builder_BuildString_LowPassFilterDefault()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
