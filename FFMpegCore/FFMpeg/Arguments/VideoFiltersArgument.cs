@@ -94,7 +94,7 @@ public class VideoFilterOptions
         return WithArgument(new PadArgument(padOptions));
     }
 
-    private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
+    public VideoFilterOptions WithArgument(IVideoFilterArgument argument)
     {
         Arguments.Add(argument);
         return this;

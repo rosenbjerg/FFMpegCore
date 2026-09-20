@@ -8,10 +8,10 @@ public sealed class FFMpegGlobalArguments : FFMpegArgumentsBase
 
     public FFMpegGlobalArguments WithVerbosityLevel(VerbosityLevel verbosityLevel = VerbosityLevel.Error)
     {
-        return WithOption(new VerbosityLevelArgument(verbosityLevel));
+        return WithArgument(new VerbosityLevelArgument(verbosityLevel));
     }
 
-    private FFMpegGlobalArguments WithOption(IArgument argument)
+    public FFMpegGlobalArguments WithArgument(IArgument argument)
     {
         Arguments.Add(argument);
         return this;
