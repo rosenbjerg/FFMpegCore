@@ -12,8 +12,9 @@ public class FFMpegArgumentProcessor
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
-    private readonly List<CancellationTokenRegistration> _cancellationTokenRegistrations = new();
+    private readonly List<(CancellationToken Token, int Timeout)> _cancellationTokens = new();
     private bool _cancelled;
+    private TimeSpan? _knownDuration;
     private FFMpegLogLevel? _logLevel;
     private Action<string>? _onError;
     private Action<string>? _onOutput;
@@ -38,11 +39,31 @@ public class FFMpegArgumentProcessor
     /// </summary>
     /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated</param>
     /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
-    public FFMpegArgumentProcessor NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
     {
         _totalTimespan = totalTimeSpan;
         _onPercentageProgress = onPercentageProgress;
         return this;
+    }
+
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(Action<double> onPercentageProgress)
+    {
+        if (_knownDuration == null)
+        {
+            throw new InvalidOperationException("The output duration is not known for these arguments; use the overload that takes the total duration");
+        }
+
+        return NotifyOnPercentageProgress(onPercentageProgress, _knownDuration.Value);
+    }
+
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(IProgress<double> percentageProgress, TimeSpan totalTimeSpan)
+    {
+        return NotifyOnPercentageProgress(percentageProgress.Report, totalTimeSpan);
+    }
+
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(IProgress<double> percentageProgress)
+    {
+        return NotifyOnPercentageProgress(percentageProgress.Report);
     }
 
     /// <summary>
@@ -52,6 +73,17 @@ public class FFMpegArgumentProcessor
     public FFMpegArgumentProcessor NotifyOnProgress(Action<TimeSpan> onTimeProgress)
     {
         _onTimeProgress = onTimeProgress;
+        return this;
+    }
+
+    public FFMpegArgumentProcessor NotifyOnProgress(IProgress<TimeSpan> timeProgress)
+    {
+        return NotifyOnProgress(timeProgress.Report);
+    }
+
+    internal FFMpegArgumentProcessor WithKnownDuration(TimeSpan duration)
+    {
+        _knownDuration = duration;
         return this;
     }
 
@@ -86,7 +118,7 @@ public class FFMpegArgumentProcessor
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
         token.ThrowIfCancellationRequested();
-        _cancellationTokenRegistrations.Add(token.Register(() => Cancel(timeout)));
+        _cancellationTokens.Add((token, timeout));
         return this;
     }
 
@@ -158,13 +190,14 @@ public class FFMpegArgumentProcessor
     private async Task<IProcessResult> Process(FFOptions options, CancellationTokenSource cancellationTokenSource)
     {
         IProcessResult processResult = null!;
-        if (_cancelled)
+        if (_cancelled || _cancellationTokens.Any(registered => registered.Token.IsCancellationRequested))
         {
-            DisposeCancellationRegistrations();
+            _cancelled = false;
             throw new OperationCanceledException("cancelled before starting processing");
         }
 
         FFMpegHelper.VerifyFFMpegExists(options);
+        var registrations = _cancellationTokens.Select(registered => registered.Token.Register(() => Cancel(registered.Timeout))).ToList();
         _ffMpegArguments.Pre(options);
         try
         {
@@ -174,6 +207,12 @@ public class FFMpegArgumentProcessor
         {
             // Post() disposes what During() is still using; it runs once the run, and therefore During(), is over
             _ffMpegArguments.Post();
+            foreach (var registration in registrations)
+            {
+                registration.Dispose();
+            }
+
+            _cancelled = false;
         }
 
         async Task<IProcessResult> Run()
@@ -208,6 +247,10 @@ public class FFMpegArgumentProcessor
             }
 
             CancelEvent += OnCancelEvent;
+            if (_cancelled)
+            {
+                OnCancelEvent(this, 0);
+            }
 
             try
             {
@@ -229,7 +272,6 @@ public class FFMpegArgumentProcessor
 
                 if (_cancelled)
                 {
-                    DisposeCancellationRegistrations();
                     throw new OperationCanceledException("ffmpeg processing was cancelled");
                 }
 
@@ -238,19 +280,8 @@ public class FFMpegArgumentProcessor
             finally
             {
                 CancelEvent -= OnCancelEvent;
-                DisposeCancellationRegistrations();
             }
         }
-    }
-
-    private void DisposeCancellationRegistrations()
-    {
-        foreach (var registration in _cancellationTokenRegistrations)
-        {
-            registration.Dispose();
-        }
-
-        _cancellationTokenRegistrations.Clear();
     }
 
     private FFMpegResult HandleCompletion(bool throwOnError, IProcessResult? processResult, bool cancelled)

@@ -68,7 +68,8 @@ public static class FFMpeg
             .OutputToFile(output, true, options => options
                 .ForcePixelFormat("yuv420p")
                 .Resize(streams[0].Width, streams[0].Height)
-                .WithFramerate(frameRate));
+                .WithFramerate(frameRate))
+            .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate));
     }
 
     /// <summary>
@@ -127,7 +128,7 @@ public static class FFMpeg
             outputSize.Width += 1;
         }
 
-        return format.Name switch
+        var processor = format.Name switch
         {
             "mp4" => FFMpegArguments
                 .FromFileInput(input)
@@ -170,6 +171,8 @@ public static class FFMpeg
                     .WithAudioBitrate(audioQuality)),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
+
+        return processor.WithKnownDuration(source.Duration);
     }
 
     /// <summary>
@@ -198,7 +201,8 @@ public static class FFMpeg
                 .WithVideoBitrate(2400)
                 .WithSpeedPreset(Speed.SuperFast)
                 .WithAudioCodec(AudioCodec.Aac)
-                .WithAudioBitrate(AudioQuality.Normal));
+                .WithAudioBitrate(AudioQuality.Normal))
+            .WithKnownDuration(analyses.Aggregate(TimeSpan.Zero, (total, analysis) => total + analysis.Duration));
     }
 
     public static FFMpegArgumentProcessor SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
@@ -210,7 +214,8 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(input, true, options => options.Seek(startTime).EndSeek(endTime))
-            .OutputToFile(output, true, options => options.CopyChannel());
+            .OutputToFile(output, true, options => options.CopyChannel())
+            .WithKnownDuration(endTime - startTime);
     }
 
     /// <summary>
@@ -246,7 +251,8 @@ public static class FFMpeg
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
                 .CopyChannel(Channel.Video)
-                .DisableChannel(Channel.Audio));
+                .DisableChannel(Channel.Audio))
+            .WithKnownDuration(source.Duration);
     }
 
     /// <summary>
@@ -283,7 +289,8 @@ public static class FFMpeg
                 .CopyChannel()
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithAudioBitrate(AudioQuality.Good)
-                .UsingShortest(stopAtShortest));
+                .UsingShortest(stopAtShortest))
+            .WithKnownDuration(source.Duration);
     }
 
     #region PixelFormats

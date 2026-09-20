@@ -968,7 +968,7 @@ public class VideoTest
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
                 .WithDuration(analysis.Duration))
-            .NotifyOnProgress(OnPercentageProgess, analysis.Duration)
+            .NotifyOnPercentageProgress(OnPercentageProgess, analysis.Duration)
             .NotifyOnProgress(OnTimeProgess)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();

@@ -7,6 +7,8 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class FFMpegArgumentProcessorTest
 {
+    private const int BaseTimeoutMilliseconds = 60_000;
+
     private static FFMpegArgumentProcessor CreateArgumentProcessor()
     {
         return FFMpegArguments
@@ -216,6 +218,93 @@ public class FFMpegArgumentProcessorTest
         Assert.IsTrue(result.Success);
         Assert.AreEqual(0, result.ExitCode);
         Assert.IsFalse(result.Cancelled);
+    }
+
+    private sealed class CollectingProgress<T> : IProgress<T>
+    {
+        public List<T> Reports { get; } = new();
+
+        public void Report(T value)
+        {
+            lock (Reports)
+            {
+                Reports.Add(value);
+            }
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_Progress_FromHelper_NeedsNoDuration()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var percentages = new List<double>();
+
+        FFMpeg.Convert(TestResources.Mp4Video, output, VideoType.Mp4)
+            .NotifyOnPercentageProgress(percentages.Add)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsNotEmpty(percentages);
+        Assert.AreEqual(100.0, percentages.Last());
+        Assert.IsTrue(percentages.All(percentage => percentage is >= 0 and <= 100));
+    }
+
+    [TestMethod]
+    public void Processor_Progress_WithoutKnownDuration_Throws()
+    {
+        var processor = FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile("out.mp4");
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => processor.NotifyOnPercentageProgress(_ => { }));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_Progress_ReportsThroughIProgress()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var percentages = new CollectingProgress<double>();
+        var times = new CollectingProgress<TimeSpan>();
+        var duration = FFProbe.Analyse(TestResources.Mp4Video).Duration;
+
+        await FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(output, true, options => options.WithVideoCodec(VideoCodec.LibX264).WithSpeedPreset(Speed.UltraFast))
+            .NotifyOnPercentageProgress(percentages, duration)
+            .NotifyOnProgress(times)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
+
+        Assert.AreEqual(100.0, percentages.Reports.Last());
+        Assert.AreEqual(duration, times.Reports.Last());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_CanRunAgain_AfterCancelThroughAction()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var processor = CreateCopyProcessor(output).CancellableThrough(out var cancel);
+
+        cancel();
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
+
+        Assert.IsTrue(processor.ProcessSynchronously().Success);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_CancelledToken_CancelsEveryLaterRun()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        using var cts = new CancellationTokenSource();
+        var processor = CreateCopyProcessor(output).CancellableThrough(cts.Token);
+
+        Assert.IsTrue(processor.ProcessSynchronously().Success);
+        cts.Cancel();
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
     }
 
     [TestMethod]
