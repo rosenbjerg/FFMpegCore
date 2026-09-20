@@ -61,13 +61,21 @@ await FFMpegArguments
 
 ## Helper methods
 
-The provided helper methods makes it simple to perform common operations.
+The provided helper methods make it simple to perform common operations. Each one builds the ffmpeg arguments and returns an
+`FFMpegArgumentProcessor`, so you choose how to run it — `ProcessSynchronously()` or `await ProcessAsynchronously()` — and can
+attach progress callbacks or cancellation exactly as with `FFMpegArguments`.
 
 ### Easily capture snapshots from a video file:
 
 ```csharp
 // persist the image on the drive
-FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1))
+    .ProcessSynchronously();
+
+// or asynchronously, with cancellation
+await FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1))
+    .CancellableThrough(cancellationToken)
+    .ProcessAsynchronously();
 
 // or process the snapshot in-memory using one of the image extension packages
 // (FFMpegCore.Extensions.System.Drawing.Common or FFMpegCore.Extensions.SkiaSharp)
@@ -77,13 +85,12 @@ var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMi
 ### You can also capture GIF snapshots from a video file:
 
 ```csharp
-FFMpeg.GifSnapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10));
-
-// or async
-await FFMpeg.GifSnapshotAsync(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10));
+FFMpeg.GifSnapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10))
+    .ProcessSynchronously();
 
 // you can also supply -1 to either one of Width/Height Size properties if you'd like FFMPEG to resize while maintaining the aspect ratio
-await FFMpeg.GifSnapshotAsync(inputPath, outputPath, new Size(480, -1), TimeSpan.FromSeconds(10));
+await FFMpeg.GifSnapshot(inputPath, outputPath, new Size(480, -1), TimeSpan.FromSeconds(10))
+    .ProcessAsynchronously();
 ```
 
 ### Join video parts into one single file:
@@ -93,17 +100,17 @@ FFMpeg.Join(@"..\joined_video.mp4",
     @"..\part1.mp4",
     @"..\part2.mp4",
     @"..\part3.mp4"
-);
+).ProcessSynchronously();
 ```
 
 ### Create a sub video
 
 ``` csharp
-FFMpeg.SubVideo(inputPath, 
+FFMpeg.SubVideo(inputPath,
     outputPath,
     TimeSpan.FromSeconds(0),
     TimeSpan.FromSeconds(30)
-);
+).ProcessSynchronously();
 ```
 
 ### Join images into a video:
@@ -113,31 +120,31 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
     @"..\1.png",
     @"..\2.png",
     @"..\3.png"
-);
+).ProcessSynchronously();
 ```
 
 ### Mute the audio of a video file:
 
 ```csharp
-FFMpeg.Mute(inputPath, outputPath);
+FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
 ```
 
 ### Extract the audio track from a video file:
 
 ```csharp
-FFMpeg.ExtractAudio(inputPath, outputPath);
+FFMpeg.ExtractAudio(inputPath, outputPath).ProcessSynchronously();
 ```
 
 ### Add or replace the audio track of a video file:
 
 ```csharp
-FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath);
+FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath).ProcessSynchronously();
 ```
 
 ### Combine an image with audio file, for youtube or similar platforms
 
 ```csharp
-FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath);
+FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath).ProcessSynchronously();
 
 // or using one of the image extension packages
 var image = Image.FromFile(inputImagePath);

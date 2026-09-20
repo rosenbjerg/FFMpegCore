@@ -635,7 +635,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.png");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -650,7 +650,9 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.png");
         var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
 
-        await FFMpeg.SnapshotAsync(TestResources.Mp4Video, outputPath, cancellationToken: TestContext.CancellationToken);
+        await FFMpeg.Snapshot(TestResources.Mp4Video, outputPath)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -665,7 +667,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.jpg");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -680,7 +682,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.bmp");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -695,7 +697,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.webp");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -711,7 +713,7 @@ public class VideoTest
 
         try
         {
-            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath);
+            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
         }
         catch (Exception ex)
         {
@@ -726,7 +728,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.png");
 
         var size = new Size(360, 0); // half the size of original video, keeping height 0 for keeping aspect ratio
-        FFMpeg.Snapshot(TestResources.Mp4VideoRotationNegative, outputPath, size);
+        FFMpeg.Snapshot(TestResources.Mp4VideoRotationNegative, outputPath, size).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreEqual(size.Width, analysis.PrimaryVideoStream!.Width);
@@ -742,7 +744,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.gif");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0));
+        FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0)).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -758,7 +760,7 @@ public class VideoTest
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var desiredGifSize = new Size(320, 240);
 
-        FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0));
+        FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0)).ProcessSynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, desiredGifSize.Width);
@@ -773,8 +775,9 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.gif");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
 
-        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0),
-            cancellationToken: TestContext.CancellationToken);
+        await FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, captureTime: TimeSpan.FromSeconds(0))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Width);
@@ -790,8 +793,9 @@ public class VideoTest
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var desiredGifSize = new Size(320, 240);
 
-        await FFMpeg.GifSnapshotAsync(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0),
-            cancellationToken: TestContext.CancellationToken);
+        await FFMpeg.GifSnapshot(TestResources.Mp4Video, outputPath, desiredGifSize, TimeSpan.FromSeconds(0))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
 
         var analysis = FFProbe.Analyse(outputPath);
         Assert.AreNotEqual(input.PrimaryVideoStream!.Width, desiredGifSize.Width);
@@ -808,7 +812,7 @@ public class VideoTest
 
         using var outputPath = new TemporaryFile("out.mp4");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
-        var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy);
+        var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy).ProcessSynchronously();
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputPath));
 
@@ -824,11 +828,25 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Join_VideoOnly()
+    {
+        using var outputPath = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.Join(outputPath, TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio).ProcessSynchronously();
+        Assert.IsTrue(success);
+
+        var result = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(6, result.Duration.Seconds);
+        Assert.IsNull(result.PrimaryAudioStream);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Convert_Webm()
     {
         using var outputPath = new TemporaryFile("out.webm");
 
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM);
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM).ProcessSynchronously();
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputPath));
 
@@ -848,7 +866,7 @@ public class VideoTest
     {
         using var outputPath = new TemporaryFile("out.ogv");
 
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv);
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv).ProcessSynchronously();
         Assert.IsTrue(success);
         Assert.IsTrue(File.Exists(outputPath));
 
@@ -879,7 +897,7 @@ public class VideoTest
         var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
         using var outputFile = new TemporaryFile("out.mp4");
-        var success = FFMpeg.JoinImageSequence(outputFile, 10, imageSet.ToArray());
+        var success = FFMpeg.JoinImageSequence(outputFile, 10, imageSet.ToArray()).ProcessSynchronously();
         Assert.IsTrue(success);
         var result = FFProbe.Analyse(outputFile);
 
@@ -1306,7 +1324,7 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+        var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)).ProcessSynchronously();
         Assert.IsTrue(success);
 
         var analysis = FFProbe.Analyse(outputFile);
@@ -1319,8 +1337,9 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = await FFMpeg.SubVideoAsync(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2),
-            TestContext.CancellationToken);
+        var success = await FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
         Assert.IsTrue(success);
 
         var analysis = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
@@ -1335,7 +1354,7 @@ public class VideoTest
         var actualOutput = Path.ChangeExtension(requestedOutput, ".mp4");
         try
         {
-            var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1)).ProcessSynchronously();
 
             Assert.IsTrue(success);
             Assert.IsFalse(File.Exists(requestedOutput));
@@ -1353,7 +1372,7 @@ public class VideoTest
     {
         using var outputPath = new TemporaryFile("out.mp4");
 
-        var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true);
+        var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true).ProcessSynchronously();
         Assert.IsTrue(success);
 
         var result = FFProbe.Analyse(outputPath);
@@ -1367,7 +1386,7 @@ public class VideoTest
     {
         using var outputPath = new TemporaryFile("out.ts");
 
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts);
+        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts).ProcessSynchronously();
         Assert.IsTrue(success);
 
         var result = FFProbe.Analyse(outputPath);

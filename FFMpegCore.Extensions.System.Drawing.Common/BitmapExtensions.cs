@@ -10,7 +10,7 @@ public static class BitmapExtensions
         poster.Save(destination);
         try
         {
-            return FFMpeg.PosterWithAudio(destination, audio, output);
+            return FFMpeg.PosterWithAudio(destination, audio, output).ProcessSynchronously();
         }
         finally
         {

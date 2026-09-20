@@ -71,7 +71,7 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
 
 ### High-level helpers
 
-`FFMpeg` (static) — `Snapshot`, `GifSnapshot`, `Join`, `SubVideo`, `Mute`, `ExtractAudio`, `ReplaceAudio`, `JoinImageSequence`, `PosterWithAudio`, `Convert` — are all thin compositions of the builder. `SnapshotArgumentBuilder` is public so the image extensions can reuse the same argument construction and just swap the output for a `StreamPipeSink` + `ForceFormat("rawvideo")`.
+`FFMpeg` (static) — `Snapshot`, `GifSnapshot`, `Join`, `SubVideo`, `Mute`, `ExtractAudio`, `ReplaceAudio`, `JoinImageSequence`, `PosterWithAudio`, `SaveM3U8Stream`, `Convert` — are thin compositions of the builder that return the `FFMpegArgumentProcessor` without running it; the caller picks `ProcessSynchronously`/`ProcessAsynchronously`. Anything a helper needs before the run (ffprobe for sizes and durations, extension checks) happens synchronously inside the helper; anything that must wrap the run lives in an argument's `Pre`/`Post` (`ImageSequenceInputArgument` copies the images into a temp folder and deletes it afterwards). `Join` is a single ffmpeg invocation through the `concat` filter, so its inputs must share a resolution. `SnapshotArgumentBuilder` is public so the image extensions can reuse the same argument construction and just swap the output for a `StreamPipeSink` + `ForceFormat("rawvideo")`.
 
 `FFMetadataBuilder` (project root) generates the ffmetadata text used by `AddMetaData`; its chapters are `ChapterData`, the same type `IMediaAnalysis.Chapters` returns, so probed chapters can be fed straight back in.
 

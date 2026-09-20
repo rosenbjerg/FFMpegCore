@@ -14,7 +14,7 @@ public static class BitmapExtensions
 
         try
         {
-            return FFMpeg.PosterWithAudio(destination, audio, output);
+            return FFMpeg.PosterWithAudio(destination, audio, output).ProcessSynchronously();
         }
         finally
         {

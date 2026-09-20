@@ -37,7 +37,7 @@ var outputPath = "/path/to/output";
     var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 
     // or persists the image on the drive
-    FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+    FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1)).ProcessSynchronously();
 }
 
 var inputStream = new MemoryStream();
@@ -57,29 +57,29 @@ var outputStream = new MemoryStream();
         @"..\part1.mp4",
         @"..\part2.mp4",
         @"..\part3.mp4"
-    );
+    ).ProcessSynchronously();
 }
 
 {
-    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", 1, @"..\1.png", @"..\2.png", @"..\3.png");
+    FFMpeg.JoinImageSequence(@"..\joined_video.mp4", 1, @"..\1.png", @"..\2.png", @"..\3.png").ProcessSynchronously();
 }
 
 {
-    FFMpeg.Mute(inputPath, outputPath);
+    FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
 }
 
 {
-    FFMpeg.ExtractAudio(inputPath, outputPath);
+    FFMpeg.ExtractAudio(inputPath, outputPath).ProcessSynchronously();
 }
 
 var inputAudioPath = "/path/to/input/audio";
 {
-    FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath);
+    FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath).ProcessSynchronously();
 }
 
 var inputImagePath = "/path/to/input/image";
 {
-    FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath);
+    FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath).ProcessSynchronously();
     // or using FFMpegCore.Extensions.System.Drawing.Common
 #pragma warning disable CA1416
     using var image = Image.FromFile(inputImagePath);

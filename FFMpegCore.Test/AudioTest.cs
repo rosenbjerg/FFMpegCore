@@ -17,7 +17,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        FFMpeg.Mute(TestResources.Mp4Video, outputFile);
+        FFMpeg.Mute(TestResources.Mp4Video, outputFile).ProcessSynchronously();
         var analysis = FFProbe.Analyse(outputFile);
 
         Assert.IsNotEmpty(analysis.VideoStreams);
@@ -29,7 +29,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile("out.mp3");
 
-        FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile);
+        FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile).ProcessSynchronously();
         var analysis = FFProbe.Analyse(outputFile);
 
         Assert.IsNotEmpty(analysis.AudioStreams);
@@ -53,7 +53,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = FFMpeg.ReplaceAudio(TestResources.Mp4WithoutAudio, TestResources.Mp3Audio, outputFile);
+        var success = FFMpeg.ReplaceAudio(TestResources.Mp4WithoutAudio, TestResources.Mp3Audio, outputFile).ProcessSynchronously();
         var videoAnalysis = FFProbe.Analyse(TestResources.Mp4WithoutAudio);
         var audioAnalysis = FFProbe.Analyse(TestResources.Mp3Audio);
         var outputAnalysis = FFProbe.Analyse(outputFile);
@@ -67,7 +67,7 @@ public class AudioTest
     public void Image_AddAudio()
     {
         using var outputFile = new TemporaryFile("out.mp4");
-        FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile);
+        FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile).ProcessSynchronously();
         var analysis = FFProbe.Analyse(TestResources.Mp3Audio);
         Assert.IsGreaterThan(0, analysis.Duration.TotalSeconds);
         Assert.IsTrue(File.Exists(outputFile));

@@ -59,6 +59,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArguments().WithInput(new InputPipeArgument(sourcePipe), addArguments);
     }
 
+    public static FFMpegArguments FromImageSequenceInput(IEnumerable<string> images, Action<FFMpegArgumentOptions>? addArguments = null)
+    {
+        return new FFMpegArguments().WithInput(new ImageSequenceInputArgument(images), addArguments);
+    }
+
     public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
     {
         configureOptions(_globalArguments);
