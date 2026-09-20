@@ -979,23 +979,33 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_Crop()
+    public void Builder_BuildString_CropFilter()
     {
         var bySize = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.Crop(new Size(640, 480), 10, 20))
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(filterOptions => filterOptions.Crop(new Size(640, 480), 10, 20)))
             .Arguments;
         var byDimensions = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.Crop(640, 480, 10, 20))
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(filterOptions => filterOptions.Crop(640, 480, 10, 20)))
+            .Arguments;
+        var topLeft = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(filterOptions => filterOptions.Crop(640, 480)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -vf crop=640:480:10:20 \"output.mp4\"", bySize);
+        Assert.AreEqual("-i \"input.mp4\" -vf \"crop=640:480:10:20\" \"output.mp4\"", bySize);
         Assert.AreEqual(bySize, byDimensions);
+        Assert.AreEqual("-i \"input.mp4\" -vf \"crop=640:480:0:0\" \"output.mp4\"", topLeft);
     }
 
     [TestMethod]
-    public void Builder_Crop_WithoutSize_IsEmpty()
+    public void Builder_BuildString_CropAndScale_ShareOneFilterChain()
     {
-        Assert.AreEqual(string.Empty, new CropArgument(null, 0, 0).Text);
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(filterOptions => filterOptions
+                .Crop(640, 480, 10, 20)
+                .Scale(320, 240)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"crop=640:480:10:20, scale=320:240\" \"output.mp4\"", str);
     }
 
     [TestMethod]

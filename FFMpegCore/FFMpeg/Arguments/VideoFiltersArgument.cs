@@ -59,6 +59,16 @@ public class VideoFilterOptions
         return WithArgument(new ScaleArgument(size));
     }
 
+    public VideoFilterOptions Crop(Size size, int left = 0, int top = 0)
+    {
+        return WithArgument(new CropArgument(size, left, top));
+    }
+
+    public VideoFilterOptions Crop(int width, int height, int left = 0, int top = 0)
+    {
+        return WithArgument(new CropArgument(width, height, left, top));
+    }
+
     public VideoFilterOptions Transpose(Transposition transposition)
     {
         return WithArgument(new TransposeArgument(transposition));

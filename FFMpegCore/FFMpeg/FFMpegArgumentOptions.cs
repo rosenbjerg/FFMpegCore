@@ -48,26 +48,6 @@ public class FFMpegArgumentOptions : FFMpegArgumentsBase
         return WithArgument(new SizeArgument(size));
     }
 
-    public FFMpegArgumentOptions Crop(Size? size, int left, int top)
-    {
-        return WithArgument(new CropArgument(size, top, left));
-    }
-
-    public FFMpegArgumentOptions Crop(int width, int height, int left, int top)
-    {
-        return WithArgument(new CropArgument(new Size(width, height), top, left));
-    }
-
-    public FFMpegArgumentOptions Crop(Size? size)
-    {
-        return WithArgument(new CropArgument(size, 0, 0));
-    }
-
-    public FFMpegArgumentOptions Crop(int width, int height)
-    {
-        return WithArgument(new CropArgument(new Size(width, height), 0, 0));
-    }
-
     public FFMpegArgumentOptions WithBitStreamFilter(Channel channel, Filter filter)
     {
         return WithArgument(new BitStreamFilterArgument(channel, filter));
