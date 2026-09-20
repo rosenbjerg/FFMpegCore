@@ -445,4 +445,13 @@ public class FFProbeTests
         Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetFrames(missing));
         Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetPackets(missing));
     }
+
+    [TestMethod]
+    public void Probe_Success_Output_Data()
+    {
+        var info = FFProbe.Analyse(TestResources.Mp4Video);
+
+        Assert.AreNotEqual(0, info.OutputData.Count);
+        CollectionAssert.Contains(info.OutputData.ToList(), "            \"codec_long_name\": \"H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10\",");
+    }
 }
