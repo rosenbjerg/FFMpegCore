@@ -6,7 +6,7 @@ public static class BitmapExtensions
 {
     public static FFMpegResult AddAudio(this Image poster, string audio, string output)
     {
-        var destination = $"{Environment.TickCount}.png";
+        var destination = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"{Guid.NewGuid()}.png");
         poster.Save(destination);
         try
         {

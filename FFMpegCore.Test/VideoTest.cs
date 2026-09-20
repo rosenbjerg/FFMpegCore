@@ -580,7 +580,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SystemDrawingCommon()
     {
-        using var bitmap = FFMpegImage.Snapshot(TestResources.Mp4Video);
+        using var bitmap = SystemDrawingImage.Snapshot(TestResources.Mp4Video);
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
@@ -593,7 +593,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_SnapshotAsync_InMemory_SystemDrawingCommon()
     {
-        using var bitmap = await FFMpegImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+        using var bitmap = await SystemDrawingImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
 
         var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
@@ -605,7 +605,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SkiaSharp()
     {
-        using var bitmap = Extensions.SkiaSharp.FFMpegImage.Snapshot(TestResources.Mp4Video);
+        using var bitmap = Extensions.SkiaSharp.SkiaSharpImage.Snapshot(TestResources.Mp4Video);
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
@@ -618,7 +618,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_SnapshotAsync_InMemory_SkiaSharp()
     {
-        using var bitmap = await Extensions.SkiaSharp.FFMpegImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+        using var bitmap = await Extensions.SkiaSharp.SkiaSharpImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
 
         var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);

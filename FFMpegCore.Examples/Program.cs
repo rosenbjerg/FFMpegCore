@@ -5,7 +5,6 @@ using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using SkiaSharp;
-using FFMpegImage = FFMpegCore.Extensions.System.Drawing.Common.FFMpegImage;
 
 var inputPath = "/path/to/input";
 var outputPath = "/path/to/output";
@@ -34,7 +33,7 @@ var outputPath = "/path/to/output";
 
 {
     // process the snapshot in-memory and use the Bitmap directly
-    var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+    var bitmap = SystemDrawingImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
 
     // or persists the image on the drive
     FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1)).ProcessSynchronously();

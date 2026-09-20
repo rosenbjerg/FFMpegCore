@@ -1,4 +1,4 @@
-# [FFMpegCore](https://www.nuget.org/packages/FFMpegCore/)
+﻿# [FFMpegCore](https://www.nuget.org/packages/FFMpegCore/)
 
 [![NuGet Version](https://img.shields.io/nuget/v/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
@@ -78,8 +78,8 @@ await FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMi
     .ProcessAsynchronously();
 
 // or process the snapshot in-memory using one of the image extension packages
-// (FFMpegCore.Extensions.System.Drawing.Common or FFMpegCore.Extensions.SkiaSharp)
-var bitmap = FFMpegImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));
+var bitmap = SystemDrawingImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1)); // FFMpegCore.Extensions.System.Drawing.Common
+var skBitmap = SkiaSharpImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));   // FFMpegCore.Extensions.SkiaSharp
 ```
 
 ### You can also capture GIF snapshots from a video file:

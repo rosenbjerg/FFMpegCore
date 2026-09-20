@@ -1,10 +1,9 @@
 ﻿using System.Drawing;
 using FFMpegCore.Pipes;
-using SkiaSharp;
 
-namespace FFMpegCore.Extensions.SkiaSharp;
+namespace FFMpegCore.Extensions.System.Drawing.Common;
 
-public static class FFMpegImage
+public static class SystemDrawingImage
 {
     /// <summary>
     ///     Saves a 'png' thumbnail to an in-memory bitmap
@@ -15,7 +14,7 @@ public static class FFMpegImage
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
-    public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+    public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
     {
         var source = FFProbe.Analyse(input);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
@@ -27,8 +26,8 @@ public static class FFMpegImage
             .ProcessSynchronously();
 
         ms.Position = 0;
-        using var bitmap = SKBitmap.Decode(ms);
-        return bitmap.Copy();
+        using var bitmap = new Bitmap(ms);
+        return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
     }
 
     /// <summary>
@@ -41,7 +40,7 @@ public static class FFMpegImage
     /// <param name="inputFileIndex">Input file index</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
-    public static async Task<SKBitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
+    public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         int inputFileIndex = 0, CancellationToken cancellationToken = default)
     {
         var source = await FFProbe.AnalyseAsync(input, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -56,6 +55,6 @@ public static class FFMpegImage
             .ConfigureAwait(false);
 
         ms.Position = 0;
-        return SKBitmap.Decode(ms);
+        return new Bitmap(ms);
     }
 }
