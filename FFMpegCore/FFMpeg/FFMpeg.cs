@@ -67,7 +67,7 @@ public static class FFMpeg
         return arguments
             .OutputToFile(output, true, options => options
                 .ForcePixelFormat("yuv420p")
-                .Resize(streams[0].Width, streams[0].Height)
+                .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
                 .WithFramerate(frameRate))
             .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate));
     }

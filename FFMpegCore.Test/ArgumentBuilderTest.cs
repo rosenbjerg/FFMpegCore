@@ -76,17 +76,17 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_HardwareAcceleration_Auto()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithHardwareAcceleration()).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -hwaccel auto \"output.mp4\"", str);
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration())
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-hwaccel auto -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]
     public void Builder_BuildString_HardwareAcceleration_Specific()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false,
-            opt => opt.WithHardwareAcceleration(HardwareAccelerationDevice.CUVID)).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -hwaccel cuvid \"output.mp4\"", str);
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration(HardwareAccelerationDevice.CUVID))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-hwaccel cuvid -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -316,9 +316,9 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_Loop()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.Loop(50))
+        var str = FFMpegArguments.FromFileInput("input.png", false, opt => opt.Loop(50)).OutputToFile("output.mp4", false)
             .Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -loop 50 \"output.mp4\"", str);
+        Assert.AreEqual("-loop 50 -i \"input.png\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -348,9 +348,17 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_Size()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.Resize(1920, 1080)).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -s 1920x1080 \"output.mp4\"", str);
+        var str = FFMpegArguments.FromFileInput("input.yuv", false, opt => opt.ForceFormat("rawvideo").Resize(1920, 1080))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-f rawvideo -s 1920x1080 -i \"input.yuv\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_InputDecoders()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithVideoDecoder("h264_cuvid").WithAudioDecoder("aac"))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-c:v h264_cuvid -c:a aac -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -661,11 +669,11 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .MultiOutput(args => args
-                .OutputToFile("sd.mp4", true, args => args.Resize(1200, 720))
-                .OutputToFile("hd.mp4", false, args => args.Resize(1920, 1080)))
+                .OutputToFile("sd.mp4", true, args => args.WithVideoFilters(filters => filters.Scale(1200, 720)))
+                .OutputToFile("hd.mp4", false, args => args.WithVideoFilters(filters => filters.Scale(1920, 1080))))
             .Arguments;
         Assert.AreEqual("""
-                        -i "input.mp4" -s 1200x720 "sd.mp4" -y -s 1920x1080 "hd.mp4"
+                        -i "input.mp4" -vf "scale=1200:720" "sd.mp4" -y -vf "scale=1920:1080" "hd.mp4"
                         """, str);
     }
 

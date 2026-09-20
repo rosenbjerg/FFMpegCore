@@ -5,7 +5,7 @@ namespace FFMpegCore;
 
 public static class SnapshotArgumentBuilder
 {
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
         string input,
         string output,
         IMediaAnalysis source,
@@ -17,7 +17,7 @@ public static class SnapshotArgumentBuilder
         return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex, inputFileIndex);
     }
 
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
         string input,
         IMediaAnalysis source,
         Size? size = null,
@@ -28,7 +28,7 @@ public static class SnapshotArgumentBuilder
         return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex, inputFileIndex);
     }
 
-    private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
+    private static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
         string input,
         Codec codec,
         IMediaAnalysis source,
@@ -46,14 +46,21 @@ public static class SnapshotArgumentBuilder
         return (FFMpegArguments
                 .FromFileInput(input, false, options => options
                     .Seek(captureTime)),
-            options => options
-                .SelectStream((int)streamIndex, inputFileIndex)
-                .WithVideoCodec(codec)
-                .WithFrameOutputCount(1)
-                .Resize(size));
+            options =>
+            {
+                options
+                    .SelectStream((int)streamIndex, inputFileIndex)
+                    .WithVideoCodec(codec)
+                    .WithFrameOutputCount(1);
+                if (size.HasValue)
+                {
+                    options.WithVideoFilters(filters => filters.Scale(size.Value));
+                }
+            }
+        );
     }
 
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildGifSnapshotArguments(
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildGifSnapshotArguments(
         string input,
         IMediaAnalysis source,
         Size? size = null,

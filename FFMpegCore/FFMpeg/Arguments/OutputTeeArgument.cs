@@ -36,7 +36,7 @@ internal class OutputTeeArgument : IOutputArgument
     {
     }
 
-    private static string MapOptions(FFMpegArgumentOptions option)
+    private static string MapOptions(FFMpegOutputOptions option)
     {
         var optionPrefix = string.Empty;
         if (option.Arguments.Count > 1)

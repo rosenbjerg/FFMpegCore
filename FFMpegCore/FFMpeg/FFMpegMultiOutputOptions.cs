@@ -5,33 +5,33 @@ namespace FFMpegCore;
 
 public class FFMpegMultiOutputOptions
 {
-    internal readonly List<FFMpegArgumentOptions> Outputs = new();
+    internal readonly List<FFMpegOutputOptions> Outputs = new();
 
     public IEnumerable<IArgument> Arguments => Outputs.SelectMany(o => o.Arguments);
 
-    public FFMpegMultiOutputOptions OutputToFile(string file, bool overwrite = true, Action<FFMpegArgumentOptions>? addArguments = null)
+    public FFMpegMultiOutputOptions OutputToFile(string file, bool overwrite = true, Action<FFMpegOutputOptions>? addArguments = null)
     {
         return AddOutput(new OutputArgument(file, overwrite), addArguments);
     }
 
-    public FFMpegMultiOutputOptions OutputToUrl(string uri, Action<FFMpegArgumentOptions>? addArguments = null)
+    public FFMpegMultiOutputOptions OutputToUrl(string uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
         return AddOutput(new OutputUrlArgument(uri), addArguments);
     }
 
-    public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegArgumentOptions>? addArguments = null)
+    public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
         return AddOutput(new OutputUrlArgument(uri.ToString()), addArguments);
     }
 
-    public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegArgumentOptions>? addArguments = null)
+    public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)
     {
         return AddOutput(new OutputPipeArgument(reader), addArguments);
     }
 
-    public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
+    public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegOutputOptions>? addArguments)
     {
-        var args = new FFMpegArgumentOptions();
+        var args = new FFMpegOutputOptions();
         addArguments?.Invoke(args);
         args.Arguments.Add(argument);
         Outputs.Add(args);

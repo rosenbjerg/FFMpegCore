@@ -496,7 +496,7 @@ public class VideoTest
         var success = await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
-                .Resize(200, 200)
+                .WithVideoFilters(filters => filters.Scale(200, 200))
                 .WithVideoCodec(VideoCodec.LibTheora))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
