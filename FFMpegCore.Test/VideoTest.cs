@@ -1202,6 +1202,31 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Cancel_CancellationToken_EveryRegisteredTokenCancels()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        using var first = new CancellationTokenSource();
+        using var second = new CancellationTokenSource();
+
+        var task = FFMpegArguments
+            .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                .WithCustomArgument("-re")
+                .ForceFormat("lavfi"))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithSpeedPreset(Speed.VeryFast))
+            .CancellableThrough(first.Token)
+            .CancellableThrough(second.Token)
+            .CancellableThrough(TestContext.CancellationToken);
+
+        first.CancelAfter(300);
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => task.ProcessSynchronously());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Cancel_CancellationToken_BeforeProcessing_Throws()
     {
         using var outputFile = new TemporaryFile("out.mp4");

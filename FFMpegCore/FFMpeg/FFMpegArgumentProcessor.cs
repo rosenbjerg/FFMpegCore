@@ -12,7 +12,7 @@ public class FFMpegArgumentProcessor
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
-    private CancellationTokenRegistration? _cancellationTokenRegistration;
+    private readonly List<CancellationTokenRegistration> _cancellationTokenRegistrations = new();
     private bool _cancelled;
     private FFMpegLogLevel? _logLevel;
     private Action<string>? _onError;
@@ -86,8 +86,7 @@ public class FFMpegArgumentProcessor
     public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
     {
         token.ThrowIfCancellationRequested();
-        _cancellationTokenRegistration?.Dispose();
-        _cancellationTokenRegistration = token.Register(() => Cancel(timeout));
+        _cancellationTokenRegistrations.Add(token.Register(() => Cancel(timeout)));
         return this;
     }
 
@@ -157,7 +156,7 @@ public class FFMpegArgumentProcessor
         IProcessResult processResult = null!;
         if (_cancelled)
         {
-            _cancellationTokenRegistration?.Dispose();
+            DisposeCancellationRegistrations();
             throw new OperationCanceledException("cancelled before starting processing");
         }
 
@@ -205,7 +204,7 @@ public class FFMpegArgumentProcessor
 
             if (_cancelled)
             {
-                _cancellationTokenRegistration?.Dispose();
+                DisposeCancellationRegistrations();
                 throw new OperationCanceledException("ffmpeg processing was cancelled");
             }
 
@@ -214,8 +213,18 @@ public class FFMpegArgumentProcessor
         finally
         {
             CancelEvent -= OnCancelEvent;
-            _cancellationTokenRegistration?.Dispose();
+            DisposeCancellationRegistrations();
         }
+    }
+
+    private void DisposeCancellationRegistrations()
+    {
+        foreach (var registration in _cancellationTokenRegistrations)
+        {
+            registration.Dispose();
+        }
+
+        _cancellationTokenRegistrations.Clear();
     }
 
     private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
