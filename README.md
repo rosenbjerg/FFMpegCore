@@ -187,6 +187,7 @@ Both image extension packages provide a `BitmapVideoFrameWrapper` that adapts a 
 # Binaries
 
 ## Runtime Auto Installation
+
 The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at runtime into the configured `BinaryFolder`:
 
 ```csharp
@@ -286,10 +287,6 @@ ffmpeg `8.1`.
 <a href="https://github.com/rosenbjerg/ffmpegcore/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
 </a>
-
-## Other contributors
-
-<a href="https://github.com/tiesont"><img src="https://avatars3.githubusercontent.com/u/420293?v=4" title="tiesont" width="80" height="80"></a>
 
 ### License
 
