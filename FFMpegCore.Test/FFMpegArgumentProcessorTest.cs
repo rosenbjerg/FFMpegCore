@@ -157,6 +157,21 @@ public class FFMpegArgumentProcessorTest
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_NotifyOnProgress_ReportsAtQuietLogLevel()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var times = new List<TimeSpan>();
+
+        CreateCopyProcessor(output)
+            .WithLogLevel(FFMpegLogLevel.Quiet)
+            .NotifyOnProgress(times.Add)
+            .ProcessSynchronously();
+
+        Assert.IsNotEmpty(times);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
     public async Task Processor_NotifyOnOutput_ReceivesStdout()
     {
         using var output = new TemporaryFile("out.mp4");
