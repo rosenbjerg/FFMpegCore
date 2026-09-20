@@ -111,4 +111,12 @@ public class FFMpegOptionsTests
         options.Encoding = null;
         Assert.AreEqual(System.Text.Encoding.Default.WebName, options.EncodingWebName);
     }
+
+    [TestMethod]
+    public void Options_NullBinaryFolder_FromConfig_MeansPath()
+    {
+        var options = JsonSerializer.Deserialize<FFOptions>("""{"BinaryFolder": null}""");
+
+        Assert.AreEqual(string.Empty, options.BinaryFolder);
+    }
 }

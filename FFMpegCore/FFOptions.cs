@@ -14,7 +14,13 @@ public class FFOptions : ICloneable
     /// <summary>
     ///     Folder container ffmpeg and ffprobe binaries. Leave empty if ffmpeg and ffprobe are present in PATH
     /// </summary>
-    public string BinaryFolder { get; set; } = string.Empty;
+    public string BinaryFolder
+    {
+        get => _binaryFolder;
+        set => _binaryFolder = value ?? string.Empty;
+    }
+
+    private string _binaryFolder = string.Empty;
 
     /// <summary>
     ///     Folder used for temporary files necessary for static methods on FFMpeg class

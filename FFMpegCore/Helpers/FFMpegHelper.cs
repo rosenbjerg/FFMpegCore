@@ -28,14 +28,6 @@ public static class FFMpegHelper
         }
     }
 
-    public static void RootExceptionCheck()
-    {
-        if (GlobalFFOptions.Current.BinaryFolder == null)
-        {
-            throw new FFOptionsException("FFMpeg root is not configured in app config. Missing key 'BinaryFolder'.");
-        }
-    }
-
     public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
     {
         if (_ffmpegVerified)

@@ -435,8 +435,6 @@ public static class FFMpeg
 
     internal static IReadOnlyList<PixelFormat> GetPixelFormatsInternal()
     {
-        FFMpegHelper.RootExceptionCheck();
-
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
         if (result.ExitCode != 0)
         {
@@ -492,8 +490,6 @@ public static class FFMpeg
 
     private static void ParsePartOfCodecs(Dictionary<string, Codec> codecs, string arguments, Func<string, Codec?> parser)
     {
-        FFMpegHelper.RootExceptionCheck();
-
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
         if (result.ExitCode != 0)
         {
@@ -620,8 +616,6 @@ public static class FFMpeg
 
     internal static IReadOnlyList<ContainerFormat> GetContainersFormatsInternal()
     {
-        FFMpegHelper.RootExceptionCheck();
-
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
         if (result.ExitCode != 0)
         {

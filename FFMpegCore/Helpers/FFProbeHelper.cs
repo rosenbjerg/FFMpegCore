@@ -6,14 +6,6 @@ public static class FFProbeHelper
 {
     private static bool _ffprobeVerified;
 
-    public static void RootExceptionCheck()
-    {
-        if (GlobalFFOptions.Current.BinaryFolder == null)
-        {
-            throw new FFOptionsException("FFProbe root is not configured in app config. Missing key 'BinaryFolder'.");
-        }
-    }
-
     public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
     {
         if (_ffprobeVerified)
