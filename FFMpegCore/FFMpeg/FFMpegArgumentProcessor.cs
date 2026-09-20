@@ -195,12 +195,26 @@ public class FFMpegArgumentProcessor
 
         try
         {
-            await Task.WhenAll(instance.WaitForExitAsync().ContinueWith(t =>
+            var during = _ffMpegArguments.During(cancellationTokenSource.Token);
+            var exit = instance.WaitForExitAsync().ContinueWith(t =>
             {
                 processResult = t.Result;
                 cancellationTokenSource.Cancel();
+            });
+
+            try
+            {
+                await Task.WhenAll(exit, during).ConfigureAwait(false);
+            }
+            catch (Exception) when (exit.Status == TaskStatus.RanToCompletion && processResult.ExitCode != 0)
+            {
+                // ffmpeg failed; its exit code and stderr are the error, not the pipe it left broken
+            }
+            finally
+            {
+                // Post() disposes what During() is still using; it must not run concurrently with it
                 _ffMpegArguments.Post();
-            }), _ffMpegArguments.During(cancellationTokenSource.Token)).ConfigureAwait(false);
+            }
 
             if (_cancelled)
             {
