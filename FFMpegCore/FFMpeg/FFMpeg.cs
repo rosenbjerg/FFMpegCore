@@ -2,7 +2,6 @@
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
-using Instances;
 
 namespace FFMpegCore;
 
@@ -438,20 +437,19 @@ public static class FFMpeg
     {
         FFMpegHelper.RootExceptionCheck();
 
-        var list = new List<PixelFormat>();
-        var processArguments = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
-        processArguments.OutputDataReceived += (e, data) =>
-        {
-            if (PixelFormat.TryParse(data, out var format))
-            {
-                list.Add(format);
-            }
-        };
-
-        var result = processArguments.StartAndWaitForExit();
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+
+        var list = new List<PixelFormat>();
+        foreach (var line in result.OutputData)
+        {
+            if (PixelFormat.TryParse(line, out var format))
+            {
+                list.Add(format);
+            }
         }
 
         return list.AsReadOnly();
@@ -496,27 +494,28 @@ public static class FFMpeg
     {
         FFMpegHelper.RootExceptionCheck();
 
-        var processArguments = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
-        processArguments.OutputDataReceived += (e, data) =>
-        {
-            var codec = parser(data);
-            if (codec != null)
-            {
-                if (codecs.TryGetValue(codec.Name, out var parentCodec))
-                {
-                    parentCodec.Merge(codec);
-                }
-                else
-                {
-                    codecs.Add(codec.Name, codec);
-                }
-            }
-        };
-
-        var result = processArguments.StartAndWaitForExit();
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+
+        foreach (var line in result.OutputData)
+        {
+            var codec = parser(line);
+            if (codec == null)
+            {
+                continue;
+            }
+
+            if (codecs.TryGetValue(codec.Name, out var parentCodec))
+            {
+                parentCodec.Merge(codec);
+            }
+            else
+            {
+                codecs.Add(codec.Name, codec);
+            }
         }
     }
 
@@ -623,20 +622,19 @@ public static class FFMpeg
     {
         FFMpegHelper.RootExceptionCheck();
 
-        var list = new List<ContainerFormat>();
-        var instance = new ProcessArguments(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
-        instance.OutputDataReceived += (e, data) =>
-        {
-            if (ContainerFormat.TryParse(data, out var fmt))
-            {
-                list.Add(fmt);
-            }
-        };
-
-        var result = instance.StartAndWaitForExit();
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+        }
+
+        var list = new List<ContainerFormat>();
+        foreach (var line in result.OutputData)
+        {
+            if (ContainerFormat.TryParse(line, out var fmt))
+            {
+                list.Add(fmt);
+            }
         }
 
         return list.AsReadOnly();

@@ -76,6 +76,35 @@ public class CodecTests
 
     [TestMethod]
     [DoNotParallelize]
+    public void ContainerFormats_Query_DoesNotRequireThreadPoolThreads()
+    {
+        ThreadPool.GetMinThreads(out var minWorker, out var minIo);
+        ThreadPool.GetMaxThreads(out var maxWorker, out var maxIo);
+        try
+        {
+            Assert.IsTrue(ThreadPool.SetMinThreads(4, minIo));
+            Assert.IsTrue(ThreadPool.SetMaxThreads(4, maxIo));
+
+            var gate = new TaskCompletionSource<bool>();
+            var lookups = Enumerable.Range(0, 20).Select(_ => Task.Run(async () =>
+            {
+                await gate.Task;
+                return FFMpeg.GetContainersFormatsInternal();
+            })).ToArray();
+            gate.SetResult(true);
+
+            Assert.IsTrue(Task.WaitAll(lookups, TimeSpan.FromSeconds(30)));
+            Assert.IsTrue(lookups.All(lookup => lookup.Result.Any(format => format.Name == "mp4")));
+        }
+        finally
+        {
+            ThreadPool.SetMaxThreads(maxWorker, maxIo);
+            ThreadPool.SetMinThreads(minWorker, minIo);
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public void Lookups_BypassCache_WhenDisabled()
     {
         try
