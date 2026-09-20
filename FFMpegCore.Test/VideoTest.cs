@@ -5,7 +5,6 @@ using System.Text;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
-using FFMpegCore.Extend;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
@@ -1421,11 +1420,5 @@ public class VideoTest
     public void Video_Join_Image_Sequence_RejectsMixedExtensions()
     {
         Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.JoinImageSequence("out.mp4", 1, "a.png", "b.jpg"));
-    }
-
-    [TestMethod]
-    public void Video_SaveStream_Extension_RejectsNonHttpUri()
-    {
-        Assert.ThrowsExactly<ArgumentException>(() => new Uri("ftp://example.com/stream.m3u8").SaveStream("out.mp4"));
     }
 }

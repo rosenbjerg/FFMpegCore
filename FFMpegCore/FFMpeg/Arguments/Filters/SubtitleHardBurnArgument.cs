@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using FFMpegCore.Extend;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 

@@ -1,6 +1,4 @@
-﻿using FFMpegCore.Pipes;
-
-namespace FFMpegCore.Extend;
+﻿namespace FFMpegCore.Pipes;
 
 public class PcmAudioSampleWrapper : IAudioSample
 {

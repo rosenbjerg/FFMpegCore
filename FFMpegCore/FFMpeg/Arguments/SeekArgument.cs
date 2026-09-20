@@ -1,5 +1,4 @@
-﻿using FFMpegCore.Extend;
-
+﻿
 namespace FFMpegCore.Arguments;
 
 /// <summary>

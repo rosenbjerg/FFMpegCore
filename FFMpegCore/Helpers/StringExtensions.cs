@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace FFMpegCore.Extend;
+namespace FFMpegCore.Helpers;
 
 internal static class StringExtensions
 {

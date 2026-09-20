@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.Extend;
+﻿namespace FFMpegCore;
 
 public static class TimeSpanExtensions
 {

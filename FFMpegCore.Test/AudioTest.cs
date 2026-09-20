@@ -1,6 +1,5 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
-using FFMpegCore.Extend;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 
