@@ -15,7 +15,9 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     private string GetText()
     {
         var allArguments = _globalArguments.Arguments.Concat(Arguments).ToArray();
-        return string.Join(" ", allArguments.Select(arg => arg is IDynamicArgument dynArg ? dynArg.GetText(allArguments) : arg.Text));
+        return string.Join(" ", allArguments
+            .Select(arg => arg is IDynamicArgument dynArg ? dynArg.GetText(allArguments) : arg.Text)
+            .Where(text => !string.IsNullOrEmpty(text)));
     }
 
     public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegArgumentOptions>? addArguments = null)

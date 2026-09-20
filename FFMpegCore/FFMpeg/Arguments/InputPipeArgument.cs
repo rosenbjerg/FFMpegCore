@@ -15,7 +15,14 @@ public class InputPipeArgument : PipeArgument, IInputArgument
         Writer = writer;
     }
 
-    public override string Text => $"{Writer.GetStreamArguments()} -i \"{PipePath}\"";
+    public override string Text
+    {
+        get
+        {
+            var streamArguments = Writer.GetStreamArguments();
+            return string.IsNullOrEmpty(streamArguments) ? $"-i \"{PipePath}\"" : $"{streamArguments} -i \"{PipePath}\"";
+        }
+    }
 
     protected override async Task ProcessDataAsync(CancellationToken token)
     {

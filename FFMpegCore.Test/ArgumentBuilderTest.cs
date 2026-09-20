@@ -490,7 +490,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithCustomArgument(null!))
             .OutputToFile("output.mp4", false, opt => opt.WithCustomArgument(null!)).Arguments;
-        Assert.AreEqual(" -i \"input.mp4\"  \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" \"output.mp4\"", str);
 
         str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt.WithCustomArgument("-acodec copy")).Arguments;
@@ -1140,7 +1140,7 @@ public class ArgumentBuilderTest
         var pipeSource = new StreamPipeSource(Stream.Null);
         var str = FFMpegArguments.FromFileInput("first.mp4").AddPipeInput(pipeSource).OutputToFile("output.mp4", false).Arguments;
 
-        StringAssert.Matches(str, new Regex("^-i \"first.mp4\"\\s+-i \".+\" \"output.mp4\"$"));
+        StringAssert.Matches(str, new Regex("^-i \"first.mp4\" -i \".+\" \"output.mp4\"$"));
     }
 
     [TestMethod]
