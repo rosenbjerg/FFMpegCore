@@ -384,29 +384,32 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.AnalyseAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.AnalyseAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.ProcessErrors);
     }
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_GetFramesAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_GetFramesAsync_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetFramesAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetFramesAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.ProcessErrors);
     }
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetPacketsAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetPacketsAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.ProcessErrors);
     }
 
     // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
@@ -440,9 +443,9 @@ public class FFProbeTests
     {
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
-        var exception = Assert.ThrowsExactly<FFMpegException>(() => FFProbe.Analyse(missing));
+        var exception = Assert.ThrowsExactly<FFProbeException>(() => FFProbe.Analyse(missing));
         Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
-        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetFrames(missing));
-        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetPackets(missing));
+        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetFrames(missing));
+        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetPackets(missing));
     }
 }

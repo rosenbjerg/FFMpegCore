@@ -17,7 +17,7 @@ public static class FFProbeHelper
         _ffprobeVerified = result.ExitCode == 0;
         if (!_ffprobeVerified)
         {
-            throw new FFProbeException("ffprobe was not found on your system");
+            throw new FFProbeException(FFMpegExceptionType.Operation, "ffprobe was not found on your system");
         }
     }
 }

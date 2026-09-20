@@ -59,6 +59,8 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 
 `FFProbe.Analyse*` runs `ffprobe -print_format json -sexagesimal -show_format -show_streams -show_chapters`, deserialises to `FFProbeAnalysis` (raw JSON shape), then wraps it in `MediaAnalysis : IMediaAnalysis` which parses durations, rotation, frame rates, tags, etc. `GetFrames`/`GetPackets` follow the same pattern. Stream input is analysed by piping through the same `InputPipeArgument` machinery.
 
+ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessException` (non-zero exit, with `ProcessErrors` = stderr lines); both derive from `FFMpegException`, so a `catch (FFMpegException)` still covers them.
+
 ### Options and binary lookup
 
 - `FFOptions` is per-run; `GlobalFFOptions.Current` is the process-wide default, lazily loaded from `ffmpeg.config.json` in the working directory if present. `FFMpegArgumentProcessor.GetConfiguredOptions` clones the global, then applies `.Configure(...)` lambdas.

@@ -43,17 +43,19 @@ public class ExceptionTests
     }
 
     [TestMethod]
-    public void FFProbeExceptions_FormAHierarchy()
+    public void FFProbeExceptions_AreFFMpegExceptions()
     {
         var inner = new Exception("inner");
-        var probe = new FFProbeException("probe", inner);
+        var probe = new FFProbeException(FFMpegExceptionType.File, "probe", inner);
         var process = new FFProbeProcessException("process", new[] { "line1", "line2" }, inner);
         var formatNull = new FormatNullException();
 
-        Assert.AreEqual(("probe", inner), (probe.Message, probe.InnerException));
+        Assert.IsInstanceOfType<FFMpegException>(probe);
+        Assert.AreEqual((FFMpegExceptionType.File, "probe", inner, string.Empty), (probe.Type, probe.Message, probe.InnerException, probe.FFMpegErrorOutput));
         Assert.IsInstanceOfType<FFProbeException>(process);
-        Assert.IsInstanceOfType<FFProbeException>(formatNull);
+        Assert.AreEqual((FFMpegExceptionType.Process, "line1\nline2"), (process.Type, process.FFMpegErrorOutput));
         CollectionAssert.AreEqual(new[] { "line1", "line2" }, process.ProcessErrors.ToArray());
+        Assert.IsInstanceOfType<FFProbeException>(formatNull);
         Assert.AreEqual("Format not specified", formatNull.Message);
     }
 }

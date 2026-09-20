@@ -1,8 +1,9 @@
 ﻿namespace FFMpegCore.Exceptions;
 
-public class FFProbeException : Exception
+public class FFProbeException : FFMpegException
 {
-    public FFProbeException(string message, Exception? inner = null) : base(message, inner)
+    public FFProbeException(FFMpegExceptionType type, string message, Exception? inner = null, string ffProbeErrorOutput = "")
+        : base(type, message, inner, ffProbeErrorOutput)
     {
     }
 }

@@ -2,7 +2,8 @@
 
 public class FFProbeProcessException : FFProbeException
 {
-    public FFProbeProcessException(string message, IReadOnlyCollection<string> processErrors, Exception? inner = null) : base(message, inner)
+    public FFProbeProcessException(string message, IReadOnlyCollection<string> processErrors, Exception? inner = null)
+        : base(FFMpegExceptionType.Process, message, inner, string.Join("\n", processErrors))
     {
         ProcessErrors = processErrors;
     }

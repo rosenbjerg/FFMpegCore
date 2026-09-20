@@ -219,7 +219,7 @@ public static class FFProbe
     {
         if (!File.Exists(filePath))
         {
-            throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
+            throw new FFProbeException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
         }
     }
 
@@ -228,7 +228,7 @@ public static class FFProbe
         if (result.ExitCode != 0)
         {
             var message = $"ffprobe exited with non-zero exit-code ({result.ExitCode} - {string.Join("\n", result.ErrorData)})";
-            throw new FFMpegException(FFMpegExceptionType.Process, message, null, string.Join("\n", result.ErrorData));
+            throw new FFProbeProcessException(message, result.ErrorData);
         }
     }
 
@@ -240,12 +240,12 @@ public static class FFProbe
 
     private static ProcessArguments PrepareFrameAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
     {
-        return PrepareInstance($"-loglevel error -print_format json -show_frames -v quiet -sexagesimal \"{filePath}\"", ffOptions, customArguments);
+        return PrepareInstance($"-loglevel error -print_format json -show_frames -sexagesimal \"{filePath}\"", ffOptions, customArguments);
     }
 
     private static ProcessArguments PreparePacketAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
     {
-        return PrepareInstance($"-loglevel error -print_format json -show_packets -v quiet -sexagesimal \"{filePath}\"", ffOptions, customArguments);
+        return PrepareInstance($"-loglevel error -print_format json -show_packets -sexagesimal \"{filePath}\"", ffOptions, customArguments);
     }
 
     private static ProcessArguments PrepareInstance(string arguments, FFOptions ffOptions, string? customArguments)
