@@ -42,17 +42,20 @@ public class AudioFilterOptions
 {
     public List<IAudioFilterArgument> Arguments { get; } = new();
 
+    /// <summary>pan</summary>
     public AudioFilterOptions Pan(string channelLayout, params string[] outputDefinitions)
     {
         return WithArgument(new PanArgument(channelLayout, outputDefinitions));
     }
 
+    /// <summary>pan</summary>
     public AudioFilterOptions Pan(int channels, params string[] outputDefinitions)
     {
         return WithArgument(new PanArgument(channels, outputDefinitions));
     }
 
-    public AudioFilterOptions DynamicNormalizer(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95,
+    /// <summary>dynaudnorm</summary>
+    public AudioFilterOptions DynamicAudioNormalizer(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95,
         double gainFactor = 10.0, double targetRms = 0.0, bool channelCoupling = true,
         bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false,
         double compressorFactor = 0.0)
@@ -62,6 +65,7 @@ public class AudioFilterOptions
             compressorFactor));
     }
 
+    /// <summary>highpass</summary>
     public AudioFilterOptions HighPass(double frequency = 3000, int poles = 2, string width_type = "q", double width = 0.707,
         double mix = 1, string channels = "", bool normalize = false, string transform = "", string precision = "auto",
         int? blocksize = null)
@@ -69,6 +73,7 @@ public class AudioFilterOptions
         return WithArgument(new HighPassFilterArgument(frequency, poles, width_type, width, mix, channels, normalize, transform, precision, blocksize));
     }
 
+    /// <summary>lowpass</summary>
     public AudioFilterOptions LowPass(double frequency = 3000, int poles = 2, string width_type = "q", double width = 0.707,
         double mix = 1, string channels = "", bool normalize = false, string transform = "", string precision = "auto",
         int? blocksize = null)
@@ -76,6 +81,7 @@ public class AudioFilterOptions
         return WithArgument(new LowPassFilterArgument(frequency, poles, width_type, width, mix, channels, normalize, transform, precision, blocksize));
     }
 
+    /// <summary>agate</summary>
     public AudioFilterOptions AudioGate(double level_in = 1, string mode = "downward", double range = 0.06125, double threshold = 0.125,
         int ratio = 2, double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, string detection = "rms",
         string link = "average")
@@ -83,6 +89,7 @@ public class AudioFilterOptions
         return WithArgument(new AudioGateArgument(level_in, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
     }
 
+    /// <summary>silencedetect</summary>
     public AudioFilterOptions SilenceDetect(string noise_type = "db", double noise = 60, double duration = 2,
         bool mono = false)
     {

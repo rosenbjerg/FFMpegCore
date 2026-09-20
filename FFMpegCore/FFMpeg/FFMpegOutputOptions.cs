@@ -8,101 +8,145 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
 {
     internal FFMpegOutputOptions() { }
 
-    public FFMpegOutputOptions WithAudioCodec(Codec audioCodec)
-    {
-        return WithArgument(new AudioCodecArgument(audioCodec));
-    }
-
-    public FFMpegOutputOptions WithAudioCodec(string audioCodec)
-    {
-        return WithArgument(new AudioCodecArgument(audioCodec));
-    }
-
-    public FFMpegOutputOptions WithAudioBitrate(AudioQuality audioQuality)
-    {
-        return WithArgument(new AudioBitrateArgument(audioQuality));
-    }
-
-    public FFMpegOutputOptions WithAudioBitrate(int bitrate)
-    {
-        return WithArgument(new AudioBitrateArgument(bitrate));
-    }
-
-    public FFMpegOutputOptions WithAudioSamplingRate(int samplingRate = 48000)
-    {
-        return WithArgument(new AudioSamplingRateArgument(samplingRate));
-    }
-
-    public FFMpegOutputOptions WithVariableBitrate(int vbr)
-    {
-        return WithArgument(new VariableBitRateArgument(vbr));
-    }
-
-    public FFMpegOutputOptions WithBitStreamFilter(Channel channel, Filter filter)
-    {
-        return WithArgument(new BitStreamFilterArgument(channel, filter));
-    }
-
-    public FFMpegOutputOptions WithConstantRateFactor(int crf)
-    {
-        return WithArgument(new ConstantRateFactorArgument(crf));
-    }
-
-    public FFMpegOutputOptions CopyChannel(Channel channel = Channel.Both)
-    {
-        return WithArgument(new CopyArgument(channel));
-    }
-
-    public FFMpegOutputOptions DisableChannel(Channel channel)
-    {
-        return WithArgument(new DisableChannelArgument(channel));
-    }
-
-    public FFMpegOutputOptions WithDuration(TimeSpan? duration)
-    {
-        return WithArgument(new DurationArgument(duration));
-    }
-
-    public FFMpegOutputOptions WithFastStart()
-    {
-        return WithArgument(new FaststartArgument());
-    }
-
-    public FFMpegOutputOptions WithFrameOutputCount(int frames)
-    {
-        return WithArgument(new FrameOutputCountArgument(frames));
-    }
-
-    public FFMpegOutputOptions UsingShortest(bool shortest = true)
-    {
-        return WithArgument(new ShortestArgument(shortest));
-    }
-
-    public FFMpegOutputOptions UsingMultithreading(bool multithread)
-    {
-        return WithArgument(new ThreadsArgument(multithread));
-    }
-
-    public FFMpegOutputOptions UsingThreads(int threads)
-    {
-        return WithArgument(new ThreadsArgument(threads));
-    }
-
+    /// <summary>-c:v</summary>
     public FFMpegOutputOptions WithVideoCodec(Codec videoCodec)
     {
         return WithArgument(new VideoCodecArgument(videoCodec));
     }
 
+    /// <summary>-c:v</summary>
     public FFMpegOutputOptions WithVideoCodec(string videoCodec)
     {
         return WithArgument(new VideoCodecArgument(videoCodec));
     }
 
+    /// <summary>-c:a</summary>
+    public FFMpegOutputOptions WithAudioCodec(Codec audioCodec)
+    {
+        return WithArgument(new AudioCodecArgument(audioCodec));
+    }
+
+    /// <summary>-c:a</summary>
+    public FFMpegOutputOptions WithAudioCodec(string audioCodec)
+    {
+        return WithArgument(new AudioCodecArgument(audioCodec));
+    }
+
+    /// <summary>-c copy, or -c:v / -c:a / -c:s copy for one stream type</summary>
+    public FFMpegOutputOptions CopyStreams(StreamType streamType = StreamType.All)
+    {
+        return WithArgument(new CopyArgument(streamType));
+    }
+
+    /// <summary>-b:v</summary>
     public FFMpegOutputOptions WithVideoBitrate(int bitrate)
     {
         return WithArgument(new VideoBitrateArgument(bitrate));
     }
 
+    /// <summary>-b:a</summary>
+    public FFMpegOutputOptions WithAudioBitrate(AudioQuality audioQuality)
+    {
+        return WithArgument(new AudioBitrateArgument(audioQuality));
+    }
+
+    /// <summary>-b:a</summary>
+    public FFMpegOutputOptions WithAudioBitrate(int bitrate)
+    {
+        return WithArgument(new AudioBitrateArgument(bitrate));
+    }
+
+    /// <summary>-vbr</summary>
+    public FFMpegOutputOptions WithVariableBitrate(int vbr)
+    {
+        return WithArgument(new VariableBitRateArgument(vbr));
+    }
+
+    /// <summary>-crf</summary>
+    public FFMpegOutputOptions WithConstantRateFactor(int crf)
+    {
+        return WithArgument(new ConstantRateFactorArgument(crf));
+    }
+
+    /// <summary>-preset</summary>
+    public FFMpegOutputOptions WithSpeedPreset(Speed speed)
+    {
+        return WithArgument(new SpeedPresetArgument(speed));
+    }
+
+    /// <summary>-frames:v</summary>
+    public FFMpegOutputOptions WithFrameOutputCount(int frames)
+    {
+        return WithArgument(new FrameOutputCountArgument(frames));
+    }
+
+    /// <summary>-bsf:v or -bsf:a</summary>
+    public FFMpegOutputOptions WithBitstreamFilter(StreamType streamType, BitstreamFilter filter)
+    {
+        return WithArgument(new BitstreamFilterArgument(streamType, filter));
+    }
+
+    /// <summary>-movflags faststart</summary>
+    public FFMpegOutputOptions WithFastStart()
+    {
+        return WithArgument(new FaststartArgument());
+    }
+
+    /// <summary>-shortest</summary>
+    public FFMpegOutputOptions WithShortest(bool shortest = true)
+    {
+        return WithArgument(new ShortestArgument(shortest));
+    }
+
+    /// <summary>-y</summary>
+    public FFMpegOutputOptions OverwriteExisting()
+    {
+        return WithArgument(new OverwriteArgument());
+    }
+
+    /// <summary>-map</summary>
+    public FFMpegOutputOptions WithMap(int streamIndex, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    {
+        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType));
+    }
+
+    /// <summary>-map, once per index</summary>
+    public FFMpegOutputOptions WithMap(IEnumerable<int> streamIndices, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    {
+        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithMap(streamIndex, inputFileIndex, streamType));
+    }
+
+    /// <summary>-map -, a negative mapping that excludes the stream</summary>
+    public FFMpegOutputOptions WithNegativeMap(int streamIndex, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    {
+        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType, true));
+    }
+
+    /// <summary>-map -, once per index</summary>
+    public FFMpegOutputOptions WithNegativeMap(IEnumerable<int> streamIndices, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    {
+        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithNegativeMap(streamIndex, inputFileIndex, streamType));
+    }
+
+    /// <summary>-map_metadata -1</summary>
+    public FFMpegOutputOptions WithoutMetadata()
+    {
+        return WithArgument(new RemoveMetadataArgument());
+    }
+
+    /// <summary>-id3v2_version</summary>
+    public FFMpegOutputOptions WithId3v2Version(int version = 3)
+    {
+        return WithArgument(new ID3V2VersionArgument(version));
+    }
+
+    /// <summary>-filter_complex with palettegen and paletteuse</summary>
+    public FFMpegOutputOptions WithGifPalette(int streamIndex, Size? size, double fps = 12)
+    {
+        return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
+    }
+
+    /// <summary>-vf</summary>
     public FFMpegOutputOptions WithVideoFilters(Action<VideoFilterOptions> videoFilterOptions)
     {
         var videoFilterOptionsObj = new VideoFilterOptions();
@@ -110,6 +154,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new VideoFiltersArgument(videoFilterOptionsObj));
     }
 
+    /// <summary>-af</summary>
     public FFMpegOutputOptions WithAudioFilters(Action<AudioFilterOptions> audioFilterOptions)
     {
         var audioFilterOptionsObj = new AudioFilterOptions();
@@ -117,100 +162,99 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new AudioFiltersArgument(audioFilterOptionsObj));
     }
 
-    public FFMpegOutputOptions WithFramerate(double framerate)
+    /// <summary>-ss</summary>
+    public FFMpegOutputOptions WithStartTime(TimeSpan? startTime)
     {
-        return WithArgument(new FrameRateArgument(framerate));
+        return WithArgument(new SeekArgument(startTime));
     }
 
-    public FFMpegOutputOptions WithoutMetadata()
+    /// <summary>-to</summary>
+    public FFMpegOutputOptions WithStopTime(TimeSpan? stopTime)
     {
-        return WithArgument(new RemoveMetadataArgument());
+        return WithArgument(new EndSeekArgument(stopTime));
     }
 
-    public FFMpegOutputOptions WithSpeedPreset(Speed speed)
+    /// <summary>-t</summary>
+    public FFMpegOutputOptions WithDuration(TimeSpan? duration)
     {
-        return WithArgument(new SpeedPresetArgument(speed));
+        return WithArgument(new DurationArgument(duration));
     }
 
-    public FFMpegOutputOptions WithStartNumber(int startNumber)
+    /// <summary>-r</summary>
+    public FFMpegOutputOptions WithFrameRate(double frameRate)
     {
-        return WithArgument(new StartNumberArgument(startNumber));
+        return WithArgument(new FrameRateArgument(frameRate));
     }
 
-    public FFMpegOutputOptions WithCustomArgument(string argument)
-    {
-        return WithArgument(new CustomArgument(argument));
-    }
-
-    public FFMpegOutputOptions Seek(TimeSpan? seekTo)
-    {
-        return WithArgument(new SeekArgument(seekTo));
-    }
-
-    public FFMpegOutputOptions EndSeek(TimeSpan? seekTo)
-    {
-        return WithArgument(new EndSeekArgument(seekTo));
-    }
-
-    public FFMpegOutputOptions OverwriteExisting()
-    {
-        return WithArgument(new OverwriteArgument());
-    }
-
-    public FFMpegOutputOptions SelectStream(int streamIndex, int inputFileIndex = 0,
-        Channel channel = Channel.All)
-    {
-        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, channel));
-    }
-
-    public FFMpegOutputOptions SelectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0,
-        Channel channel = Channel.All)
-    {
-        return streamIndices.Aggregate(this,
-            (options, streamIndex) => options.SelectStream(streamIndex, inputFileIndex, channel));
-    }
-
-    public FFMpegOutputOptions DeselectStream(int streamIndex, int inputFileIndex = 0,
-        Channel channel = Channel.All)
-    {
-        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, channel, true));
-    }
-
-    public FFMpegOutputOptions DeselectStreams(IEnumerable<int> streamIndices, int inputFileIndex = 0,
-        Channel channel = Channel.All)
-    {
-        return streamIndices.Aggregate(this,
-            (options, streamIndex) => options.DeselectStream(streamIndex, inputFileIndex, channel));
-    }
-
+    /// <summary>-f</summary>
     public FFMpegOutputOptions ForceFormat(ContainerFormat format)
     {
         return WithArgument(new ForceFormatArgument(format));
     }
 
+    /// <summary>-f</summary>
     public FFMpegOutputOptions ForceFormat(string format)
     {
         return WithArgument(new ForceFormatArgument(format));
     }
 
-    public FFMpegOutputOptions ForcePixelFormat(string pixelFormat)
+    /// <summary>-pix_fmt</summary>
+    public FFMpegOutputOptions WithPixelFormat(string pixelFormat)
     {
         return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
-    public FFMpegOutputOptions ForcePixelFormat(PixelFormat pixelFormat)
+    /// <summary>-pix_fmt</summary>
+    public FFMpegOutputOptions WithPixelFormat(PixelFormat pixelFormat)
     {
         return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
-    public FFMpegOutputOptions WithTagVersion(int id3v2Version = 3)
+    /// <summary>-ar</summary>
+    public FFMpegOutputOptions WithAudioSamplingRate(int samplingRate = 48000)
     {
-        return WithArgument(new ID3V2VersionArgument(id3v2Version));
+        return WithArgument(new AudioSamplingRateArgument(samplingRate));
     }
 
-    public FFMpegOutputOptions WithGifPaletteArgument(int streamIndex, Size? size, double fps = 12)
+    /// <summary>-start_number</summary>
+    public FFMpegOutputOptions WithStartNumber(int startNumber)
     {
-        return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
+        return WithArgument(new StartNumberArgument(startNumber));
+    }
+
+    /// <summary>-threads</summary>
+    public FFMpegOutputOptions WithThreads(int threads)
+    {
+        return WithArgument(new ThreadsArgument(threads));
+    }
+
+    /// <summary>-vn</summary>
+    public FFMpegOutputOptions DisableVideo()
+    {
+        return WithArgument(new DisableStreamArgument(StreamType.Video));
+    }
+
+    /// <summary>-an</summary>
+    public FFMpegOutputOptions DisableAudio()
+    {
+        return WithArgument(new DisableStreamArgument(StreamType.Audio));
+    }
+
+    /// <summary>-sn</summary>
+    public FFMpegOutputOptions DisableSubtitles()
+    {
+        return WithArgument(new DisableStreamArgument(StreamType.Subtitle));
+    }
+
+    /// <summary>-dn</summary>
+    public FFMpegOutputOptions DisableData()
+    {
+        return WithArgument(new DisableStreamArgument(StreamType.Data));
+    }
+
+    public FFMpegOutputOptions WithCustomArgument(string argument)
+    {
+        return WithArgument(new CustomArgument(argument));
     }
 
     public FFMpegOutputOptions WithArgument(IArgument argument)

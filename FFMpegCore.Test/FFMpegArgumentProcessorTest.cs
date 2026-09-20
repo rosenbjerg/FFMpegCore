@@ -109,7 +109,7 @@ public class FFMpegArgumentProcessorTest
     {
         return FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
-            .OutputToFile(output, true, options => options.CopyChannel());
+            .OutputToFile(output, true, options => options.CopyStreams());
     }
 
     [TestMethod]
@@ -181,7 +181,7 @@ public class FFMpegArgumentProcessorTest
 
         var success = await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("-progress pipe:1"))
-            .OutputToFile(output, true, options => options.CopyChannel())
+            .OutputToFile(output, true, options => options.CopyStreams())
             .NotifyOnOutput(lines.Add)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();

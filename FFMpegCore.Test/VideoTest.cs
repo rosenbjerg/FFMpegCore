@@ -2,7 +2,6 @@
 using System.Drawing.Imaging;
 using System.Runtime.Versioning;
 using System.Text;
-using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Extensions.System.Drawing.Common;
@@ -59,7 +58,7 @@ public class VideoTest
             .FromFileInput(TestResources.WebmVideo)
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264)
-                .ForcePixelFormat("yuv444p"))
+                .WithPixelFormat("yuv444p"))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success.Success);
@@ -90,7 +89,7 @@ public class VideoTest
 
         await FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
-            .AddMetaData(FFMetadataBuilder.Empty()
+            .AddMetadata(FFMetadataBuilder.Empty()
                 .WithTag("title", "noname")
                 .WithTag("artist", "unknown")
                 .WithChapter("Chapter 1", 1.1)
@@ -444,8 +443,8 @@ public class VideoTest
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
-                .CopyChannel()
-                .WithBitStreamFilter(Channel.Video, Filter.H264_Mp4ToAnnexB)
+                .CopyStreams()
+                .WithBitstreamFilter(StreamType.Video, BitstreamFilter.H264_Mp4ToAnnexB)
                 .ForceFormat(VideoType.MpegTs))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -535,7 +534,7 @@ public class VideoTest
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
-                .UsingMultithreading(true)
+                .WithThreads(Environment.ProcessorCount)
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -993,10 +992,9 @@ public class VideoTest
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
-            .WithGlobalOptions(options => options
-                .WithVerbosityLevel(VerbosityLevel.Info))
             .OutputToFile(outputFile, false, opt => opt
                 .WithDuration(TimeSpan.FromSeconds(2)))
+            .WithLogLevel(FFMpegLogLevel.Info)
             .NotifyOnError(_ => dataReceived = true)
             .Configure(opt => opt.Encoding = Encoding.UTF8)
             .CancellableThrough(TestContext.CancellationToken)
@@ -1432,7 +1430,7 @@ public class VideoTest
 
         var success = FFMpegArguments
             .FromDemuxConcatInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
-            .OutputToFile(outputFile, true, options => options.CopyChannel())
+            .OutputToFile(outputFile, true, options => options.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success.Success);
@@ -1451,7 +1449,7 @@ public class VideoTest
 
         var result = FFMpegArguments
             .FromDemuxConcatInput(new[] { Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video) })
-            .OutputToFile(outputFile, true, o => o.CopyChannel())
+            .OutputToFile(outputFile, true, o => o.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously(true, options);
 
@@ -1471,8 +1469,8 @@ public class VideoTest
         {
             FFMpegArguments
                 .FromDemuxConcatInput(new[] { TestResources.Mp4Video })
-                .AddMetaData(FFMetadataBuilder.Empty().WithTitle("title"))
-                .OutputToFile(outputFile, true, o => o.CopyChannel())
+                .AddMetadata(FFMetadataBuilder.Empty().WithTitle("title"))
+                .OutputToFile(outputFile, true, o => o.CopyStreams())
                 .NotifyOnError(stderr.Add)
                 .CancellableThrough(TestContext.CancellationToken)
                 .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder });
@@ -1524,7 +1522,7 @@ public class VideoTest
             .OutputToTee(outputs => outputs
                     .OutputToFile(first, true, options => options.ForceFormat("mp4"))
                     .OutputToFile(second, true, options => options.ForceFormat("mp4")),
-                options => options.WithCustomArgument("-map 0").CopyChannel())
+                options => options.WithCustomArgument("-map 0").CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success.Success);

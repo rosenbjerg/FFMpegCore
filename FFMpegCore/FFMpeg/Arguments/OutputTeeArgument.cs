@@ -63,7 +63,7 @@ internal class OutputTeeArgument : IOutputArgument
             return map.Text.Replace("-map ", "select=\\'") + "\\'";
         }
 
-        if (argument is BitStreamFilterArgument bitstreamFilter)
+        if (argument is BitstreamFilterArgument bitstreamFilter)
         {
             return bitstreamFilter.Text.Replace("-bsf:", "bsfs/").Replace(' ', '=');
         }

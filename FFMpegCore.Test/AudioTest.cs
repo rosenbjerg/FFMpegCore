@@ -274,7 +274,7 @@ public class AudioTest
         var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
-                    .WithAudioFilters(filter => filter.DynamicNormalizer()))
+                    .WithAudioFilters(filter => filter.DynamicAudioNormalizer()))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
@@ -290,7 +290,7 @@ public class AudioTest
         var success = FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
-                    .WithAudioFilters(filter => filter.DynamicNormalizer(250, 7, 0.9, 2, 1, false, true, true, 0.5)))
+                    .WithAudioFilters(filter => filter.DynamicAudioNormalizer(250, 7, 0.9, 2, 1, false, true, true, 0.5)))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
@@ -310,7 +310,7 @@ public class AudioTest
             .FromFileInput(TestResources.Mp3Audio)
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
-                    .WithAudioFilters(filter => filter.DynamicNormalizer(filterWindow: filterWindow)))
+                    .WithAudioFilters(filter => filter.DynamicAudioNormalizer(filterWindow: filterWindow)))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously());
     }

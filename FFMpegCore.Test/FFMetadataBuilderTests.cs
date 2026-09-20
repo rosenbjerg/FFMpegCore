@@ -122,12 +122,12 @@ public class FFMetadataBuilderTests
         //-map_metadata 2
 
         var text0 = FFMpegArguments.FromFileInput("whaterver0")
-            .AddMetaData("WhatEver3")
+            .AddMetadata("WhatEver3")
             .Text;
 
         var text1 = FFMpegArguments.FromFileInput("whaterver0")
             .AddDemuxConcatInput(new[] { "whaterver", "whaterver1" })
-            .AddMetaData("WhatEver3")
+            .AddMetadata("WhatEver3")
             .Text;
 
         Assert.IsTrue(Regex.IsMatch(text0, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 1"), "map_metadata index is calculated incorrectly.");

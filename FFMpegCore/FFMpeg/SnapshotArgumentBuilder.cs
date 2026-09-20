@@ -45,11 +45,11 @@ public static class SnapshotArgumentBuilder
 
         return (FFMpegArguments
                 .FromFileInput(input, false, options => options
-                    .Seek(captureTime)),
+                    .WithStartTime(captureTime)),
             options =>
             {
                 options
-                    .SelectStream((int)streamIndex, inputFileIndex)
+                    .WithMap((int)streamIndex, inputFileIndex)
                     .WithVideoCodec(codec)
                     .WithFrameOutputCount(1);
                 if (size.HasValue)
@@ -79,10 +79,10 @@ public static class SnapshotArgumentBuilder
 
         return (FFMpegArguments
                 .FromFileInput(input, false, options => options
-                    .Seek(captureTime)
+                    .WithStartTime(captureTime)
                     .WithDuration(duration)),
             options => options
-                .WithGifPaletteArgument((int)streamIndex, size, fps));
+                .WithGifPalette((int)streamIndex, size, fps));
     }
 
     private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)

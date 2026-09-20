@@ -5,15 +5,13 @@ namespace FFMpegCore;
 
 public sealed class FFMpegArguments : FFMpegArgumentsBase
 {
-    private readonly FFMpegGlobalArguments _globalArguments = new();
-
     private FFMpegArguments() { }
 
     public string Text => GetText();
 
     private string GetText()
     {
-        var allArguments = _globalArguments.Arguments.Concat(Arguments).ToArray();
+        var allArguments = Arguments.ToArray();
         return string.Join(" ", allArguments
             .Select(arg => arg is IDynamicArgument dynArg ? dynArg.GetText(allArguments) : arg.Text)
             .Where(text => !string.IsNullOrEmpty(text)));
@@ -64,12 +62,6 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArguments().WithInput(new ImageSequenceInputArgument(images), addArguments);
     }
 
-    public FFMpegArguments WithGlobalOptions(Action<FFMpegGlobalArguments> configureOptions)
-    {
-        configureOptions(_globalArguments);
-        return this;
-    }
-
     public FFMpegArguments AddConcatInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new ConcatArgument(filePaths), addArguments);
@@ -110,12 +102,12 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new InputPipeArgument(sourcePipe), addArguments);
     }
 
-    public FFMpegArguments AddMetaData(string content, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddMetadata(string content, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MetaDataArgument(content), addArguments);
     }
 
-    public FFMpegArguments AddMetaData(FFMetadataBuilder metaDataBuilder, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddMetadata(FFMetadataBuilder metaDataBuilder, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MetaDataArgument(metaDataBuilder.GetMetadataFileContent()), addArguments);
     }
@@ -124,7 +116,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     ///     Maps the metadata of the given stream
     /// </summary>
     /// <param name="inputIndex">null means, the previous input will be used</param>
-    public FFMpegArguments MapMetaData(int? inputIndex = null, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments MapMetadata(int? inputIndex = null, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MapMetadataArgument(inputIndex), addArguments);
     }

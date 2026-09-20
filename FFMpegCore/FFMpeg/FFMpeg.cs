@@ -56,7 +56,7 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params string[] images)
     {
         var arguments = FFMpegArguments.FromImageSequenceInput(images, options => options
-            .WithFramerate(frameRate));
+            .WithFrameRate(frameRate));
 
         var streams = images.Select(image => FFProbe.Analyse(image).PrimaryVideoStream!).ToArray();
         foreach (var stream in streams)
@@ -66,9 +66,9 @@ public static class FFMpeg
 
         return arguments
             .OutputToFile(output, true, options => options
-                .ForcePixelFormat("yuv420p")
+                .WithPixelFormat("yuv420p")
                 .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
-                .WithFramerate(frameRate))
+                .WithFrameRate(frameRate))
             .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate));
     }
 
@@ -86,19 +86,19 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(image, false, options => options
-                .Loop(1)
+                .WithLoop(1)
                 .ForceFormat("image2"))
             .AddFileInput(audio)
             .OutputToFile(output, true, options => options
-                .ForcePixelFormat("yuv420p")
+                .WithPixelFormat("yuv420p")
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithConstantRateFactor(21)
                 .WithAudioBitrate(AudioQuality.Normal)
-                .UsingShortest());
+                .WithShortest());
     }
 
     /// <summary>
-    ///     Convert a video do a different format.
+    ///     Convert a video to a different format.
     /// </summary>
     /// <param name="input">Input video source.</param>
     /// <param name="output">Output information.</param>
@@ -106,7 +106,7 @@ public static class FFMpeg
     /// <param name="speed">Conversion target speed/quality (faster speed = lower quality).</param>
     /// <param name="size">Video size.</param>
     /// <param name="audioQuality">Conversion target audio quality.</param>
-    /// <param name="multithreaded">Is encoding multithreaded.</param>
+    /// <param name="multithreaded">Encode across every processor, rather than on a single thread.</param>
     public static FFMpegArgumentProcessor Convert(
         string input,
         string output,
@@ -133,7 +133,7 @@ public static class FFMpeg
             "mp4" => FFMpegArguments
                 .FromFileInput(input)
                 .OutputToFile(output, true, options => options
-                    .UsingMultithreading(multithreaded)
+                    .WithThreads(multithreaded ? Environment.ProcessorCount : 1)
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithVideoBitrate(2400)
                     .WithVideoFilters(filterOptions => filterOptions
@@ -144,7 +144,7 @@ public static class FFMpeg
             "ogv" => FFMpegArguments
                 .FromFileInput(input)
                 .OutputToFile(output, true, options => options
-                    .UsingMultithreading(multithreaded)
+                    .WithThreads(multithreaded ? Environment.ProcessorCount : 1)
                     .WithVideoCodec(VideoCodec.LibTheora)
                     .WithVideoBitrate(2400)
                     .WithVideoFilters(filterOptions => filterOptions
@@ -155,13 +155,13 @@ public static class FFMpeg
             "mpegts" => FFMpegArguments
                 .FromFileInput(input)
                 .OutputToFile(output, true, options => options
-                    .CopyChannel()
-                    .WithBitStreamFilter(Channel.Video, Filter.H264_Mp4ToAnnexB)
+                    .CopyStreams()
+                    .WithBitstreamFilter(StreamType.Video, BitstreamFilter.H264_Mp4ToAnnexB)
                     .ForceFormat(VideoType.Ts)),
             "webm" => FFMpegArguments
                 .FromFileInput(input)
                 .OutputToFile(output, true, options => options
-                    .UsingMultithreading(multithreaded)
+                    .WithThreads(multithreaded ? Environment.ProcessorCount : 1)
                     .WithVideoCodec(VideoCodec.LibVpx)
                     .WithVideoBitrate(2400)
                     .WithVideoFilters(filterOptions => filterOptions
@@ -213,8 +213,8 @@ public static class FFMpeg
         }
 
         return FFMpegArguments
-            .FromFileInput(input, true, options => options.Seek(startTime).EndSeek(endTime))
-            .OutputToFile(output, true, options => options.CopyChannel())
+            .FromFileInput(input, true, options => options.WithStartTime(startTime).WithStopTime(endTime))
+            .OutputToFile(output, true, options => options.CopyStreams())
             .WithKnownDuration(endTime - startTime);
     }
 
@@ -234,7 +234,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromUrlInput(uri)
-            .OutputToFile(output, true, options => options.CopyChannel(Channel.All));
+            .OutputToFile(output, true, options => options.CopyStreams());
     }
 
     /// <summary>
@@ -250,8 +250,8 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .CopyChannel(Channel.Video)
-                .DisableChannel(Channel.Audio))
+                .CopyStreams(StreamType.Video)
+                .DisableAudio())
             .WithKnownDuration(source.Duration);
     }
 
@@ -267,7 +267,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .DisableChannel(Channel.Video));
+                .DisableVideo());
     }
 
     /// <summary>
@@ -286,10 +286,10 @@ public static class FFMpeg
             .FromFileInput(input)
             .AddFileInput(inputAudio)
             .OutputToFile(output, true, options => options
-                .CopyChannel()
+                .CopyStreams()
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithAudioBitrate(AudioQuality.Good)
-                .UsingShortest(stopAtShortest))
+                .WithShortest(stopAtShortest))
             .WithKnownDuration(source.Duration);
     }
 

@@ -12,5 +12,5 @@ public class FrameOutputCountArgument : IArgument
         Frames = frames;
     }
 
-    public string Text => $"-vframes {Frames}";
+    public string Text => $"-frames:v {Frames}";
 }
