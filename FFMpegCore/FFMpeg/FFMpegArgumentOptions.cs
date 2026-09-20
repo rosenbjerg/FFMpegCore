@@ -263,11 +263,6 @@ public class FFMpegArgumentOptions : FFMpegArgumentsBase
         return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
     }
 
-    public FFMpegArgumentOptions WithCopyCodec()
-    {
-        return WithArgument(new CopyCodecArgument());
-    }
-
     public FFMpegArgumentOptions WithArgument(IArgument argument)
     {
         Arguments.Add(argument);

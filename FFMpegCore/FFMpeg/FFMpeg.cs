@@ -352,11 +352,8 @@ public static class FFMpeg
         }
 
         return FFMpegArguments
-            .FromUrlInput(uri, options =>
-            {
-                options.WithCopyCodec();
-            })
-            .OutputToFile(output)
+            .FromUrlInput(uri)
+            .OutputToFile(output, true, options => options.CopyChannel(Channel.All))
             .ProcessSynchronously();
     }
 

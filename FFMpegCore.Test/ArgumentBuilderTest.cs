@@ -1055,13 +1055,13 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_CopyCodec()
+    public void Builder_BuildString_Copy_All()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithCopyCodec())
+            .OutputToFile("output.mp4", false, opt => opt.CopyChannel(Channel.All))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -codec copy \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\"", str);
     }
 
     [TestMethod]
