@@ -1,6 +1,4 @@
-﻿using FFMpegCore.Builders.MetaData;
-
-namespace FFMpegCore;
+﻿namespace FFMpegCore;
 
 internal class MediaAnalysis : IMediaAnalysis
 {

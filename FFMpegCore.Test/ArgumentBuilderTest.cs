@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using FFMpegCore.Arguments;
-using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
@@ -1181,9 +1180,9 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_AddMetaData_FromReadOnlyMetaData()
+    public void Builder_BuildString_AddMetaData_FromBuilder()
     {
-        var metaData = new MetaDataBuilder().WithTitle("Title").Build();
+        var metaData = FFMetadataBuilder.Empty().WithTitle("Title");
         var str = FFMpegArguments.FromFileInput("input.mp4").AddMetaData(metaData).OutputToFile("output.mp4", false).Arguments;
 
         StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -map_metadata 1 \"output.mp4\"$"));

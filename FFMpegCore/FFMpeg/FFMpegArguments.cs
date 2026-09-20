@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Arguments;
-using FFMpegCore.Builders.MetaData;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore;
@@ -114,11 +113,6 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     public FFMpegArguments AddMetaData(FFMetadataBuilder metaDataBuilder, Action<FFMpegArgumentOptions>? addArguments = null)
     {
         return WithInput(new MetaDataArgument(metaDataBuilder.GetMetadataFileContent()), addArguments);
-    }
-
-    public FFMpegArguments AddMetaData(IReadOnlyMetaData metaData, Action<FFMpegArgumentOptions>? addArguments = null)
-    {
-        return WithInput(new MetaDataArgument(MetaDataSerializer.Instance.Serialize(metaData)), addArguments);
     }
 
     /// <summary>

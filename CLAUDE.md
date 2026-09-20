@@ -71,7 +71,7 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 
 `FFMpeg` (static) — `Snapshot`, `GifSnapshot`, `Join`, `SubVideo`, `Mute`, `ExtractAudio`, `ReplaceAudio`, `JoinImageSequence`, `PosterWithAudio`, `Convert` — are all thin compositions of the builder. `SnapshotArgumentBuilder` is public so the image extensions can reuse the same argument construction and just swap the output for a `StreamPipeSink` + `ForceFormat("rawvideo")`.
 
-`FFMetadataBuilder` (project root) and `Builders/MetaData/` generate the ffmetadata text file format used by `AddMetaData`.
+`FFMetadataBuilder` (project root) generates the ffmetadata text used by `AddMetaData`; its chapters are `ChapterData`, the same type `IMediaAnalysis.Chapters` returns, so probed chapters can be fed straight back in.
 
 ## Tests
 

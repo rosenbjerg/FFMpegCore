@@ -1,4 +1,4 @@
-﻿namespace FFMpegCore.Builders.MetaData;
+﻿namespace FFMpegCore;
 
 public class ChapterData
 {
@@ -9,7 +9,7 @@ public class ChapterData
         End = end;
     }
 
-    public string Title { get; private set; }
+    public string Title { get; }
     public TimeSpan Start { get; }
     public TimeSpan End { get; }
 
