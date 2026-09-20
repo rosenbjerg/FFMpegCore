@@ -63,6 +63,8 @@ public class FFProbeStream : ITagsContainer, IDispositionContainer
 
     [JsonPropertyName("level")] public int Level { get; set; }
 
+    [JsonPropertyName("field_order")] public string FieldOrder { get; set; } = null!;
+
     [JsonPropertyName("sample_rate")] public string SampleRate { get; set; } = null!;
 
     [JsonPropertyName("side_data_list")] public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
