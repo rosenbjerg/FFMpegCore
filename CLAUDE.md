@@ -52,7 +52,8 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 - `IDynamicArgument.GetText(context)` receives all preceding arguments; used when an argument needs to compute its own input index (e.g. `MetaDataArgument` → `-map_metadata N`).
 - `IInputOutputArgument` adds a lifecycle: `Pre()` before the process starts, `During(token)` runs concurrently with it, `Post()` after exit. `FFMpegArgumentProcessor.Process` drives this. `PipeArgument` (named-pipe server for `IPipeSource`/`IPipeSink`) and `MetaDataArgument` (temp file) rely on it.
 - `FFMpegGlobalArguments` (via `WithGlobalOptions`) are prepended before all inputs. `-v <loglevel>` is appended by the processor from `FFOptions.LogLevel` / `WithLogLevel`.
-- Cancellation: `CancellableThrough` sends `q` to ffmpeg's stdin, then kills after `timeout` ms. `ProcessAsynchronously` throws `OperationCanceledException` on cancel and `FFMpegException` on non-zero exit (unless `throwOnError: false`).
+- `ProcessSynchronously`/`ProcessAsynchronously` return an `FFMpegResult` (`ExitCode`, `ErrorOutput` = stderr lines, `Cancelled`, `Success`). With the default `throwOnError: true` a non-zero exit throws `FFMpegException` and a cancel throws `OperationCanceledException`; with `false` the result carries what happened instead.
+- Cancellation: `CancellableThrough` sends `q` to ffmpeg's stdin, then kills after `timeout` ms.
 - `FFMpegMultiOutputOptions` / `OutputToTee` support multiple outputs from one input.
 
 ### FFProbe

@@ -184,8 +184,38 @@ public class FFMpegArgumentProcessorTest
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.Contains("progress=end", lines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_Result_CarriesExitCodeAndStderr_WhenNotThrowing()
+    {
+        using var output = new TemporaryFile("out.mp4");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("--not-an-option"))
+            .OutputToFile(output)
+            .ProcessSynchronously(false);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsFalse(result.Cancelled);
+        Assert.AreNotEqual(0, result.ExitCode);
+        Assert.IsTrue(result.ErrorOutput.Any(line => line.Contains("Unrecognized option")));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_Result_IsSuccessful_OnZeroExit()
+    {
+        using var output = new TemporaryFile("out.mp4");
+
+        var result = CreateCopyProcessor(output).ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.IsFalse(result.Cancelled);
     }
 
     [TestMethod]

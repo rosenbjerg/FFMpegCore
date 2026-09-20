@@ -32,7 +32,7 @@ public class VideoTest
             .OutputToFile(outputFile, false)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -46,7 +46,7 @@ public class VideoTest
             .OutputToFile(outputFile, false)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -62,7 +62,7 @@ public class VideoTest
                 .ForcePixelFormat("yuv444p"))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         var analysis = FFProbe.Analyse(outputFile);
         Assert.AreEqual("yuv444p", analysis.VideoStreams.First().PixelFormat);
     }
@@ -79,7 +79,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -128,7 +128,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX265))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -161,7 +161,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -313,7 +313,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -413,7 +413,7 @@ public class VideoTest
                 .ForceFormat("matroska"))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         output.Position = 0;
         var inputAnalysis = FFProbe.Analyse(TestResources.WebmVideo);
@@ -432,7 +432,7 @@ public class VideoTest
             .OutputToFile(outputFile, false)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -449,7 +449,7 @@ public class VideoTest
                 .ForceFormat(VideoType.MpegTs))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -482,7 +482,7 @@ public class VideoTest
                 .ForceFormat(VideoType.Ts))
             .CancellableThrough(cancellationToken)
             .ProcessAsynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var analysis = await FFProbe.AnalyseAsync(output);
         Assert.AreEqual(VideoType.Ts.Name, analysis.Format.FormatName);
@@ -500,7 +500,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibTheora))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -539,7 +539,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -573,7 +573,7 @@ public class VideoTest
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [SupportedOSPlatform("windows")]
@@ -813,7 +813,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.mp4");
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var success = FFMpeg.Join(outputPath, TestResources.Mp4Video, inputCopy).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.IsTrue(File.Exists(outputPath));
 
         var expectedDuration = input.Duration * 2;
@@ -833,7 +833,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.mp4");
 
         var success = FFMpeg.Join(outputPath, TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var result = FFProbe.Analyse(outputPath);
         Assert.AreEqual(6, result.Duration.Seconds);
@@ -847,7 +847,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.webm");
 
         var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.IsTrue(File.Exists(outputPath));
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
@@ -867,7 +867,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.ogv");
 
         var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.IsTrue(File.Exists(outputPath));
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
@@ -898,7 +898,7 @@ public class VideoTest
 
         using var outputFile = new TemporaryFile("out.mp4");
         var success = FFMpeg.JoinImageSequence(outputFile, 10, imageSet.ToArray()).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         var result = FFProbe.Analyse(outputFile);
 
         Assert.AreEqual(3, result.Duration.Seconds);
@@ -973,7 +973,7 @@ public class VideoTest
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.IsTrue(File.Exists(outputFile));
         Assert.AreNotEqual(0.0, percentageDone);
         Assert.IsGreaterThan(1, events.Count);
@@ -1003,7 +1003,7 @@ public class VideoTest
             .ProcessSynchronously();
 
         Assert.IsTrue(dataReceived);
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.IsTrue(File.Exists(outputFile));
     }
 
@@ -1086,7 +1086,8 @@ public class VideoTest
 
         var result = await task;
 
-        Assert.IsFalse(result);
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Cancelled);
     }
 
     [TestMethod]
@@ -1110,7 +1111,8 @@ public class VideoTest
         var result = task.CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously(false);
 
-        Assert.IsFalse(result);
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Cancelled);
     }
 
     [TestMethod]
@@ -1168,7 +1170,8 @@ public class VideoTest
 
         var result = await task;
 
-        Assert.IsFalse(result);
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Cancelled);
     }
 
     [TestMethod]
@@ -1325,7 +1328,7 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
 
         var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var analysis = FFProbe.Analyse(outputFile);
         Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
@@ -1340,7 +1343,7 @@ public class VideoTest
         var success = await FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var analysis = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
         Assert.IsTrue(analysis.Duration >= TimeSpan.FromSeconds(0.9) && analysis.Duration <= TimeSpan.FromSeconds(1.2), $"Unexpected duration {analysis.Duration}");
@@ -1356,7 +1359,7 @@ public class VideoTest
         {
             var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1)).ProcessSynchronously();
 
-            Assert.IsTrue(success);
+            Assert.IsTrue(success.Success);
             Assert.IsFalse(File.Exists(requestedOutput));
             Assert.IsTrue(File.Exists(actualOutput));
         }
@@ -1373,7 +1376,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.mp4");
 
         var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var result = FFProbe.Analyse(outputPath);
         Assert.AreEqual(360, result.PrimaryVideoStream!.Height);
@@ -1387,7 +1390,7 @@ public class VideoTest
         using var outputPath = new TemporaryFile("out.ts");
 
         var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts).ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var result = FFProbe.Analyse(outputPath);
         Assert.AreEqual("mpegts", result.Format.FormatName);
@@ -1432,7 +1435,7 @@ public class VideoTest
             .OutputToFile(outputFile, true, options => options.CopyChannel())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         var result = FFProbe.Analyse(outputFile);
@@ -1454,7 +1457,7 @@ public class VideoTest
                 options => options.WithCustomArgument("-map 0").CopyChannel())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
 
         Assert.AreEqual(3, FFProbe.Analyse(first).Duration.Seconds);
         Assert.AreEqual(3, FFProbe.Analyse(second).Duration.Seconds);

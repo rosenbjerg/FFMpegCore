@@ -58,7 +58,7 @@ public class AudioTest
         var audioAnalysis = FFProbe.Analyse(TestResources.Mp3Audio);
         var outputAnalysis = FFProbe.Analyse(outputFile);
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.AreEqual(Math.Max(videoAnalysis.Duration.TotalSeconds, audioAnalysis.Duration.TotalSeconds), outputAnalysis.Duration.TotalSeconds, 0.15);
         Assert.IsTrue(File.Exists(outputFile));
     }
@@ -89,7 +89,7 @@ public class AudioTest
                 .WithAudioCodec(AudioCodec.Aac))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -108,7 +108,7 @@ public class AudioTest
                 .WithAudioCodec(AudioCodec.LibVorbis))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -127,7 +127,7 @@ public class AudioTest
                 .WithAudioCodec(AudioCodec.Aac))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -146,7 +146,7 @@ public class AudioTest
                 .WithAudioCodec(AudioCodec.Aac))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -212,7 +212,7 @@ public class AudioTest
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.HasCount(1, mediaAnalysis.AudioStreams);
         Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
     }
@@ -232,7 +232,7 @@ public class AudioTest
 
         var mediaAnalysis = FFProbe.Analyse(outputFile);
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.HasCount(1, mediaAnalysis.AudioStreams);
         Assert.AreEqual("mono", mediaAnalysis.PrimaryAudioStream!.ChannelLayout);
     }
@@ -278,7 +278,7 @@ public class AudioTest
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]
@@ -294,7 +294,7 @@ public class AudioTest
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
     }
 
     [TestMethod]

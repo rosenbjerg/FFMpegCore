@@ -4,7 +4,7 @@ namespace FFMpegCore.Extensions.SkiaSharp;
 
 public static class BitmapExtensions
 {
-    public static bool AddAudio(this SKBitmap poster, string audio, string output)
+    public static FFMpegResult AddAudio(this SKBitmap poster, string audio, string output)
     {
         var destination = $"{Environment.TickCount}.png";
         using (var fileStream = File.OpenWrite(destination))

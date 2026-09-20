@@ -107,13 +107,14 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-    public bool ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+    public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
         var processArguments = PrepareProcessArguments(options);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
+        var cancelled = false;
         try
         {
             processResult = Process(processArguments, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -124,18 +125,21 @@ public class FFMpegArgumentProcessor
             {
                 throw;
             }
+
+            cancelled = true;
         }
 
-        return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
+        return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
-    public async Task<bool> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+    public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
         var processArguments = PrepareProcessArguments(options);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
+        var cancelled = false;
         try
         {
             processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
@@ -146,9 +150,11 @@ public class FFMpegArgumentProcessor
             {
                 throw;
             }
+
+            cancelled = true;
         }
 
-        return HandleCompletion(throwOnError, processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>());
+        return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
     private async Task<IProcessResult> Process(ProcessArguments processArguments, CancellationTokenSource cancellationTokenSource)
@@ -241,21 +247,25 @@ public class FFMpegArgumentProcessor
         _cancellationTokenRegistrations.Clear();
     }
 
-    private bool HandleCompletion(bool throwOnError, int exitCode, IReadOnlyList<string> errorData)
+    private FFMpegResult HandleCompletion(bool throwOnError, IProcessResult? processResult, bool cancelled)
     {
-        if (throwOnError && exitCode != 0)
+        var result = new FFMpegResult(processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>(), cancelled);
+        if (throwOnError && result.ExitCode != 0)
         {
-            throw new FFMpegException(FFMpegExceptionType.Process, $"ffmpeg exited with non-zero exit-code ({exitCode} - {string.Join("\n", errorData)})", null,
-                string.Join("\n", errorData));
+            var errorOutput = string.Join("\n", result.ErrorOutput);
+            throw new FFMpegException(FFMpegExceptionType.Process, $"ffmpeg exited with non-zero exit-code ({result.ExitCode} - {errorOutput})", null, errorOutput);
         }
 
-        _onPercentageProgress?.Invoke(100.0);
-        if (_totalTimespan.HasValue)
+        if (result.Success)
         {
-            _onTimeProgress?.Invoke(_totalTimespan.Value);
+            _onPercentageProgress?.Invoke(100.0);
+            if (_totalTimespan.HasValue)
+            {
+                _onTimeProgress?.Invoke(_totalTimespan.Value);
+            }
         }
 
-        return exitCode == 0;
+        return result;
     }
 
     internal FFOptions GetConfiguredOptions(FFOptions? ffOptions)
