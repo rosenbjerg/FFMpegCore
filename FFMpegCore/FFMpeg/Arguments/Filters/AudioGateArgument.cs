@@ -81,9 +81,9 @@ public class AudioGateArgument : IAudioFilterArgument
             throw new ArgumentOutOfRangeException(nameof(makeup), "Makeup Gain must be between 1 and 64");
         }
 
-        if (knee is < 1 or > 64)
+        if (knee is < 1 or > 8)
         {
-            throw new ArgumentOutOfRangeException(nameof(makeup), "Knee must be between 1 and 8");
+            throw new ArgumentOutOfRangeException(nameof(knee), "Knee must be between 1 and 8");
         }
 
         if (detection != "peak" && detection != "rms")

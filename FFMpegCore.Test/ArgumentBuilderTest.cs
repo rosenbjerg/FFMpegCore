@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using FFMpegCore.Arguments;
 using FFMpegCore.Builders.MetaData;
@@ -919,6 +920,7 @@ public class ArgumentBuilderTest
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 9001.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 65, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 0.5, "rms", "average")]
+    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 9.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "loudness", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "minimum")]
     public void Builder_AudioGate_Rejects_InvalidArguments(double levelIn, string mode, double range, double threshold, int ratio, double attack,
@@ -926,6 +928,31 @@ public class ArgumentBuilderTest
     {
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
             new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
+    }
+
+    [TestMethod]
+    public void Builder_AudioGate_ReportsTheOffendingParameter()
+    {
+        var exception = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new AudioGateArgument(knee: 9));
+
+        Assert.AreEqual("knee", exception.ParamName);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void Builder_BuildString_BlackDetect_IsCultureInvariant()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            Assert.AreEqual("d=1.5:pic_th=0.98:pix_th=0.1", new BlackDetectArgument(1.5).Value);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
     }
 
     [TestMethod]
