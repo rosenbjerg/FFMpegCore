@@ -32,7 +32,7 @@ internal class OutputTeeArgument : IOutputArgument
     {
     }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
     }
 

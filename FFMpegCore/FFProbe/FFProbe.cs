@@ -58,7 +58,7 @@ public static class FFProbe
         var streamPipeSource = new StreamPipeSource(stream);
         var pipeArgument = new InputPipeArgument(streamPipeSource);
         var instance = PrepareStreamAnalysisInstance(pipeArgument.PipePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        pipeArgument.Pre();
+        pipeArgument.Pre(ffOptions ?? GlobalFFOptions.Current);
 
         var task = instance.StartAndWaitForExitAsync();
         try
@@ -142,7 +142,7 @@ public static class FFProbe
         var streamPipeSource = new StreamPipeSource(stream);
         var pipeArgument = new InputPipeArgument(streamPipeSource);
         var instance = PrepareStreamAnalysisInstance(pipeArgument.PipePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        pipeArgument.Pre();
+        pipeArgument.Pre(ffOptions ?? GlobalFFOptions.Current);
 
         var task = instance.StartAndWaitForExitAsync(cancellationToken);
         try

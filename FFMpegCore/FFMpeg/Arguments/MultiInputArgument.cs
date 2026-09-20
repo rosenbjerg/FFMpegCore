@@ -16,7 +16,7 @@ public class MultiInputArgument : IInputArgument
 
     public MultiInputArgument(IEnumerable<string> filePaths, bool verifyExists) : this(verifyExists, filePaths) { }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
         if (VerifyExists)
         {

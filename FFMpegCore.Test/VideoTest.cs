@@ -1444,6 +1444,76 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_DemuxConcat_ResolvesRelativePaths_AgainstPerRunWorkingDirectory()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.ImageCollection + "/..") };
+
+        var result = FFMpegArguments
+            .FromDemuxConcatInput(new[] { Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video) })
+            .OutputToFile(outputFile, true, o => o.CopyChannel())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(true, options);
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(6, FFProbe.Analyse(outputFile).Duration.Seconds);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TempFileArguments_UsePerRunTemporaryFolder()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempFolder);
+        var stderr = new List<string>();
+        try
+        {
+            FFMpegArguments
+                .FromDemuxConcatInput(new[] { TestResources.Mp4Video })
+                .AddMetaData(FFMetadataBuilder.Empty().WithTitle("title"))
+                .OutputToFile(outputFile, true, o => o.CopyChannel())
+                .NotifyOnError(stderr.Add)
+                .CancellableThrough(TestContext.CancellationToken)
+                .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder });
+
+            Assert.IsTrue(stderr.Any(line => line.Contains("concat_") && line.Contains(tempFolder)), string.Join("\n", stderr));
+            Assert.IsTrue(stderr.Any(line => line.Contains("metadata_") && line.Contains(tempFolder)), string.Join("\n", stderr));
+            Assert.IsEmpty(Directory.GetFileSystemEntries(tempFolder));
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, true);
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ImageSequence_UsesPerRunTemporaryFolder()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempFolder);
+        var stderr = new List<string>();
+        try
+        {
+            var images = Directory.GetFiles(TestResources.ImageCollection).OrderBy(image => image).ToArray();
+            FFMpeg.JoinImageSequence(outputFile, 10, images)
+                .NotifyOnError(stderr.Add)
+                .CancellableThrough(TestContext.CancellationToken)
+                .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder });
+
+            Assert.IsTrue(stderr.Any(line => line.Contains(tempFolder)), string.Join("\n", stderr));
+            Assert.IsEmpty(Directory.GetFileSystemEntries(tempFolder));
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, true);
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TeeOutput_WritesEveryTarget()
     {
         using var first = new TemporaryFile("tee'first.mp4");

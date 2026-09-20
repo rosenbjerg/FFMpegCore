@@ -712,7 +712,7 @@ public class ArgumentBuilderTest
         try
         {
             // Act & Assert
-            argument.Pre(); // No exception should be thrown
+            argument.Pre(new FFOptions()); // No exception should be thrown
         }
         finally
         {
@@ -733,7 +733,7 @@ public class ArgumentBuilderTest
         try
         {
             // Act & Assert
-            Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre());
+            Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre(new FFOptions()));
         }
         finally
         {
@@ -749,7 +749,7 @@ public class ArgumentBuilderTest
         var filePaths = new List<string> { "file1.mp4", "file2.mp4", "file3.mp4" };
         var argument = new MultiInputArgument(true, filePaths);
         // Act & Assert
-        Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre());
+        Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre(new FFOptions()));
     }
 
     [TestMethod]

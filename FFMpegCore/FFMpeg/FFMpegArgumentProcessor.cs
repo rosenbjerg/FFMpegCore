@@ -110,14 +110,13 @@ public class FFMpegArgumentProcessor
     public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
-        var processArguments = PrepareProcessArguments(options);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         var cancelled = false;
         try
         {
-            processResult = Process(processArguments, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
+            processResult = Process(options, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         catch (OperationCanceledException)
         {
@@ -135,14 +134,13 @@ public class FFMpegArgumentProcessor
     public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
     {
         var options = GetConfiguredOptions(ffMpegOptions);
-        var processArguments = PrepareProcessArguments(options);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
         var cancelled = false;
         try
         {
-            processResult = await Process(processArguments, cancellationTokenSource).ConfigureAwait(false);
+            processResult = await Process(options, cancellationTokenSource).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -157,7 +155,7 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
-    private async Task<IProcessResult> Process(ProcessArguments processArguments, CancellationTokenSource cancellationTokenSource)
+    private async Task<IProcessResult> Process(FFOptions options, CancellationTokenSource cancellationTokenSource)
     {
         IProcessResult processResult = null!;
         if (_cancelled)
@@ -166,74 +164,82 @@ public class FFMpegArgumentProcessor
             throw new OperationCanceledException("cancelled before starting processing");
         }
 
-        _ffMpegArguments.Pre();
-
-        using var instance = processArguments.Start();
-
-        void OnCancelEvent(object sender, int timeout)
-        {
-            ExecuteIgnoringFinishedProcessExceptions(() => instance.SendInput("q"));
-
-            if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
-            {
-                cancellationTokenSource.Cancel();
-                ExecuteIgnoringFinishedProcessExceptions(() => instance.Kill());
-            }
-
-            static void ExecuteIgnoringFinishedProcessExceptions(Action action)
-            {
-                try
-                {
-                    action();
-                }
-                catch (Instances.Exceptions.InstanceProcessAlreadyExitedException)
-                {
-                    //ignore
-                }
-                catch (ObjectDisposedException)
-                {
-                    //ignore
-                }
-            }
-        }
-
-        CancelEvent += OnCancelEvent;
-
+        FFMpegHelper.VerifyFFMpegExists(options);
+        _ffMpegArguments.Pre(options);
         try
         {
-            var during = _ffMpegArguments.During(cancellationTokenSource.Token);
-            var exit = instance.WaitForExitAsync().ContinueWith(t =>
-            {
-                processResult = t.Result;
-                cancellationTokenSource.Cancel();
-            });
-
-            try
-            {
-                await Task.WhenAll(exit, during).ConfigureAwait(false);
-            }
-            catch (Exception) when (exit.Status == TaskStatus.RanToCompletion && processResult.ExitCode != 0)
-            {
-                // ffmpeg failed; its exit code and stderr are the error, not the pipe it left broken
-            }
-            finally
-            {
-                // Post() disposes what During() is still using; it must not run concurrently with it
-                _ffMpegArguments.Post();
-            }
-
-            if (_cancelled)
-            {
-                DisposeCancellationRegistrations();
-                throw new OperationCanceledException("ffmpeg processing was cancelled");
-            }
-
-            return processResult;
+            return await Run().ConfigureAwait(false);
         }
         finally
         {
-            CancelEvent -= OnCancelEvent;
-            DisposeCancellationRegistrations();
+            // Post() disposes what During() is still using; it runs once the run, and therefore During(), is over
+            _ffMpegArguments.Post();
+        }
+
+        async Task<IProcessResult> Run()
+        {
+            using var instance = PrepareProcessArguments(options).Start();
+
+            void OnCancelEvent(object sender, int timeout)
+            {
+                ExecuteIgnoringFinishedProcessExceptions(() => instance.SendInput("q"));
+
+                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                {
+                    cancellationTokenSource.Cancel();
+                    ExecuteIgnoringFinishedProcessExceptions(() => instance.Kill());
+                }
+
+                static void ExecuteIgnoringFinishedProcessExceptions(Action action)
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch (Instances.Exceptions.InstanceProcessAlreadyExitedException)
+                    {
+                        //ignore
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        //ignore
+                    }
+                }
+            }
+
+            CancelEvent += OnCancelEvent;
+
+            try
+            {
+                var during = _ffMpegArguments.During(cancellationTokenSource.Token);
+                var exit = instance.WaitForExitAsync().ContinueWith(t =>
+                {
+                    processResult = t.Result;
+                    cancellationTokenSource.Cancel();
+                });
+
+                try
+                {
+                    await Task.WhenAll(exit, during).ConfigureAwait(false);
+                }
+                catch (Exception) when (exit.Status == TaskStatus.RanToCompletion && processResult.ExitCode != 0)
+                {
+                    // ffmpeg failed; its exit code and stderr are the error, not the pipe it left broken
+                }
+
+                if (_cancelled)
+                {
+                    DisposeCancellationRegistrations();
+                    throw new OperationCanceledException("ffmpeg processing was cancelled");
+                }
+
+                return processResult;
+            }
+            finally
+            {
+                CancelEvent -= OnCancelEvent;
+                DisposeCancellationRegistrations();
+            }
         }
     }
 
@@ -282,8 +288,6 @@ public class FFMpegArgumentProcessor
 
     private ProcessArguments PrepareProcessArguments(FFOptions ffOptions)
     {
-        FFMpegHelper.VerifyFFMpegExists(ffOptions);
-
         var arguments = _ffMpegArguments.Text;
 
         var logLevel = _logLevel ?? ffOptions.LogLevel;

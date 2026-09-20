@@ -4,7 +4,7 @@ public class ImageSequenceInputArgument : IInputArgument
 {
     private readonly string _extension;
     private readonly string[] _images;
-    private readonly string _tempFolder = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, Guid.NewGuid().ToString());
+    private string? _tempFolder;
 
     public ImageSequenceInputArgument(IEnumerable<string> images)
     {
@@ -18,10 +18,13 @@ public class ImageSequenceInputArgument : IInputArgument
         _extension = extensions[0];
     }
 
-    public string Text => $"-i \"{Path.Combine(_tempFolder, $"%09d{_extension}")}\"";
+    private string TempFolder => _tempFolder ??= TempFolderIn(GlobalFFOptions.Current);
 
-    public void Pre()
+    public string Text => $"-i \"{Path.Combine(TempFolder, $"%09d{_extension}")}\"";
+
+    public void Pre(FFOptions options)
     {
+        _tempFolder = TempFolderIn(options);
         Directory.CreateDirectory(_tempFolder);
         for (var index = 0; index < _images.Length; index++)
         {
@@ -36,6 +39,11 @@ public class ImageSequenceInputArgument : IInputArgument
 
     public void Post()
     {
-        Directory.Delete(_tempFolder, true);
+        Directory.Delete(TempFolder, true);
+    }
+
+    private static string TempFolderIn(FFOptions options)
+    {
+        return Path.Combine(options.TemporaryFilesFolder, Guid.NewGuid().ToString());
     }
 }

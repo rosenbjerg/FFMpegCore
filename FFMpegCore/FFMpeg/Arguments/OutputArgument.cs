@@ -20,7 +20,7 @@ public class OutputArgument : IOutputArgument
 
     public OutputArgument(Uri value) : this(value.AbsolutePath) { }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
         if (!Overwrite && File.Exists(Path))
         {

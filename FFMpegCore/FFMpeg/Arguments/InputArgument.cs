@@ -16,7 +16,7 @@ public class InputArgument : IInputArgument
 
     public InputArgument(string path, bool verifyExists) : this(verifyExists, path) { }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
         if (VerifyExists && !File.Exists(FilePath))
         {

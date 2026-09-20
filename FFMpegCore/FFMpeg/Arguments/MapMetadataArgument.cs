@@ -46,7 +46,7 @@ public class MapMetadataArgument : IInputArgument, IDynamicArgument
     {
     }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
     }
 }

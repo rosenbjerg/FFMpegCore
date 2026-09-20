@@ -1,21 +1,26 @@
 ﻿namespace FFMpegCore.Arguments;
 
-/// <summary>
-///     Represents parameter of concat argument
-///     Used for creating video from multiple images or videos
-/// </summary>
 public class DemuxConcatArgument : IInputArgument
 {
-    private readonly string _tempFileName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"concat_{Guid.NewGuid()}.txt");
-    public readonly IEnumerable<string> Values;
+    private readonly string[] _values;
+    private FFOptions? _options;
+    private string? _tempFileName;
 
     public DemuxConcatArgument(IEnumerable<string> values)
     {
-        Values = values.Select(value => $"file '{Escape(Resolve(value))}'");
+        _values = values.ToArray();
     }
 
-    public void Pre()
+    public IEnumerable<string> Values => _values.Select(value => $"file '{Escape(Resolve(value, (_options ?? GlobalFFOptions.Current).WorkingDirectory))}'");
+
+    private string TempFileName => _tempFileName ??= TempFileNameIn(GlobalFFOptions.Current);
+
+    public string Text => $"-f concat -safe 0 -i \"{TempFileName}\"";
+
+    public void Pre(FFOptions options)
     {
+        _options = options;
+        _tempFileName = TempFileNameIn(options);
         File.WriteAllLines(_tempFileName, Values);
     }
 
@@ -26,27 +31,24 @@ public class DemuxConcatArgument : IInputArgument
 
     public void Post()
     {
-        File.Delete(_tempFileName);
+        File.Delete(TempFileName);
     }
 
-    public string Text => $"-f concat -safe 0 -i \"{_tempFileName}\"";
+    private static string TempFileNameIn(FFOptions options)
+    {
+        return Path.Combine(options.TemporaryFilesFolder, $"concat_{Guid.NewGuid()}.txt");
+    }
 
-    /// <summary>
-    ///     Thanks slhck
-    ///     https://superuser.com/a/787651/1089628
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    private string Escape(string value)
+    private static string Escape(string value)
     {
         return value.Replace("'", @"'\''");
     }
 
     // The concat demuxer resolves relative entries against the list file, which lives in TemporaryFilesFolder
-    private static string Resolve(string value)
+    private static string Resolve(string value, string workingDirectory)
     {
         return Uri.TryCreate(value, UriKind.Absolute, out _)
             ? value
-            : Path.GetFullPath(Path.Combine(GlobalFFOptions.Current.WorkingDirectory, value));
+            : Path.GetFullPath(Path.Combine(workingDirectory, value));
     }
 }

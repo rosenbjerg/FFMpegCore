@@ -13,7 +13,7 @@ public class ConcatArgument : IInputArgument
         Values = values;
     }
 
-    public void Pre() { }
+    public void Pre(FFOptions options) { }
 
     public Task During(CancellationToken cancellationToken = default)
     {

@@ -3,7 +3,7 @@
 public class MetaDataArgument : IInputArgument, IDynamicArgument
 {
     private readonly string _metaDataContent;
-    private readonly string _tempFileName = Path.Combine(GlobalFFOptions.Current.TemporaryFilesFolder, $"metadata_{Guid.NewGuid()}.txt");
+    private string? _tempFileName;
 
     public MetaDataArgument(string metaDataContent)
     {
@@ -19,7 +19,7 @@ public class MetaDataArgument : IInputArgument, IDynamicArgument
             .OfType<IInputArgument>()
             .Count();
 
-        return $"-i \"{_tempFileName}\" -map_metadata {index}";
+        return $"-i \"{TempFileName}\" -map_metadata {index}";
     }
 
     public string Text => GetText(null);
@@ -29,13 +29,21 @@ public class MetaDataArgument : IInputArgument, IDynamicArgument
         return Task.CompletedTask;
     }
 
-    public void Pre()
+    private string TempFileName => _tempFileName ??= TempFileNameIn(GlobalFFOptions.Current);
+
+    public void Pre(FFOptions options)
     {
+        _tempFileName = TempFileNameIn(options);
         File.WriteAllText(_tempFileName, _metaDataContent);
     }
 
     public void Post()
     {
-        File.Delete(_tempFileName);
+        File.Delete(TempFileName);
+    }
+
+    private static string TempFileNameIn(FFOptions options)
+    {
+        return Path.Combine(options.TemporaryFilesFolder, $"metadata_{Guid.NewGuid()}.txt");
     }
 }

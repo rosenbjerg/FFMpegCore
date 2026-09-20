@@ -17,7 +17,7 @@ public class InputDeviceArgument : IInputArgument
         return Task.CompletedTask;
     }
 
-    public void Pre() { }
+    public void Pre(FFOptions options) { }
 
     public void Post() { }
 

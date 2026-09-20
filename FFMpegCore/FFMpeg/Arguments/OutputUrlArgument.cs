@@ -20,7 +20,7 @@ public class OutputUrlArgument : IOutputArgument
         return Task.CompletedTask;
     }
 
-    public void Pre() { }
+    public void Pre(FFOptions options) { }
 
     public string Text => Url;
 }

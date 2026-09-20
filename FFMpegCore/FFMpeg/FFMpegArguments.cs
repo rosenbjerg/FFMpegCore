@@ -182,11 +182,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArgumentProcessor(this);
     }
 
-    internal void Pre()
+    internal void Pre(FFOptions options)
     {
         foreach (var argument in Arguments.OfType<IInputOutputArgument>())
         {
-            argument.Pre();
+            argument.Pre(options);
         }
     }
 
