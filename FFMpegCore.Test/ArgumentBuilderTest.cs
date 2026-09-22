@@ -1183,7 +1183,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_AddMetaData_FromBuilder()
     {
-        var metaData = FFMetadataBuilder.Empty().WithTitle("Title");
+        var metaData = new FFMetadataBuilder().WithTitle("Title");
         var str = FFMpegArguments.FromFileInput("input.mp4").AddMetadata(metaData).OutputToFile("output.mp4", false).Arguments;
 
         StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -map_metadata 1 \"output.mp4\"$"));

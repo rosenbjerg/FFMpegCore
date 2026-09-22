@@ -7,13 +7,13 @@ public class FFMetadataBuilderTests
 {
     private static string[] Lines(FFMetadataBuilder builder)
     {
-        return builder.GetMetadataFileContent().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        return builder.Build().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
     }
 
     [TestMethod]
     public void NamedTags_SerializeToFFMetadataKeys()
     {
-        var lines = Lines(FFMetadataBuilder.Empty()
+        var lines = Lines(new FFMetadataBuilder()
             .WithMajorBrand("M4A")
             .WithMinorVersion("512")
             .WithCompatibleBrands("M4A isomiso2")
@@ -50,7 +50,7 @@ public class FFMetadataBuilderTests
     [TestMethod]
     public void WithTag_LastValueWins()
     {
-        var lines = Lines(FFMetadataBuilder.Empty()
+        var lines = Lines(new FFMetadataBuilder()
             .WithTag("title", "First")
             .WithTag("title", "Second"));
 
@@ -60,7 +60,7 @@ public class FFMetadataBuilderTests
     [TestMethod]
     public void WithTag_MultipleValues_AreJoined()
     {
-        var lines = Lines(FFMetadataBuilder.Empty()
+        var lines = Lines(new FFMetadataBuilder()
             .WithTag("artist", "A", "B")
             .WithTag("genre", new List<string> { "C", "D" }));
 
@@ -70,7 +70,7 @@ public class FFMetadataBuilderTests
     [TestMethod]
     public void SequentialChapters_StartWhereThePreviousEnded()
     {
-        var lines = Lines(FFMetadataBuilder.Empty()
+        var lines = Lines(new FFMetadataBuilder()
             .WithChapter("One", TimeSpan.FromSeconds(10))
             .WithChapter("Two", 5_000L)
             .WithChapter("Three", 1.5)
@@ -90,7 +90,7 @@ public class FFMetadataBuilderTests
     [TestMethod]
     public void ExplicitChapters_KeepTheirTimes_AndGetDefaultTitles()
     {
-        var lines = Lines(FFMetadataBuilder.Empty()
+        var lines = Lines(new FFMetadataBuilder()
             .WithChapter("", TimeSpan.FromSeconds(100), TimeSpan.FromSeconds(110))
             .WithChapter(new ChapterData("From probe", TimeSpan.FromSeconds(1.5), TimeSpan.FromSeconds(3)))
             .WithChapter("After explicit", TimeSpan.FromSeconds(1)));

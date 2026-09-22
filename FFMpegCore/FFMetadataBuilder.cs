@@ -7,11 +7,6 @@ public class FFMetadataBuilder
     private readonly List<ChapterData> _chapters = new();
     private readonly Dictionary<string, string> _tags = new();
 
-    public static FFMetadataBuilder Empty()
-    {
-        return new FFMetadataBuilder();
-    }
-
     public FFMetadataBuilder WithTag(string key, string value)
     {
         _tags[key] = value;
@@ -156,7 +151,7 @@ public class FFMetadataBuilder
         return this;
     }
 
-    public string GetMetadataFileContent()
+    public string Build()
     {
         var sb = new StringBuilder();
         sb.AppendLine(";FFMETADATA1");

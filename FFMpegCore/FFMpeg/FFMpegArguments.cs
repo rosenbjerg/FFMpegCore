@@ -114,7 +114,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArguments AddMetadata(FFMetadataBuilder metaDataBuilder, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new MetaDataArgument(metaDataBuilder.GetMetadataFileContent()), addArguments);
+        return WithInput(new MetaDataArgument(metaDataBuilder.Build()), addArguments);
     }
 
     /// <summary>

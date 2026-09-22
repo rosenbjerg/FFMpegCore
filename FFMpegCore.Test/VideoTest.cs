@@ -89,7 +89,7 @@ public class VideoTest
 
         await FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
-            .AddMetadata(FFMetadataBuilder.Empty()
+            .AddMetadata(new FFMetadataBuilder()
                 .WithTag("title", "noname")
                 .WithTag("artist", "unknown")
                 .WithChapter("Chapter 1", 1.1)
@@ -1469,7 +1469,7 @@ public class VideoTest
         {
             FFMpegArguments
                 .FromDemuxConcatInput(new[] { TestResources.Mp4Video })
-                .AddMetadata(FFMetadataBuilder.Empty().WithTitle("title"))
+                .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
                 .OutputToFile(outputFile, true, o => o.CopyStreams())
                 .NotifyOnError(stderr.Add)
                 .CancellableThrough(TestContext.CancellationToken)
