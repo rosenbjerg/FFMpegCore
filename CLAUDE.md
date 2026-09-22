@@ -56,7 +56,7 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 - `ProcessSynchronously`/`ProcessAsynchronously` return an `FFMpegResult` (`ExitCode`, `ErrorOutput` = stderr lines, `Cancelled`, `Success`). With the default `throwOnError: true` a non-zero exit throws `FFMpegException` and a cancel throws `OperationCanceledException`; with `false` the result carries what happened instead.
 - Cancellation: `CancellableThrough` sends `q` to ffmpeg's stdin, then kills after `timeout` ms. Tokens are registered per run, so a processor can be run again; a token that has already fired cancels every later run before it starts.
 - Progress: `NotifyOnProgress` reports the parsed `time=` as `TimeSpan`; `NotifyOnPercentageProgress` needs the output duration — pass it, or omit it after an `FFMpeg.*` helper that already probed the input (`Convert`, `Mute`, `ReplaceAudio`, `SubVideo`, `Join`, `JoinImageSequence` call the internal `WithKnownDuration`). Both have `Action` and `IProgress<T>` overloads; the names differ on purpose, because `Action<double>` and `Action<TimeSpan>` overloads of one name make every untyped lambda ambiguous.
-- `FFMpegMultiOutputOptions` / `OutputToTee` support multiple outputs from one input.
+- `OutputToMany` (ffmpeg's own repeated outputs) and `OutputToTee` (the `tee` muxer, one encode fanned out) both take an `FFMpegMultiOutputOptions` and support multiple outputs from one input.
 
 ### FFProbe
 

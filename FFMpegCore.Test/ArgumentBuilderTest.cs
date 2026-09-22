@@ -641,10 +641,10 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_MultiOutput()
+    public void Builder_BuildString_OutputToMany()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .MultiOutput(args => args
+            .OutputToMany(args => args
                 .OutputToFile("output.mp4", true, args => args.CopyStreams())
                 .OutputToFile("output.ts", false, args => args.CopyStreams().ForceFormat("mpegts"))
                 .OutputToUrl("http://server/path", options => options.ForceFormat("webm")))
@@ -656,7 +656,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_MBROutput()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .MultiOutput(args => args
+            .OutputToMany(args => args
                 .OutputToFile("sd.mp4", true, args => args.WithVideoFilters(filters => filters.Scale(1200, 720)))
                 .OutputToFile("hd.mp4", false, args => args.WithVideoFilters(filters => filters.Scale(1920, 1080))))
             .Arguments;
@@ -1244,11 +1244,11 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_MultiOutput_UrlAndPipe()
+    public void Builder_BuildString_OutputToMany_UrlAndPipe()
     {
         var sink = new StreamPipeSink(Stream.Null);
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .MultiOutput(outputs => outputs
+            .OutputToMany(outputs => outputs
                 .OutputToUrl(new Uri("rtmp://example.com/live"), options => options.ForceFormat("flv"))
                 .OutputToPipe(sink, options => options.ForceFormat("mpegts")))
             .Arguments;

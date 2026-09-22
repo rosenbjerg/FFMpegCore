@@ -171,7 +171,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return ToProcessor(new OutputTeeArgument(outputs), addArguments);
     }
 
-    public FFMpegArgumentProcessor MultiOutput(Action<FFMpegMultiOutputOptions> addOutputs)
+    public FFMpegArgumentProcessor OutputToMany(Action<FFMpegMultiOutputOptions> addOutputs)
     {
         var args = new FFMpegMultiOutputOptions();
         addOutputs(args);
