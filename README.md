@@ -11,6 +11,9 @@
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both
 synchronous and asynchronous calls
 
+> **Upgrading from 5.x?** Version 6.0 renames most option methods after the ffmpeg options they emit and splits input from output options.
+> [MIGRATION.md](MIGRATION.md) lists every breaking change and its replacement.
+
 # API
 
 ## FFProbe
@@ -26,6 +29,9 @@ or
 ```csharp
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
+
+A missing input throws `FFProbeException`, and a non-zero exit throws `FFProbeProcessException`, which carries the captured stderr lines in
+`ErrorOutput`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
 
 ## FFMpeg
 
@@ -58,6 +64,114 @@ await FFMpegArguments
         .ForceFormat("webm"))
     .ProcessAsynchronously();
 ```
+
+### Input options and output options
+
+Options given to an input land before that input's `-i`, and options given to an output land before the output path — which is what ffmpeg
+requires, and what decides their meaning. The two sides therefore have their own types, `FFMpegInputOptions` and `FFMpegOutputOptions`, each
+offering only what ffmpeg accepts there: `WithVideoDecoder` selects a decoder on an input, while `WithVideoCodec` selects an encoder on an
+output, and `-y` or `-map` are output-only. Options that are valid on both sides, such as `-ss` and `-t`, appear on both.
+
+Seeking on the input is fast, because ffmpeg skips ahead before decoding:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath, true, options => options
+        .WithStartTime(TimeSpan.FromSeconds(10))
+        .WithDuration(TimeSpan.FromSeconds(30)))
+    .OutputToFile(outputPath, true, options => options
+        .CopyStreams())
+    .ProcessSynchronously();
+```
+
+Each option method's summary names the ffmpeg option it emits, so searching your IDE for `-ss` finds `WithStartTime`.
+
+### Reading the result
+
+`ProcessSynchronously()` and `ProcessAsynchronously()` return an `FFMpegResult` describing the run:
+
+```csharp
+var result = FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath)
+    .ProcessSynchronously(throwOnError: false);
+
+if (!result.Success)
+{
+    Console.Error.WriteLine($"ffmpeg exited with {result.ExitCode}");
+    Console.Error.WriteLine(string.Join("\n", result.ErrorOutput));
+}
+```
+
+By default (`throwOnError: true`) a non-zero exit throws `FFMpegException` and a cancellation throws `OperationCanceledException`. Pass
+`false` and the result reports what happened instead, through `ExitCode`, `ErrorOutput`, `Cancelled` and `Success`.
+
+### Progress and cancellation
+
+`NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage, which needs the output
+duration — pass it explicitly, or omit it after an `FFMpeg.*` helper that already probed the input. Both take an `Action<T>` or an
+`IProgress<T>`:
+
+```csharp
+await FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath)
+    .NotifyOnProgress(time => Console.WriteLine($"at {time}"))
+    .NotifyOnPercentageProgress(percent => Console.WriteLine($"{percent}%"), mediaInfo.Duration)
+    .CancellableThrough(cancellationToken)
+    .ProcessAsynchronously();
+```
+
+`CancellableThrough` sends `q` to ffmpeg so it finalises the output, then kills the process after the optional timeout. It also accepts an
+`out Action` if you would rather cancel by calling it. Tokens are registered per run, so the same processor can be run more than once.
+
+### Multiple outputs
+
+`OutputToMany` writes several outputs from one input using ffmpeg's own repeated outputs, which encodes once per output:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToMany(outputs => outputs
+        .OutputToFile("sd.mp4", true, options => options.WithVideoFilters(f => f.Scale(1280, 720)))
+        .OutputToFile("hd.mp4", true, options => options.WithVideoFilters(f => f.Scale(1920, 1080))))
+    .ProcessSynchronously();
+```
+
+`OutputToTee` instead encodes once and fans the result out through ffmpeg's `tee` muxer, which is cheaper but requires every target to accept
+the same encoded streams:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToTee(outputs => outputs
+        .OutputToFile("recording.mp4")
+        .OutputToUrl("rtmp://example.com/live/key", options => options.ForceFormat("flv")),
+        options => options.CopyStreams())
+    .ProcessSynchronously();
+```
+
+### Metadata
+
+`FFMetadataBuilder` builds the ffmetadata document that `AddMetadata` passes to ffmpeg:
+
+```csharp
+var metadata = new FFMetadataBuilder()
+    .WithTitle("Interview")
+    .WithArtists("Some Artist")
+    .WithChapter("Introduction", TimeSpan.FromMinutes(2))
+    .WithChapter("Main topic", TimeSpan.FromMinutes(25));
+
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .AddMetadata(metadata)
+    .OutputToFile(outputPath, true, options => options.CopyStreams())
+    .ProcessSynchronously();
+```
+
+A chapter given a single `TimeSpan` is a duration, and starts where the previous one ended; the overload taking two starts and ends it
+explicitly. Chapters are `ChapterData`, the same type `IMediaAnalysis.Chapters` returns, so chapters read from one file can be fed straight
+into another. Call `Build()` if you want the document text itself.
 
 ## Helper methods
 
@@ -122,6 +236,23 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
     @"..\3.png"
 ).ProcessSynchronously();
 ```
+
+### Convert a video to another format:
+
+```csharp
+FFMpeg.Convert(inputPath, @"..\output.webm", VideoType.WebM).ProcessSynchronously();
+
+// scale down, and encode across every processor rather than on a single thread
+FFMpeg.Convert(inputPath, @"..\output.mp4", VideoType.Mp4,
+    speed: Speed.Medium,
+    size: VideoSize.Hd,
+    audioQuality: AudioQuality.Good,
+    multithreaded: true
+).ProcessSynchronously();
+```
+
+`Convert` supports the `mp4`, `ogv`, `mpegts` and `webm` container formats, and picks a codec pairing for each. For anything else, build the
+arguments yourself with `FFMpegArguments`.
 
 ### Mute the audio of a video file:
 
@@ -297,6 +428,4 @@ ffmpeg `8.1`.
 
 ### License
 
-Copyright © 2023
-
-Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/main/LICENSE)
+Released under the [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/main/LICENSE), which carries the copyright notice.
