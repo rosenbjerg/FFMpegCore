@@ -43,7 +43,7 @@ public static class FFMpeg
         if (!extensions.Contains(Path.GetExtension(output).ToLower()))
         {
             throw new ArgumentException(
-                $"Invalid snapshot output extension: {output}, needed: {string.Join(",", FileExtension.Image.All)}");
+                $"Invalid snapshot output extension: {output}, needed: {string.Join(",", extensions)}");
         }
     }
 

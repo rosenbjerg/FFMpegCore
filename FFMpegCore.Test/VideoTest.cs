@@ -705,19 +705,19 @@ public class VideoTest
     }
 
     [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Snapshot_Exception_PersistSnapshot()
+    public void Video_Snapshot_RejectsNonImageExtension()
     {
-        using var outputPath = new TemporaryFile("out.asd");
+        var exception = Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.Snapshot(TestResources.Mp4Video, "out.asd"));
 
-        try
-        {
-            FFMpeg.Snapshot(TestResources.Mp4Video, outputPath).ProcessSynchronously();
-        }
-        catch (Exception ex)
-        {
-            Assert.IsTrue(ex is ArgumentException);
-        }
+        Assert.Contains("needed: .png,.jpg,.bmp,.webp", exception.Message);
+    }
+
+    [TestMethod]
+    public void Video_GifSnapshot_RejectsNonGifExtension()
+    {
+        var exception = Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.GifSnapshot(TestResources.Mp4Video, "out.png"));
+
+        Assert.Contains("needed: .gif", exception.Message);
     }
 
     [TestMethod]
