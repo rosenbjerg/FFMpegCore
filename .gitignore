@@ -340,4 +340,7 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
+# XDG data dir, created by dotnet when HOME is redirected into the repo
+.local/
+
 !FFMpegCore/FFMPEG/bin/**/*
