@@ -1,4 +1,5 @@
 ﻿using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -9,14 +10,14 @@ public class BitstreamFilterArgument : IArgument
 
     public BitstreamFilterArgument(StreamType streamType, BitstreamFilter filter)
     {
+        if (streamType is not (StreamType.Audio or StreamType.Video))
+        {
+            throw new FFMpegException(FFMpegExceptionType.Operation, $"{streamType} streams cannot be bitstream-filtered");
+        }
+
         StreamType = streamType;
         Filter = filter;
     }
 
-    public string Text => StreamType switch
-    {
-        StreamType.Audio => $"-bsf:a {Filter.ToString().ToLowerInvariant()}",
-        StreamType.Video => $"-bsf:v {Filter.ToString().ToLowerInvariant()}",
-        _ => string.Empty
-    };
+    public string Text => $"-bsf{StreamType.Specifier()} {Filter.ToString().ToLowerInvariant()}";
 }

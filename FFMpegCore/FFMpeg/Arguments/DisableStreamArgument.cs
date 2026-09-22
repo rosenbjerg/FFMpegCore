@@ -9,20 +9,16 @@ public class DisableStreamArgument : IArgument
 
     public DisableStreamArgument(StreamType streamType)
     {
-        if (streamType is StreamType.All or StreamType.Attachments or StreamType.VideoNoAttachedPic)
-        {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"{streamType} streams cannot be disabled");
-        }
-
         StreamType = streamType;
+        Text = streamType switch
+        {
+            StreamType.Video => "-vn",
+            StreamType.Audio => "-an",
+            StreamType.Subtitle => "-sn",
+            StreamType.Data => "-dn",
+            _ => throw new FFMpegException(FFMpegExceptionType.Operation, $"{streamType} streams cannot be disabled")
+        };
     }
 
-    public string Text => StreamType switch
-    {
-        StreamType.Video => "-vn",
-        StreamType.Audio => "-an",
-        StreamType.Subtitle => "-sn",
-        StreamType.Data => "-dn",
-        _ => string.Empty
-    };
+    public string Text { get; }
 }

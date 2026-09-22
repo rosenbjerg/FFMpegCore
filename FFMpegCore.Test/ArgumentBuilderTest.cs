@@ -66,6 +66,17 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    [DataRow(StreamType.All)]
+    [DataRow(StreamType.Attachments)]
+    [DataRow(StreamType.VideoNoAttachedPic)]
+    [DataRow(StreamType.Subtitle)]
+    [DataRow(StreamType.Data)]
+    public void BitstreamFilter_RejectsStreamTypesWithoutABsfSpelling(StreamType streamType)
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtstoAsc));
+    }
+
+    [TestMethod]
     public void Builder_BuildString_HardwareAcceleration_Auto()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration())
