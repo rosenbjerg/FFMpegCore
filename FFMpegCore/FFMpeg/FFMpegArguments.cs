@@ -102,6 +102,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new InputPipeArgument(sourcePipe), addArguments);
     }
 
+    public FFMpegArguments AddImageSequenceInput(IEnumerable<string> images, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return WithInput(new ImageSequenceInputArgument(images), addArguments);
+    }
+
     public FFMpegArguments AddMetadata(string content, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MetaDataArgument(content), addArguments);

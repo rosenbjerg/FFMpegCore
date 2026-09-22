@@ -1149,6 +1149,17 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_AddImageSequenceInput()
+    {
+        var str = FFMpegArguments.FromFileInput("first.mp4")
+            .AddImageSequenceInput(["1.png", "2.png"], opt => opt.WithFrameRate(10))
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \"first.mp4\" -r 10 -i \".*[0-9a-f-]+.%09d\\.png\" \"output.mp4\"$"));
+    }
+
+    [TestMethod]
     public void Builder_BuildString_OutputToUrl()
     {
         var byString = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl("rtmp://example.com/live/key").Arguments;
