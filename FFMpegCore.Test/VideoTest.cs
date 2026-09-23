@@ -1301,11 +1301,11 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_SubVideo()
+    public void Video_Trim()
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)).ProcessSynchronously();
+        var success = FFMpeg.Trim(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)).ProcessSynchronously();
         Assert.IsTrue(success.Success);
 
         var analysis = FFProbe.Analyse(outputFile);
@@ -1314,11 +1314,11 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public async Task Video_SubVideo_Async()
+    public async Task Video_Trim_Async()
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = await FFMpeg.SubVideo(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2))
+        var success = await FFMpeg.Trim(TestResources.Mp4Video, outputFile, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success.Success);
@@ -1329,22 +1329,16 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_SubVideo_KeepsInputExtension()
+    public void Video_Trim_WritesTheRequestedOutput()
     {
         using var requestedOutput = new TemporaryFile("out.mkv");
-        var actualOutput = Path.ChangeExtension(requestedOutput, ".mp4");
-        try
-        {
-            var success = FFMpeg.SubVideo(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1)).ProcessSynchronously();
+        var mp4 = Path.ChangeExtension(requestedOutput, ".mp4");
 
-            Assert.IsTrue(success.Success);
-            Assert.IsFalse(File.Exists(requestedOutput));
-            Assert.IsTrue(File.Exists(actualOutput));
-        }
-        finally
-        {
-            File.Delete(actualOutput);
-        }
+        var success = FFMpeg.Trim(TestResources.Mp4Video, requestedOutput, TimeSpan.Zero, TimeSpan.FromSeconds(1)).ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        Assert.IsTrue(File.Exists(requestedOutput));
+        Assert.IsFalse(File.Exists(mp4));
     }
 
     [TestMethod]

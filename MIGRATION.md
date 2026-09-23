@@ -19,7 +19,7 @@ await FFMpeg.SubVideoAsync(inputPath, outputPath, start, end);
 
 // 6.0 — returns a processor, which you then run
 FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
-await FFMpeg.SubVideo(inputPath, outputPath, start, end).ProcessAsynchronously();
+await FFMpeg.Trim(inputPath, outputPath, start, end).ProcessAsynchronously();
 ```
 
 ## Removed and renamed helpers
@@ -59,6 +59,20 @@ dropped; it now maps and copies every stream and disables audio alone.
 FFMpeg.Mute(inputPath, outputPath);        // 5.x / early 6.0
 FFMpeg.RemoveAudio(inputPath, outputPath); // 6.0
 ```
+
+### `FFMpeg.SubVideo` is `FFMpeg.Trim`, and honours the output path you give it
+
+"Sub video" read as subtitles; it cuts a section out. More importantly, it used to rewrite the output's extension to match the input's, so
+asking for `out.mkv` silently produced `out.mp4` — and since the helper returns a processor rather than a path, there was no way to learn
+where the file had gone. It now writes exactly the path you passed.
+
+```csharp
+FFMpeg.SubVideo(inputPath, "out.mkv", start, end); // 5.x / early 6.0 — wrote out.mp4
+FFMpeg.Trim(inputPath, "out.mkv", start, end);     // 6.0 — writes out.mkv
+```
+
+Because it still copies the streams, a container that cannot mux them now fails the run instead of being quietly swapped out. Pick a
+container that can, or re-encode with `FFMpegArguments`.
 
 ## Input and output options were split
 

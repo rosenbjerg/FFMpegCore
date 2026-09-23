@@ -236,15 +236,18 @@ FFMpeg.Join(@"..\joined_video.mp4",
 ).ProcessSynchronously();
 ```
 
-### Create a sub video
+### Cut a section out of a video
 
-``` csharp
-FFMpeg.SubVideo(inputPath,
+```csharp
+FFMpeg.Trim(inputPath,
     outputPath,
     TimeSpan.FromSeconds(0),
     TimeSpan.FromSeconds(30)
 ).ProcessSynchronously();
 ```
+
+`Trim` copies the streams rather than re-encoding, so the output container has to be able to mux them as they are — cutting an h264/aac mp4
+into a `.mkv` is fine, into a `.webm` is not, and ffmpeg says so.
 
 ### Join images into a video:
 

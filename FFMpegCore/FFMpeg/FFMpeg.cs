@@ -155,13 +155,16 @@ public static class FFMpeg
             .WithOptions(ffOptions);
     }
 
-    public static FFMpegArgumentProcessor SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime, FFOptions? ffOptions = null)
+    /// <summary>
+    ///     Cuts the section between two timestamps out of a media file, copying the streams rather than re-encoding.
+    /// </summary>
+    /// <param name="input">Input media file.</param>
+    /// <param name="output">Output media file. Its container must be able to mux the input's streams as they are.</param>
+    /// <param name="startTime">Where the section starts.</param>
+    /// <param name="endTime">Where the section ends.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Trim(string input, string output, TimeSpan startTime, TimeSpan endTime, FFOptions? ffOptions = null)
     {
-        if (Path.GetExtension(input) != Path.GetExtension(output))
-        {
-            output = Path.ChangeExtension(output, Path.GetExtension(input));
-        }
-
         return FFMpegArguments
             .FromFileInput(input, true, options => options.WithStartTime(startTime).WithStopTime(endTime))
             .OutputToFile(output, true, options => options.CopyStreams())
