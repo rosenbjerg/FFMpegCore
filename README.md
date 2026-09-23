@@ -256,10 +256,10 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
 ).ProcessSynchronously();
 ```
 
-### Mute the audio of a video file:
+### Remove the audio track of a video file:
 
 ```csharp
-FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
+FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
 ```
 
 ### Extract the audio track from a video file:
@@ -385,7 +385,7 @@ await FFMpegArguments
     .ProcessAsynchronously(true, new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 
 // the FFMpeg.* helpers take the same options, covering the ffprobe call they make before the run
-await FFMpeg.Mute(inputPath, outputPath, new FFOptions { BinaryFolder = "./bin" })
+await FFMpeg.RemoveAudio(inputPath, outputPath, new FFOptions { BinaryFolder = "./bin" })
     .ProcessAsynchronously();
 
 // or combined, setting global defaults and adapting per-run options

@@ -191,12 +191,12 @@ public static class FFMpeg
     }
 
     /// <summary>
-    ///     Strips a video file of audio.
+    ///     Strips a video file of its audio, copying every other stream.
     /// </summary>
     /// <param name="input">Input video file.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor Mute(string input, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor RemoveAudio(string input, string output, FFOptions? ffOptions = null)
     {
         var source = FFProbe.Analyse(input, ffOptions);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
@@ -204,7 +204,8 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .CopyStreams(StreamType.Video)
+                .WithMap(StreamType.All)
+                .CopyStreams()
                 .DisableAudio())
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);

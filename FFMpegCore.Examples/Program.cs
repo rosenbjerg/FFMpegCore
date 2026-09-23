@@ -64,7 +64,7 @@ var outputStream = new MemoryStream();
 }
 
 {
-    FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
+    FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
 }
 
 {

@@ -19,11 +19,13 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        FFMpeg.Mute(TestResources.Mp4Video, outputFile).ProcessSynchronously();
+        FFMpeg.RemoveAudio(TestResources.Mp4Video, outputFile).ProcessSynchronously();
+        var source = FFProbe.Analyse(TestResources.Mp4Video);
         var analysis = FFProbe.Analyse(outputFile);
 
         Assert.IsNotEmpty(analysis.VideoStreams);
         Assert.IsEmpty(analysis.AudioStreams);
+        Assert.AreEqual(source.PrimaryVideoStream!.CodecName, analysis.PrimaryVideoStream!.CodecName);
     }
 
     [TestMethod]

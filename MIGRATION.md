@@ -18,7 +18,7 @@ FFMpeg.Mute(inputPath, outputPath);
 await FFMpeg.SubVideoAsync(inputPath, outputPath, start, end);
 
 // 6.0 — returns a processor, which you then run
-FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
+FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
 await FFMpeg.SubVideo(inputPath, outputPath, start, end).ProcessAsynchronously();
 ```
 
@@ -49,6 +49,16 @@ FFMpegArguments
 ```
 
 To change container without re-encoding, use `FFMpeg.Remux`.
+
+### `FFMpeg.Mute` is `FFMpeg.RemoveAudio`
+
+It never muted anything — it drops the audio stream. It also copied only the video stream, so subtitles and data were silently re-encoded or
+dropped; it now maps and copies every stream and disables audio alone.
+
+```csharp
+FFMpeg.Mute(inputPath, outputPath);        // 5.x / early 6.0
+FFMpeg.RemoveAudio(inputPath, outputPath); // 6.0
+```
 
 ## Input and output options were split
 
@@ -125,6 +135,8 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 - `NotifyOnPercentageProgress` without a duration after an `FFMpeg.*` helper that already probed the input.
 - `CancellableThrough(CancellationToken)` registers per run, so a processor can be run more than once.
 - `FromImageSequenceInput` and `AddImageSequenceInput` for building a video from images through the argument builder.
+- `WithMap`/`WithNegativeMap` take a `StreamType` in place of a stream index, so `-map 0:a` — every audio stream of an input — is
+  expressible without probing first to count them.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
