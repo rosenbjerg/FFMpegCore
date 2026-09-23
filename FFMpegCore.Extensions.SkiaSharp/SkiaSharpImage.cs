@@ -27,8 +27,7 @@ public static class SkiaSharpImage
             .ProcessSynchronously();
 
         ms.Position = 0;
-        using var bitmap = SKBitmap.Decode(ms);
-        return bitmap.Copy();
+        return SKBitmap.Decode(ms);
     }
 
     /// <summary>

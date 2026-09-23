@@ -55,6 +55,7 @@ public static class SystemDrawingImage
             .ConfigureAwait(false);
 
         ms.Position = 0;
-        return new Bitmap(ms);
+        using var bitmap = new Bitmap(ms);
+        return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
     }
 }

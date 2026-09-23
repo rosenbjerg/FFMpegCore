@@ -586,6 +586,7 @@ public class VideoTest
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
         Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
         Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+        Assert.AreEqual(255, bitmap.GetPixel(bitmap.Width / 2, bitmap.Height / 2).A);
     }
 
     [SupportedOSPlatform("windows")]
@@ -599,6 +600,7 @@ public class VideoTest
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
         Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
         Assert.AreEqual(bitmap.RawFormat, ImageFormat.Png);
+        Assert.AreEqual(255, bitmap.GetPixel(bitmap.Width / 2, bitmap.Height / 2).A);
     }
 
     [TestMethod]
@@ -610,6 +612,7 @@ public class VideoTest
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
         Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+        Assert.AreEqual(255, bitmap.GetPixel(bitmap.Width / 2, bitmap.Height / 2).Alpha);
         // Note: The resulting ColorType is dependent on the execution environment and therefore not assessed,
         // e.g. Bgra8888 on Windows and Rgba8888 on macOS.
     }
@@ -623,6 +626,7 @@ public class VideoTest
         var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
         Assert.AreEqual(input.PrimaryVideoStream.Height, bitmap.Height);
+        Assert.AreEqual(255, bitmap.GetPixel(bitmap.Width / 2, bitmap.Height / 2).Alpha);
         // Note: The resulting ColorType is dependent on the execution environment and therefore not assessed,
         // e.g. Bgra8888 on Windows and Rgba8888 on macOS.
     }
