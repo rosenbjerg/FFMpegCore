@@ -1,7 +1,9 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
+using SkiaSharp;
 
 namespace FFMpegCore.Test;
 
@@ -71,6 +73,29 @@ public class AudioTest
         var analysis = FFProbe.Analyse(TestResources.Mp3Audio);
         Assert.IsGreaterThan(0, analysis.Duration.TotalSeconds);
         Assert.IsTrue(File.Exists(outputFile));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Image_AddAudioAsync()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        using var poster = SKBitmap.Decode(TestResources.PngImage);
+
+        var result = await poster.AddAudioAsync(TestResources.Mp3Audio, outputFile, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.IsTrue(File.Exists(outputFile));
+    }
+
+    [TestMethod]
+    public void Image_AddAudio_WritesThePosterToTheRunTemporaryFilesFolder()
+    {
+        var missingFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        using var poster = SKBitmap.Decode(TestResources.PngImage);
+
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
+            poster.AddAudio(TestResources.Mp3Audio, "out.mp4", new FFOptions { TemporaryFilesFolder = missingFolder }));
     }
 
     [TestMethod]

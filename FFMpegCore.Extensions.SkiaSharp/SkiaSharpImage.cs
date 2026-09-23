@@ -10,21 +10,23 @@ public static class SkiaSharpImage
     ///     Saves a 'png' thumbnail to an in-memory bitmap
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
     /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
-    public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0)
+    public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0,
+        FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
         using var ms = new MemoryStream();
 
         arguments
             .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                 .ForceFormat("rawvideo")))
-            .ProcessSynchronously();
+            .ProcessSynchronously(true, ffOptions);
 
         ms.Position = 0;
         return SKBitmap.Decode(ms);
@@ -34,16 +36,17 @@ public static class SkiaSharpImage
     ///     Saves a 'png' thumbnail to an in-memory bitmap
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
     /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
     public static async Task<SKBitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0, CancellationToken cancellationToken = default)
+        int inputFileIndex = 0, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
-        var source = await FFProbe.AnalyseAsync(input, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken).ConfigureAwait(false);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
         using var ms = new MemoryStream();
 
@@ -51,7 +54,7 @@ public static class SkiaSharpImage
             .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
                 .ForceFormat("rawvideo")))
             .CancellableThrough(cancellationToken)
-            .ProcessAsynchronously()
+            .ProcessAsynchronously(true, ffOptions)
             .ConfigureAwait(false);
 
         ms.Position = 0;

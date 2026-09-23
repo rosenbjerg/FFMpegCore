@@ -280,6 +280,7 @@ FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath).ProcessSynchr
 // or using one of the image extension packages
 var image = Image.FromFile(inputImagePath);
 image.AddAudio(inputAudioPath, outputPath);
+await image.AddAudioAsync(inputAudioPath, outputPath, cancellationToken: cancellationToken);
 ```
 
 Other available arguments could be found in `FFMpegCore.Arguments` namespace.

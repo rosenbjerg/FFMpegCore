@@ -73,6 +73,21 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 
 `FFMetadataBuilder` is constructed directly (`new FFMetadataBuilder()`) and produces its document with `Build()`.
 
+## Extension packages
+
+`Snapshot` and `SnapshotAsync` in both image extension packages take the run's `FFOptions`, placed before `cancellationToken` to match
+`FFProbe.AnalyseAsync`, so a token passed positionally has to move along:
+
+```csharp
+// 5.x
+await FFMpegImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, inputFileIndex, cancellationToken);
+
+// 6.0
+await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, inputFileIndex, ffOptions, cancellationToken);
+```
+
+`AddAudio` takes the same `FFOptions`, and `AddAudioAsync` adds cancellation.
+
 ## New in 6.0
 
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
@@ -82,3 +97,5 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
+- The image extension packages honour a per-run `FFOptions`, so `BinaryFolder` and `TemporaryFilesFolder` apply to snapshots and to the
+  poster `AddAudio` writes.
