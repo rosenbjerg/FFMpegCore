@@ -110,6 +110,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType));
     }
 
+    /// <summary>-map, every stream of the type rather than one by index</summary>
+    public FFMpegOutputOptions WithMap(StreamType streamType, int inputFileIndex = 0)
+    {
+        return WithArgument(new MapStreamArgument(null, inputFileIndex, streamType));
+    }
+
     /// <summary>-map, once per index</summary>
     public FFMpegOutputOptions WithMap(IEnumerable<int> streamIndices, int inputFileIndex = 0, StreamType streamType = StreamType.All)
     {
@@ -120,6 +126,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     public FFMpegOutputOptions WithNegativeMap(int streamIndex, int inputFileIndex = 0, StreamType streamType = StreamType.All)
     {
         return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType, true));
+    }
+
+    /// <summary>-map -, excluding every stream of the type rather than one by index</summary>
+    public FFMpegOutputOptions WithNegativeMap(StreamType streamType, int inputFileIndex = 0)
+    {
+        return WithArgument(new MapStreamArgument(null, inputFileIndex, streamType, true));
     }
 
     /// <summary>-map -, once per index</summary>

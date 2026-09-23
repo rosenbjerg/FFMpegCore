@@ -710,6 +710,18 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_TeeOutput_MapByTypeSelectsEveryStream()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(StreamType.Video)))
+            .Arguments;
+        Assert.AreEqual("""
+                        -i "input.mp4" -f tee "[f=mpegts:select=\'0:v\']http://server/path"
+                        """, str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_MultiInput()
     {
         var audioStreams = string.Join("", _multiFiles.Select((item, index) => $"[{index}:0]"));
@@ -1072,6 +1084,23 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    [DataRow(StreamType.All, "-map 1")]
+    [DataRow(StreamType.Audio, "-map 1:a")]
+    [DataRow(StreamType.Video, "-map 1:v")]
+    [DataRow(StreamType.VideoNoAttachedPic, "-map 1:V")]
+    [DataRow(StreamType.Subtitle, "-map 1:s")]
+    [DataRow(StreamType.Data, "-map 1:d")]
+    [DataRow(StreamType.Attachments, "-map 1:t")]
+    public void Builder_BuildString_SelectStreamsByType(StreamType streamType, string expected)
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithMap(streamType, 1))
+            .Arguments;
+
+        Assert.AreEqual($"-i \"input.mp4\" {expected} \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_DeselectStream()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
@@ -1079,6 +1108,16 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map -0:1 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DeselectStreamsByType()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(StreamType.Subtitle))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -map -0:s \"output.mp4\"", str);
     }
 
     [TestMethod]

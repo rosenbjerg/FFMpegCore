@@ -9,10 +9,10 @@ public class MapStreamArgument : IArgument
 {
     private readonly int _inputFileIndex;
     private readonly bool _negativeMap;
-    private readonly int _streamIndex;
+    private readonly int? _streamIndex;
     private readonly StreamType _streamType;
 
-    public MapStreamArgument(int streamIndex, int inputFileIndex, StreamType streamType = StreamType.All, bool negativeMap = false)
+    public MapStreamArgument(int? streamIndex, int inputFileIndex, StreamType streamType = StreamType.All, bool negativeMap = false)
     {
         _inputFileIndex = inputFileIndex;
         _streamIndex = streamIndex;
@@ -20,5 +20,6 @@ public class MapStreamArgument : IArgument
         _negativeMap = negativeMap;
     }
 
-    public string Text => $"-map {(_negativeMap ? "-" : "")}{_inputFileIndex}{_streamType.Specifier()}:{_streamIndex}";
+    public string Text =>
+        $"-map {(_negativeMap ? "-" : "")}{_inputFileIndex}{_streamType.Specifier()}{(_streamIndex == null ? "" : $":{_streamIndex}")}";
 }

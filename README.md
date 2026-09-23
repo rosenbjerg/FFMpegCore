@@ -86,6 +86,25 @@ FFMpegArguments
 
 Each option method's summary names the ffmpeg option it emits, so searching your IDE for `-ss` finds `WithStartTime`.
 
+### Selecting streams
+
+`WithMap` takes either a stream index or a `StreamType`. Passing the type maps every stream of that kind, which is what you want when the
+input's stream count is not known up front:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .AddFileInput(audioPath)
+    .OutputToFile(outputPath, true, options => options
+        .WithMap(StreamType.Video)              // -map 0:v  — every video stream of the first input
+        .WithMap(StreamType.Audio, 1)           // -map 1:a  — every audio stream of the second
+        .WithNegativeMap(StreamType.Subtitle)   // -map -0:s — but none of its subtitles
+        .CopyStreams())
+    .ProcessSynchronously();
+```
+
+`WithMap(0)` still selects one stream by index, and `WithMap(StreamType.All)` maps everything from an input.
+
 ### Reading the result
 
 `ProcessSynchronously()` and `ProcessAsynchronously()` return an `FFMpegResult` describing the run:
