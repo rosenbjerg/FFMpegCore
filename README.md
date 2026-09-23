@@ -305,6 +305,13 @@ image.AddAudio(inputAudioPath, outputPath);
 await image.AddAudioAsync(inputAudioPath, outputPath, cancellationToken: cancellationToken);
 ```
 
+The audio is copied, not re-encoded, so the track is not degraded a second time on its way to a platform that will transcode it anyway. Pass a
+codec if you do need to re-encode:
+
+```csharp
+FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath, AudioCodec.Aac).ProcessSynchronously();
+```
+
 Other available arguments could be found in `FFMpegCore.Arguments` namespace.
 
 ## Input piping

@@ -96,6 +96,20 @@ FFMpeg.SaveStream(uri, "recording.ts");                         // 6.0
 FFMpeg.SaveStream(new Uri("rtsp://camera/stream"), "cam.mkv");  // 6.0
 ```
 
+### `FFMpeg.PosterWithAudio` copies the audio
+
+It used to re-encode the track to 128 kbps AAC unconditionally, which is the wrong default for turning a finished master into a video — the
+platform it is being uploaded to will transcode it again. It now copies the stream, and takes a codec when you do want a re-encode. The new
+parameter sits before `ffOptions`:
+
+```csharp
+FFMpeg.PosterWithAudio(image, audio, output, ffOptions);                  // 5.x / early 6.0
+FFMpeg.PosterWithAudio(image, audio, output, ffOptions: ffOptions);       // 6.0 — copies the audio
+FFMpeg.PosterWithAudio(image, audio, output, AudioCodec.Aac);             // 6.0 — old behaviour
+```
+
+`AddAudio`/`AddAudioAsync` in the image extension packages follow the same default.
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.

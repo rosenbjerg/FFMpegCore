@@ -106,6 +106,29 @@ public class AudioTest
     }
 
     [TestMethod]
+    public void Image_AddAudio_CopiesTheTrackByDefault()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile).ProcessSynchronously();
+
+        var source = FFProbe.Analyse(TestResources.Mp3Audio);
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.AreEqual(source.PrimaryAudioStream!.CodecName, analysis.PrimaryAudioStream!.CodecName);
+        Assert.AreEqual(source.PrimaryAudioStream.SampleRateHz, analysis.PrimaryAudioStream.SampleRateHz);
+    }
+
+    [TestMethod]
+    public void Image_AddAudio_ReencodesWhenGivenACodec()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile, AudioCodec.Aac).ProcessSynchronously();
+
+        Assert.AreEqual("aac", FFProbe.Analyse(outputFile).PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Image_AddAudioAsync()
     {

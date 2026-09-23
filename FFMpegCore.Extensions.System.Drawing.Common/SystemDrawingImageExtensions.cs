@@ -9,7 +9,7 @@ public static class SystemDrawingImageExtensions
         var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
         try
         {
-            return FFMpeg.PosterWithAudio(destination, audio, output, ffOptions).ProcessSynchronously();
+            return FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions).ProcessSynchronously();
         }
         finally
         {
@@ -23,7 +23,7 @@ public static class SystemDrawingImageExtensions
         var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
         try
         {
-            return await FFMpeg.PosterWithAudio(destination, audio, output, ffOptions)
+            return await FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions)
                 .CancellableThrough(cancellationToken)
                 .ProcessAsynchronously()
                 .ConfigureAwait(false);

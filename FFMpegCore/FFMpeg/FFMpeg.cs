@@ -92,8 +92,10 @@ public static class FFMpeg
     /// <param name="image">Source image file.</param>
     /// <param name="audio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
+    /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, Codec? audioCodec = null,
+        FFOptions? ffOptions = null)
     {
         FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
         var analysis = FFProbe.Analyse(image, ffOptions);
@@ -108,7 +110,7 @@ public static class FFMpeg
                 .WithPixelFormat("yuv420p")
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithConstantRateFactor(21)
-                .WithAudioBitrate(AudioQuality.Normal)
+                .WithAudioCodec(audioCodec ?? AudioCodec.Copy)
                 .WithShortest())
             .WithOptions(ffOptions);
     }
