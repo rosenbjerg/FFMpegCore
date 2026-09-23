@@ -19,8 +19,8 @@ public abstract class MediaStream : ITagsContainer
     public Dictionary<string, string>? Tags { get; set; }
     public List<Dictionary<string, JsonValue>>? SideData { get; set; }
 
-    public Codec GetCodecInfo()
+    public Codec GetCodecInfo(FFOptions? ffOptions = null)
     {
-        return FFMpeg.GetCodec(CodecName);
+        return FFMpeg.GetCodec(CodecName, ffOptions);
     }
 }

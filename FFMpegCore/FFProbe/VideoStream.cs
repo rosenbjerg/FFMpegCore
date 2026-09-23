@@ -22,8 +22,8 @@ public class VideoStream : MediaStream
     public string ColorTransfer { get; set; } = null!;
     public string ColorPrimaries { get; set; } = null!;
 
-    public PixelFormat GetPixelFormatInfo()
+    public PixelFormat GetPixelFormatInfo(FFOptions? ffOptions = null)
     {
-        return FFMpeg.GetPixelFormat(PixelFormat);
+        return FFMpeg.GetPixelFormat(PixelFormat, ffOptions);
     }
 }

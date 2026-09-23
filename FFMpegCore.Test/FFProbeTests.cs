@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Exceptions;
+﻿using System.Runtime.Versioning;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
 using FFMpegCore.Test.Utilities;
@@ -459,5 +460,26 @@ public class FFProbeTests
         Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
         Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetFrames(missing));
         Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetPackets(missing));
+    }
+
+    [TestMethod]
+    public void Probe_Stream_ResolvesItsCodecAndPixelFormat()
+    {
+        var video = FFProbe.Analyse(TestResources.Mp4Video).PrimaryVideoStream!;
+
+        Assert.AreEqual(video.CodecName, video.GetCodecInfo().Name);
+        Assert.AreEqual(video.PixelFormat, video.GetPixelFormatInfo().Name);
+    }
+
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [UnsupportedOSPlatform("windows")]
+    public void Probe_Stream_ResolvesAgainstTheBinaryItIsGiven()
+    {
+        var video = FFProbe.Analyse(TestResources.Mp4Video).PrimaryVideoStream!;
+
+        using var binaryFolder = new TemporaryBinaryFolder("ffmpeg");
+
+        Assert.ThrowsExactly<FFMpegException>(() => video.GetCodecInfo(binaryFolder.Options));
+        Assert.ThrowsExactly<FFMpegException>(() => video.GetPixelFormatInfo(binaryFolder.Options));
     }
 }

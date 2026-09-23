@@ -111,6 +111,8 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
   `FFMpeg.GetCodec(name)` for a populated `Codec`.
 - The `FFMpeg.GetCodecs` / `GetPixelFormats` / `GetContainerFormats` family and their `TryGet*` counterparts take an optional `FFOptions`,
   and their cache is keyed on the binary that answered.
+- `MediaStream.GetCodecInfo` and `VideoStream.GetPixelFormatInfo` take one too, so a stream can be described by the same ffmpeg that is
+  going to process it.
 - Every `FFMpeg.*` helper takes an optional `FFOptions` covering both the ffprobe call it makes while building the arguments and the run
   itself, so `BinaryFolder` no longer has to be global for a helper to find ffprobe. `Join` and `JoinImageSequence` end in `params`, so
   they take theirs as a leading argument on a separate overload.

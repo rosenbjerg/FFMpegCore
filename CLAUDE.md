@@ -80,6 +80,8 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
   Don't turn them back into `FFMpeg.GetCodec` calls — a plain `.WithVideoCodec(VideoCodec.LibX264)` then costs four ffmpeg spawns and
   binds the constant to the global binary. Their `Description` and `*Supported` fields are consequently unpopulated; the filled-in
   object comes from `FFMpeg.GetCodec(name, ffOptions)`.
+- `MediaStream.GetCodecInfo` / `VideoStream.GetPixelFormatInfo` take an `FFOptions` rather than reading it off the analysis: a probe result
+  is data, and tying it to the binary that produced it would outlive the run it came from.
 - Those short informational runs (`-version`, `-formats`, `-codecs`, `-pix_fmts`) go through `Helpers/ProcessHelper`, not Instances — it reads the output on the calling thread so a caller blocked on it (under `FFMpegCache`'s lock) never depends on free thread-pool threads. Add any new listing query there too; see the comment in the helper and issue #580.
 
 ### High-level helpers
