@@ -335,9 +335,11 @@ public static class FFMpeg
 
     #region PixelFormats
 
-    internal static IReadOnlyList<PixelFormat> GetPixelFormatsInternal()
+    internal static IReadOnlyList<PixelFormat> GetPixelFormatsInternal(FFOptions ffOptions)
     {
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-pix_fmts");
+        FFMpegHelper.VerifyFFMpegExists(ffOptions);
+
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), "-pix_fmts");
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
@@ -355,30 +357,32 @@ public static class FFMpeg
         return list.AsReadOnly();
     }
 
-    public static IReadOnlyList<PixelFormat> GetPixelFormats()
+    public static IReadOnlyList<PixelFormat> GetPixelFormats(FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            return GetPixelFormatsInternal();
+            return GetPixelFormatsInternal(options);
         }
 
-        return FFMpegCache.PixelFormats.Values.ToList().AsReadOnly();
+        return FFMpegCache.PixelFormats(options).Values.ToList().AsReadOnly();
     }
 
-    public static bool TryGetPixelFormat(string name, out PixelFormat format)
+    public static bool TryGetPixelFormat(string name, out PixelFormat format, FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            format = GetPixelFormatsInternal().FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            format = GetPixelFormatsInternal(options).FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
             return format != null;
         }
 
-        return FFMpegCache.PixelFormats.TryGetValue(name, out format);
+        return FFMpegCache.PixelFormats(options).TryGetValue(name, out format);
     }
 
-    public static PixelFormat GetPixelFormat(string name)
+    public static PixelFormat GetPixelFormat(string name, FFOptions? ffOptions = null)
     {
-        if (TryGetPixelFormat(name, out var fmt))
+        if (TryGetPixelFormat(name, out var fmt, ffOptions))
         {
             return fmt;
         }
@@ -390,9 +394,9 @@ public static class FFMpeg
 
     #region Codecs
 
-    private static void ParsePartOfCodecs(Dictionary<string, Codec> codecs, string arguments, Func<string, Codec?> parser)
+    private static void ParsePartOfCodecs(Dictionary<string, Codec> codecs, FFOptions ffOptions, string arguments, Func<string, Codec?> parser)
     {
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), arguments);
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), arguments);
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
@@ -417,10 +421,12 @@ public static class FFMpeg
         }
     }
 
-    internal static Dictionary<string, Codec> GetCodecsInternal()
+    internal static Dictionary<string, Codec> GetCodecsInternal(FFOptions ffOptions)
     {
+        FFMpegHelper.VerifyFFMpegExists(ffOptions);
+
         var res = new Dictionary<string, Codec>();
-        ParsePartOfCodecs(res, "-codecs", s =>
+        ParsePartOfCodecs(res, ffOptions, "-codecs", s =>
         {
             if (Codec.TryParseFromCodecs(s, out var codec))
             {
@@ -429,7 +435,7 @@ public static class FFMpeg
 
             return null;
         });
-        ParsePartOfCodecs(res, "-encoders", s =>
+        ParsePartOfCodecs(res, ffOptions, "-encoders", s =>
         {
             if (Codec.TryParseFromEncodersDecoders(s, out var codec, true))
             {
@@ -438,7 +444,7 @@ public static class FFMpeg
 
             return null;
         });
-        ParsePartOfCodecs(res, "-decoders", s =>
+        ParsePartOfCodecs(res, ffOptions, "-decoders", s =>
         {
             if (Codec.TryParseFromEncodersDecoders(s, out var codec, false))
             {
@@ -451,60 +457,63 @@ public static class FFMpeg
         return res;
     }
 
-    public static IReadOnlyList<Codec> GetCodecs()
+    public static IReadOnlyList<Codec> GetCodecs(FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            return GetCodecsInternal().Values.ToList().AsReadOnly();
+            return GetCodecsInternal(options).Values.ToList().AsReadOnly();
         }
 
-        return FFMpegCache.Codecs.Values.ToList().AsReadOnly();
+        return FFMpegCache.Codecs(options).Values.ToList().AsReadOnly();
     }
 
-    public static IReadOnlyList<Codec> GetCodecs(CodecType type)
+    public static IReadOnlyList<Codec> GetCodecs(CodecType type, FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            return GetCodecsInternal().Values.Where(x => x.Type == type).ToList().AsReadOnly();
+            return GetCodecsInternal(options).Values.Where(x => x.Type == type).ToList().AsReadOnly();
         }
 
-        return FFMpegCache.Codecs.Values.Where(x => x.Type == type).ToList().AsReadOnly();
+        return FFMpegCache.Codecs(options).Values.Where(x => x.Type == type).ToList().AsReadOnly();
     }
 
-    public static IReadOnlyList<Codec> GetVideoCodecs()
+    public static IReadOnlyList<Codec> GetVideoCodecs(FFOptions? ffOptions = null)
     {
-        return GetCodecs(CodecType.Video);
+        return GetCodecs(CodecType.Video, ffOptions);
     }
 
-    public static IReadOnlyList<Codec> GetAudioCodecs()
+    public static IReadOnlyList<Codec> GetAudioCodecs(FFOptions? ffOptions = null)
     {
-        return GetCodecs(CodecType.Audio);
+        return GetCodecs(CodecType.Audio, ffOptions);
     }
 
-    public static IReadOnlyList<Codec> GetSubtitleCodecs()
+    public static IReadOnlyList<Codec> GetSubtitleCodecs(FFOptions? ffOptions = null)
     {
-        return GetCodecs(CodecType.Subtitle);
+        return GetCodecs(CodecType.Subtitle, ffOptions);
     }
 
-    public static IReadOnlyList<Codec> GetDataCodecs()
+    public static IReadOnlyList<Codec> GetDataCodecs(FFOptions? ffOptions = null)
     {
-        return GetCodecs(CodecType.Data);
+        return GetCodecs(CodecType.Data, ffOptions);
     }
 
-    public static bool TryGetCodec(string name, out Codec codec)
+    public static bool TryGetCodec(string name, out Codec codec, FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            codec = GetCodecsInternal().Values.FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            codec = GetCodecsInternal(options).Values.FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
             return codec != null;
         }
 
-        return FFMpegCache.Codecs.TryGetValue(name, out codec);
+        return FFMpegCache.Codecs(options).TryGetValue(name, out codec);
     }
 
-    public static Codec GetCodec(string name)
+    public static Codec GetCodec(string name, FFOptions? ffOptions = null)
     {
-        if (TryGetCodec(name, out var codec) && codec != null)
+        if (TryGetCodec(name, out var codec, ffOptions) && codec != null)
         {
             return codec;
         }
@@ -516,9 +525,11 @@ public static class FFMpeg
 
     #region ContainerFormats
 
-    internal static IReadOnlyList<ContainerFormat> GetContainersFormatsInternal()
+    internal static IReadOnlyList<ContainerFormat> GetContainersFormatsInternal(FFOptions ffOptions)
     {
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(), "-formats");
+        FFMpegHelper.VerifyFFMpegExists(ffOptions);
+
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), "-formats");
         if (result.ExitCode != 0)
         {
             throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
@@ -536,30 +547,32 @@ public static class FFMpeg
         return list.AsReadOnly();
     }
 
-    public static IReadOnlyList<ContainerFormat> GetContainerFormats()
+    public static IReadOnlyList<ContainerFormat> GetContainerFormats(FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            return GetContainersFormatsInternal();
+            return GetContainersFormatsInternal(options);
         }
 
-        return FFMpegCache.ContainerFormats.Values.ToList().AsReadOnly();
+        return FFMpegCache.ContainerFormats(options).Values.ToList().AsReadOnly();
     }
 
-    public static bool TryGetContainerFormat(string name, out ContainerFormat fmt)
+    public static bool TryGetContainerFormat(string name, out ContainerFormat fmt, FFOptions? ffOptions = null)
     {
-        if (!GlobalFFOptions.Current.UseCache)
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        if (!options.UseCache)
         {
-            fmt = GetContainersFormatsInternal().FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            fmt = GetContainersFormatsInternal(options).FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
             return fmt != null;
         }
 
-        return FFMpegCache.ContainerFormats.TryGetValue(name, out fmt);
+        return FFMpegCache.ContainerFormats(options).TryGetValue(name, out fmt);
     }
 
-    public static ContainerFormat GetContainerFormat(string name)
+    public static ContainerFormat GetContainerFormat(string name, FFOptions? ffOptions = null)
     {
-        if (TryGetContainerFormat(name, out var fmt))
+        if (TryGetContainerFormat(name, out var fmt, ffOptions))
         {
             return fmt;
         }

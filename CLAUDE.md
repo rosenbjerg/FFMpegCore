@@ -73,7 +73,10 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
   keyed on the path — a process-wide flag lets an unverified binary through. Failures are not remembered, so installing the binary and
   retrying works. Both translate a failed launch into `FFMpegException` / `FFProbeException`; without that, `ProcessHelper` raises
   `InstanceFileNotFoundException` and the "was not found" message never reaches the caller.
-- `FFMpegCache` lazily caches codec / pixel-format / container lists from `ffmpeg -codecs` etc. (`FFOptions.UseCache`).
+- `FFMpegCache` lazily caches codec / pixel-format / container lists from `ffmpeg -codecs` etc. (`FFOptions.UseCache`), keyed on the
+  resolved binary path like the verification caches, so a second binary is listed rather than served the first one's answer. The
+  `FFMpeg.Get*`/`TryGet*` queries take an optional `FFOptions` to reach it. The `VideoCodec.LibX264`-style static properties cannot —
+  they take no arguments, so they always resolve against `GlobalFFOptions`.
 - Those short informational runs (`-version`, `-formats`, `-codecs`, `-pix_fmts`) go through `Helpers/ProcessHelper`, not Instances — it reads the output on the calling thread so a caller blocked on it (under `FFMpegCache`'s lock) never depends on free thread-pool threads. Add any new listing query there too; see the comment in the helper and issue #580.
 
 ### High-level helpers

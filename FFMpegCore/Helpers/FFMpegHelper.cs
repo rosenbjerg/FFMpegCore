@@ -6,7 +6,7 @@ namespace FFMpegCore.Helpers;
 
 public static class FFMpegHelper
 {
-    private static readonly ConcurrentDictionary<string, bool> VerifiedBinaries = new();
+    private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
     public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
     {
@@ -33,7 +33,7 @@ public static class FFMpegHelper
     public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
     {
         var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions);
-        if (VerifiedBinaries.ContainsKey(binaryPath))
+        if (_verifiedBinaries.ContainsKey(binaryPath))
         {
             return;
         }
@@ -50,7 +50,7 @@ public static class FFMpegHelper
             throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
         }
 
-        VerifiedBinaries[binaryPath] = true;
+        _verifiedBinaries[binaryPath] = true;
     }
 
     private static string NotFoundMessage(string binaryPath)

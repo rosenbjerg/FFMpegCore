@@ -6,12 +6,12 @@ namespace FFMpegCore.Helpers;
 
 public static class FFProbeHelper
 {
-    private static readonly ConcurrentDictionary<string, bool> VerifiedBinaries = new();
+    private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
     public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
     {
         var binaryPath = GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions);
-        if (VerifiedBinaries.ContainsKey(binaryPath))
+        if (_verifiedBinaries.ContainsKey(binaryPath))
         {
             return;
         }
@@ -28,7 +28,7 @@ public static class FFProbeHelper
             throw new FFProbeException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
         }
 
-        VerifiedBinaries[binaryPath] = true;
+        _verifiedBinaries[binaryPath] = true;
     }
 
     private static string NotFoundMessage(string binaryPath)

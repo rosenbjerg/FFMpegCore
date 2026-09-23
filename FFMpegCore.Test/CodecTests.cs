@@ -1,5 +1,7 @@
-﻿using FFMpegCore.Enums;
+﻿using System.Runtime.Versioning;
+using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test;
 
@@ -89,7 +91,7 @@ public class CodecTests
             var lookups = Enumerable.Range(0, 20).Select(_ => Task.Run(async () =>
             {
                 await gate.Task;
-                return FFMpeg.GetContainersFormatsInternal();
+                return FFMpeg.GetContainersFormatsInternal(GlobalFFOptions.Current);
             })).ToArray();
             gate.SetResult(true);
 
@@ -126,5 +128,17 @@ public class CodecTests
         {
             GlobalFFOptions.Configure(new FFOptions());
         }
+    }
+
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [UnsupportedOSPlatform("windows")]
+    public void Lookups_QueryTheBinaryTheOptionsPointAt_NotTheOneAlreadyCached()
+    {
+        Assert.IsNotEmpty(FFMpeg.GetPixelFormats());
+
+        using var binaryFolder = new TemporaryBinaryFolder("ffmpeg");
+
+        var exception = Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.GetPixelFormats(binaryFolder.Options));
+        StringAssert.Contains(exception.Message, binaryFolder.BinaryPath);
     }
 }
