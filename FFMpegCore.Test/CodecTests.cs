@@ -141,4 +141,29 @@ public class CodecTests
         var exception = Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.GetPixelFormats(binaryFolder.Options));
         StringAssert.Contains(exception.Message, binaryFolder.BinaryPath);
     }
+
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [UnsupportedOSPlatform("windows")]
+    [DoNotParallelize]
+    public void WellKnownCodecsAndFormats_DoNotQueryFFMpeg()
+    {
+        using var binaryFolder = new TemporaryBinaryFolder("ffmpeg");
+        var original = GlobalFFOptions.Current;
+
+        try
+        {
+            GlobalFFOptions.Configure(binaryFolder.Options);
+
+            Assert.AreEqual("libx264", VideoCodec.LibX264.Name);
+            Assert.AreEqual(CodecType.Video, VideoCodec.LibX264.Type);
+            Assert.AreEqual("mjpeg", VideoCodec.Image.Jpg.Name);
+            Assert.AreEqual("aac", AudioCodec.Aac.Name);
+            Assert.AreEqual(CodecType.Audio, AudioCodec.Aac.Type);
+            Assert.AreEqual(".mp4", VideoType.Mp4.Extension);
+        }
+        finally
+        {
+            GlobalFFOptions.Configure(original);
+        }
+    }
 }

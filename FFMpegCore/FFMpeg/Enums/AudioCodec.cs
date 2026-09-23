@@ -2,11 +2,11 @@
 
 public static class AudioCodec
 {
-    public static Codec Aac => FFMpeg.GetCodec("aac");
-    public static Codec LibVorbis => FFMpeg.GetCodec("libvorbis");
-    public static Codec LibFdk_Aac => FFMpeg.GetCodec("libfdk_aac");
-    public static Codec Ac3 => FFMpeg.GetCodec("ac3");
-    public static Codec Eac3 => FFMpeg.GetCodec("eac3");
-    public static Codec LibMp3Lame => FFMpeg.GetCodec("libmp3lame");
+    public static Codec Aac => new("aac", CodecType.Audio);
+    public static Codec LibVorbis => new("libvorbis", CodecType.Audio);
+    public static Codec LibFdk_Aac => new("libfdk_aac", CodecType.Audio);
+    public static Codec Ac3 => new("ac3", CodecType.Audio);
+    public static Codec Eac3 => new("eac3", CodecType.Audio);
+    public static Codec LibMp3Lame => new("libmp3lame", CodecType.Audio);
     public static Codec Copy => new("copy", CodecType.Audio);
 }

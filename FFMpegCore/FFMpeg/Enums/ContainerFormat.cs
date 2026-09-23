@@ -14,7 +14,7 @@ public class ContainerFormat
     public string Name { get; }
     public bool DemuxingSupported { get; private set; }
     public bool MuxingSupported { get; private set; }
-    public string Description { get; private set; } = null!;
+    public string Description { get; private set; } = string.Empty;
 
     public string Extension
     {

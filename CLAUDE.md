@@ -75,8 +75,11 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
   `InstanceFileNotFoundException` and the "was not found" message never reaches the caller.
 - `FFMpegCache` lazily caches codec / pixel-format / container lists from `ffmpeg -codecs` etc. (`FFOptions.UseCache`), keyed on the
   resolved binary path like the verification caches, so a second binary is listed rather than served the first one's answer. The
-  `FFMpeg.Get*`/`TryGet*` queries take an optional `FFOptions` to reach it. The `VideoCodec.LibX264`-style static properties cannot —
-  they take no arguments, so they always resolve against `GlobalFFOptions`.
+  `FFMpeg.Get*`/`TryGet*` queries take an optional `FFOptions` to reach it. The `VideoCodec.LibX264`-style constants no longer query at all:
+  they are `new Codec("libx264", CodecType.Video)`, because the only things the argument classes read off them are `Name` and `Type`.
+  Don't turn them back into `FFMpeg.GetCodec` calls — a plain `.WithVideoCodec(VideoCodec.LibX264)` then costs four ffmpeg spawns and
+  binds the constant to the global binary. Their `Description` and `*Supported` fields are consequently unpopulated; the filled-in
+  object comes from `FFMpeg.GetCodec(name, ffOptions)`.
 - Those short informational runs (`-version`, `-formats`, `-codecs`, `-pix_fmts`) go through `Helpers/ProcessHelper`, not Instances — it reads the output on the calling thread so a caller blocked on it (under `FFMpegCache`'s lock) never depends on free thread-pool threads. Add any new listing query there too; see the comment in the helper and issue #580.
 
 ### High-level helpers

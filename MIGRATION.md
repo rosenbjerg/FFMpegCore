@@ -105,6 +105,10 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 - `FFMpegDownloader` works on Apple Silicon, where it previously threw `PlatformNotSupportedException`.
 - A missing ffmpeg or ffprobe raises `FFMpegException` or `FFProbeException` naming the path that was tried, where `Instances`'
   `InstanceFileNotFoundException` used to escape.
+- `VideoCodec.*`, `AudioCodec.*` and `VideoType.*` are built from their known name and type instead of being looked up through
+  `ffmpeg -codecs`. They no longer spawn a process, and no longer throw when the build lacks the codec — ffmpeg reports that itself when
+  the run starts. `Description`, `EncodingSupported` and the other fields the listing fills in are empty on them; call
+  `FFMpeg.GetCodec(name)` for a populated `Codec`.
 - The `FFMpeg.GetCodecs` / `GetPixelFormats` / `GetContainerFormats` family and their `TryGet*` counterparts take an optional `FFOptions`,
   and their cache is keyed on the binary that answered.
 - Every `FFMpeg.*` helper takes an optional `FFOptions` covering both the ffprobe call it makes while building the arguments and the run
