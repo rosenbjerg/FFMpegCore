@@ -157,6 +157,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `BitmapExtensions` in both image extension packages | `SystemDrawingImageExtensions` and `SkiaSharpBitmapExtensions` |
 | `FFMpegGlobalArguments`, `VerbosityLevel` | removed — use `WithLogLevel` or `FFOptions.LogLevel` |
 | `FFOptionsException` | removed — `FFMpegException` |
+| `VideoStream.AverageFrameRate` | removed — it was never populated and always read `0`; use `AvgFrameRate` (ffprobe's `avg_frame_rate`) or `FrameRate` (`r_frame_rate`) |
 | namespace `FFMpegCore.Extend` | removed — its types moved to `FFMpegCore`, `FFMpegCore.Helpers` and `FFMpegCore.Pipes` |
 
 `FFMetadataBuilder` is constructed directly (`new FFMetadataBuilder()`) and produces its document with `Build()`.
