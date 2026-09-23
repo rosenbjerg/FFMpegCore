@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Extensions.SkiaSharp;
 
-public static class BitmapExtensions
+public static class SkiaSharpBitmapExtensions
 {
     public static FFMpegResult AddAudio(this SKBitmap poster, string audio, string output)
     {

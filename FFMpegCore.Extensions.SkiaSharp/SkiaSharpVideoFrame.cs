@@ -3,9 +3,9 @@ using SkiaSharp;
 
 namespace FFMpegCore.Extensions.SkiaSharp;
 
-public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
+public class SkiaSharpVideoFrame : IVideoFrame, IDisposable
 {
-    public BitmapVideoFrameWrapper(SKBitmap bitmap)
+    public SkiaSharpVideoFrame(SKBitmap bitmap)
     {
         Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
         Format = ConvertStreamFormat(bitmap.ColorType);

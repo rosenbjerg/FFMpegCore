@@ -320,7 +320,8 @@ await FFMpegArguments
     .ProcessAsynchronously();
 ```
 
-Both image extension packages provide a `BitmapVideoFrameWrapper` that adapts a `System.Drawing.Bitmap` or `SKBitmap` to `IVideoFrame`.
+The image extension packages provide `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame`, which adapt a `System.Drawing.Bitmap` or an
+`SKBitmap` to `IVideoFrame`.
 
 # Binaries
 

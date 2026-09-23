@@ -5,9 +5,9 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common;
 
-public class BitmapVideoFrameWrapper : IVideoFrame, IDisposable
+public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
 {
-    public BitmapVideoFrameWrapper(Bitmap bitmap)
+    public SystemDrawingVideoFrame(Bitmap bitmap)
     {
         Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
         Format = ConvertStreamFormat(bitmap.PixelFormat);

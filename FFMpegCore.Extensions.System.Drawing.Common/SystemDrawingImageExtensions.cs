@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Extensions.System.Drawing.Common;
 
-public static class BitmapExtensions
+public static class SystemDrawingImageExtensions
 {
     public static FFMpegResult AddAudio(this Image poster, string audio, string output)
     {

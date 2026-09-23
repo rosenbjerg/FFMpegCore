@@ -4,6 +4,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
@@ -607,7 +608,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SkiaSharp()
     {
-        using var bitmap = Extensions.SkiaSharp.SkiaSharpImage.Snapshot(TestResources.Mp4Video);
+        using var bitmap = SkiaSharpImage.Snapshot(TestResources.Mp4Video);
 
         var input = FFProbe.Analyse(TestResources.Mp4Video);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);
@@ -621,7 +622,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_SnapshotAsync_InMemory_SkiaSharp()
     {
-        using var bitmap = await Extensions.SkiaSharp.SkiaSharpImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+        using var bitmap = await SkiaSharpImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
 
         var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(input.PrimaryVideoStream!.Width, bitmap.Width);

@@ -25,7 +25,7 @@ dotnet pack FFMpegCore.sln -c Release                                   # packag
 | Project | Purpose |
 |---|---|
 | `FFMpegCore` | Core library (netstandard2.0). Depends only on `Instances` (process wrapper) and `System.Text.Json`. |
-| `FFMpegCore.Extensions.SkiaSharp` / `.System.Drawing.Common` | In-memory `SkiaSharpImage.Snapshot` / `SystemDrawingImage.Snapshot` → bitmap, and `BitmapVideoFrameWrapper` for piping frames in. Separate packages because the core must not depend on an image library; the class names differ so both can be referenced without aliases. |
+| `FFMpegCore.Extensions.SkiaSharp` / `.System.Drawing.Common` | In-memory `SkiaSharpImage.Snapshot` / `SystemDrawingImage.Snapshot` → bitmap, and `SystemDrawingVideoFrame` / `SkiaSharpVideoFrame` for piping frames in. Separate packages because the core must not depend on an image library; every public type is named per package so both can be referenced without aliases. |
 | `FFMpegCore.Extensions.Downloader` | Downloads ffmpeg binaries from the ffbinaries API at runtime. |
 | `FFMpegCore.Test` | MSTest, net8.0. |
 | `FFMpegCore.Examples` | Console sample; not packed. |
