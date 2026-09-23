@@ -74,6 +74,17 @@ FFMpeg.Trim(inputPath, "out.mkv", start, end);     // 6.0 — writes out.mkv
 Because it still copies the streams, a container that cannot mux them now fails the run instead of being quietly swapped out. Pick a
 container that can, or re-encode with `FFMpegArguments`.
 
+### `FFMpeg.ExtractAudio` takes any container, and can copy the stream
+
+It required a `.mp3` output, although its arguments are just `-vn` and would have muxed `.m4a`, `.wav`, `.flac` or `.ogg` just as well. The
+check is gone, and a new `audioCodec` parameter sits before `ffOptions`, so a positional `FFOptions` has to move along:
+
+```csharp
+FFMpeg.ExtractAudio(inputPath, outputPath, ffOptions);                    // 5.x / early 6.0
+FFMpeg.ExtractAudio(inputPath, outputPath, ffOptions: ffOptions);         // 6.0
+FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy);             // 6.0 — no re-encode
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.

@@ -268,7 +268,12 @@ FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
 ### Extract the audio track from a video file:
 
 ```csharp
-FFMpeg.ExtractAudio(inputPath, outputPath).ProcessSynchronously();
+// the output extension picks the container, and ffmpeg picks the encoder for it
+FFMpeg.ExtractAudio(inputPath, "track.mp3").ProcessSynchronously();
+FFMpeg.ExtractAudio(inputPath, "track.flac").ProcessSynchronously();
+
+// or lift the stream out untouched, with no re-encode
+FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy).ProcessSynchronously();
 ```
 
 ### Add or replace the audio track of a video file:

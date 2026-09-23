@@ -218,16 +218,21 @@ public static class FFMpeg
     ///     Saves audio from a specific video file to disk.
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="output">Output audio file.</param>
+    /// <param name="output">Output audio file. Its extension decides the container.</param>
+    /// <param name="audioCodec">Encoder for the audio, or <see cref="AudioCodec.Copy" /> to extract it as it is. Defaults to the muxer's choice.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor ExtractAudio(string input, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor ExtractAudio(string input, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
-        FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp3);
-
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options => options
-                .DisableVideo())
+            .OutputToFile(output, true, options =>
+            {
+                options.DisableVideo();
+                if (audioCodec != null)
+                {
+                    options.WithAudioCodec(audioCodec);
+                }
+            })
             .WithOptions(ffOptions);
     }
 

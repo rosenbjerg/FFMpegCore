@@ -41,6 +41,34 @@ public class AudioTest
     }
 
     [TestMethod]
+    [DataRow("out.m4a")]
+    [DataRow("out.wav")]
+    [DataRow("out.flac")]
+    public void Audio_Save_ToContainersOtherThanMp3(string filename)
+    {
+        using var outputFile = new TemporaryFile(filename);
+
+        FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile).ProcessSynchronously();
+        var analysis = FFProbe.Analyse(outputFile);
+
+        Assert.IsNotEmpty(analysis.AudioStreams);
+        Assert.IsEmpty(analysis.VideoStreams);
+    }
+
+    [TestMethod]
+    public void Audio_Save_CopyingTheStream()
+    {
+        using var outputFile = new TemporaryFile("out.m4a");
+
+        FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile, AudioCodec.Copy).ProcessSynchronously();
+        var source = FFProbe.Analyse(TestResources.Mp4Video);
+        var analysis = FFProbe.Analyse(outputFile);
+
+        Assert.AreEqual(source.PrimaryAudioStream!.CodecName, analysis.PrimaryAudioStream!.CodecName);
+        Assert.AreEqual(source.PrimaryAudioStream.Channels, analysis.PrimaryAudioStream.Channels);
+    }
+
+    [TestMethod]
     public async Task Audio_FromRaw()
     {
         await using var file = File.Open(TestResources.RawAudio, FileMode.Open);
