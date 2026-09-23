@@ -68,7 +68,11 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
 
 - `FFOptions` is per-run; `GlobalFFOptions.Current` is the process-wide default, lazily loaded from `ffmpeg.config.json` in the working directory if present. `FFMpegArgumentProcessor.GetConfiguredOptions` resolves them in precedence order — the `FFOptions` passed to `ProcessSynchronously`/`ProcessAsynchronously`, else the ones an `FFMpeg.*` helper seeded through the internal `WithOptions`, else a clone of the global — then applies `.Configure(...)` lambdas. The seeded copy is cloned per run, so `.Configure(...)` never writes back into the caller's object.
 - `BinaryFolder` empty ⇒ rely on `PATH`. Otherwise `{BinaryFolder}/{x64|x86}/ffmpeg[.exe]` is tried first, then `{BinaryFolder}/ffmpeg[.exe]`.
-- `FFMpegHelper.VerifyFFMpegExists` runs `ffmpeg -version` once per process and caches the result.
+- `FFMpegHelper.VerifyFFMpegExists` and `FFProbeHelper.VerifyFFProbeExists` run `-version` once per resolved binary path and remember the
+  successes, so switching `BinaryFolder` between runs verifies the new binary instead of riding on the old one's result. Keep the cache
+  keyed on the path — a process-wide flag lets an unverified binary through. Failures are not remembered, so installing the binary and
+  retrying works. Both translate a failed launch into `FFMpegException` / `FFProbeException`; without that, `ProcessHelper` raises
+  `InstanceFileNotFoundException` and the "was not found" message never reaches the caller.
 - `FFMpegCache` lazily caches codec / pixel-format / container lists from `ffmpeg -codecs` etc. (`FFOptions.UseCache`).
 - Those short informational runs (`-version`, `-formats`, `-codecs`, `-pix_fmts`) go through `Helpers/ProcessHelper`, not Instances — it reads the output on the calling thread so a caller blocked on it (under `FFMpegCache`'s lock) never depends on free thread-pool threads. Add any new listing query there too; see the comment in the helper and issue #580.
 

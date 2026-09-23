@@ -1,10 +1,12 @@
-﻿using FFMpegCore.Exceptions;
+﻿using System.Collections.Concurrent;
+using FFMpegCore.Exceptions;
+using Instances.Exceptions;
 
 namespace FFMpegCore.Helpers;
 
 public static class FFMpegHelper
 {
-    private static bool _ffmpegVerified;
+    private static readonly ConcurrentDictionary<string, bool> VerifiedBinaries = new();
 
     public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
     {
@@ -30,16 +32,29 @@ public static class FFMpegHelper
 
     public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
     {
-        if (_ffmpegVerified)
+        var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions);
+        if (VerifiedBinaries.ContainsKey(binaryPath))
         {
             return;
         }
 
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-        _ffmpegVerified = result.ExitCode == 0;
-        if (!_ffmpegVerified)
+        try
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
+            if (ProcessHelper.Run(binaryPath, "-version").ExitCode != 0)
+            {
+                throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath));
+            }
         }
+        catch (InstanceFileNotFoundException exception)
+        {
+            throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
+        }
+
+        VerifiedBinaries[binaryPath] = true;
+    }
+
+    private static string NotFoundMessage(string binaryPath)
+    {
+        return $"ffmpeg was not found on your system (tried \"{binaryPath}\")";
     }
 }

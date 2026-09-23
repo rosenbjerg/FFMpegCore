@@ -1,23 +1,38 @@
-﻿using FFMpegCore.Exceptions;
+﻿using System.Collections.Concurrent;
+using FFMpegCore.Exceptions;
+using Instances.Exceptions;
 
 namespace FFMpegCore.Helpers;
 
 public static class FFProbeHelper
 {
-    private static bool _ffprobeVerified;
+    private static readonly ConcurrentDictionary<string, bool> VerifiedBinaries = new();
 
     public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
     {
-        if (_ffprobeVerified)
+        var binaryPath = GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions);
+        if (VerifiedBinaries.ContainsKey(binaryPath))
         {
             return;
         }
 
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
-        _ffprobeVerified = result.ExitCode == 0;
-        if (!_ffprobeVerified)
+        try
         {
-            throw new FFProbeException(FFMpegExceptionType.Operation, "ffprobe was not found on your system");
+            if (ProcessHelper.Run(binaryPath, "-version").ExitCode != 0)
+            {
+                throw new FFProbeException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath));
+            }
         }
+        catch (InstanceFileNotFoundException exception)
+        {
+            throw new FFProbeException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
+        }
+
+        VerifiedBinaries[binaryPath] = true;
+    }
+
+    private static string NotFoundMessage(string binaryPath)
+    {
+        return $"ffprobe was not found on your system (tried \"{binaryPath}\")";
     }
 }

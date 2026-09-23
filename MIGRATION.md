@@ -103,6 +103,8 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 - The image extension packages honour a per-run `FFOptions`, so `BinaryFolder` and `TemporaryFilesFolder` apply to snapshots and to the
   poster `AddAudio` writes.
 - `FFMpegDownloader` works on Apple Silicon, where it previously threw `PlatformNotSupportedException`.
+- A missing ffmpeg or ffprobe raises `FFMpegException` or `FFProbeException` naming the path that was tried, where `Instances`'
+  `InstanceFileNotFoundException` used to escape.
 - Every `FFMpeg.*` helper takes an optional `FFOptions` covering both the ffprobe call it makes while building the arguments and the run
   itself, so `BinaryFolder` no longer has to be global for a helper to find ffprobe. `Join` and `JoinImageSequence` end in `params`, so
   they take theirs as a leading argument on a separate overload.
