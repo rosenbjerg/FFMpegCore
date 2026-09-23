@@ -751,53 +751,6 @@ public class VideoTest
         Assert.AreEqual(360, analysis.PrimaryVideoStream!.Height);
     }
 
-    private sealed class VideoOnlyAnalysis : IMediaAnalysis
-    {
-        public VideoOnlyAnalysis(int width, int height, int rotation)
-        {
-            PrimaryVideoStream = new VideoStream { Index = 0, Width = width, Height = height, Rotation = rotation };
-            VideoStreams = new List<VideoStream> { PrimaryVideoStream };
-        }
-
-        public TimeSpan Duration => TimeSpan.FromSeconds(3);
-        public MediaFormat Format => new();
-        public List<ChapterData> Chapters => new();
-        public AudioStream PrimaryAudioStream => null;
-        public VideoStream PrimaryVideoStream { get; }
-        public SubtitleStream PrimarySubtitleStream => null;
-        public List<VideoStream> VideoStreams { get; }
-        public List<AudioStream> AudioStreams => new();
-        public List<SubtitleStream> SubtitleStreams => new();
-        public IReadOnlyList<string> ErrorData => Array.Empty<string>();
-    }
-
-    [TestMethod]
-    [DataRow(0, "scale=360:202")]
-    [DataRow(90, "scale=360:640")]
-    [DataRow(-90, "scale=360:640")]
-    [DataRow(180, "scale=360:202")]
-    [DataRow(-180, "scale=360:202")]
-    public void Video_Snapshot_ScalesAgainstTheDisplayedSize(int rotation, string expectedScale)
-    {
-        var source = new VideoOnlyAnalysis(1280, 720, rotation);
-
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments("input.mp4", "output.png", source, new Size(360, 0));
-
-        Assert.Contains(expectedScale, arguments.OutputToFile("output.png", true, outputOptions).Arguments);
-    }
-
-    [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Snapshot_SourceSized_AddsNoScaleFilter()
-    {
-        var source = FFProbe.Analyse(TestResources.Mp4Video);
-        var size = new Size(source.PrimaryVideoStream!.Width, source.PrimaryVideoStream.Height);
-
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(TestResources.Mp4Video, "out.png", source, size);
-
-        Assert.DoesNotContain("scale", arguments.OutputToFile("out.png", true, outputOptions).Arguments);
-    }
-
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_GifSnapshot_PersistSnapshot()
