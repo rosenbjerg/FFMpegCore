@@ -1,5 +1,6 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 
 namespace FFMpegCore.Test;
@@ -329,6 +330,43 @@ public class FFMpegArgumentProcessorTest
             FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile(output, false).ProcessSynchronously());
 
         Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
+    }
+
+    // Don't shrink the output format - ffmpeg must still be writing when the sink throws, or the pipe never breaks
+    private static FFMpegArgumentProcessor CreateProcessorWithFailingSink()
+    {
+        var sink = new StreamPipeSink(async (stream, token) =>
+        {
+            var buffer = new byte[1024];
+            await stream.ReadAsync(buffer, 0, buffer.Length, token);
+            throw new IOException("sink gave up");
+        });
+
+        return FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToPipe(sink, options => options.ForceFormat("rawvideo"));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_BrokenOutputPipe_ReportsFFMpegsFailure_NotThePipeException()
+    {
+        var result = CreateProcessorWithFailingSink().ProcessSynchronously(false);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsFalse(result.Cancelled);
+        Assert.AreNotEqual(0, result.ExitCode);
+        Assert.IsNotEmpty(result.ErrorOutput);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_BrokenOutputPipe_ThrowsFFMpegException_NotThePipeException()
+    {
+        var exception = await Assert.ThrowsExactlyAsync<FFMpegException>(() => CreateProcessorWithFailingSink().ProcessAsynchronously());
+
+        Assert.AreEqual(FFMpegExceptionType.Process, exception.Type);
+        Assert.IsNotEmpty(exception.FFMpegErrorOutput);
     }
 
     public TestContext TestContext { get; set; }
