@@ -332,7 +332,7 @@ The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at
 
 ```csharp
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
-await FFMpegDownloader.DownloadBinaries();
+await FFMpegDownloader.DownloadBinariesAsync();
 ```
 
 This feature uses the api from [ffbinaries](https://ffbinaries.com/api).

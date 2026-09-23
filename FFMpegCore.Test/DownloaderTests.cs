@@ -1,6 +1,5 @@
 ﻿using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.Downloader.Enums;
-using FFMpegCore.Test.Utilities;
 
 namespace FFMpegCore.Test;
 
@@ -8,6 +7,8 @@ namespace FFMpegCore.Test;
 public class DownloaderTests
 {
     private FFOptions _ffOptions;
+
+    public TestContext TestContext { get; set; }
 
     [TestInitialize]
     public void InitializeTestFolder()
@@ -23,10 +24,11 @@ public class DownloaderTests
         Directory.Delete(_ffOptions.BinaryFolder, true);
     }
 
-    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
+    [TestMethod]
     public async Task GetSpecificVersionTest()
     {
-        var binaries = await FFMpegDownloader.DownloadBinaries(FFMpegVersions.V6_1, options: _ffOptions);
+        var binaries = await FFMpegDownloader.DownloadBinariesAsync(FFMpegVersions.V6_1, options: _ffOptions,
+            cancellationToken: TestContext.CancellationToken);
         try
         {
             Assert.HasCount(2, binaries);
@@ -37,10 +39,11 @@ public class DownloaderTests
         }
     }
 
-    [OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]
+    [TestMethod]
     public async Task GetAllLatestSuiteTest()
     {
-        var binaries = await FFMpegDownloader.DownloadBinaries(options: _ffOptions);
+        var binaries = await FFMpegDownloader.DownloadBinariesAsync(options: _ffOptions,
+            cancellationToken: TestContext.CancellationToken);
         try
         {
             Assert.HasCount(2, binaries);

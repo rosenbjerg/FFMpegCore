@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -82,7 +82,7 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
 
 - MSTest with `[Parallelize(Scope = ExecutionScope.MethodLevel)]` — tests run concurrently. Always write outputs to `new TemporaryFile("out.mp4")` (GUID-prefixed in the temp dir, deleted on dispose) and read inputs from `TestResources.*` (`Resources/` is copied to the output dir).
 - Long-running tests use `[Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]` and chain `.CancellableThrough(TestContext.CancellationToken)` so a timeout actually stops ffmpeg.
-- `[OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]` marks tests inconclusive on other platforms — `System.Drawing.Common` tests are Windows-only; the downloader tests skip macOS.
+- `[OsSpecificTestMethod(OsPlatforms.Windows | OsPlatforms.Linux)]` marks tests inconclusive on other platforms — `System.Drawing.Common` tests are Windows-only.
 - `ArgumentBuilderTest` asserts exact argument strings via `.Arguments` without launching ffmpeg — prefer this for argument changes; it's fast and platform-independent.
 - `DownloaderTests` hit the network (ffbinaries).
 - `FFMpegCore` exposes internals to the test project (`InternalsVisibleTo`).

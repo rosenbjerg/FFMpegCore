@@ -88,6 +88,9 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 
 `AddAudio` takes the same `FFOptions`, and `AddAudioAsync` adds cancellation.
 
+`FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`. `FFMpegDownloaderException` derives from
+`FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
+
 ## New in 6.0
 
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
@@ -99,3 +102,4 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
 - The image extension packages honour a per-run `FFOptions`, so `BinaryFolder` and `TemporaryFilesFolder` apply to snapshots and to the
   poster `AddAudio` writes.
+- `FFMpegDownloader` works on Apple Silicon, where it previously threw `PlatformNotSupportedException`.

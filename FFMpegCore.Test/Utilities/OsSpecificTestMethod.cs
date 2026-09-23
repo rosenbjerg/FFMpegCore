@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using FFMpegCore.Extensions.Downloader.Extensions;
 
 namespace FFMpegCore.Test.Utilities;
 
@@ -19,8 +18,9 @@ internal class OsSpecificTestMethod : TestMethodAttribute
     public OsSpecificTestMethod(OsPlatforms supportedOsPlatforms, [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = -1) : base(callerFilePath, callerLineNumber)
     {
-        _supportedOsPlatforms = supportedOsPlatforms.GetFlags()
-            .Select(flag => OSPlatform.Create(flag.ToString().ToUpperInvariant()))
+        _supportedOsPlatforms = Enum.GetValues<OsPlatforms>()
+            .Where(platform => supportedOsPlatforms.HasFlag(platform))
+            .Select(platform => OSPlatform.Create(platform.ToString().ToUpperInvariant()))
             .ToArray();
     }
 
