@@ -9,7 +9,7 @@ public static class SkiaSharpBitmapExtensions
         var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
         try
         {
-            return FFMpeg.PosterWithAudio(destination, audio, output).ProcessSynchronously(true, ffOptions);
+            return FFMpeg.PosterWithAudio(destination, audio, output, ffOptions).ProcessSynchronously();
         }
         finally
         {
@@ -23,9 +23,9 @@ public static class SkiaSharpBitmapExtensions
         var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
         try
         {
-            return await FFMpeg.PosterWithAudio(destination, audio, output)
+            return await FFMpeg.PosterWithAudio(destination, audio, output, ffOptions)
                 .CancellableThrough(cancellationToken)
-                .ProcessAsynchronously(true, ffOptions)
+                .ProcessAsynchronously()
                 .ConfigureAwait(false);
         }
         finally

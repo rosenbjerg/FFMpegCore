@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using FFMpegCore.Test.Resources;
+using Instances.Exceptions;
 
 namespace FFMpegCore.Test;
 
@@ -54,6 +56,14 @@ public class FFMpegOptionsTests
         {
             GlobalFFOptions.Configure(new FFOptions());
         }
+    }
+
+    [TestMethod]
+    public void Helpers_ProbeWithTheOptionsTheyWereGiven()
+    {
+        var ffOptions = new FFOptions { WorkingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()) };
+
+        Assert.Throws<InstanceFileNotFoundException>(() => FFMpeg.Snapshot(TestResources.Mp4Video, "out.png", ffOptions: ffOptions));
     }
 
     [TestMethod]

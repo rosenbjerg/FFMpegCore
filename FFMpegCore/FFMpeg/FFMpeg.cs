@@ -16,26 +16,27 @@ public static class FFMpeg
     /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0)
+        int inputFileIndex = 0, FFOptions? ffOptions = null)
     {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex, inputFileIndex);
 
-        return arguments.OutputToFile(output, true, outputOptions);
+        return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
     }
 
     public static FFMpegArgumentProcessor GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
-        int? streamIndex = null)
+        int? streamIndex = null, FFOptions? ffOptions = null)
     {
         CheckSnapshotOutputExtension(output, [FileExtension.Gif]);
 
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
 
-        return arguments.OutputToFile(output, true, outputOptions);
+        return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
     }
 
     private static void CheckSnapshotOutputExtension(string output, List<string> extensions)
@@ -55,10 +56,22 @@ public static class FFMpeg
     /// <param name="images">Image sequence collection</param>
     public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params string[] images)
     {
+        return JoinImageSequence(null, output, frameRate, images);
+    }
+
+    /// <summary>
+    ///     Converts an image sequence to a video.
+    /// </summary>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="frameRate">FPS</param>
+    /// <param name="images">Image sequence collection</param>
+    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30, params string[] images)
+    {
         var arguments = FFMpegArguments.FromImageSequenceInput(images, options => options
             .WithFrameRate(frameRate));
 
-        var streams = images.Select(image => FFProbe.Analyse(image).PrimaryVideoStream!).ToArray();
+        var streams = images.Select(image => FFProbe.Analyse(image, ffOptions).PrimaryVideoStream!).ToArray();
         foreach (var stream in streams)
         {
             FFMpegHelper.ConversionSizeExceptionCheck(stream.Width, stream.Height);
@@ -69,7 +82,8 @@ public static class FFMpeg
                 .WithPixelFormat("yuv420p")
                 .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
                 .WithFrameRate(frameRate))
-            .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate));
+            .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate))
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -78,10 +92,11 @@ public static class FFMpeg
     /// <param name="image">Source image file.</param>
     /// <param name="audio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output)
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, FFOptions? ffOptions = null)
     {
         FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-        var analysis = FFProbe.Analyse(image);
+        var analysis = FFProbe.Analyse(image, ffOptions);
         FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
 
         return FFMpegArguments
@@ -94,7 +109,8 @@ public static class FFMpeg
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithConstantRateFactor(21)
                 .WithAudioBitrate(AudioQuality.Normal)
-                .WithShortest());
+                .WithShortest())
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -107,6 +123,7 @@ public static class FFMpeg
     /// <param name="size">Video size.</param>
     /// <param name="audioQuality">Conversion target audio quality.</param>
     /// <param name="multithreaded">Encode across every processor, rather than on a single thread.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Convert(
         string input,
         string output,
@@ -114,10 +131,11 @@ public static class FFMpeg
         Speed speed = Speed.SuperFast,
         VideoSize size = VideoSize.Original,
         AudioQuality audioQuality = AudioQuality.Normal,
-        bool multithreaded = false)
+        bool multithreaded = false,
+        FFOptions? ffOptions = null)
     {
         FFMpegHelper.ExtensionExceptionCheck(output, format.Extension);
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         var scale = VideoSize.Original == size ? 1 : (double)source.PrimaryVideoStream!.Height / (int)size;
@@ -172,7 +190,7 @@ public static class FFMpeg
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
-        return processor.WithKnownDuration(source.Duration);
+        return processor.WithKnownDuration(source.Duration).WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -182,7 +200,18 @@ public static class FFMpeg
     /// <param name="videos">List of vides that need to be joined together.</param>
     public static FFMpegArgumentProcessor Join(string output, params string[] videos)
     {
-        var analyses = videos.Select(video => FFProbe.Analyse(video)).ToArray();
+        return Join(null, output, videos);
+    }
+
+    /// <summary>
+    ///     Joins a list of video files.
+    /// </summary>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="videos">List of vides that need to be joined together.</param>
+    public static FFMpegArgumentProcessor Join(FFOptions? ffOptions, string output, params string[] videos)
+    {
+        var analyses = videos.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray();
         foreach (var analysis in analyses)
         {
             FFMpegHelper.ConversionSizeExceptionCheck(analysis);
@@ -202,10 +231,11 @@ public static class FFMpeg
                 .WithSpeedPreset(Speed.SuperFast)
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithAudioBitrate(AudioQuality.Normal))
-            .WithKnownDuration(analyses.Aggregate(TimeSpan.Zero, (total, analysis) => total + analysis.Duration));
+            .WithKnownDuration(analyses.Aggregate(TimeSpan.Zero, (total, analysis) => total + analysis.Duration))
+            .WithOptions(ffOptions);
     }
 
-    public static FFMpegArgumentProcessor SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime)
+    public static FFMpegArgumentProcessor SubVideo(string input, string output, TimeSpan startTime, TimeSpan endTime, FFOptions? ffOptions = null)
     {
         if (Path.GetExtension(input) != Path.GetExtension(output))
         {
@@ -215,7 +245,8 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input, true, options => options.WithStartTime(startTime).WithStopTime(endTime))
             .OutputToFile(output, true, options => options.CopyStreams())
-            .WithKnownDuration(endTime - startTime);
+            .WithKnownDuration(endTime - startTime)
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -223,7 +254,8 @@ public static class FFMpeg
     /// </summary>
     /// <param name="uri">URI to pointing towards stream.</param>
     /// <param name="output">Output file</param>
-    public static FFMpegArgumentProcessor SaveM3U8Stream(Uri uri, string output)
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor SaveM3U8Stream(Uri uri, string output, FFOptions? ffOptions = null)
     {
         FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
 
@@ -234,7 +266,8 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromUrlInput(uri)
-            .OutputToFile(output, true, options => options.CopyStreams());
+            .OutputToFile(output, true, options => options.CopyStreams())
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -242,9 +275,10 @@ public static class FFMpeg
     /// </summary>
     /// <param name="input">Input video file.</param>
     /// <param name="output">Output video file.</param>
-    public static FFMpegArgumentProcessor Mute(string input, string output)
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Mute(string input, string output, FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments
@@ -252,7 +286,8 @@ public static class FFMpeg
             .OutputToFile(output, true, options => options
                 .CopyStreams(StreamType.Video)
                 .DisableAudio())
-            .WithKnownDuration(source.Duration);
+            .WithKnownDuration(source.Duration)
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -260,14 +295,16 @@ public static class FFMpeg
     /// </summary>
     /// <param name="input">Source video file.</param>
     /// <param name="output">Output audio file.</param>
-    public static FFMpegArgumentProcessor ExtractAudio(string input, string output)
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ExtractAudio(string input, string output, FFOptions? ffOptions = null)
     {
         FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp3);
 
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .DisableVideo());
+                .DisableVideo())
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -277,9 +314,11 @@ public static class FFMpeg
     /// <param name="inputAudio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="stopAtShortest">Indicates if the encoding should stop at the shortest input file.</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(string input, string inputAudio, string output, bool stopAtShortest = false)
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ReplaceAudio(string input, string inputAudio, string output, bool stopAtShortest = false,
+        FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input);
+        var source = FFProbe.Analyse(input, ffOptions);
         FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments
@@ -290,7 +329,8 @@ public static class FFMpeg
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithAudioBitrate(AudioQuality.Good)
                 .WithShortest(stopAtShortest))
-            .WithKnownDuration(source.Duration);
+            .WithKnownDuration(source.Duration)
+            .WithOptions(ffOptions);
     }
 
     #region PixelFormats

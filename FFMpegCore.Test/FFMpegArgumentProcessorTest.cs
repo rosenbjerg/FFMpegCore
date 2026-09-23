@@ -18,6 +18,41 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
+    public void Processor_SeededOptions_ApplyWhenTheRunIsGivenNone()
+    {
+        var seeded = new FFOptions { WorkingDirectory = "seeded", BinaryFolder = "seeded" };
+        var processor = CreateArgumentProcessor().WithOptions(seeded);
+
+        var options = processor.GetConfiguredOptions(null);
+
+        Assert.AreEqual("seeded", options.WorkingDirectory);
+        Assert.AreEqual("seeded", options.BinaryFolder);
+    }
+
+    [TestMethod]
+    public void Processor_SeededOptions_LoseToOptionsPassedToTheRun()
+    {
+        var processor = CreateArgumentProcessor().WithOptions(new FFOptions { WorkingDirectory = "seeded" });
+
+        var options = processor.GetConfiguredOptions(new FFOptions { WorkingDirectory = "override" });
+
+        Assert.AreEqual("override", options.WorkingDirectory);
+    }
+
+    [TestMethod]
+    public void Processor_SeededOptions_SurviveConfigurationOfAnEarlierRun()
+    {
+        var seeded = new FFOptions { WorkingDirectory = "seeded" };
+        var processor = CreateArgumentProcessor()
+            .WithOptions(seeded)
+            .Configure(options => options.WorkingDirectory = "configured");
+
+        processor.GetConfiguredOptions(null);
+
+        Assert.AreEqual("seeded", seeded.WorkingDirectory);
+    }
+
+    [TestMethod]
     [DoNotParallelize]
     public void Processor_GlobalOptions_GetUsed()
     {

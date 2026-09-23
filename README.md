@@ -382,6 +382,10 @@ await FFMpegArguments
     .OutputToFile(outputPath)
     .ProcessAsynchronously(true, new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 
+// the FFMpeg.* helpers take the same options, covering the ffprobe call they make before the run
+await FFMpeg.Mute(inputPath, outputPath, new FFOptions { BinaryFolder = "./bin" })
+    .ProcessAsynchronously();
+
 // or combined, setting global defaults and adapting per-run options
 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "./globalTmp", WorkingDirectory = "./" });
 

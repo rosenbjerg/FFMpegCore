@@ -14,6 +14,7 @@ public class FFMpegArgumentProcessor
     private readonly FFMpegArguments _ffMpegArguments;
     private readonly List<(CancellationToken Token, int Timeout)> _cancellationTokens = new();
     private bool _cancelled;
+    private FFOptions? _ffOptions;
     private TimeSpan? _knownDuration;
     private FFMpegLogLevel? _logLevel;
     private Action<string>? _onError;
@@ -305,9 +306,15 @@ public class FFMpegArgumentProcessor
         return result;
     }
 
+    internal FFMpegArgumentProcessor WithOptions(FFOptions? ffOptions)
+    {
+        _ffOptions = ffOptions;
+        return this;
+    }
+
     internal FFOptions GetConfiguredOptions(FFOptions? ffOptions)
     {
-        var options = ffOptions ?? GlobalFFOptions.Current.Clone();
+        var options = ffOptions ?? _ffOptions?.Clone() ?? GlobalFFOptions.Current.Clone();
 
         foreach (var configureOptions in _configurations)
         {
