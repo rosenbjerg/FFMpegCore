@@ -438,6 +438,18 @@ public class FFProbeTests
         Assert.IsNotEmpty(frames.Frames);
     }
 
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Uri_Async()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var info = await FFProbe.AnalyseAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(3, info.Duration.Seconds);
+    }
+
     [TestMethod]
     public void Probe_MissingFile_Throws()
     {

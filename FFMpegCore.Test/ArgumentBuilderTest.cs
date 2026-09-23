@@ -107,20 +107,51 @@ public class ArgumentBuilderTest
         Assert.Contains("\"output.mp4\"", str);
     }
 
-    [TestMethod]
-    public void Builder_BuildString_Copy_Audio()
+    public static IEnumerable<object[]> InputSideOptions()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.CopyStreams(StreamType.Audio)).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -c:a copy \"output.mp4\"", str);
+        yield return new object[] { "-s 1920x1080", (Action<FFMpegInputOptions>)(opt => opt.WithFrameSize(new Size(1920, 1080))) };
+        yield return new object[] { "-pix_fmt yuv420p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat("yuv420p")) };
+        yield return new object[] { "-pix_fmt yuv444p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat(new PixelFormat("yuv444p"))) };
+        yield return new object[] { "-ar 48000", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate()) };
+        yield return new object[] { "-ar 44100", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate(44100)) };
+        yield return new object[] { "-start_number 7", (Action<FFMpegInputOptions>)(opt => opt.WithStartNumber(7)) };
+        yield return new object[] { "-threads 4", (Action<FFMpegInputOptions>)(opt => opt.WithThreads(4)) };
+        yield return new object[] { "-vn", (Action<FFMpegInputOptions>)(opt => opt.DisableVideo()) };
+        yield return new object[] { "-an", (Action<FFMpegInputOptions>)(opt => opt.DisableAudio()) };
+        yield return new object[] { "-sn", (Action<FFMpegInputOptions>)(opt => opt.DisableSubtitles()) };
+        yield return new object[] { "-dn", (Action<FFMpegInputOptions>)(opt => opt.DisableData()) };
     }
 
     [TestMethod]
-    public void Builder_BuildString_Copy_Video()
+    [DynamicData(nameof(InputSideOptions))]
+    public void Builder_BuildString_InputSideOption_LandsBeforeTheInput(string expected, Action<FFMpegInputOptions> addArguments)
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, addArguments)
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual($"{expected} -i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_InputFrameSize_NullSizeEmitsNothing()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithFrameSize(null))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(StreamType.All, "-c copy")]
+    [DataRow(StreamType.Audio, "-c:a copy")]
+    [DataRow(StreamType.Video, "-c:v copy")]
+    [DataRow(StreamType.VideoNoAttachedPic, "-c:V copy")]
+    [DataRow(StreamType.Subtitle, "-c:s copy")]
+    [DataRow(StreamType.Data, "-c:d copy")]
+    [DataRow(StreamType.Attachments, "-c:t copy")]
+    public void Builder_BuildString_Copy_SpellsEveryStreamType(StreamType streamType, string expected)
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.CopyStreams(StreamType.Video)).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -c:v copy \"output.mp4\"", str);
+            .OutputToFile("output.mp4", false, opt => opt.CopyStreams(streamType)).Arguments;
+        Assert.AreEqual($"-i \"input.mp4\" {expected} \"output.mp4\"", str);
     }
 
     [TestMethod]

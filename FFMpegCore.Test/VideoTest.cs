@@ -738,6 +738,33 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Snapshot_HeightOnly_KeepsAspectRatio()
+    {
+        using var outputPath = new TemporaryFile("out.png");
+
+        FFMpeg.Snapshot(TestResources.Mp4Video, outputPath, new Size(0, 360))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        var analysis = FFProbe.Analyse(outputPath);
+        Assert.AreEqual(640, analysis.PrimaryVideoStream!.Width);
+        Assert.AreEqual(360, analysis.PrimaryVideoStream!.Height);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Snapshot_SourceSized_AddsNoScaleFilter()
+    {
+        var source = FFProbe.Analyse(TestResources.Mp4Video);
+        var size = new Size(source.PrimaryVideoStream!.Width, source.PrimaryVideoStream.Height);
+
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(TestResources.Mp4Video, "out.png", source, size);
+
+        Assert.DoesNotContain("scale", arguments.OutputToFile("out.png", true, outputOptions).Arguments);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_GifSnapshot_PersistSnapshot()
     {
         using var outputPath = new TemporaryFile("out.gif");
@@ -1529,6 +1556,26 @@ public class VideoTest
 
         Assert.AreEqual(3, FFProbe.Analyse(first).Duration.Seconds);
         Assert.AreEqual(3, FFProbe.Analyse(second).Duration.Seconds);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_OutputToMany_WritesEveryOutput()
+    {
+        using var mp4 = new TemporaryFile("many.mp4");
+        using var mkv = new TemporaryFile("many.mkv");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToMany(outputs => outputs
+                .OutputToFile(mp4, true, options => options.CopyStreams())
+                .OutputToFile(mkv, true, options => options.CopyStreams().ForceFormat("matroska")))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(3, FFProbe.Analyse(mp4).Duration.Seconds);
+        Assert.AreEqual(3, FFProbe.Analyse(mkv).Duration.Seconds);
     }
 
     [TestMethod]

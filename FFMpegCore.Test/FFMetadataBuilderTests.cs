@@ -48,6 +48,27 @@ public class FFMetadataBuilderTests
     }
 
     [TestMethod]
+    public void NamedTags_SerializeTheSameFromEitherOverload()
+    {
+        var lines = Lines(new FFMetadataBuilder()
+            .WithArtists(new List<string> { "Artist A", "Artist B" })
+            .WithComposers("Composer")
+            .WithAlbumArtists(new List<string> { "Album Artist" })
+            .WithGenres("Genre")
+            .WithComments(new List<string> { "Comment A", "Comment B" }));
+
+        CollectionAssert.AreEqual(new[]
+        {
+            ";FFMETADATA1",
+            "artist=Artist A; Artist B",
+            "composer=Composer",
+            "album_artist=Album Artist",
+            "genre=Genre",
+            "comment=Comment A; Comment B"
+        }, lines);
+    }
+
+    [TestMethod]
     public void WithTag_LastValueWins()
     {
         var lines = Lines(new FFMetadataBuilder()
