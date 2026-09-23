@@ -120,7 +120,6 @@ public static class SnapshotArgumentBuilder
 
     private static bool IsRotated(int rotation)
     {
-        var absRotation = Math.Abs(rotation);
-        return absRotation == 90 || absRotation == 180;
+        return Math.Abs(rotation) == 90;
     }
 }
