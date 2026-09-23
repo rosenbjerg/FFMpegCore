@@ -1342,15 +1342,21 @@ public class VideoTest
     }
 
     [TestMethod]
-    public void Video_SaveM3U8Stream_RejectsNonHttpUri()
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    [DataRow("out.ts")]
+    [DataRow("out.mkv")]
+    [DataRow("out.mp4")]
+    public void Video_SaveStream_RecordsAnyProtocolIntoAnyContainer(string filename)
     {
-        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.SaveM3U8Stream(new Uri("ftp://example.com/stream.m3u8"), "out.mp4"));
-    }
+        using var outputFile = new TemporaryFile(filename);
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
 
-    [TestMethod]
-    public void Video_SaveM3U8Stream_RejectsNonMp4Output()
-    {
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.SaveM3U8Stream(new Uri("https://example.com/stream.m3u8"), "out.mkv"));
+        var success = FFMpeg.SaveStream(uri, outputFile)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        Assert.IsNotEmpty(FFProbe.Analyse(outputFile).VideoStreams);
     }
 
     [TestMethod]

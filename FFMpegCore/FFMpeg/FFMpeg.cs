@@ -173,20 +173,16 @@ public static class FFMpeg
     }
 
     /// <summary>
-    ///     Records M3U8 streams to the specified output.
+    ///     Records a remote stream to a file, copying the streams rather than re-encoding.
     /// </summary>
-    /// <param name="uri">URI to pointing towards stream.</param>
-    /// <param name="output">Output file</param>
+    /// <param name="uri">The stream to record — any protocol ffmpeg can open, such as http(s), rtmp, rtsp or srt.</param>
+    /// <param name="output">
+    ///     Output file. Prefer a container that stays playable when the recording is interrupted, such as .ts or .mkv;
+    ///     an .mp4 is only finalised when the run ends cleanly.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor SaveM3U8Stream(Uri uri, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor SaveStream(Uri uri, string output, FFOptions? ffOptions = null)
     {
-        FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-
-        if (uri.Scheme != "http" && uri.Scheme != "https")
-        {
-            throw new ArgumentException($"Uri: {uri.AbsoluteUri}, does not point to a valid http(s) stream.");
-        }
-
         return FFMpegArguments
             .FromUrlInput(uri)
             .OutputToFile(output, true, options => options.CopyStreams())

@@ -85,6 +85,17 @@ FFMpeg.ExtractAudio(inputPath, outputPath, ffOptions: ffOptions);         // 6.0
 FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy);             // 6.0 — no re-encode
 ```
 
+### `FFMpeg.SaveM3U8Stream` is `FFMpeg.SaveStream`
+
+Nothing about it was M3U8-specific — it opens a URL and copies the streams. It rejected any scheme but http(s), ruling out rtmp, rtsp and
+srt, and required an `.mp4` output, which is the worst container for a recording that may be interrupted. Both checks are gone.
+
+```csharp
+FFMpeg.SaveM3U8Stream(uri, "out.mp4");                          // 5.x / early 6.0
+FFMpeg.SaveStream(uri, "recording.ts");                         // 6.0
+FFMpeg.SaveStream(new Uri("rtsp://camera/stream"), "cam.mkv");  // 6.0
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.

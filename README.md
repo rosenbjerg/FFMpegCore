@@ -276,6 +276,18 @@ FFMpeg.ExtractAudio(inputPath, "track.flac").ProcessSynchronously();
 FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy).ProcessSynchronously();
 ```
 
+### Record a remote stream to a file:
+
+```csharp
+await FFMpeg.SaveStream(new Uri("https://example.com/live/stream.m3u8"), "recording.ts")
+    .CancellableThrough(cancellationToken)
+    .ProcessAsynchronously();
+```
+
+Any protocol ffmpeg can open works — http(s), rtmp, rtsp, srt. The streams are copied, not re-encoded. Prefer `.ts` or `.mkv` over `.mp4` for
+anything long-running: an mp4 is only finalised when the run ends, so a crash loses the recording, while cancelling through
+`CancellableThrough` finalises it properly.
+
 ### Add or replace the audio track of a video file:
 
 ```csharp
