@@ -22,6 +22,34 @@ FFMpeg.Mute(inputPath, outputPath).ProcessSynchronously();
 await FFMpeg.SubVideo(inputPath, outputPath, start, end).ProcessAsynchronously();
 ```
 
+## Removed and renamed helpers
+
+### `FFMpeg.Convert` is gone
+
+It only ever supported `mp4`, `ogv`, `mpegts` and `webm`, hard-coded a 2400 kbps video bitrate, and silently ignored `speed`, `size`,
+`audioQuality` and `multithreaded` on the `mpegts` path. `VideoSize.Hd` also *upscaled* anything smaller than 720p. Build the conversion with
+`FFMpegArguments` instead, which is what the README already recommended for every other container:
+
+```csharp
+// 5.x / early 6.0
+FFMpeg.Convert(inputPath, "output.mp4", VideoType.Mp4, Speed.Medium, VideoSize.Hd, AudioQuality.Good, multithreaded: true);
+
+// 6.0
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile("output.mp4", true, options => options
+        .WithVideoCodec(VideoCodec.LibX264)
+        .WithVideoBitrate(2400)
+        .WithVideoFilters(filters => filters.Scale(VideoSize.Hd))
+        .WithSpeedPreset(Speed.Medium)
+        .WithAudioCodec(AudioCodec.Aac)
+        .WithAudioBitrate(AudioQuality.Good)
+        .WithThreads(Environment.ProcessorCount))
+    .ProcessSynchronously();
+```
+
+To change container without re-encoding, use `FFMpeg.Remux`.
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.

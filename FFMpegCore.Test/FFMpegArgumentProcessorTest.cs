@@ -276,7 +276,7 @@ public class FFMpegArgumentProcessorTest
         using var output = new TemporaryFile("out.mp4");
         var percentages = new List<double>();
 
-        FFMpeg.Convert(TestResources.Mp4Video, output, VideoType.Mp4)
+        FFMpeg.Mute(TestResources.Mp4Video, output)
             .NotifyOnPercentageProgress(percentages.Add)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();

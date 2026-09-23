@@ -860,46 +860,6 @@ public class VideoTest
     }
 
     [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Convert_Webm()
-    {
-        using var outputPath = new TemporaryFile("out.webm");
-
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.WebM).ProcessSynchronously();
-        Assert.IsTrue(success.Success);
-        Assert.IsTrue(File.Exists(outputPath));
-
-        var input = FFProbe.Analyse(TestResources.Mp4Video);
-        var result = FFProbe.Analyse(outputPath);
-        Assert.AreEqual(input.Duration.Days, result.Duration.Days);
-        Assert.AreEqual(input.Duration.Hours, result.Duration.Hours);
-        Assert.AreEqual(input.Duration.Minutes, result.Duration.Minutes);
-        Assert.AreEqual(input.Duration.Seconds, result.Duration.Seconds);
-        Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
-        Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
-    }
-
-    [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Convert_Ogv()
-    {
-        using var outputPath = new TemporaryFile("out.ogv");
-
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ogv).ProcessSynchronously();
-        Assert.IsTrue(success.Success);
-        Assert.IsTrue(File.Exists(outputPath));
-
-        var input = FFProbe.Analyse(TestResources.Mp4Video);
-        var result = FFProbe.Analyse(outputPath);
-        Assert.AreEqual(input.Duration.Days, result.Duration.Days);
-        Assert.AreEqual(input.Duration.Hours, result.Duration.Hours);
-        Assert.AreEqual(input.Duration.Minutes, result.Duration.Minutes);
-        Assert.AreEqual(input.Duration.Seconds, result.Duration.Seconds);
-        Assert.AreEqual(input.PrimaryVideoStream!.Height, result.PrimaryVideoStream!.Height);
-        Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
-    }
-
-    [TestMethod]
     [Timeout(2 * BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Join_Image_Sequence()
     {
@@ -1385,49 +1345,6 @@ public class VideoTest
         {
             File.Delete(actualOutput);
         }
-    }
-
-    [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Convert_Mp4_Scaled_Multithreaded()
-    {
-        using var outputPath = new TemporaryFile("out.mp4");
-
-        var success = FFMpeg.Convert(TestResources.WebmVideo, outputPath, VideoType.Mp4, Speed.UltraFast, VideoSize.Ld, AudioQuality.Low, true).ProcessSynchronously();
-        Assert.IsTrue(success.Success);
-
-        var result = FFProbe.Analyse(outputPath);
-        Assert.AreEqual(360, result.PrimaryVideoStream!.Height);
-        Assert.AreEqual("h264", result.PrimaryVideoStream.CodecName);
-    }
-
-    [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Convert_MpegTs()
-    {
-        using var outputPath = new TemporaryFile("out.ts");
-
-        var success = FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Ts).ProcessSynchronously();
-        Assert.IsTrue(success.Success);
-
-        var result = FFProbe.Analyse(outputPath);
-        Assert.AreEqual("mpegts", result.Format.FormatName);
-        Assert.AreEqual("h264", result.PrimaryVideoStream!.CodecName);
-    }
-
-    [TestMethod]
-    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Video_Convert_UnsupportedFormat_Throws()
-    {
-        using var outputPath = new TemporaryFile("out.avi");
-
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => FFMpeg.Convert(TestResources.Mp4Video, outputPath, VideoType.Avi));
-    }
-
-    [TestMethod]
-    public void Video_Convert_WrongOutputExtension_Throws()
-    {
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpeg.Convert(TestResources.Mp4Video, "out.mkv", VideoType.Mp4));
     }
 
     [TestMethod]

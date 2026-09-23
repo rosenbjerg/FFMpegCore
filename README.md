@@ -237,23 +237,6 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
 ).ProcessSynchronously();
 ```
 
-### Convert a video to another format:
-
-```csharp
-FFMpeg.Convert(inputPath, @"..\output.webm", VideoType.WebM).ProcessSynchronously();
-
-// scale down, and encode across every processor rather than on a single thread
-FFMpeg.Convert(inputPath, @"..\output.mp4", VideoType.Mp4,
-    speed: Speed.Medium,
-    size: VideoSize.Hd,
-    audioQuality: AudioQuality.Good,
-    multithreaded: true
-).ProcessSynchronously();
-```
-
-`Convert` supports the `mp4`, `ogv`, `mpegts` and `webm` container formats, and picks a codec pairing for each. For anything else, build the
-arguments yourself with `FFMpegArguments`.
-
 ### Mute the audio of a video file:
 
 ```csharp
