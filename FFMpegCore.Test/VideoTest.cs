@@ -1361,6 +1361,43 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    [DataRow(WatermarkPosition.TopLeft)]
+    [DataRow(WatermarkPosition.BottomRight)]
+    [DataRow(WatermarkPosition.Center)]
+    public void Video_Watermark_KeepsTheSizeAndTheAudio(WatermarkPosition position)
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var logo = Path.Combine(TestResources.ImageCollection, "a.png");
+
+        var success = FFMpeg.Watermark(TestResources.Mp4Video, logo, outputFile, position)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputFile);
+        Assert.AreEqual(input.PrimaryVideoStream!.Width, result.PrimaryVideoStream!.Width);
+        Assert.AreEqual(input.PrimaryVideoStream.Height, result.PrimaryVideoStream.Height);
+        Assert.AreEqual(input.PrimaryAudioStream!.CodecName, result.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Watermark_WorksWithoutAnAudioStream()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var logo = Path.Combine(TestResources.ImageCollection, "a.png");
+
+        var success = FFMpeg.Watermark(TestResources.Mp4WithoutAudio, logo, outputFile)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        Assert.IsEmpty(FFProbe.Analyse(outputFile).AudioStreams);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Subtitles_RoundTripThroughASoftStream()
     {
         using var withSubtitles = new TemporaryFile("out.mkv");

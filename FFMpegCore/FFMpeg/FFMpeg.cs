@@ -116,6 +116,55 @@ public static class FFMpeg
     }
 
     /// <summary>
+    ///     Overlays an image onto a video. The audio is copied; the video is re-encoded, because the picture changes.
+    /// </summary>
+    /// <param name="input">Source video file.</param>
+    /// <param name="watermark">Image to overlay. A PNG with an alpha channel keeps its transparency.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="position">Corner to place it in.</param>
+    /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Watermark(string input, string watermark, string output,
+        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, FFOptions? ffOptions = null)
+    {
+        var source = FFProbe.Analyse(input, ffOptions);
+        var (x, y) = OverlayPosition(position, margin);
+
+        return FFMpegArguments
+            .FromFileInput(input)
+            .AddFileInput(watermark)
+            .OutputToFile(output, true, options =>
+            {
+                options
+                    .WithComplexFilter(graph => graph
+                        .From(0, StreamType.Video)
+                        .From(1, StreamType.Video)
+                        .Overlay(x, y)
+                        .As("v"))
+                    .WithMap("v");
+                if (source.PrimaryAudioStream != null)
+                {
+                    options.WithMap(StreamType.Audio).CopyStreams(StreamType.Audio);
+                }
+            })
+            .WithKnownDuration(source.Duration)
+            .WithOptions(ffOptions);
+    }
+
+    private static (string X, string Y) OverlayPosition(WatermarkPosition position, int margin)
+    {
+        return position switch
+        {
+            WatermarkPosition.TopLeft => ($"{margin}", $"{margin}"),
+            WatermarkPosition.TopRight => ($"W-w-{margin}", $"{margin}"),
+            WatermarkPosition.BottomLeft => ($"{margin}", $"H-h-{margin}"),
+            WatermarkPosition.BottomRight => ($"W-w-{margin}", $"H-h-{margin}"),
+            WatermarkPosition.Center => ("(W-w)/2", "(H-h)/2"),
+            _ => throw new ArgumentOutOfRangeException(nameof(position))
+        };
+    }
+
+    /// <summary>
     ///     Muxes a subtitle file in as its own stream, leaving the picture untouched. The player can then turn the subtitles
     ///     on and off; to burn them into the picture instead, use <c>WithVideoFilters(f => f.HardBurnSubtitle(…))</c>.
     /// </summary>

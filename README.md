@@ -287,6 +287,18 @@ FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
 ).ProcessSynchronously();
 ```
 
+### Overlay a watermark:
+
+```csharp
+FFMpeg.Watermark(inputPath, "logo.png", outputPath,
+    WatermarkPosition.BottomRight, margin: 20
+).ProcessSynchronously();
+```
+
+A PNG with an alpha channel keeps its transparency. The audio is copied across untouched; the video is re-encoded, since the picture is what
+changes. For anything more elaborate — scaling the logo first, fading it in — build the graph yourself with
+[`WithComplexFilter`](#complex-filters).
+
 ### Add or extract subtitles:
 
 ```csharp
