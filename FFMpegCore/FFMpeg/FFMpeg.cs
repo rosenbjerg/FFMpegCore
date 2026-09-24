@@ -116,6 +116,60 @@ public static class FFMpeg
     }
 
     /// <summary>
+    ///     Muxes a subtitle file in as its own stream, leaving the picture untouched. The player can then turn the subtitles
+    ///     on and off; to burn them into the picture instead, use <c>WithVideoFilters(f => f.HardBurnSubtitle(…))</c>.
+    /// </summary>
+    /// <param name="input">Source video file.</param>
+    /// <param name="subtitle">Subtitle file to add.</param>
+    /// <param name="output">Output video file. Its container has to support subtitle streams; .mkv takes any, .mp4 needs mov_text.</param>
+    /// <param name="language">ISO 639 language tag for the new stream, such as "eng".</param>
+    /// <param name="subtitleCodec">Encoder for the subtitles. Defaults to the muxer's choice.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor AddSubtitles(string input, string subtitle, string output, string? language = null,
+        Codec? subtitleCodec = null, FFOptions? ffOptions = null)
+    {
+        var source = FFProbe.Analyse(input, ffOptions);
+
+        return FFMpegArguments
+            .FromFileInput(input)
+            .AddFileInput(subtitle)
+            .OutputToFile(output, true, options =>
+            {
+                options
+                    .WithMap(StreamType.All)
+                    .WithMap(StreamType.All, 1)
+                    .CopyStreams();
+                if (subtitleCodec != null)
+                {
+                    options.WithSubtitleCodec(subtitleCodec);
+                }
+
+                if (language != null)
+                {
+                    options.WithCustomArgument($"-metadata:s:s:{source.SubtitleStreams.Count} language={language}");
+                }
+            })
+            .WithKnownDuration(source.Duration)
+            .WithOptions(ffOptions);
+    }
+
+    /// <summary>
+    ///     Writes one of the input's subtitle streams out to its own file.
+    /// </summary>
+    /// <param name="input">Source media file.</param>
+    /// <param name="output">Output subtitle file. Its extension decides the format.</param>
+    /// <param name="streamIndex">Which subtitle stream to take, counting from zero among the subtitle streams.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ExtractSubtitles(string input, string output, int streamIndex = 0, FFOptions? ffOptions = null)
+    {
+        return FFMpegArguments
+            .FromFileInput(input)
+            .OutputToFile(output, true, options => options
+                .WithMap(streamIndex, 0, StreamType.Subtitle))
+            .WithOptions(ffOptions);
+    }
+
+    /// <summary>
     ///     Samples frames at a fixed interval and tiles them into a single image — a contact sheet, or the strip a player
     ///     shows when scrubbing.
     /// </summary>

@@ -287,6 +287,30 @@ FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
 ).ProcessSynchronously();
 ```
 
+### Add or extract subtitles:
+
+```csharp
+// mux the subtitles in as their own stream, so the viewer can switch them off
+FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mkv", language: "eng").ProcessSynchronously();
+
+// mp4 only carries subtitles as mov_text
+FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mp4", "eng", FFMpeg.GetCodec("mov_text")).ProcessSynchronously();
+
+// and back out again
+FFMpeg.ExtractSubtitles("output.mkv", "subs.srt").ProcessSynchronously();
+```
+
+To burn the subtitles into the picture instead, so they cannot be switched off, use the `subtitles` filter:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, true, options => options
+        .WithVideoFilters(filters => filters
+            .HardBurnSubtitle(SubtitleHardBurnOptions.Create("subs.srt"))))
+    .ProcessSynchronously();
+```
+
 ### Build a contact sheet of thumbnails:
 
 ```csharp

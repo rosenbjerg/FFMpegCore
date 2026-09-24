@@ -1356,6 +1356,22 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_SubtitleCodec()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mkv")
+            .OutputToFile("output.mp4", false, opt => opt.WithSubtitleCodec("mov_text"))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mkv\" -c:s mov_text \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void SubtitleCodec_RejectsCodecsOfAnotherType()
+    {
+        Assert.ThrowsExactly<FFMpegException>(() => new SubtitleCodecArgument(AudioCodec.Aac));
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Copy_All()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

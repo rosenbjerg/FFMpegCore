@@ -1361,6 +1361,34 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Subtitles_RoundTripThroughASoftStream()
+    {
+        using var withSubtitles = new TemporaryFile("out.mkv");
+        using var extracted = new TemporaryFile("out.srt");
+
+        var added = FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, withSubtitles, "eng")
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(added.Success);
+
+        var analysis = FFProbe.Analyse(withSubtitles);
+        Assert.IsNotEmpty(analysis.SubtitleStreams);
+        Assert.IsNotEmpty(analysis.VideoStreams);
+        Assert.IsNotEmpty(analysis.AudioStreams);
+        Assert.AreEqual("eng", analysis.PrimarySubtitleStream!.Language);
+
+        var pulled = FFMpeg.ExtractSubtitles(withSubtitles, extracted)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.IsTrue(pulled.Success);
+
+        var cues = File.ReadAllText(extracted);
+        Assert.Contains("00:00:0", cues);
+        Assert.IsNotEmpty(File.ReadAllText(TestResources.SrtSubtitle));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ThumbnailSheet_TilesTheSampledFrames()
     {
         using var outputFile = new TemporaryFile("out.png");

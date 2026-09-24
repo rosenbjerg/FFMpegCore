@@ -32,6 +32,18 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new AudioCodecArgument(audioCodec));
     }
 
+    /// <summary>-c:s</summary>
+    public FFMpegOutputOptions WithSubtitleCodec(Codec subtitleCodec)
+    {
+        return WithArgument(new SubtitleCodecArgument(subtitleCodec));
+    }
+
+    /// <summary>-c:s</summary>
+    public FFMpegOutputOptions WithSubtitleCodec(string subtitleCodec)
+    {
+        return WithArgument(new SubtitleCodecArgument(subtitleCodec));
+    }
+
     /// <summary>-c copy, or -c:v / -c:a / -c:s copy for one stream type</summary>
     public FFMpegOutputOptions CopyStreams(StreamType streamType = StreamType.All)
     {
