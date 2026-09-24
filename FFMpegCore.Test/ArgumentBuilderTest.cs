@@ -747,7 +747,7 @@ public class ArgumentBuilderTest
     {
         // Arrange
         var filePaths = new List<string> { Path.GetTempFileName(), Path.GetTempFileName(), Path.GetTempFileName() };
-        var argument = new MultiInputArgument(true, filePaths);
+        var argument = new MultiInputArgument(filePaths, true);
         try
         {
             // Act & Assert
@@ -768,7 +768,7 @@ public class ArgumentBuilderTest
     {
         // Arrange
         var filePaths = new List<string> { Path.GetTempFileName(), "file2.mp4", "file3.mp4" };
-        var argument = new MultiInputArgument(true, filePaths);
+        var argument = new MultiInputArgument(filePaths, true);
         try
         {
             // Act & Assert
@@ -786,7 +786,7 @@ public class ArgumentBuilderTest
     {
         // Arrange
         var filePaths = new List<string> { "file1.mp4", "file2.mp4", "file3.mp4" };
-        var argument = new MultiInputArgument(true, filePaths);
+        var argument = new MultiInputArgument(filePaths, true);
         // Act & Assert
         Assert.ThrowsExactly<FileNotFoundException>(() => argument.Pre(new FFOptions()));
     }
@@ -1190,6 +1190,39 @@ public class ArgumentBuilderTest
 
         Assert.AreEqual("-i \"https://example.com/stream.m3u8\" \"output.mp4\"", fromInput);
         Assert.AreEqual("-i \"first.mp4\" -i \"https://example.com/stream.m3u8\" \"output.mp4\"", addInput);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_UrlInput_FromString()
+    {
+        const string uri = "rtsp://example.com/camera";
+        var fromInput = FFMpegArguments.FromUrlInput(uri).OutputToFile("output.mp4", false).Arguments;
+        var addInput = FFMpegArguments.FromFileInput("first.mp4").AddUrlInput(uri).OutputToFile("output.mp4", false).Arguments;
+
+        Assert.AreEqual($"-i \"{uri}\" \"output.mp4\"", fromInput);
+        Assert.AreEqual($"-i \"first.mp4\" -i \"{uri}\" \"output.mp4\"", addInput);
+    }
+
+    [TestMethod]
+    public void Pre_VerifyExists_MissingFileIsReported()
+    {
+        var verifying = new InputArgument("does-not-exist.mp4", true);
+        var notVerifying = new InputArgument("does-not-exist.mp4", false);
+
+        Assert.ThrowsExactly<FileNotFoundException>(() => verifying.Pre(new FFOptions()));
+        notVerifying.Pre(new FFOptions());
+    }
+
+    [TestMethod]
+    public void Builder_FileInfoInput_VerifiesExistenceLikeAPathInput()
+    {
+        var fileInfo = new FileInfo("input.mp4");
+
+        var byDefault = FFMpegArguments.FromFileInput(fileInfo).Arguments.OfType<InputArgument>().Single();
+        var optedOut = FFMpegArguments.FromFileInput(fileInfo, false).Arguments.OfType<InputArgument>().Single();
+
+        Assert.IsTrue(byDefault.VerifyExists);
+        Assert.IsFalse(optedOut.VerifyExists);
     }
 
     [TestMethod]

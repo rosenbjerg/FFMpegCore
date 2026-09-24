@@ -29,22 +29,27 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new InputArgument(verifyExists, filePath), addArguments);
+        return new FFMpegArguments().WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
     public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new MultiInputArgument(verifyExists, filePath), addArguments);
+        return new FFMpegArguments().WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
     }
 
-    public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegInputOptions>? addArguments = null)
+    public static FFMpegArguments FromFileInput(FileInfo fileInfo, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
+        return new FFMpegArguments().WithInput(new InputArgument(fileInfo.FullName, verifyExists), addArguments);
     }
 
     public static FFMpegArguments FromUrlInput(Uri uri, Action<FFMpegInputOptions>? addArguments = null)
     {
         return new FFMpegArguments().WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+    }
+
+    public static FFMpegArguments FromUrlInput(string uri, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return new FFMpegArguments().WithInput(new InputArgument(uri, false), addArguments);
     }
 
     public static FFMpegArguments FromDeviceInput(string device, Action<FFMpegInputOptions>? addArguments = null)
@@ -74,22 +79,27 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new InputArgument(verifyExists, filePath), addArguments);
+        return WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
     public FFMpegArguments AddFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new MultiInputArgument(verifyExists, filePath), addArguments);
+        return WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
     }
 
-    public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddFileInput(FileInfo fileInfo, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new InputArgument(fileInfo.FullName, false), addArguments);
+        return WithInput(new InputArgument(fileInfo.FullName, verifyExists), addArguments);
     }
 
     public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new InputArgument(uri.AbsoluteUri, false), addArguments);
+    }
+
+    public FFMpegArguments AddUrlInput(string uri, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return WithInput(new InputArgument(uri, false), addArguments);
     }
 
     public FFMpegArguments AddDeviceInput(string device, Action<FFMpegInputOptions>? addArguments = null)

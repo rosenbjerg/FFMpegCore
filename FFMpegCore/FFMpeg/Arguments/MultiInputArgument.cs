@@ -8,13 +8,11 @@ public class MultiInputArgument : IInputArgument
     public readonly IEnumerable<string> FilePaths;
     public readonly bool VerifyExists;
 
-    public MultiInputArgument(bool verifyExists, IEnumerable<string> filePaths)
+    public MultiInputArgument(IEnumerable<string> filePaths, bool verifyExists)
     {
         VerifyExists = verifyExists;
         FilePaths = filePaths;
     }
-
-    public MultiInputArgument(IEnumerable<string> filePaths, bool verifyExists) : this(verifyExists, filePaths) { }
 
     public void Pre(FFOptions options)
     {
