@@ -425,7 +425,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToTS()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.MpegTs.Extension}");
+        using var outputFile = new TemporaryFile($"out{VideoType.Ts.Extension}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
@@ -439,14 +439,14 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToTS_Args()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.MpegTs.Extension}");
+        using var outputFile = new TemporaryFile($"out{VideoType.Ts.Extension}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
                 .CopyStreams()
                 .WithBitstreamFilter(StreamType.Video, BitstreamFilter.H264_Mp4ToAnnexB)
-                .ForceFormat(VideoType.MpegTs))
+                .ForceFormat(VideoType.Ts))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success.Success);

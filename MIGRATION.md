@@ -160,6 +160,9 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoStream.AverageFrameRate` | removed — it was never populated and always read `0`; use `AvgFrameRate` (ffprobe's `avg_frame_rate`) or `FrameRate` (`r_frame_rate`) |
 | `new InputArgument(bool, string)` | `new InputArgument(string path, bool verifyExists)` — the two constructors differed only in argument order |
 | `new MultiInputArgument(bool, IEnumerable<string>)` | `new MultiInputArgument(IEnumerable<string> paths, bool verifyExists)` — likewise |
+| `VideoCodec.MpegTs` | removed — `mpegts` is a container, not a video codec; it emitted `-c:v mpegts`. Use `ForceFormat(VideoType.Ts)` |
+| `VideoType.MpegTs` | `VideoType.Ts` — they were the same value under two names |
+| `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
 
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
@@ -194,6 +197,7 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 - `WithMap`/`WithNegativeMap` take a `StreamType` in place of a stream index, so `-map 0:a` — every audio stream of an input — is
   expressible without probing first to count them.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
+- `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.

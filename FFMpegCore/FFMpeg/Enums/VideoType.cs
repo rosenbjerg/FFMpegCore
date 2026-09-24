@@ -2,7 +2,6 @@
 
 public static class VideoType
 {
-    public static ContainerFormat MpegTs => new("mpegts");
     public static ContainerFormat Ts => new("mpegts");
     public static ContainerFormat Mp4 => new("mp4");
     public static ContainerFormat Mov => new("mov");

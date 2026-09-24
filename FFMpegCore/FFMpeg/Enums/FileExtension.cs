@@ -3,27 +3,11 @@
 public static class FileExtension
 {
     public static readonly string Mp4 = VideoType.Mp4.Extension;
-    public static readonly string Ts = VideoType.MpegTs.Extension;
+    public static readonly string Ts = VideoType.Ts.Extension;
     public static readonly string Ogv = VideoType.Ogv.Extension;
     public static readonly string WebM = VideoType.WebM.Extension;
     public static readonly string Mp3 = ".mp3";
     public static readonly string Gif = ".gif";
-
-    public static string Extension(this Codec type)
-    {
-        return type.Name switch
-        {
-            "libx264" => Mp4,
-            "libvpx" => WebM,
-            "libtheora" => Ogv,
-            "mpegts" => Ts,
-            "png" => Image.Png,
-            "mjpeg" => Image.Jpg,
-            "bmp" => Image.Bmp,
-            "webp" => Image.Webp,
-            _ => throw new Exception("The extension for this video type is not defined.")
-        };
-    }
 
     public static class Image
     {
