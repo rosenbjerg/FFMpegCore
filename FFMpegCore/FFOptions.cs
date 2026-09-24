@@ -52,6 +52,8 @@ public class FFOptions : ICloneable
     public FFMpegLogLevel? LogLevel { get; set; }
 
     /// <summary>
+    ///     File extensions to use for containers whose ffmpeg name is not the extension, keyed by container name.
+    ///     Read by <see cref="ContainerFormat.GetExtension" />.
     /// </summary>
     public Dictionary<string, string> ExtensionOverrides { get; set; } = new() { { "mpegts", ".ts" } };
 
@@ -71,6 +73,9 @@ public class FFOptions : ICloneable
     /// </summary>
     public FFOptions Clone()
     {
-        return (FFOptions)MemberwiseClone();
+        var clone = (FFOptions)MemberwiseClone();
+        // MemberwiseClone aliases the dictionary; without this a per-run Configure would write into the global options
+        clone.ExtensionOverrides = new Dictionary<string, string>(ExtensionOverrides);
+        return clone;
     }
 }

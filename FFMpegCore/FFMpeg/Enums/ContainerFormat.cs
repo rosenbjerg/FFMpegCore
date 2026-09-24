@@ -16,17 +16,14 @@ public class ContainerFormat
     public bool MuxingSupported { get; private set; }
     public string Description { get; private set; } = string.Empty;
 
-    public string Extension
+    /// <summary>
+    ///     The file extension this container is normally written with, honouring <see cref="FFOptions.ExtensionOverrides" />.
+    /// </summary>
+    /// <param name="ffOptions">Options to read the overrides from, defaulting to the global options.</param>
+    public string GetExtension(FFOptions? ffOptions = null)
     {
-        get
-        {
-            if (GlobalFFOptions.Current.ExtensionOverrides.ContainsKey(Name))
-            {
-                return GlobalFFOptions.Current.ExtensionOverrides[Name];
-            }
-
-            return "." + Name;
-        }
+        var overrides = (ffOptions ?? GlobalFFOptions.Current).ExtensionOverrides;
+        return overrides.TryGetValue(Name, out var overridden) ? overridden : "." + Name;
     }
 
     internal static bool TryParse(string line, out ContainerFormat fmt)

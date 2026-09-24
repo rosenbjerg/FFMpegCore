@@ -111,6 +111,18 @@ public class FFMpegOptionsTests
     }
 
     [TestMethod]
+    public void Options_Clone_DoesNotShareExtensionOverrides()
+    {
+        var original = new FFOptions();
+
+        var clone = original.Clone();
+        clone.ExtensionOverrides["mpegts"] = ".mts";
+
+        Assert.AreEqual(".ts", original.ExtensionOverrides["mpegts"]);
+        Assert.AreEqual(".mts", clone.ExtensionOverrides["mpegts"]);
+    }
+
+    [TestMethod]
     public void Options_Encoding_RoundTripsThroughWebName()
     {
         var options = new FFOptions { Encoding = System.Text.Encoding.UTF8 };

@@ -61,7 +61,17 @@ public class CodecTests
     public void ContainerFormats_TryGetExisting()
     {
         Assert.IsTrue(FFMpeg.TryGetContainerFormat("mp4", out var format));
-        Assert.AreEqual(".mp4", format.Extension);
+        Assert.AreEqual(".mp4", format.GetExtension());
+    }
+
+    [TestMethod]
+    public void ContainerFormats_ExtensionOverrides_ApplyPerRun()
+    {
+        var options = new FFOptions { ExtensionOverrides = { ["mpegts"] = ".mts", ["matroska"] = ".mkv" } };
+
+        Assert.AreEqual(".mts", VideoType.Ts.GetExtension(options));
+        Assert.AreEqual(".mkv", new ContainerFormat("matroska").GetExtension(options));
+        Assert.AreEqual(".ts", VideoType.Ts.GetExtension());
     }
 
     [TestMethod]
@@ -159,7 +169,7 @@ public class CodecTests
             Assert.AreEqual("mjpeg", VideoCodec.Image.Jpg.Name);
             Assert.AreEqual("aac", AudioCodec.Aac.Name);
             Assert.AreEqual(CodecType.Audio, AudioCodec.Aac.Type);
-            Assert.AreEqual(".mp4", VideoType.Mp4.Extension);
+            Assert.AreEqual(".mp4", VideoType.Mp4.GetExtension());
         }
         finally
         {

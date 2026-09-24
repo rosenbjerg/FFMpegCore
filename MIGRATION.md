@@ -163,6 +163,18 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoCodec.MpegTs` | removed — `mpegts` is a container, not a video codec; it emitted `-c:v mpegts`. Use `ForceFormat(VideoType.Ts)` |
 | `VideoType.MpegTs` | `VideoType.Ts` — they were the same value under two names |
 | `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
+| `ContainerFormat.Extension` (property) | `ContainerFormat.GetExtension(FFOptions? = null)` |
+
+`ContainerFormat.Extension` read `ExtensionOverrides` off `GlobalFFOptions.Current`, so it ignored the per-run `FFOptions` that 6.0 threads
+through everything else. It is now a method taking them, named `GetExtension` to match `MediaStream.GetCodecInfo` and
+`VideoStream.GetPixelFormatInfo`.
+
+The rename is deliberate rather than just adding a parameter: had the property become a method of the same name, `$"out{format.Extension}"`
+would have kept compiling and silently interpolated the method group, producing filenames like
+`out<>f__AnonymousDelegate0\`2[...]`. `GetExtension` fails to compile instead.
+
+`FileExtension.Mp4`/`.Ts`/`.Ogv`/`.WebM` are now plain constants. They previously read the global options once at static-initialisation time,
+so a later `GlobalFFOptions.Configure` never reached them.
 
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.

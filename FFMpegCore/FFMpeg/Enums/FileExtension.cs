@@ -2,12 +2,12 @@
 
 public static class FileExtension
 {
-    public static readonly string Mp4 = VideoType.Mp4.Extension;
-    public static readonly string Ts = VideoType.Ts.Extension;
-    public static readonly string Ogv = VideoType.Ogv.Extension;
-    public static readonly string WebM = VideoType.WebM.Extension;
-    public static readonly string Mp3 = ".mp3";
-    public static readonly string Gif = ".gif";
+    public const string Mp4 = ".mp4";
+    public const string Ts = ".ts";
+    public const string Ogv = ".ogv";
+    public const string WebM = ".webm";
+    public const string Mp3 = ".mp3";
+    public const string Gif = ".gif";
 
     public static class Image
     {
