@@ -7,11 +7,11 @@ namespace FFMpegCore.Extensions.SkiaSharp;
 public static class SkiaSharpImage
 {
     /// <summary>
-    ///     Saves a 'png' thumbnail to an in-memory bitmap
+    ///     Decodes a single frame of the input into an in-memory bitmap.
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
@@ -33,11 +33,11 @@ public static class SkiaSharpImage
     }
 
     /// <summary>
-    ///     Saves a 'png' thumbnail to an in-memory bitmap
+    ///     Decodes a single frame of the input into an in-memory bitmap.
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
-    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>

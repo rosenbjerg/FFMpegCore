@@ -8,12 +8,12 @@ namespace FFMpegCore;
 public static class FFMpeg
 {
     /// <summary>
-    ///     Saves a 'png' thumbnail from the input video to drive
+    ///     Saves a single frame of the input to an image file.
     /// </summary>
-    /// <param name="input">Source video analysis</param>
-    /// <param name="output">Output video file path</param>
-    /// <param name="captureTime">Seek position where the thumbnail should be taken.</param>
-    /// <param name="size">Thumbnail size. If width or height equal 0, the other will be computed automatically.</param>
+    /// <param name="input">Source video file.</param>
+    /// <param name="output">Output image file. Its extension decides the format: .png, .jpg, .bmp or .webp.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
     /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
@@ -28,6 +28,16 @@ public static class FFMpeg
         return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
     }
 
+    /// <summary>
+    ///     Saves a section of the input as an animated gif.
+    /// </summary>
+    /// <param name="input">Source video file.</param>
+    /// <param name="output">Output .gif file.</param>
+    /// <param name="size">Output size. If width or height is 0 or -1, it is computed from the other. Defaults to 480 wide.</param>
+    /// <param name="captureTime">Seek position the section starts at. Defaults to a third of the way in.</param>
+    /// <param name="duration">How much of the input to capture.</param>
+    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
         int? streamIndex = null, FFOptions? ffOptions = null)
     {
