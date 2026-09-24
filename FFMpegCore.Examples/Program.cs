@@ -52,11 +52,35 @@ var outputStream = new MemoryStream();
 }
 
 {
-    FFMpeg.Join(@"..\joined_video.mp4",
+    // parts that already share a codec: joined by copying, no re-encode
+    FFMpeg.Concat(@"..\joined_video.mp4",
         @"..\part1.mp4",
         @"..\part2.mp4",
         @"..\part3.mp4"
     ).ProcessSynchronously();
+
+    // parts that differ: re-encoded through the concat filter
+    FFMpeg.Join(@"..\joined_video.mp4",
+        @"..\part1.mp4",
+        @"..\part2.mkv"
+    ).ProcessSynchronously();
+}
+
+{
+    FFMpeg.Remux(inputPath, @"..\output.mkv").ProcessSynchronously();
+}
+
+{
+    FFMpeg.ThumbnailSheet(inputPath, @"..\sheet.png", 5, 5, tileSize: new Size(160, -1)).ProcessSynchronously();
+}
+
+{
+    FFMpeg.Watermark(inputPath, @"..\logo.png", outputPath, WatermarkPosition.BottomRight, 20).ProcessSynchronously();
+}
+
+{
+    FFMpeg.AddSubtitles(inputPath, @"..\subs.srt", @"..\subtitled.mkv", "eng").ProcessSynchronously();
+    FFMpeg.ExtractSubtitles(@"..\subtitled.mkv", @"..\subs.srt").ProcessSynchronously();
 }
 
 {
