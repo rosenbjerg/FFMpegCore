@@ -143,6 +143,24 @@ public class FFProbeTests
         Assert.AreEqual("Main", info.PrimaryVideoStream.Profile);
         Assert.AreEqual("avc1", info.PrimaryVideoStream.CodecTagString);
         Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
+
+        Assert.IsGreaterThan(info.PrimaryVideoStream.BitRate, info.Format.BitRate);
+    }
+
+    [TestMethod]
+    public void Probe_SubtitleStream_CarriesItsCodecTags()
+    {
+        using var outputFile = new TemporaryFile("out.mkv");
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .AddFileInput(TestResources.SrtSubtitle)
+            .OutputToFile(outputFile, true, options => options.CopyStreams())
+            .ProcessSynchronously();
+
+        var subtitle = FFProbe.Analyse(outputFile).PrimarySubtitleStream!;
+
+        Assert.IsNotNull(subtitle.CodecTagString);
+        Assert.IsNotNull(subtitle.CodecTag);
     }
 
     [TestMethod]

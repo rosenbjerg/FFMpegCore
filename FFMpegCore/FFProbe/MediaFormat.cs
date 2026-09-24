@@ -8,6 +8,6 @@ public class MediaFormat : ITagsContainer
     public string FormatLongName { get; set; } = null!;
     public int StreamCount { get; set; }
     public double ProbeScore { get; set; }
-    public double BitRate { get; set; }
+    public long BitRate { get; set; }
     public Dictionary<string, string>? Tags { get; set; }
 }

@@ -37,7 +37,7 @@ internal class MediaAnalysis : IMediaAnalysis
             FormatLongName = analysisFormat.FormatLongName,
             StreamCount = analysisFormat.NbStreams,
             ProbeScore = analysisFormat.ProbeScore,
-            BitRate = long.Parse(analysisFormat.BitRate ?? "0"),
+            BitRate = !string.IsNullOrEmpty(analysisFormat.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(analysisFormat.BitRate!) : default,
             Tags = analysisFormat.Tags.ToCaseInsensitive()
         };
     }
@@ -130,6 +130,8 @@ internal class MediaAnalysis : IMediaAnalysis
             BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
             CodecName = stream.CodecName,
             CodecLongName = stream.CodecLongName,
+            CodecTag = stream.CodecTag,
+            CodecTagString = stream.CodecTagString,
             Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             Language = stream.GetLanguage(),

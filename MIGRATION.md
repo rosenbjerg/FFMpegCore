@@ -164,6 +164,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoType.MpegTs` | `VideoType.Ts` — they were the same value under two names |
 | `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
 | `ContainerFormat.Extension` (property) | `ContainerFormat.GetExtension(FFOptions? = null)` |
+| `MediaFormat.BitRate` is `double` | `long`, matching `MediaStream.BitRate` |
 
 `ContainerFormat.Extension` read `ExtensionOverrides` off `GlobalFFOptions.Current`, so it ignored the per-run `FFOptions` that 6.0 threads
 through everything else. It is now a method taking them, named `GetExtension` to match `MediaStream.GetCodecInfo` and
