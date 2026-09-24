@@ -1361,6 +1361,39 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Concat_CopiesTheStreams()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.Concat(outputFile, TestResources.Mp4Video, TestResources.Mp4VideoRotation)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputFile);
+        Assert.AreEqual((input.Duration * 2).Seconds, result.Duration.Seconds);
+        Assert.AreEqual(input.PrimaryVideoStream!.CodecName, result.PrimaryVideoStream!.CodecName);
+        Assert.AreEqual(input.PrimaryAudioStream!.CodecName, result.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Join_TakesOutputOptions()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpeg.Join(outputFile, new[] { TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio },
+                options => options.WithVideoCodec(VideoCodec.LibX264).WithConstantRateFactor(30).WithSpeedPreset(Speed.UltraFast))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        Assert.AreEqual("h264", FFProbe.Analyse(outputFile).PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_DemuxConcat()
     {
         using var outputFile = new TemporaryFile("out.mp4");

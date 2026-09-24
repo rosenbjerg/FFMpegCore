@@ -261,11 +261,29 @@ await FFMpeg.GifSnapshot(inputPath, outputPath, new Size(480, -1), TimeSpan.From
 
 ### Join video parts into one single file:
 
+When the parts already share a codec — segments of one recording, say — `Concat` joins them through ffmpeg's concat demuxer without
+re-encoding, which is both lossless and far faster:
+
 ```csharp
-FFMpeg.Join(@"..\joined_video.mp4",
+FFMpeg.Concat(@"..\joined_video.mp4",
     @"..\part1.mp4",
     @"..\part2.mp4",
     @"..\part3.mp4"
+).ProcessSynchronously();
+```
+
+`Join` re-encodes through the `concat` filter instead, which is what you need when the parts differ. They must still share a resolution:
+
+```csharp
+FFMpeg.Join(@"..\joined_video.mp4",
+    @"..\part1.mp4",
+    @"..\part2.mkv"
+).ProcessSynchronously();
+
+// the default is h264/aac at 2400 kbps; pass output options to choose your own
+FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
+    .WithVideoCodec(VideoCodec.LibX265)
+    .WithConstantRateFactor(23)
 ).ProcessSynchronously();
 ```
 

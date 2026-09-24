@@ -116,43 +116,110 @@ public static class FFMpeg
     }
 
     /// <summary>
-    ///     Joins a list of video files.
+    ///     Joins media files through the concat demuxer, copying the streams rather than re-encoding. The inputs must share
+    ///     codecs and parameters; where they do not, use <see cref="Join(string, string[])" />, which re-encodes.
+    /// </summary>
+    /// <param name="output">Output file.</param>
+    /// <param name="inputs">Files to join, in order.</param>
+    public static FFMpegArgumentProcessor Concat(string output, params string[] inputs)
+    {
+        return Concat(null, output, inputs);
+    }
+
+    /// <inheritdoc cref="Concat(string, string[])" />
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="output">Output file.</param>
+    /// <param name="inputs">Files to join, in order.</param>
+    public static FFMpegArgumentProcessor Concat(FFOptions? ffOptions, string output, params string[] inputs)
+    {
+        var duration = inputs.Aggregate(TimeSpan.Zero, (total, input) => total + FFProbe.Analyse(input, ffOptions).Duration);
+
+        return FFMpegArguments
+            .FromConcatDemuxerInput(inputs)
+            .OutputToFile(output, true, options => options.CopyStreams())
+            .WithKnownDuration(duration)
+            .WithOptions(ffOptions);
+    }
+
+    /// <summary>
+    ///     Joins videos by re-encoding them through the concat filter, which requires them to share a resolution.
+    ///     To join files that already share a codec, use <see cref="Concat(string, string[])" /> instead — it does not re-encode.
     /// </summary>
     /// <param name="output">Output video file.</param>
-    /// <param name="videos">List of vides that need to be joined together.</param>
+    /// <param name="videos">Videos to join, in order.</param>
     public static FFMpegArgumentProcessor Join(string output, params string[] videos)
     {
         return Join(null, output, videos);
     }
 
-    /// <summary>
-    ///     Joins a list of video files.
-    /// </summary>
+    /// <inheritdoc cref="Join(string, string[])" />
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <param name="output">Output video file.</param>
-    /// <param name="videos">List of vides that need to be joined together.</param>
+    /// <param name="videos">Videos to join, in order.</param>
     public static FFMpegArgumentProcessor Join(FFOptions? ffOptions, string output, params string[] videos)
     {
-        var analyses = videos.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray();
+        return Join(output, videos, null, ffOptions);
+    }
+
+    /// <inheritdoc cref="Join(string, string[])" />
+    /// <param name="output">Output video file.</param>
+    /// <param name="videos">Videos to join, in order.</param>
+    /// <param name="addArguments">Output options, replacing the default h264/aac encode.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Join(string output, IEnumerable<string> videos, Action<FFMpegOutputOptions>? addArguments = null,
+        FFOptions? ffOptions = null)
+    {
+        var paths = videos.ToArray();
+        var analyses = paths.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray();
         foreach (var analysis in analyses)
         {
             FFMpegHelper.ConversionSizeExceptionCheck(analysis);
         }
 
         var withAudio = analyses.All(analysis => analysis.PrimaryAudioStream != null);
-        var streams = string.Concat(analyses.Select((_, index) => withAudio ? $"[{index}:v:0][{index}:a:0]" : $"[{index}:v:0]"));
-        var filter = $"{streams}concat=n={videos.Length}:v=1:a={(withAudio ? 1 : 0)}[v]{(withAudio ? "[a]" : string.Empty)}";
-        var mapping = withAudio ? "-map \"[v]\" -map \"[a]\"" : "-map \"[v]\"";
 
         return FFMpegArguments
-            .FromFileInput(videos)
-            .OutputToFile(output, true, options => options
-                .WithCustomArgument($"-filter_complex \"{filter}\" {mapping}")
-                .WithVideoCodec(VideoCodec.LibX264)
-                .WithVideoBitrate(2400)
-                .WithSpeedPreset(Speed.SuperFast)
-                .WithAudioCodec(AudioCodec.Aac)
-                .WithAudioBitrate(AudioQuality.Normal))
+            .FromFileInput(paths)
+            .OutputToFile(output, true, options =>
+            {
+                options.WithComplexFilter(graph =>
+                {
+                    var chain = graph.From(0, StreamType.Video, 0);
+                    for (var index = 0; index < paths.Length; index++)
+                    {
+                        if (index > 0)
+                        {
+                            chain.From(index, StreamType.Video, 0);
+                        }
+
+                        if (withAudio)
+                        {
+                            chain.From(index, StreamType.Audio, 0);
+                        }
+                    }
+
+                    chain.Concat(paths.Length, 1, withAudio ? 1 : 0)
+                        .As(withAudio ? ["v", "a"] : ["v"]);
+                });
+                options.WithMap("v");
+                if (withAudio)
+                {
+                    options.WithMap("a");
+                }
+
+                if (addArguments != null)
+                {
+                    addArguments(options);
+                    return;
+                }
+
+                options
+                    .WithVideoCodec(VideoCodec.LibX264)
+                    .WithVideoBitrate(2400)
+                    .WithSpeedPreset(Speed.SuperFast)
+                    .WithAudioCodec(AudioCodec.Aac)
+                    .WithAudioBitrate(AudioQuality.Normal);
+            })
             .WithKnownDuration(analyses.Aggregate(TimeSpan.Zero, (total, analysis) => total + analysis.Duration))
             .WithOptions(ffOptions);
     }
