@@ -1151,6 +1151,120 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_FpsFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(f => f.Fps(0.5)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"fps=fps=0.5\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_TileFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.png", false, opt => opt.WithVideoFilters(f => f.Tile(4, 3, 2, 1, "black")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"tile=layout=4x3:margin=2:padding=1:color=black\" \"output.png\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_OverlayFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(f => f.Overlay("W-w-10", "H-h-10", "endall", true)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"overlay=x=W-w-10:y=H-h-10:eof_action=endall:shortest=1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFadeFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(f =>
+                f.Fade(FadeDirection.Out, TimeSpan.FromSeconds(9.5), TimeSpan.FromSeconds(0.5), "white")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"fade=t=out:st=9.5:d=0.5:c=white\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(2.0, "0.5*PTS")]
+    [DataRow(0.5, "2*PTS")]
+    [DataRow(1.0, "1*PTS")]
+    public void Builder_BuildString_VideoSpeedFilter(double multiplier, string expected)
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(f => f.Speed(multiplier)))
+            .Arguments;
+
+        Assert.AreEqual($"-i \"input.mp4\" -vf \"setpts={expected}\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_LoudnormFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f => f.Loudnorm(-16, 11, -1.5, true)))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"loudnorm=I=-16.0:LRA=11.0:TP=-1.5:dual_mono=true\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioFadeFilter()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f =>
+                f.Fade(FadeDirection.In, TimeSpan.Zero, TimeSpan.FromSeconds(2), "qsin")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"afade=t=in:st=0:d=2:curve=qsin\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(2.0, "atempo=2")]
+    [DataRow(0.75, "atempo=0.75")]
+    [DataRow(0.25, "atempo=0.5, atempo=0.5")]
+    [DataRow(0.1, "atempo=0.5, atempo=0.5, atempo=0.5, atempo=0.8")]
+    public void Builder_BuildString_AudioSpeedFilter_ChainsBeyondOneAtempo(double multiplier, string expected)
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f => f.Speed(multiplier)))
+            .Arguments;
+
+        Assert.AreEqual($"-i \"input.mp4\" -af \"{expected}\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    [DataRow(0.0)]
+    [DataRow(-1.0)]
+    public void SpeedFilters_RejectNonPositiveMultipliers(double multiplier)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new VideoSpeedArgument(multiplier));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new AudioFilterOptions().Speed(multiplier));
+    }
+
+    [TestMethod]
+    [DataRow(0.4)]
+    [DataRow(101.0)]
+    public void AudioSpeedArgument_RejectsFactorsOneAtempoCannotSpan(double factor)
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new AudioSpeedArgument(factor));
+    }
+
+    [TestMethod]
+    public void Loudnorm_RejectsTargetsOutsideTheStandardRanges()
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(-80));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(loudnessRange: 25));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(truePeak: 3));
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Copy_All()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

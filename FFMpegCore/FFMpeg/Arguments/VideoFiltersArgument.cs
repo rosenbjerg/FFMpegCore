@@ -116,6 +116,36 @@ public class VideoFilterOptions
         return WithArgument(new BlackFrameArgument(amount, threshold));
     }
 
+    /// <summary>overlay</summary>
+    public VideoFilterOptions Overlay(string x = "0", string y = "0", string? eofAction = null, bool shortest = false)
+    {
+        return WithArgument(new OverlayArgument(x, y, eofAction, shortest));
+    }
+
+    /// <summary>fps</summary>
+    public VideoFilterOptions Fps(double frameRate, string? round = null)
+    {
+        return WithArgument(new FpsArgument(frameRate, round));
+    }
+
+    /// <summary>tile</summary>
+    public VideoFilterOptions Tile(int columns, int rows, int margin = 0, int padding = 0, string? color = null)
+    {
+        return WithArgument(new TileArgument(columns, rows, margin, padding, color));
+    }
+
+    /// <summary>setpts</summary>
+    public VideoFilterOptions Speed(double multiplier)
+    {
+        return WithArgument(new VideoSpeedArgument(multiplier));
+    }
+
+    /// <summary>fade</summary>
+    public VideoFilterOptions Fade(FadeDirection direction, TimeSpan start, TimeSpan duration, string? color = null)
+    {
+        return WithArgument(new VideoFadeArgument(direction, start, duration, color));
+    }
+
     /// <summary>pad</summary>
     public VideoFilterOptions Pad(PadOptions padOptions)
     {

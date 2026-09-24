@@ -233,6 +233,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
+- Six filters that had no method on the filter builders: `Overlay`, `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and
+  `Loudnorm`, `Speed` and `Fade` on `AudioFilterOptions`.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.

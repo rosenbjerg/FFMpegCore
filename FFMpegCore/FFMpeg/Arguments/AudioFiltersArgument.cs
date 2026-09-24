@@ -89,6 +89,25 @@ public class AudioFilterOptions
         return WithArgument(new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
     }
 
+    /// <summary>loudnorm</summary>
+    public AudioFilterOptions Loudnorm(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
+    {
+        return WithArgument(new LoudnormArgument(integratedLoudness, loudnessRange, truePeak, dualMono));
+    }
+
+    /// <summary>atempo, chained when the multiplier is outside the 0.5x-100x a single atempo spans</summary>
+    public AudioFilterOptions Speed(double multiplier)
+    {
+        return AudioSpeedArgument.StepsFor(multiplier)
+            .Aggregate(this, (options, step) => options.WithArgument(new AudioSpeedArgument(step)));
+    }
+
+    /// <summary>afade</summary>
+    public AudioFilterOptions Fade(FadeDirection direction, TimeSpan start, TimeSpan duration, string? curve = null)
+    {
+        return WithArgument(new AudioFadeArgument(direction, start, duration, curve));
+    }
+
     /// <summary>silencedetect</summary>
     public AudioFilterOptions SilenceDetect(string noiseType = "db", double noise = 60, double duration = 2,
         bool mono = false)
