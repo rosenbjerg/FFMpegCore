@@ -11,8 +11,9 @@
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both
 synchronous and asynchronous calls
 
-> **Upgrading from 5.x?** Version 6.0 renames most option methods after the ffmpeg options they emit and splits input from output options.
-> [MIGRATION.md](MIGRATION.md) lists every breaking change and its replacement.
+> **Upgrading from 5.x?** Version 6.0 renames most option methods after the ffmpeg options they emit, splits input from output options, and
+> renames or removes several `FFMpeg.*` helpers. [MIGRATION.md](MIGRATION.md) lists every breaking change and its replacement, and the new
+> helpers and builders that came with it.
 
 # API
 

@@ -1,7 +1,8 @@
 ﻿# Migrating from 5.x to 6.0
 
 FFMpegCore 6.0 renames most option methods after the ffmpeg options they emit, splits input options from output options, and returns a
-result object instead of a `bool`. This document lists every breaking change and what to replace it with. See the
+result object instead of a `bool`. It also renames or removes several `FFMpeg.*` helpers whose names or restrictions did not match what they
+did. This document lists every breaking change and what to replace it with, and ends with [what 6.0 adds](#new-in-60). See the
 [README](README.md) for the current API.
 
 ## Return values
@@ -222,6 +223,17 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 `FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
 
 ## New in 6.0
+
+- Six `FFMpeg.*` helpers for operations that previously had no route through the API:
+
+  | Helper | What it does |
+  |---|---|
+  | `Remux` | Changes container, copying the streams — no re-encode. |
+  | `Concat` | Joins files through the concat demuxer, copying the streams. `Join` re-encodes and stays for inputs that differ. |
+  | `ThumbnailSheet` | Samples frames at an interval and tiles them into a contact sheet or scrub-preview strip. |
+  | `Watermark` | Overlays an image at a corner, keeping the audio. |
+  | `AddSubtitles` | Muxes a subtitle file in as its own switchable stream, rather than burning it into the picture. |
+  | `ExtractSubtitles` | Writes a subtitle stream back out to a file. |
 
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
 - `NotifyOnPercentageProgress` without a duration after an `FFMpeg.*` helper that already probed the input.
