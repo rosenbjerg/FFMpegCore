@@ -442,6 +442,60 @@ public class FFProbeTests
     // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
     [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
     [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Uri_GetPackets_Async()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var sync = FFProbe.GetPackets(uri);
+        var async = await FFProbe.GetPacketsAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(sync.Packets);
+        Assert.IsNotEmpty(async.Packets);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetFrames()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frames = FFProbe.GetFrames(stream);
+
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetFrames_Async()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frames = await FFProbe.GetFramesAsync(stream, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetPackets()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var packets = FFProbe.GetPackets(stream);
+
+        Assert.IsNotEmpty(packets.Packets);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetPackets_Async()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var packets = await FFProbe.GetPacketsAsync(stream, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(packets.Packets);
+    }
+
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Uri_Async()
     {
         var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));

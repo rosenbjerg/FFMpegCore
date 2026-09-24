@@ -46,7 +46,7 @@ public static class SystemDrawingImage
     public static async Task<Bitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         int inputFileIndex = 0, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
-        var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken).ConfigureAwait(false);
+        var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
         using var ms = new MemoryStream();
 

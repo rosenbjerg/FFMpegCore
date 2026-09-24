@@ -197,6 +197,17 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
 
 `AddAudio` takes the same `FFOptions`, and `AddAudioAsync` adds cancellation.
 
+## FFProbe's async overloads take the token last
+
+`CancellationToken` sat before `customArguments`; it is now the final parameter, so a positionally-passed token has to be named:
+
+```csharp
+await FFProbe.AnalyseAsync(path, ffOptions, cancellationToken);                  // 5.x / early 6.0
+await FFProbe.AnalyseAsync(path, ffOptions, cancellationToken: cancellationToken); // 6.0
+```
+
+This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
+
 `FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`. `FFMpegDownloaderException` derives from
 `FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
 
@@ -210,6 +221,8 @@ await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex
   expressible without probing first to count them.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
+- `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
+  only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
