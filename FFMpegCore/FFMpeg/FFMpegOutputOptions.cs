@@ -128,6 +128,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType, true));
     }
 
+    /// <summary>-map, selecting a label a complex-filter chain produced</summary>
+    public FFMpegOutputOptions WithMap(string label)
+    {
+        return WithArgument(new MapLabelArgument(label));
+    }
+
     /// <summary>-map -, excluding every stream of the type rather than one by index</summary>
     public FFMpegOutputOptions WithNegativeMap(StreamType streamType, int inputFileIndex = 0)
     {
@@ -156,6 +162,14 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     public FFMpegOutputOptions WithGifPalette(int streamIndex, Size? size, double fps = 12)
     {
         return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
+    }
+
+    /// <summary>-filter_complex</summary>
+    public FFMpegOutputOptions WithComplexFilter(Action<FFMpegComplexFilterOptions> complexFilterOptions)
+    {
+        var options = new FFMpegComplexFilterOptions();
+        complexFilterOptions(options);
+        return WithArgument(new ComplexFilterArgument(options));
     }
 
     /// <summary>-vf</summary>

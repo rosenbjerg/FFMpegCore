@@ -235,6 +235,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
 - Six filters that had no method on the filter builders: `Overlay`, `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and
   `Loudnorm`, `Speed` and `Fade` on `AudioFilterOptions`.
+- `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. Filters needing
+  more than one input — `Concat`, `Overlay`, `AudioMix` — are reachable for the first time without hand-writing the graph into
+  `WithCustomArgument`.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.

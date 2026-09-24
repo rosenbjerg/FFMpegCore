@@ -105,6 +105,39 @@ FFMpegArguments
 
 `WithMap(0)` still selects one stream by index, and `WithMap(StreamType.All)` maps everything from an input.
 
+### Complex filters
+
+`WithVideoFilters` builds the single `-vf` chain that one input feeds. When a filter needs more than one input, or you want to route what a
+filter produces into another, use `WithComplexFilter`, which builds `-filter_complex`:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .AddFileInput(logoPath)
+    .OutputToFile(outputPath, true, options => options
+        .WithComplexFilter(graph => graph
+            .From(0, StreamType.Video)
+            .From(1, StreamType.Video)
+            .Overlay(x: "W-w-10", y: "H-h-10")
+            .As("v"))
+        .WithMap("v"))
+    .ProcessSynchronously();
+```
+
+A chain reads its inputs with `From` — either a stream of an input file, or a label an earlier chain produced — applies filters in order, and
+closes with `As`, naming what it produced. `As` returns the graph, so the next `From` starts another chain; chains are joined with `;`.
+`WithMap(label)` then selects a labelled output:
+
+```csharp
+.WithComplexFilter(graph => graph
+    .From(0, StreamType.Video).Scale(640, 360).As("small")
+    .From("small").HorizontalFlip().As("flipped"))
+.WithMap("flipped")
+```
+
+Filters ffmpeg only accepts in a complex graph live here rather than on `WithVideoFilters`: `Concat`, `Overlay` and `AudioMix`. For anything
+the builder does not cover, `WithCustomFilter(key, value)` and the `WithFilter(IVideoFilterArgument)` overloads take an arbitrary filter.
+
 ### Reading the result
 
 `ProcessSynchronously()` and `ProcessAsynchronously()` return an `FFMpegResult` describing the run:

@@ -1265,6 +1265,97 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_ComplexFilter_Overlay()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .AddFileInput("logo.png")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g
+                    .From(0, StreamType.Video)
+                    .From(1, StreamType.Video)
+                    .Overlay("W-w-10", "H-h-10")
+                    .As("v"))
+                .WithMap("v"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -i "logo.png" -filter_complex "[0:v][1:v]overlay=x=W-w-10:y=H-h-10[v]" -map "[v]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ComplexFilter_ChainsAreJoinedWithSemicolons()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g
+                    .From(0, StreamType.Video)
+                    .Scale(640, 360)
+                    .As("small")
+                    .From("small")
+                    .HorizontalFlip()
+                    .As("flipped"))
+                .WithMap("flipped"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -filter_complex "[0:v]scale=640:360[small];[small]hflip[flipped]" -map "[flipped]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ComplexFilter_ConcatWithAudio()
+    {
+        var str = FFMpegArguments.FromFileInput(new[] { "a.mp4", "b.mp4" })
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g
+                    .From(0, StreamType.Video, 0)
+                    .From(0, StreamType.Audio, 0)
+                    .From(1, StreamType.Video, 0)
+                    .From(1, StreamType.Audio, 0)
+                    .Concat(2, 1, 1)
+                    .As("v", "a"))
+                .WithMap("v")
+                .WithMap("a"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "a.mp4" -i "b.mp4" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0]concat=n=2:v=1:a=1[v][a]" -map "[v]" -map "[a]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ComplexFilter_LabelsMayBeBracketed()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g.From(0, StreamType.Video).Fps(1).As("[out]"))
+                .WithMap("[out]"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -filter_complex "[0:v]fps=fps=1[out]" -map "[out]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
+    public void ComplexFilter_RejectsAnEmptyGraph()
+    {
+        var argument = new ComplexFilterArgument(new FFMpegComplexFilterOptions());
+
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = argument.Text);
+    }
+
+    [TestMethod]
+    public void ComplexFilter_RejectsAChainWithoutFilters()
+    {
+        var options = new FFMpegComplexFilterOptions();
+        options.From(0, StreamType.Video).As("v");
+
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = new ComplexFilterArgument(options).Text);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Copy_All()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
