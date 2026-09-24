@@ -17,14 +17,14 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
             .Where(text => !string.IsNullOrEmpty(text)));
     }
 
-    public static FFMpegArguments FromConcatInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
+    public static FFMpegArguments FromConcatProtocolInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new ConcatArgument(filePaths), addArguments);
+        return new FFMpegArguments().WithInput(new ConcatProtocolArgument(filePaths), addArguments);
     }
 
-    public static FFMpegArguments FromDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
+    public static FFMpegArguments FromConcatDemuxerInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new DemuxConcatArgument(filePaths), addArguments);
+        return new FFMpegArguments().WithInput(new ConcatDemuxerArgument(filePaths), addArguments);
     }
 
     public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
@@ -67,14 +67,14 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArguments().WithInput(new ImageSequenceInputArgument(images), addArguments);
     }
 
-    public FFMpegArguments AddConcatInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddConcatProtocolInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new ConcatArgument(filePaths), addArguments);
+        return WithInput(new ConcatProtocolArgument(filePaths), addArguments);
     }
 
-    public FFMpegArguments AddDemuxConcatInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddConcatDemuxerInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new DemuxConcatArgument(filePaths), addArguments);
+        return WithInput(new ConcatDemuxerArgument(filePaths), addArguments);
     }
 
     public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)

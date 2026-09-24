@@ -1,12 +1,16 @@
 ﻿namespace FFMpegCore.Arguments;
 
-public class DemuxConcatArgument : IInputArgument
+/// <summary>
+///     ffmpeg's concat demuxer, which reads a list file and joins the inputs stream-wise. Works for any format the demuxer can
+///     open, provided the inputs share codecs and parameters.
+/// </summary>
+public class ConcatDemuxerArgument : IInputArgument
 {
     private readonly string[] _values;
     private FFOptions? _options;
     private string? _tempFileName;
 
-    public DemuxConcatArgument(IEnumerable<string> values)
+    public ConcatDemuxerArgument(IEnumerable<string> values)
     {
         _values = values.ToArray();
     }

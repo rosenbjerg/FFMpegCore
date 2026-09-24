@@ -1366,7 +1366,7 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
 
         var success = FFMpegArguments
-            .FromDemuxConcatInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
+            .FromConcatDemuxerInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
             .OutputToFile(outputFile, true, options => options.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -1385,7 +1385,7 @@ public class VideoTest
         var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.ImageCollection + "/..") };
 
         var result = FFMpegArguments
-            .FromDemuxConcatInput(new[] { Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video) })
+            .FromConcatDemuxerInput(new[] { Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video) })
             .OutputToFile(outputFile, true, o => o.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously(true, options);
@@ -1405,7 +1405,7 @@ public class VideoTest
         try
         {
             FFMpegArguments
-                .FromDemuxConcatInput(new[] { TestResources.Mp4Video })
+                .FromConcatDemuxerInput(new[] { TestResources.Mp4Video })
                 .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
                 .OutputToFile(outputFile, true, o => o.CopyStreams())
                 .NotifyOnError(stderr.Add)

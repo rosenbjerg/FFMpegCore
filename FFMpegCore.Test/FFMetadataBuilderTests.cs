@@ -147,7 +147,7 @@ public class FFMetadataBuilderTests
             .Text;
 
         var text1 = FFMpegArguments.FromFileInput("whaterver0")
-            .AddDemuxConcatInput(new[] { "whaterver", "whaterver1" })
+            .AddConcatDemuxerInput(new[] { "whaterver", "whaterver1" })
             .AddMetadata("WhatEver3")
             .Text;
 

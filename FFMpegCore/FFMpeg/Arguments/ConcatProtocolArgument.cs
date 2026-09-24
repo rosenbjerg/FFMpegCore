@@ -1,14 +1,14 @@
 ﻿namespace FFMpegCore.Arguments;
 
 /// <summary>
-///     Represents parameter of concat argument
-///     Used for creating video from multiple images or videos
+///     ffmpeg's <c>concat:</c> protocol, which joins the files byte-wise before demuxing. Only formats that survive naive
+///     concatenation, such as mpegts and mp3, work this way; for everything else use <see cref="ConcatDemuxerArgument" />.
 /// </summary>
-public class ConcatArgument : IInputArgument
+public class ConcatProtocolArgument : IInputArgument
 {
     public readonly IEnumerable<string> Values;
 
-    public ConcatArgument(IEnumerable<string> values)
+    public ConcatProtocolArgument(IEnumerable<string> values)
     {
         Values = values;
     }

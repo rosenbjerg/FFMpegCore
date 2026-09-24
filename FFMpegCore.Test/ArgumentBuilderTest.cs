@@ -95,14 +95,14 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_Concat()
     {
-        var str = FFMpegArguments.FromConcatInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
+        var str = FFMpegArguments.FromConcatProtocolInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
         Assert.AreEqual("-i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]
     public void Builder_BuildString_DemuxConcat()
     {
-        var str = FFMpegArguments.FromDemuxConcatInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
+        var str = FFMpegArguments.FromConcatDemuxerInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
         Assert.Contains("-f concat -safe 0 -i", str);
         Assert.Contains("\"output.mp4\"", str);
     }
@@ -794,7 +794,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Concat_Escape()
     {
-        var arg = new DemuxConcatArgument([@"Heaven's River\05 - Investigation.m4b"]);
+        var arg = new ConcatDemuxerArgument([@"Heaven's River\05 - Investigation.m4b"]);
         var expected = "file '" + Path.GetFullPath(@"Heaven's River\05 - Investigation.m4b").Replace("'", @"'\''") + "'";
         CollectionAssert.AreEquivalent(new[] { expected }, arg.Values.ToArray());
     }
@@ -803,7 +803,7 @@ public class ArgumentBuilderTest
     public void Concat_ResolvesRelativePaths_KeepsAbsolutePathsAndUrls()
     {
         var absolute = Path.Combine(Path.GetTempPath(), "a.mp4");
-        var arg = new DemuxConcatArgument(["Resources/a.mp4", absolute, "https://host/a.mp4", "concat:a.mp4|b.mp4"]);
+        var arg = new ConcatDemuxerArgument(["Resources/a.mp4", absolute, "https://host/a.mp4", "concat:a.mp4|b.mp4"]);
 
         CollectionAssert.AreEqual(new[]
         {
@@ -823,7 +823,7 @@ public class ArgumentBuilderTest
         {
             GlobalFFOptions.Configure(options => options.WorkingDirectory = workingDirectory);
 
-            var arg = new DemuxConcatArgument(["a.mp4"]);
+            var arg = new ConcatDemuxerArgument(["a.mp4"]);
 
             CollectionAssert.AreEqual(new[] { $"file '{Path.GetFullPath(Path.Combine(workingDirectory, "a.mp4"))}'" }, arg.Values.ToArray());
         }
@@ -1248,7 +1248,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_AddConcatInput()
     {
-        var str = FFMpegArguments.FromFileInput("first.mp4").AddConcatInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
+        var str = FFMpegArguments.FromFileInput("first.mp4").AddConcatProtocolInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;
 
         Assert.AreEqual("-i \"first.mp4\" -i \"concat:1.mp4|2.mp4|3.mp4|4.mp4\" \"output.mp4\"", str);
     }

@@ -165,6 +165,15 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
 | `ContainerFormat.Extension` (property) | `ContainerFormat.GetExtension(FFOptions? = null)` |
 | `MediaFormat.BitRate` is `double` | `long`, matching `MediaStream.BitRate` |
+| `FromConcatInput` / `AddConcatInput` / `ConcatArgument` | `FromConcatProtocolInput` / `AddConcatProtocolInput` / `ConcatProtocolArgument` |
+| `FromDemuxConcatInput` / `AddDemuxConcatInput` / `DemuxConcatArgument` | `FromConcatDemuxerInput` / `AddConcatDemuxerInput` / `ConcatDemuxerArgument` |
+
+The two are different ffmpeg mechanisms and the old names did not say which was which. `concat:` is a *protocol* that joins the files
+byte-wise, and works only for formats that survive naive concatenation such as mpegts and mp3; the concat *demuxer* writes a list file and
+joins stream-wise, and is the one that works for mp4 and mkv. Both were renamed rather than just the confusing one — leaving
+`FromConcatInput` in place with either meaning would let existing code keep compiling while doing something different.
+
+For joining video files, prefer `FFMpeg.Concat`, which uses the demuxer.
 
 `ContainerFormat.Extension` read `ExtensionOverrides` off `GlobalFFOptions.Current`, so it ignored the per-run `FFOptions` that 6.0 threads
 through everything else. It is now a method taking them, named `GetExtension` to match `MediaStream.GetCodecInfo` and
