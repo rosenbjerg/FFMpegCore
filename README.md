@@ -287,6 +287,23 @@ FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
 ).ProcessSynchronously();
 ```
 
+### Build a contact sheet of thumbnails:
+
+```csharp
+// 5x5 frames spread evenly across the whole video
+FFMpeg.ThumbnailSheet(inputPath, "sheet.png").ProcessSynchronously();
+
+// or one frame every 10 seconds, 160px wide, height following the aspect ratio
+FFMpeg.ThumbnailSheet(inputPath, "sheet.jpg",
+    columns: 10, rows: 8,
+    interval: TimeSpan.FromSeconds(10),
+    tileSize: new Size(160, -1)
+).ProcessSynchronously();
+```
+
+This is the sprite sheet a player loads to show previews while scrubbing. Leave `interval` out and the frames are spread across the input's
+duration instead.
+
 ### Change container without re-encoding:
 
 ```csharp

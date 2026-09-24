@@ -116,6 +116,40 @@ public static class FFMpeg
     }
 
     /// <summary>
+    ///     Samples frames at a fixed interval and tiles them into a single image — a contact sheet, or the strip a player
+    ///     shows when scrubbing.
+    /// </summary>
+    /// <param name="input">Source video file.</param>
+    /// <param name="output">Output image file.</param>
+    /// <param name="columns">Tiles across.</param>
+    /// <param name="rows">Tiles down.</param>
+    /// <param name="interval">
+    ///     How much video each tile advances by. Defaults to spreading <paramref name="columns" /> × <paramref name="rows" />
+    ///     tiles evenly across the whole input.
+    /// </param>
+    /// <param name="tileSize">Size of one tile. If width or height is -1, it is computed from the other.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ThumbnailSheet(string input, string output, int columns = 5, int rows = 5, TimeSpan? interval = null,
+        Size? tileSize = null, FFOptions? ffOptions = null)
+    {
+        CheckSnapshotOutputExtension(output, FileExtension.Image.All);
+
+        var source = FFProbe.Analyse(input, ffOptions);
+        var step = interval ?? TimeSpan.FromTicks(Math.Max(source.Duration.Ticks / (columns * rows), TimeSpan.TicksPerMillisecond));
+        var size = tileSize ?? new Size(-1, 120);
+
+        return FFMpegArguments
+            .FromFileInput(input)
+            .OutputToFile(output, true, options => options
+                .WithVideoFilters(filters => filters
+                    .Fps(1 / step.TotalSeconds)
+                    .Scale(size)
+                    .Tile(columns, rows))
+                .WithFrameOutputCount(1))
+            .WithOptions(ffOptions);
+    }
+
+    /// <summary>
     ///     Rewraps a file into a different container, copying the streams rather than re-encoding. The target container has to
     ///     be able to mux the streams as they are; ffmpeg fails the run if it cannot.
     /// </summary>

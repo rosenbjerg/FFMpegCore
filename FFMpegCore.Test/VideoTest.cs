@@ -1361,6 +1361,44 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ThumbnailSheet_TilesTheSampledFrames()
+    {
+        using var outputFile = new TemporaryFile("out.png");
+
+        var success = FFMpeg.ThumbnailSheet(TestResources.Mp4Video, outputFile, 3, 2, tileSize: new Size(160, 90))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var sheet = FFProbe.Analyse(outputFile).PrimaryVideoStream!;
+        Assert.AreEqual(480, sheet.Width);
+        Assert.AreEqual(180, sheet.Height);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ThumbnailSheet_ScalesTileHeightFromItsWidth()
+    {
+        using var outputFile = new TemporaryFile("out.jpg");
+
+        var success = FFMpeg.ThumbnailSheet(TestResources.Mp4Video, outputFile, 2, 2, TimeSpan.FromSeconds(1), new Size(320, -1))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var sheet = FFProbe.Analyse(outputFile).PrimaryVideoStream!;
+        Assert.AreEqual(640, sheet.Width);
+        Assert.AreEqual(360, sheet.Height);
+    }
+
+    [TestMethod]
+    public void Video_ThumbnailSheet_RejectsNonImageExtension()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.ThumbnailSheet(TestResources.Mp4Video, "out.mp4"));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow("out.mkv")]
     [DataRow("out.mov")]
     [DataRow("out.ts")]
