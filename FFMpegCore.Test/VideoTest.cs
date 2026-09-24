@@ -1361,6 +1361,41 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    [DataRow("out.mkv")]
+    [DataRow("out.mov")]
+    [DataRow("out.ts")]
+    public void Video_Remux_KeepsEveryStreamAsItWas(string filename)
+    {
+        using var outputFile = new TemporaryFile(filename);
+
+        var success = FFMpeg.Remux(TestResources.Mp4Video, outputFile)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var input = FFProbe.Analyse(TestResources.Mp4Video);
+        var result = FFProbe.Analyse(outputFile);
+        Assert.AreEqual(input.PrimaryVideoStream!.CodecName, result.PrimaryVideoStream!.CodecName);
+        Assert.AreEqual(input.PrimaryAudioStream!.CodecName, result.PrimaryAudioStream!.CodecName);
+        Assert.AreEqual(input.PrimaryVideoStream.Width, result.PrimaryVideoStream.Width);
+        Assert.AreEqual(input.Duration.Seconds, result.Duration.Seconds);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Remux_FailsWhenTheContainerCannotMuxTheStreams()
+    {
+        using var outputFile = new TemporaryFile("out.webm");
+
+        var result = FFMpeg.Remux(TestResources.Mp4Video, outputFile)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(false);
+
+        Assert.IsFalse(result.Success);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Concat_CopiesTheStreams()
     {
         using var outputFile = new TemporaryFile("out.mp4");

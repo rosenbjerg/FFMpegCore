@@ -287,6 +287,15 @@ FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
 ).ProcessSynchronously();
 ```
 
+### Change container without re-encoding:
+
+```csharp
+FFMpeg.Remux(@"..\input.mp4", @"..\output.mkv").ProcessSynchronously();
+```
+
+Every stream is copied across, so this is lossless and near-instant. The target container has to be able to mux the streams as they are —
+h264/aac into `.mkv` or `.mov` is fine, into `.webm` is not, and ffmpeg fails the run rather than silently re-encoding.
+
 ### Cut a section out of a video
 
 ```csharp

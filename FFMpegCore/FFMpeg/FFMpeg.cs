@@ -116,6 +116,26 @@ public static class FFMpeg
     }
 
     /// <summary>
+    ///     Rewraps a file into a different container, copying the streams rather than re-encoding. The target container has to
+    ///     be able to mux the streams as they are; ffmpeg fails the run if it cannot.
+    /// </summary>
+    /// <param name="input">Input media file.</param>
+    /// <param name="output">Output media file. Its extension decides the container.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Remux(string input, string output, FFOptions? ffOptions = null)
+    {
+        var source = FFProbe.Analyse(input, ffOptions);
+
+        return FFMpegArguments
+            .FromFileInput(input)
+            .OutputToFile(output, true, options => options
+                .WithMap(StreamType.All)
+                .CopyStreams())
+            .WithKnownDuration(source.Duration)
+            .WithOptions(ffOptions);
+    }
+
+    /// <summary>
     ///     Joins media files through the concat demuxer, copying the streams rather than re-encoding. The inputs must share
     ///     codecs and parameters; where they do not, use <see cref="Join(string, string[])" />, which re-encodes.
     /// </summary>
