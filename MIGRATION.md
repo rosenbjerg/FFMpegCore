@@ -136,6 +136,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `WithBitStreamFilter(Channel, Filter)` | `WithBitstreamFilter(StreamType, BitstreamFilter)` |
 | `ForcePixelFormat(f)` | `WithPixelFormat(f)` |
 | `WithTagVersion(n)` | `WithId3v2Version(n)` |
+| `WithFrameOutputCount(n)` | `WithFrameCount(n)` |
 | `WithGifPaletteArgument(…)` | `WithGifPalette(…)` |
 | `Resize(w, h)` on an output | `WithVideoFilters(f => f.Scale(w, h))` |
 | `Resize(w, h)` on an input | `WithFrameSize(w, h)` |
@@ -144,6 +145,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `WithGlobalOptions(g => g.WithVerbosityLevel(v))` | `WithLogLevel(FFMpegLogLevel.…)` |
 | `MultiOutput(…)` | `OutputToMany(…)` |
 | `AddMetaData(…)` / `MapMetaData(…)` | `AddMetadata(…)` / `MapMetadata(…)` |
+| `ProcessSynchronously(…, ffMpegOptions: o)` | `ProcessSynchronously(…, ffOptions: o)` — named only |
 
 ## Renamed and removed types
 
@@ -163,8 +165,15 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoStream.AverageFrameRate` | removed — it was never populated and always read `0`; use `AvgFrameRate` (ffprobe's `avg_frame_rate`) or `FrameRate` (`r_frame_rate`) |
 | `new InputArgument(bool, string)` | `new InputArgument(string path, bool verifyExists)` — the two constructors differed only in argument order |
 | `new MultiInputArgument(bool, IEnumerable<string>)` | `new MultiInputArgument(IEnumerable<string> paths, bool verifyExists)` — likewise |
-| `VideoCodec.MpegTs` | removed — `mpegts` is a container, not a video codec; it emitted `-c:v mpegts`. Use `ForceFormat(VideoType.Ts)` |
-| `VideoType.MpegTs` | `VideoType.Ts` — they were the same value under two names |
+| `VideoCodec.MpegTs` | removed — `mpegts` is a container, not a video codec; it emitted `-c:v mpegts`. Use `ForceFormat(ContainerFormats.Ts)` |
+| `VideoType` | `ContainerFormats` — its members are `ContainerFormat` values, so the old name claimed a video type it never was |
+| `VideoType.MpegTs` | `ContainerFormats.Ts` — they were the same value under two names |
+| `AudioCodec.LibFdk_Aac` | `AudioCodec.LibFdkAac` |
+| `Filter.Aac_AdtstoAsc` | `BitstreamFilter.Aac_AdtsToAsc` |
+| `MetaDataArgument` | `MetadataArgument`, matching `AddMetadata` and `MapMetadataArgument` |
+| `FaststartArgument` | `FastStartArgument` |
+| `VariableBitRateArgument` | `VariableBitrateArgument` |
+| `ID3V2VersionArgument` | `Id3v2VersionArgument` |
 | `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
 | `ContainerFormat.Extension` (property) | `ContainerFormat.GetExtension(FFOptions? = null)` |
 | `MediaFormat.BitRate` is `double` | `long`, matching `MediaStream.BitRate` |
@@ -276,7 +285,7 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `FFMpegDownloader` works on Apple Silicon, where it previously threw `PlatformNotSupportedException`.
 - A missing ffmpeg or ffprobe raises `FFMpegException` or `FFProbeException` naming the path that was tried, where `Instances`'
   `InstanceFileNotFoundException` used to escape.
-- `VideoCodec.*`, `AudioCodec.*` and `VideoType.*` are built from their known name and type instead of being looked up through
+- `VideoCodec.*`, `AudioCodec.*` and `ContainerFormats.*` are built from their known name and type instead of being looked up through
   `ffmpeg -codecs`. They no longer spawn a process, and no longer throw when the build lacks the codec — ffmpeg reports that itself when
   the run starts. `Description`, `EncodingSupported` and the other fields the listing fills in are empty on them; call
   `FFMpeg.GetCodec(name)` for a populated `Codec`.

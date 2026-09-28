@@ -8,9 +8,9 @@ public static class FFProbeHelper
 {
     private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
-    public static void VerifyFFProbeExists(FFOptions ffMpegOptions)
+    public static void VerifyFFProbeExists(FFOptions ffOptions)
     {
-        var binaryPath = GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions);
+        var binaryPath = GlobalFFOptions.GetFFProbeBinaryPath(ffOptions);
         if (_verifiedBinaries.ContainsKey(binaryPath))
         {
             return;

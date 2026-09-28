@@ -257,7 +257,7 @@ public static class FFMpeg
                     .Fps(1 / step.TotalSeconds)
                     .Scale(size)
                     .Tile(columns, rows))
-                .WithFrameOutputCount(1))
+                .WithFrameCount(1))
             .WithOptions(ffOptions);
     }
 

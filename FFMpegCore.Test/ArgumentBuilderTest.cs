@@ -67,13 +67,13 @@ public class ArgumentBuilderTest
 
     [TestMethod]
     [DataRow(StreamType.All)]
-    [DataRow(StreamType.Attachments)]
+    [DataRow(StreamType.Attachment)]
     [DataRow(StreamType.VideoNoAttachedPic)]
     [DataRow(StreamType.Subtitle)]
     [DataRow(StreamType.Data)]
     public void BitstreamFilter_RejectsStreamTypesWithoutABsfSpelling(StreamType streamType)
     {
-        Assert.ThrowsExactly<FFMpegException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtstoAsc));
+        Assert.ThrowsExactly<FFMpegException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtsToAsc));
     }
 
     [TestMethod]
@@ -146,7 +146,7 @@ public class ArgumentBuilderTest
     [DataRow(StreamType.VideoNoAttachedPic, "-c:V copy")]
     [DataRow(StreamType.Subtitle, "-c:s copy")]
     [DataRow(StreamType.Data, "-c:d copy")]
-    [DataRow(StreamType.Attachments, "-c:t copy")]
+    [DataRow(StreamType.Attachment, "-c:t copy")]
     public void Builder_BuildString_Copy_SpellsEveryStreamType(StreamType streamType, string expected)
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
@@ -204,7 +204,7 @@ public class ArgumentBuilderTest
 
     [TestMethod]
     [DataRow(StreamType.All)]
-    [DataRow(StreamType.Attachments)]
+    [DataRow(StreamType.Attachment)]
     [DataRow(StreamType.VideoNoAttachedPic)]
     public void DisableStream_RejectsStreamTypesFFMpegCannotDisable(StreamType streamType)
     {
@@ -296,8 +296,8 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_ForceFormat()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.ForceFormat(VideoType.Mp4))
-            .OutputToFile("output.mp4", false, opt => opt.ForceFormat(VideoType.Mp4)).Arguments;
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.ForceFormat(ContainerFormats.Mp4))
+            .OutputToFile("output.mp4", false, opt => opt.ForceFormat(ContainerFormats.Mp4)).Arguments;
         Assert.AreEqual("-f mp4 -i \"input.mp4\" -f mp4 \"output.mp4\"", str);
     }
 
@@ -305,7 +305,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_FrameOutputCount()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithFrameOutputCount(50)).Arguments;
+            .OutputToFile("output.mp4", false, opt => opt.WithFrameCount(50)).Arguments;
         Assert.AreEqual("-i \"input.mp4\" -frames:v 50 \"output.mp4\"", str);
     }
 
@@ -1082,7 +1082,7 @@ public class ArgumentBuilderTest
     [DataRow(StreamType.VideoNoAttachedPic, "-map 1:V")]
     [DataRow(StreamType.Subtitle, "-map 1:s")]
     [DataRow(StreamType.Data, "-map 1:d")]
-    [DataRow(StreamType.Attachments, "-map 1:t")]
+    [DataRow(StreamType.Attachment, "-map 1:t")]
     public void Builder_BuildString_SelectStreamsByType(StreamType streamType, string expected)
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
@@ -1506,10 +1506,10 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_AddMetaData_FromBuilder()
+    public void Builder_BuildString_AddMetadata_FromBuilder()
     {
-        var metaData = new FFMetadataBuilder().WithTitle("Title");
-        var str = FFMpegArguments.FromFileInput("input.mp4").AddMetadata(metaData).OutputToFile("output.mp4", false).Arguments;
+        var metadata = new FFMetadataBuilder().WithTitle("Title");
+        var str = FFMpegArguments.FromFileInput("input.mp4").AddMetadata(metadata).OutputToFile("output.mp4", false).Arguments;
 
         StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -map_metadata 1 \"output.mp4\"$"));
     }
@@ -1525,7 +1525,7 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_MapMetaData_ExplicitIndex()
+    public void Builder_BuildString_MapMetadata_ExplicitIndex()
     {
         var str = FFMpegArguments.FromFileInput("video.mp4")
             .AddFileInput("audio.mp3")

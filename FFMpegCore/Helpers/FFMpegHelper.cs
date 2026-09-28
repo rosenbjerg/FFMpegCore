@@ -30,9 +30,9 @@ public static class FFMpegHelper
         }
     }
 
-    public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
+    public static void VerifyFFMpegExists(FFOptions ffOptions)
     {
-        var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions);
+        var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions);
         if (_verifiedBinaries.ContainsKey(binaryPath))
         {
             return;

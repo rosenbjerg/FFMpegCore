@@ -1,6 +1,6 @@
 ﻿namespace FFMpegCore.Enums;
 
-public static class VideoType
+public static class ContainerFormats
 {
     public static ContainerFormat Ts => new("mpegts");
     public static ContainerFormat Mp4 => new("mp4");

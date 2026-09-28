@@ -1,13 +1,13 @@
 ﻿namespace FFMpegCore.Arguments;
 
-public class MetaDataArgument : IInputArgument, IDynamicArgument
+public class MetadataArgument : IInputArgument, IDynamicArgument
 {
-    private readonly string _metaDataContent;
+    private readonly string _metadataContent;
     private string? _tempFileName;
 
-    public MetaDataArgument(string metaDataContent)
+    public MetadataArgument(string metadataContent)
     {
-        _metaDataContent = metaDataContent;
+        _metadataContent = metadataContent;
     }
 
     public string GetText(IEnumerable<IArgument>? arguments)
@@ -34,7 +34,7 @@ public class MetaDataArgument : IInputArgument, IDynamicArgument
     public void Pre(FFOptions options)
     {
         _tempFileName = TempFileNameIn(options);
-        File.WriteAllText(_tempFileName, _metaDataContent);
+        File.WriteAllText(_tempFileName, _metadataContent);
     }
 
     public void Post()

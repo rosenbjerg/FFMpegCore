@@ -71,7 +71,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     /// <summary>-vbr</summary>
     public FFMpegOutputOptions WithVariableBitrate(int vbr)
     {
-        return WithArgument(new VariableBitRateArgument(vbr));
+        return WithArgument(new VariableBitrateArgument(vbr));
     }
 
     /// <summary>-crf</summary>
@@ -87,9 +87,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-frames:v</summary>
-    public FFMpegOutputOptions WithFrameOutputCount(int frames)
+    public FFMpegOutputOptions WithFrameCount(int frames)
     {
-        return WithArgument(new FrameOutputCountArgument(frames));
+        return WithArgument(new FrameCountArgument(frames));
     }
 
     /// <summary>-bsf:v or -bsf:a</summary>
@@ -101,7 +101,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     /// <summary>-movflags faststart</summary>
     public FFMpegOutputOptions WithFastStart()
     {
-        return WithArgument(new FaststartArgument());
+        return WithArgument(new FastStartArgument());
     }
 
     /// <summary>-shortest</summary>
@@ -155,7 +155,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     /// <summary>-id3v2_version</summary>
     public FFMpegOutputOptions WithId3v2Version(int version = 3)
     {
-        return WithArgument(new ID3V2VersionArgument(version));
+        return WithArgument(new Id3v2VersionArgument(version));
     }
 
     /// <summary>-filter_complex with palettegen and paletteuse</summary>

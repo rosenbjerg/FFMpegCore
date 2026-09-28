@@ -48,7 +48,7 @@ public static class SnapshotArgumentBuilder
                 options
                     .WithMap(0, StreamType.All, streamIndex)
                     .WithVideoCodec(codec)
-                    .WithFrameOutputCount(1);
+                    .WithFrameCount(1);
                 if (size.HasValue)
                 {
                     options.WithVideoFilters(filters => filters.Scale(size.Value));

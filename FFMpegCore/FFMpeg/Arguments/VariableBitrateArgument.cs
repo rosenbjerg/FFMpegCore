@@ -3,11 +3,11 @@
 /// <summary>
 ///     Variable Bitrate Argument (VBR) argument
 /// </summary>
-public class VariableBitRateArgument : IArgument
+public class VariableBitrateArgument : IArgument
 {
     public readonly int Vbr;
 
-    public VariableBitRateArgument(int vbr)
+    public VariableBitrateArgument(int vbr)
     {
         if (vbr < 0 || vbr > 5)
         {

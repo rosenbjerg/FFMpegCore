@@ -3,11 +3,11 @@
 /// <summary>
 ///     Represents frame output count parameter
 /// </summary>
-public class FrameOutputCountArgument : IArgument
+public class FrameCountArgument : IArgument
 {
     public readonly int Frames;
 
-    public FrameOutputCountArgument(int frames)
+    public FrameCountArgument(int frames)
     {
         Frames = frames;
     }

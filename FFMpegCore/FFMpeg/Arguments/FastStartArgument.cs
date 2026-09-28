@@ -3,7 +3,7 @@
 /// <summary>
 ///     Faststart argument - for moving moov atom to the start of file
 /// </summary>
-public class FaststartArgument : IArgument
+public class FastStartArgument : IArgument
 {
     public string Text => "-movflags faststart";
 }

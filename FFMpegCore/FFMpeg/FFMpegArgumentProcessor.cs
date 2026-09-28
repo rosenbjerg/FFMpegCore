@@ -140,9 +140,9 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-    public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+    public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffOptions = null)
     {
-        var options = GetConfiguredOptions(ffMpegOptions);
+        var options = GetConfiguredOptions(ffOptions);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;
@@ -164,9 +164,9 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
-    public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffMpegOptions = null)
+    public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffOptions = null)
     {
-        var options = GetConfiguredOptions(ffMpegOptions);
+        var options = GetConfiguredOptions(ffOptions);
         using var cancellationTokenSource = new CancellationTokenSource();
 
         IProcessResult? processResult = null;

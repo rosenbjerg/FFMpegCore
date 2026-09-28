@@ -1,10 +1,10 @@
 ﻿namespace FFMpegCore.Arguments;
 
-public class ID3V2VersionArgument : IArgument
+public class Id3v2VersionArgument : IArgument
 {
     private readonly int _version;
 
-    public ID3V2VersionArgument(int version)
+    public Id3v2VersionArgument(int version)
     {
         _version = version;
     }

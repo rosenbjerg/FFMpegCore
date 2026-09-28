@@ -3,5 +3,5 @@
 public enum BitstreamFilter
 {
     H264_Mp4ToAnnexB,
-    Aac_AdtstoAsc
+    Aac_AdtsToAsc
 }

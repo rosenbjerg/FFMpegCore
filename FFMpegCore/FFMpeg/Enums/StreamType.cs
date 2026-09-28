@@ -13,7 +13,7 @@ public enum StreamType
     VideoNoAttachedPic,
     Subtitle,
     Data,
-    Attachments,
+    Attachment,
     All
 }
 
@@ -28,7 +28,7 @@ internal static class StreamTypeExtensions
             StreamType.VideoNoAttachedPic => ":V",
             StreamType.Subtitle => ":s",
             StreamType.Data => ":d",
-            StreamType.Attachments => ":t",
+            StreamType.Attachment => ":t",
             _ => string.Empty
         };
     }

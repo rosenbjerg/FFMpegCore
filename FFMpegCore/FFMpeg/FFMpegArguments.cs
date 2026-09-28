@@ -119,12 +119,12 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArguments AddMetadata(string content, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new MetaDataArgument(content), addArguments);
+        return WithInput(new MetadataArgument(content), addArguments);
     }
 
-    public FFMpegArguments AddMetadata(FFMetadataBuilder metaDataBuilder, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddMetadata(FFMetadataBuilder metadataBuilder, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new MetaDataArgument(metaDataBuilder.Build()), addArguments);
+        return WithInput(new MetadataArgument(metadataBuilder.Build()), addArguments);
     }
 
     /// <summary>

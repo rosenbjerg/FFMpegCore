@@ -25,7 +25,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToOGV()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Ogv.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Ogv.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
@@ -39,7 +39,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
@@ -53,7 +53,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_YUV444p()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
@@ -71,7 +71,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
@@ -86,7 +86,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_MetadataBuilder()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         await FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
@@ -152,7 +152,7 @@ public class VideoTest
 
     private static void Video_ToMP4_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
         var success = FFMpegArguments
@@ -181,7 +181,7 @@ public class VideoTest
 
     private static void Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var frames = new List<IVideoFrame>
         {
@@ -214,7 +214,7 @@ public class VideoTest
 
     private static async Task Video_ToMP4_Args_Pipe_DifferentImageSizes_Internal_Async(dynamic pixelFormat, CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var frames = new List<IVideoFrame>
         {
@@ -249,7 +249,7 @@ public class VideoTest
     private static void Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2,
         CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var frames = new List<IVideoFrame>
         {
@@ -284,7 +284,7 @@ public class VideoTest
     private static async Task Video_ToMP4_Args_Pipe_DifferentPixelFormats_Internal_Async(dynamic pixelFormatFrame1, dynamic pixelFormatFrame2,
         CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var frames = new List<IVideoFrame>
         {
@@ -305,7 +305,7 @@ public class VideoTest
     public void Video_ToMP4_Args_StreamPipe()
     {
         using var input = File.OpenRead(TestResources.WebmVideo);
-        using var output = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var output = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var success = FFMpegArguments
             .FromPipeInput(new StreamPipeSource(input))
@@ -425,7 +425,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToTS()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Ts.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Ts.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
@@ -439,14 +439,14 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToTS_Args()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Ts.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Ts.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
                 .CopyStreams()
                 .WithBitstreamFilter(StreamType.Video, BitstreamFilter.H264_Mp4ToAnnexB)
-                .ForceFormat(VideoType.Ts))
+                .ForceFormat(ContainerFormats.Ts))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(success.Success);
@@ -473,26 +473,26 @@ public class VideoTest
 
     private static async Task Video_ToTS_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
-        using var output = new TemporaryFile($"out{VideoType.Ts.GetExtension()}");
+        using var output = new TemporaryFile($"out{ContainerFormats.Ts.GetExtension()}");
         var input = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = await FFMpegArguments
             .FromPipeInput(input)
             .OutputToFile(output, false, opt => opt
-                .ForceFormat(VideoType.Ts))
+                .ForceFormat(ContainerFormats.Ts))
             .CancellableThrough(cancellationToken)
             .ProcessAsynchronously();
         Assert.IsTrue(success.Success);
 
         var analysis = await FFProbe.AnalyseAsync(output);
-        Assert.AreEqual(VideoType.Ts.Name, analysis.Format.FormatName);
+        Assert.AreEqual(ContainerFormats.Ts.Name, analysis.Format.FormatName);
     }
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToOGV_Resize()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Ogv.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Ogv.GetExtension()}");
         var success = await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
             .OutputToFile(outputFile, false, opt => opt
@@ -510,7 +510,7 @@ public class VideoTest
     [DataRow(SKColorType.Bgra8888)]
     public void RawVideoPipeSource_Ogv_Scale(SKColorType pixelFormat)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Ogv.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Ogv.GetExtension()}");
         var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         FFMpegArguments
@@ -530,7 +530,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Scale_Mp4_Multithreaded()
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var success = FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
@@ -564,7 +564,7 @@ public class VideoTest
 
     private static void Video_ToMP4_Resize_Args_Pipe_Internal(dynamic pixelFormat, CancellationToken cancellationToken)
     {
-        using var outputFile = new TemporaryFile($"out{VideoType.Mp4.GetExtension()}");
+        using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
         var videoFramesSource = new RawVideoPipeSource(BitmapSource.CreateBitmaps(64, pixelFormat, 256, 256));
 
         var success = FFMpegArguments

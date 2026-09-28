@@ -69,9 +69,9 @@ public class CodecTests
     {
         var options = new FFOptions { ExtensionOverrides = { ["mpegts"] = ".mts", ["matroska"] = ".mkv" } };
 
-        Assert.AreEqual(".mts", VideoType.Ts.GetExtension(options));
+        Assert.AreEqual(".mts", ContainerFormats.Ts.GetExtension(options));
         Assert.AreEqual(".mkv", new ContainerFormat("matroska").GetExtension(options));
-        Assert.AreEqual(".ts", VideoType.Ts.GetExtension());
+        Assert.AreEqual(".ts", ContainerFormats.Ts.GetExtension());
     }
 
     [TestMethod]
@@ -169,7 +169,7 @@ public class CodecTests
             Assert.AreEqual("mjpeg", VideoCodec.Image.Jpg.Name);
             Assert.AreEqual("aac", AudioCodec.Aac.Name);
             Assert.AreEqual(CodecType.Audio, AudioCodec.Aac.Type);
-            Assert.AreEqual(".mp4", VideoType.Mp4.GetExtension());
+            Assert.AreEqual(".mp4", ContainerFormats.Mp4.GetExtension());
         }
         finally
         {
