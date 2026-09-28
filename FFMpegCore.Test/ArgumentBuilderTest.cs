@@ -1588,4 +1588,50 @@ public class ArgumentBuilderTest
 
         StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -f flv rtmp://example.com/live -f mpegts \".+\" -y$"));
     }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_KeyWithoutValueIsRenderedAsTheBareName()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(f => f.Arguments.Add(new BareNameVideoFilter("yadif"))))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -vf \"yadif\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_VideoFilter_FilterWithNeitherKeyNorValueIsRejected()
+    {
+        var options = new VideoFilterOptions();
+        options.Arguments.Add(new BareNameVideoFilter(string.Empty));
+        var argument = new VideoFiltersArgument(options);
+
+        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = argument.Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ComplexFilter_KeyWithoutValueIsRenderedAsTheBareName()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g.From(0, StreamType.Video).WithCustomFilter("yadif").As("v"))
+                .WithMap("v"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -filter_complex "[0:v]yadif[v]" -map "[v]" "output.mp4"
+                        """, str);
+    }
+
+    private class BareNameVideoFilter : IVideoFilterArgument
+    {
+        public BareNameVideoFilter(string key)
+        {
+            Key = key;
+        }
+
+        public string Key { get; }
+        public string Value => string.Empty;
+    }
 }

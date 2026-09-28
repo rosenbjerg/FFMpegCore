@@ -131,24 +131,18 @@ public class ComplexFilterChain
 
     internal string GetText()
     {
-        if (_filters.Count == 0)
+        var rendered = _filters
+            .Where(filter => FilterRenderer.HasText(filter.Key, filter.Value))
+            .Select(filter => FilterRenderer.Render(filter.Key, filter.Value, false))
+            .ToArray();
+
+        if (rendered.Length == 0)
         {
             throw new FFMpegArgumentException("A complex-filter chain needs at least one filter");
         }
 
         var pads = string.Concat(_inputs.Select(input => $"[{input}]"));
-        var filters = string.Join(",", _filters.Select(Render));
         var outputs = string.Concat(_outputs.Select(output => $"[{output}]"));
-        return $"{pads}{filters}{outputs}";
-
-        static string Render((string Key, string Value) filter)
-        {
-            if (string.IsNullOrEmpty(filter.Key))
-            {
-                return filter.Value;
-            }
-
-            return string.IsNullOrEmpty(filter.Value) ? filter.Key : $"{filter.Key}={filter.Value}";
-        }
+        return $"{pads}{string.Join(",", rendered)}{outputs}";
     }
 }

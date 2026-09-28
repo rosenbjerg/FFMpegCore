@@ -17,18 +17,15 @@ public class VideoFiltersArgument : IArgument
 
     private string GetText()
     {
-        if (!Options.Arguments.Any())
+        var arguments = Options.Arguments
+            .Where(arg => FilterRenderer.HasText(arg.Key, arg.Value))
+            .Select(arg => FilterRenderer.Render(arg.Key, arg.Value, true))
+            .ToArray();
+
+        if (arguments.Length == 0)
         {
             throw new FFMpegArgumentException("No video-filter arguments provided");
         }
-
-        var arguments = Options.Arguments
-            .Where(arg => !string.IsNullOrEmpty(arg.Value))
-            .Select(arg =>
-            {
-                var escapedValue = arg.Value.Replace(",", "\\,");
-                return string.IsNullOrEmpty(arg.Key) ? escapedValue : $"{arg.Key}={escapedValue}";
-            });
 
         return $"-vf \"{string.Join(", ", arguments)}\"";
     }
