@@ -252,14 +252,6 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_Overwrite()
-    {
-        var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.OverwriteExisting()).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -y \"output.mp4\"", str);
-    }
-
-    [TestMethod]
     public void Builder_BuildString_RemoveMetadata()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

@@ -110,12 +110,6 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new ShortestArgument(shortest));
     }
 
-    /// <summary>-y</summary>
-    public FFMpegOutputOptions OverwriteExisting()
-    {
-        return WithArgument(new OverwriteArgument());
-    }
-
     /// <summary>-map</summary>
     public FFMpegOutputOptions WithMap(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
     {

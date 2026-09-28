@@ -29,7 +29,7 @@ public class FFMpegMultiOutputOptions
         return AddOutput(new OutputPipeArgument(reader), addArguments);
     }
 
-    public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegOutputOptions>? addArguments)
+    public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegOutputOptions>? addArguments = null)
     {
         var args = new FFMpegOutputOptions();
         addArguments?.Invoke(args);
