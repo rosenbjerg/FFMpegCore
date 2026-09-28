@@ -116,12 +116,6 @@ public class VideoFilterOptions
         return WithArgument(new BlackFrameArgument(amount, threshold));
     }
 
-    /// <summary>overlay</summary>
-    public VideoFilterOptions Overlay(string x = "0", string y = "0", string? eofAction = null, bool shortest = false)
-    {
-        return WithArgument(new OverlayArgument(x, y, eofAction, shortest));
-    }
-
     /// <summary>fps</summary>
     public VideoFilterOptions Fps(double frameRate, string? round = null)
     {

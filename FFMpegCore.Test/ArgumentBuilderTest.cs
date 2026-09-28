@@ -1171,13 +1171,22 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_OverlayFilter()
+    public void Builder_BuildString_ComplexFilter_OverlayWithEveryOption()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(f => f.Overlay("W-w-10", "H-h-10", "endall", true)))
+            .AddFileInput("logo.png")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g
+                    .From(0, StreamType.Video)
+                    .From(1, StreamType.Video)
+                    .Overlay("W-w-10", "H-h-10", "endall", true)
+                    .As("v"))
+                .WithMap("v"))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -vf \"overlay=x=W-w-10:y=H-h-10:eof_action=endall:shortest=1\" \"output.mp4\"", str);
+        Assert.AreEqual("""
+                        -i "input.mp4" -i "logo.png" -filter_complex "[0:v][1:v]overlay=x=W-w-10:y=H-h-10:eof_action=endall:shortest=1[v]" -map "[v]" "output.mp4"
+                        """, str);
     }
 
     [TestMethod]
@@ -1290,10 +1299,10 @@ public class ArgumentBuilderTest
             .OutputToFile("output.mp4", false, opt => opt
                 .WithComplexFilter(g => g
                     .From(0, StreamType.Video)
-                    .Scale(640, 360)
+                    .WithFilter(new ScaleArgument(640, 360))
                     .As("small")
                     .From("small")
-                    .HorizontalFlip()
+                    .WithFilter(FlipArgument.Horizontal)
                     .As("flipped"))
                 .WithMap("flipped"))
             .Arguments;
@@ -1329,7 +1338,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
-                .WithComplexFilter(g => g.From(0, StreamType.Video).Fps(1).As("[out]"))
+                .WithComplexFilter(g => g.From(0, StreamType.Video).WithFilter(new FpsArgument(1)).As("[out]"))
                 .WithMap("[out]"))
             .Arguments;
 

@@ -245,8 +245,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
-- Six filters that had no method on the filter builders: `Overlay`, `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and
-  `Loudnorm`, `Speed` and `Fade` on `AudioFilterOptions`.
+- Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,
+  `Speed` and `Fade` on `AudioFilterOptions`.
 - `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. Filters needing
   more than one input — `Concat`, `Overlay`, `AudioMix` — are reachable for the first time without hand-writing the graph into
   `WithCustomArgument`.
