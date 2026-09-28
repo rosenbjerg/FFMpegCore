@@ -93,8 +93,8 @@ public class VideoTest
             .AddMetadata(new FFMetadataBuilder()
                 .WithTag("title", "noname")
                 .WithTag("artist", "unknown")
-                .WithChapter("Chapter 1", 1.1)
-                .WithChapter("Chapter 2", 1.23))
+                .WithChapter("Chapter 1", TimeSpan.FromSeconds(1.1))
+                .WithChapter("Chapter 2", TimeSpan.FromSeconds(1.23)))
             .OutputToFile(outputFile, false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX264))
             .CancellableThrough(TestContext.CancellationToken)

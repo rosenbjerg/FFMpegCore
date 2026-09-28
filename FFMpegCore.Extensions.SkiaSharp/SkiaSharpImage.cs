@@ -13,14 +13,13 @@ public static class SkiaSharpImage
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
-    /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
-    public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null, int inputFileIndex = 0,
+    public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         FFOptions? ffOptions = null)
     {
         var source = FFProbe.Analyse(input, ffOptions);
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 
         arguments
@@ -39,15 +38,14 @@ public static class SkiaSharpImage
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
-    /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
     public static async Task<SKBitmap> SnapshotAsync(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
+        FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
         var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex, inputFileIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 
         await arguments

@@ -194,6 +194,22 @@ so a later `GlobalFFOptions.Configure` never reached them.
 
 `FFMetadataBuilder` is constructed directly (`new FFMetadataBuilder()`) and produces its document with `Build()`.
 
+### `WithChapter` takes a `TimeSpan`, not a number
+
+`WithChapter(string, long)` meant milliseconds and `WithChapter(string, double)` meant seconds, so `WithChapter("Intro", 90)` bound to the
+`long` overload and produced a 90 *millisecond* chapter. Nothing at the call site said which unit applied. Both are gone; pass a `TimeSpan`:
+
+```csharp
+builder.WithChapter("Intro", 90);                          // 5.x / early 6.0 — 90 ms, probably not what was meant
+builder.WithChapter("Intro", TimeSpan.FromSeconds(90));    // 6.0
+```
+
+### The snapshot helpers dropped `inputFileIndex`
+
+`FFMpeg.Snapshot`, `SnapshotArgumentBuilder.BuildSnapshotArguments` and `Snapshot`/`SnapshotAsync` in both image extension packages took an
+`inputFileIndex` although the arguments they build have exactly one input, so any value but `0` produced a `-map` against an input that was
+never added. Drop the argument; a positional `FFOptions` or `CancellationToken` after it moves up one place.
+
 ## Extension packages
 
 `Snapshot` and `SnapshotAsync` in both image extension packages take the run's `FFOptions`, placed before `cancellationToken` to match
@@ -204,7 +220,7 @@ so a later `GlobalFFOptions.Configure` never reached them.
 await FFMpegImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, inputFileIndex, cancellationToken);
 
 // 6.0
-await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, inputFileIndex, ffOptions, cancellationToken);
+await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, ffOptions, cancellationToken);
 ```
 
 `AddAudio` takes the same `FFOptions`, and `AddAudioAsync` adds cancellation.

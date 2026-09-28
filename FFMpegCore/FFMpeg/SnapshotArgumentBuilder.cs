@@ -11,10 +11,9 @@ public static class SnapshotArgumentBuilder
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
+        int? streamIndex = null)
     {
-        return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex, inputFileIndex);
+        return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex);
     }
 
     public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
@@ -22,10 +21,9 @@ public static class SnapshotArgumentBuilder
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
+        int? streamIndex = null)
     {
-        return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex, inputFileIndex);
+        return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex);
     }
 
     private static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
@@ -34,8 +32,7 @@ public static class SnapshotArgumentBuilder
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
+        int? streamIndex = null)
     {
         captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
         size = PrepareSnapshotSize(source, size);
@@ -49,7 +46,7 @@ public static class SnapshotArgumentBuilder
             options =>
             {
                 options
-                    .WithMap(inputFileIndex, StreamType.All, streamIndex)
+                    .WithMap(0, StreamType.All, streamIndex)
                     .WithVideoCodec(codec)
                     .WithFrameOutputCount(1);
                 if (size.HasValue)

@@ -15,15 +15,14 @@ public static class FFMpeg
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
     /// <param name="streamIndex">Selected video stream index.</param>
-    /// <param name="inputFileIndex">Input file index</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
-        int inputFileIndex = 0, FFOptions? ffOptions = null)
+        FFOptions? ffOptions = null)
     {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
         var source = FFProbe.Analyse(input, ffOptions);
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex, inputFileIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex);
 
         return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
     }

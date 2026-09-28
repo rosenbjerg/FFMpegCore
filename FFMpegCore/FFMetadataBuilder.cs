@@ -130,16 +130,6 @@ public class FFMetadataBuilder
         return WithChapter(title, start, start + duration);
     }
 
-    public FFMetadataBuilder WithChapter(string title, long durationMs)
-    {
-        return WithChapter(title, TimeSpan.FromMilliseconds(durationMs));
-    }
-
-    public FFMetadataBuilder WithChapter(string title, double durationSeconds)
-    {
-        return WithChapter(title, TimeSpan.FromMilliseconds(Convert.ToInt64(durationSeconds * 1000)));
-    }
-
     public FFMetadataBuilder WithChapters<T>(IEnumerable<T> items, Func<T, (TimeSpan duration, string title)> chapterSelector)
     {
         foreach (var item in items)

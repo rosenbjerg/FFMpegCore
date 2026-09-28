@@ -93,8 +93,8 @@ public class FFMetadataBuilderTests
     {
         var lines = Lines(new FFMetadataBuilder()
             .WithChapter("One", TimeSpan.FromSeconds(10))
-            .WithChapter("Two", 5_000L)
-            .WithChapter("Three", 1.5)
+            .WithChapter("Two", TimeSpan.FromSeconds(5))
+            .WithChapter("Three", TimeSpan.FromSeconds(1.5))
             .WithChapters(new[] { 2, 3 }, seconds => (TimeSpan.FromSeconds(seconds), $"Chapter of {seconds}s")));
 
         CollectionAssert.AreEqual(new[]
