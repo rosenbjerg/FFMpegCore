@@ -89,22 +89,23 @@ Each option method's summary names the ffmpeg option it emits, so searching your
 
 ### Selecting streams
 
-`WithMap` takes either a stream index or a `StreamType`. Passing the type maps every stream of that kind, which is what you want when the
-input's stream count is not known up front:
+`WithMap` mirrors ffmpeg's own `-map input:specifier` — the input index first, then what to take from it. Leaving the stream index out maps
+every stream of that kind, which is what you want when the input's stream count is not known up front:
 
 ```csharp
 FFMpegArguments
     .FromFileInput(inputPath)
     .AddFileInput(audioPath)
     .OutputToFile(outputPath, true, options => options
-        .WithMap(StreamType.Video)              // -map 0:v  — every video stream of the first input
-        .WithMap(StreamType.Audio, 1)           // -map 1:a  — every audio stream of the second
-        .WithNegativeMap(StreamType.Subtitle)   // -map -0:s — but none of its subtitles
+        .WithMap(0, StreamType.Video)              // -map 0:v  — every video stream of the first input
+        .WithMap(1, StreamType.Audio)              // -map 1:a  — every audio stream of the second
+        .WithNegativeMap(0, StreamType.Subtitle)   // -map -0:s — but none of its subtitles
         .CopyStreams())
     .ProcessSynchronously();
 ```
 
-`WithMap(0)` still selects one stream by index, and `WithMap(StreamType.All)` maps everything from an input.
+`WithMap(0)` maps everything from the first input, and `WithMap(0, StreamType.All, 3)` picks a single stream by index — `-map 0:3`.
+`WithMap(string)` and `WithNegativeMap(string)` select a label a complex-filter chain produced instead.
 
 ### Complex filters
 

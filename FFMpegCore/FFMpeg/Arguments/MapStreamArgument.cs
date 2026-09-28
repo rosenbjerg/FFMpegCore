@@ -12,11 +12,11 @@ public class MapStreamArgument : IArgument
     private readonly int? _streamIndex;
     private readonly StreamType _streamType;
 
-    public MapStreamArgument(int? streamIndex, int inputFileIndex, StreamType streamType = StreamType.All, bool negativeMap = false)
+    public MapStreamArgument(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null, bool negativeMap = false)
     {
         _inputFileIndex = inputFileIndex;
-        _streamIndex = streamIndex;
         _streamType = streamType;
+        _streamIndex = streamIndex;
         _negativeMap = negativeMap;
     }
 

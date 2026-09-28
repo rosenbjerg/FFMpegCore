@@ -49,7 +49,7 @@ public static class SnapshotArgumentBuilder
             options =>
             {
                 options
-                    .WithMap((int)streamIndex, inputFileIndex)
+                    .WithMap(inputFileIndex, StreamType.All, streamIndex)
                     .WithVideoCodec(codec)
                     .WithFrameOutputCount(1);
                 if (size.HasValue)

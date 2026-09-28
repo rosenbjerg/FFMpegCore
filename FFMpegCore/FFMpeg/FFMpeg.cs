@@ -154,7 +154,7 @@ public static class FFMpeg
                     .WithMap("v");
                 if (source.PrimaryAudioStream != null)
                 {
-                    options.WithMap(StreamType.Audio).CopyStreams(StreamType.Audio);
+                    options.WithMap(0, StreamType.Audio).CopyStreams(StreamType.Audio);
                 }
             })
             .WithKnownDuration(source.Duration)
@@ -195,8 +195,8 @@ public static class FFMpeg
             .OutputToFile(output, true, options =>
             {
                 options
-                    .WithMap(StreamType.All)
-                    .WithMap(StreamType.All, 1)
+                    .WithMap(0)
+                    .WithMap(1)
                     .CopyStreams();
                 if (subtitleCodec != null)
                 {
@@ -224,7 +224,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .WithMap(streamIndex, 0, StreamType.Subtitle))
+                .WithMap(0, StreamType.Subtitle, streamIndex))
             .WithOptions(ffOptions);
     }
 
@@ -276,7 +276,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .WithMap(StreamType.All)
+                .WithMap(0)
                 .CopyStreams())
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
@@ -439,7 +439,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, true, options => options
-                .WithMap(StreamType.All)
+                .WithMap(0)
                 .CopyStreams()
                 .DisableAudio())
             .WithKnownDuration(source.Duration)

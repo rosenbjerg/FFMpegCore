@@ -117,27 +117,15 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-map</summary>
-    public FFMpegOutputOptions WithMap(int streamIndex, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    public FFMpegOutputOptions WithMap(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType));
-    }
-
-    /// <summary>-map, every stream of the type rather than one by index</summary>
-    public FFMpegOutputOptions WithMap(StreamType streamType, int inputFileIndex = 0)
-    {
-        return WithArgument(new MapStreamArgument(null, inputFileIndex, streamType));
+        return WithArgument(new MapStreamArgument(inputFileIndex, streamType, streamIndex));
     }
 
     /// <summary>-map, once per index</summary>
-    public FFMpegOutputOptions WithMap(IEnumerable<int> streamIndices, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    public FFMpegOutputOptions WithMap(int inputFileIndex, IEnumerable<int> streamIndices, StreamType streamType = StreamType.All)
     {
-        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithMap(streamIndex, inputFileIndex, streamType));
-    }
-
-    /// <summary>-map -, a negative mapping that excludes the stream</summary>
-    public FFMpegOutputOptions WithNegativeMap(int streamIndex, int inputFileIndex = 0, StreamType streamType = StreamType.All)
-    {
-        return WithArgument(new MapStreamArgument(streamIndex, inputFileIndex, streamType, true));
+        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithMap(inputFileIndex, streamType, streamIndex));
     }
 
     /// <summary>-map, selecting a label a complex-filter chain produced</summary>
@@ -146,16 +134,22 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new MapLabelArgument(label));
     }
 
-    /// <summary>-map -, excluding every stream of the type rather than one by index</summary>
-    public FFMpegOutputOptions WithNegativeMap(StreamType streamType, int inputFileIndex = 0)
+    /// <summary>-map -, a negative mapping that excludes what it selects</summary>
+    public FFMpegOutputOptions WithNegativeMap(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        return WithArgument(new MapStreamArgument(null, inputFileIndex, streamType, true));
+        return WithArgument(new MapStreamArgument(inputFileIndex, streamType, streamIndex, true));
     }
 
     /// <summary>-map -, once per index</summary>
-    public FFMpegOutputOptions WithNegativeMap(IEnumerable<int> streamIndices, int inputFileIndex = 0, StreamType streamType = StreamType.All)
+    public FFMpegOutputOptions WithNegativeMap(int inputFileIndex, IEnumerable<int> streamIndices, StreamType streamType = StreamType.All)
     {
-        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithNegativeMap(streamIndex, inputFileIndex, streamType));
+        return streamIndices.Aggregate(this, (options, streamIndex) => options.WithNegativeMap(inputFileIndex, streamType, streamIndex));
+    }
+
+    /// <summary>-map -, excluding a label a complex-filter chain produced</summary>
+    public FFMpegOutputOptions WithNegativeMap(string label)
+    {
+        return WithArgument(new MapLabelArgument(label, true));
     }
 
     /// <summary>-map_metadata -1</summary>

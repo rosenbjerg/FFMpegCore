@@ -320,7 +320,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_VideoStreamNumber()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithMap(1)).Arguments;
+        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithMap(0, StreamType.All, 1)).Arguments;
         Assert.AreEqual("-i \"input.mp4\" -map 0:1 \"output.mp4\"", str);
     }
 
@@ -702,7 +702,7 @@ public class ArgumentBuilderTest
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToTee(args => args
                 .OutputToFile("output.mp4", false, args => args.WithFastStart())
-                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(0, streamType: StreamType.Video)))
+                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(0, StreamType.Video, 0)))
             .Arguments;
         Assert.AreEqual("""
                         -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'0:v:0\']http://server/path"
@@ -714,7 +714,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToTee(args => args
-                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(StreamType.Video)))
+                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(0, StreamType.Video)))
             .Arguments;
         Assert.AreEqual("""
                         -i "input.mp4" -f tee "[f=mpegts:select=\'0:v\']http://server/path"
@@ -1077,7 +1077,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_SelectStreams()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithMap(new[] { 0, 2 }, 1, StreamType.Video))
+            .OutputToFile("output.mp4", false, opt => opt.WithMap(1, new[] { 0, 2 }, StreamType.Video))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map 1:v:0 -map 1:v:2 \"output.mp4\"", str);
@@ -1094,7 +1094,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_SelectStreamsByType(StreamType streamType, string expected)
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithMap(streamType, 1))
+            .OutputToFile("output.mp4", false, opt => opt.WithMap(1, streamType))
             .Arguments;
 
         Assert.AreEqual($"-i \"input.mp4\" {expected} \"output.mp4\"", str);
@@ -1104,7 +1104,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_DeselectStream()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(1))
+            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(0, StreamType.All, 1))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map -0:1 \"output.mp4\"", str);
@@ -1114,7 +1114,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_DeselectStreamsByType()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(StreamType.Subtitle))
+            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(0, StreamType.Subtitle))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map -0:s \"output.mp4\"", str);
@@ -1124,7 +1124,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_DeselectStreams()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(new[] { 1, 2 }, 0, StreamType.Audio))
+            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(0, new[] { 1, 2 }, StreamType.Audio))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map -0:a:1 -map -0:a:2 \"output.mp4\"", str);
@@ -1621,6 +1621,21 @@ public class ArgumentBuilderTest
 
         Assert.AreEqual("""
                         -i "input.mp4" -filter_complex "[0:v]yadif[v]" -map "[v]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_ComplexFilter_LabelsCanBeNegativelyMapped()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g.From(0, StreamType.Video).WithCustomFilter("yadif").As("v"))
+                .WithMap(0)
+                .WithNegativeMap("v"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -filter_complex "[0:v]yadif[v]" -map 0 -map -"[v]" "output.mp4"
                         """, str);
     }
 
