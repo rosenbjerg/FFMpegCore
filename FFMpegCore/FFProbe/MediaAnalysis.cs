@@ -2,8 +2,9 @@
 
 internal class MediaAnalysis : IMediaAnalysis
 {
-    internal MediaAnalysis(FFProbeAnalysis analysis)
+    internal MediaAnalysis(FFProbeAnalysis analysis, string? path)
     {
+        Path = path;
         Format = ParseFormat(analysis.Format);
         Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
         VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
@@ -11,6 +12,8 @@ internal class MediaAnalysis : IMediaAnalysis
         SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
         ErrorData = analysis.ErrorData;
     }
+
+    public string? Path { get; }
 
     public TimeSpan Duration => new[] { Format.Duration, PrimaryVideoStream?.Duration ?? TimeSpan.Zero, PrimaryAudioStream?.Duration ?? TimeSpan.Zero }.Max();
 

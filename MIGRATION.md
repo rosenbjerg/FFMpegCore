@@ -162,6 +162,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `FFMpegGlobalArguments`, `VerbosityLevel` | removed — use `WithLogLevel` or `FFOptions.LogLevel` |
 | `FFOptionsException` | removed — `FFMpegException` |
 | `OverwriteExisting()`, `OverwriteArgument` | removed — `OutputToFile(path, overwrite: true)`, which is the default and already emits `-y` |
+| `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream |
 | `VideoStream.AverageFrameRate` | removed — it was never populated and always read `0`; use `AvgFrameRate` (ffprobe's `avg_frame_rate`) or `FrameRate` (`r_frame_rate`) |
 | `new InputArgument(bool, string)` | `new InputArgument(string path, bool verifyExists)` — the two constructors differed only in argument order |
 | `new MultiInputArgument(bool, IEnumerable<string>)` | `new MultiInputArgument(IEnumerable<string> paths, bool verifyExists)` — likewise |

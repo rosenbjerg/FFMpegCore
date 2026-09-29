@@ -218,6 +218,32 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Path_IsTheInputItWasGiven()
+    {
+        Assert.AreEqual(TestResources.Mp4Video, FFProbe.Analyse(TestResources.Mp4Video).Path);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Path_IsTheAbsoluteUriForAUriInput()
+    {
+        var uri = new Uri(System.IO.Path.GetFullPath(TestResources.Mp4Video));
+        var info = await FFProbe.AnalyseAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(uri.AbsoluteUri, info.Path);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Path_IsNullForAStream_BecauseTheNamedPipeIsGone()
+    {
+        using var stream = File.OpenRead(TestResources.WebmVideo);
+
+        Assert.IsNull(FFProbe.Analyse(stream).Path);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
     public void Probe_HDR()
     {
         var info = FFProbe.Analyse(TestResources.HdrVideo);

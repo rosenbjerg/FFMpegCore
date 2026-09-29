@@ -13,6 +13,7 @@ public class SnapshotArgumentBuilderTests
             VideoStreams = new List<VideoStream> { PrimaryVideoStream };
         }
 
+        public string Path => "input.mp4";
         public TimeSpan Duration => TimeSpan.FromSeconds(3);
         public MediaFormat Format => new();
         public List<ChapterData> Chapters => new();
