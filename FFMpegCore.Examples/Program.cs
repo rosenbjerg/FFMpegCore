@@ -79,7 +79,7 @@ var inputAudioPath = "/path/to/input/audio";
 
 var inputImagePath = "/path/to/input/image";
 {
-    FFMpeg.PosterWithAudio(inputPath, inputAudioPath, outputPath);
+    FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath);
     // or using FFMpegCore.Extensions.System.Drawing.Common
 #pragma warning disable CA1416
     using var image = Image.FromFile(inputImagePath);

@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Exceptions;
-using Instances;
 
 namespace FFMpegCore.Helpers;
 
@@ -22,7 +21,7 @@ public static class FFProbeHelper
             return;
         }
 
-        var result = Instance.Finish(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
+        var result = ProcessHelper.Run(GlobalFFOptions.GetFFProbeBinaryPath(ffMpegOptions), "-version");
         _ffprobeVerified = result.ExitCode == 0;
         if (!_ffprobeVerified)
         {

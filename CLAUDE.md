@@ -65,6 +65,7 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 - `BinaryFolder` empty ⇒ rely on `PATH`. Otherwise `{BinaryFolder}/{x64|x86}/ffmpeg[.exe]` is tried first, then `{BinaryFolder}/ffmpeg[.exe]`.
 - `FFMpegHelper.VerifyFFMpegExists` runs `ffmpeg -version` once per process and caches the result.
 - `FFMpegCache` lazily caches codec / pixel-format / container lists from `ffmpeg -codecs` etc. (`FFOptions.UseCache`).
+- Those short informational runs (`-version`, `-formats`, `-codecs`, `-pix_fmts`) go through `Helpers/ProcessHelper`, not Instances — it reads the output on the calling thread so a caller blocked on it (under `FFMpegCache`'s lock) never depends on free thread-pool threads. Add any new listing query there too; see the comment in the helper and issue #580.
 
 ### High-level helpers
 

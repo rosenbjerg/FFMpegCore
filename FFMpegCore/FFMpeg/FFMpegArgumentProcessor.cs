@@ -260,6 +260,12 @@ public class FFMpegArgumentProcessor
             arguments += $" -v {logLevel.ToString().ToLower()}";
         }
 
+        var reportsProgress = _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null);
+        if (reportsProgress)
+        {
+            arguments += " -stats";
+        }
+
         var startInfo = new ProcessStartInfo
         {
             FileName = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions),
@@ -275,7 +281,7 @@ public class FFMpegArgumentProcessor
             processArguments.OutputDataReceived += OutputData;
         }
 
-        if (_onError != null || _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null))
+        if (_onError != null || reportsProgress)
         {
             processArguments.ErrorDataReceived += ErrorData;
         }
