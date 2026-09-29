@@ -19,9 +19,24 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         FFOptions? ffOptions = null)
     {
+        return Snapshot(FFProbe.Analyse(input, ffOptions), output, size, captureTime, streamIndex, ffOptions);
+    }
+
+    /// <summary>
+    ///     Saves a single frame of an already analysed input to an image file.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output image file. Its extension decides the format: .png, .jpg, .bmp or .webp.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
+    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Snapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null,
+        int? streamIndex = null, FFOptions? ffOptions = null)
+    {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
-        var source = FFProbe.Analyse(input, ffOptions);
+        var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex);
 
         return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
@@ -40,12 +55,34 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
         int? streamIndex = null, FFOptions? ffOptions = null)
     {
+        return GifSnapshot(FFProbe.Analyse(input, ffOptions), output, size, captureTime, duration, streamIndex, ffOptions);
+    }
+
+    /// <summary>
+    ///     Saves a section of an already analysed input as an animated gif.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output .gif file.</param>
+    /// <param name="size">Output size. If width or height is 0 or -1, it is computed from the other. Defaults to 480 wide.</param>
+    /// <param name="captureTime">Seek position the section starts at. Defaults to a third of the way in.</param>
+    /// <param name="duration">How much of the input to capture.</param>
+    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor GifSnapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null,
+        TimeSpan? duration = null, int? streamIndex = null, FFOptions? ffOptions = null)
+    {
         CheckSnapshotOutputExtension(output, [FileExtension.Gif]);
 
-        var source = FFProbe.Analyse(input, ffOptions);
+        var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
 
         return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
+    }
+
+    private static string InputPathOf(IMediaAnalysis source, string parameterName)
+    {
+        return source.Path ?? throw new ArgumentException(
+            "This analysis came from a stream, so it names no input ffmpeg could open. Use the overload that takes an input path.", parameterName);
     }
 
     private static void CheckSnapshotOutputExtension(string output, List<string> extensions)
@@ -114,9 +151,31 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, Codec? audioCodec = null,
         FFOptions? ffOptions = null)
     {
+        return PosterWithAudio(FFProbe.Analyse(image, ffOptions), audio, output, audioCodec, ffOptions);
+    }
+
+    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,string,string,Codec,FFOptions)" />
+    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
+    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, string audio, string output, string audioCodec,
+        FFOptions? ffOptions = null)
+    {
+        return PosterWithAudio(imageSource, audio, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+    }
+
+    /// <summary>
+    ///     Adds an already analysed poster image to an audio file.
+    /// </summary>
+    /// <param name="imageSource">Analysis of the poster image, which supplies its path and its dimensions.</param>
+    /// <param name="audio">Source audio file.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, string audio, string output, Codec? audioCodec = null,
+        FFOptions? ffOptions = null)
+    {
         FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
-        var analysis = FFProbe.Analyse(image, ffOptions);
-        FFMpegHelper.ConversionSizeExceptionCheck(analysis.PrimaryVideoStream!.Width, analysis.PrimaryVideoStream!.Height);
+        var image = InputPathOf(imageSource, nameof(imageSource));
+        FFMpegHelper.ConversionSizeExceptionCheck(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream!.Height);
 
         return FFMpegArguments
             .FromFileInput(image, false, options => options
@@ -144,7 +203,23 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor Watermark(string input, string watermark, string output,
         WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return Watermark(FFProbe.Analyse(input, ffOptions), watermark, output, position, margin, ffOptions);
+    }
+
+    /// <summary>
+    ///     Overlays an image onto an already analysed video. The audio is copied; the video is re-encoded, because the picture
+    ///     changes. Only the video is analysed — the watermark image is passed straight to ffmpeg.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="watermark">Image to overlay. A PNG with an alpha channel keeps its transparency.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="position">Corner to place it in.</param>
+    /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Watermark(IMediaAnalysis source, string watermark, string output,
+        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
         var (x, y) = OverlayPosition(position, margin);
 
         return FFMpegArguments
@@ -202,7 +277,30 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor AddSubtitles(string input, string subtitle, string output, string? language = null,
         Codec? subtitleCodec = null, FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return AddSubtitles(FFProbe.Analyse(input, ffOptions), subtitle, output, language, subtitleCodec, ffOptions);
+    }
+
+    /// <inheritdoc cref="AddSubtitles(IMediaAnalysis,string,string,string,Codec,FFOptions)" />
+    /// <param name="subtitleCodec">Name of the encoder for the subtitles, such as "mov_text".</param>
+    public static FFMpegArgumentProcessor AddSubtitles(IMediaAnalysis source, string subtitle, string output, string? language,
+        string subtitleCodec, FFOptions? ffOptions = null)
+    {
+        return AddSubtitles(source, subtitle, output, language, new Codec(subtitleCodec, CodecType.Subtitle), ffOptions);
+    }
+
+    /// <summary>
+    ///     Muxes a subtitle file into an already analysed video as its own stream, leaving the picture untouched.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="subtitle">Subtitle file to add.</param>
+    /// <param name="output">Output video file. Its container has to support subtitle streams; .mkv takes any, .mp4 needs mov_text.</param>
+    /// <param name="language">ISO 639 language tag for the new stream, such as "eng".</param>
+    /// <param name="subtitleCodec">Encoder for the subtitles. Defaults to the muxer's choice.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor AddSubtitles(IMediaAnalysis source, string subtitle, string output, string? language = null,
+        Codec? subtitleCodec = null, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
 
         return FFMpegArguments
             .FromFileInput(input)
@@ -260,9 +358,25 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor ThumbnailSheet(string input, string output, int columns = 5, int rows = 5, TimeSpan? interval = null,
         Size? tileSize = null, FFOptions? ffOptions = null)
     {
+        return ThumbnailSheet(FFProbe.Analyse(input, ffOptions), output, columns, rows, interval, tileSize, ffOptions);
+    }
+
+    /// <summary>
+    ///     Samples frames of an already analysed input at a fixed interval and tiles them into a single image.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output image file.</param>
+    /// <param name="columns">Tiles across.</param>
+    /// <param name="rows">Tiles down.</param>
+    /// <param name="interval">How much video each tile advances by. Defaults to spreading the tiles evenly across the whole input.</param>
+    /// <param name="tileSize">Size of one tile. If width or height is -1, it is computed from the other.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ThumbnailSheet(IMediaAnalysis source, string output, int columns = 5, int rows = 5,
+        TimeSpan? interval = null, Size? tileSize = null, FFOptions? ffOptions = null)
+    {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
-        var source = FFProbe.Analyse(input, ffOptions);
+        var input = InputPathOf(source, nameof(source));
         var step = interval ?? TimeSpan.FromTicks(Math.Max(source.Duration.Ticks / (columns * rows), TimeSpan.TicksPerMillisecond));
         var size = tileSize ?? new Size(-1, 120);
 
@@ -286,7 +400,18 @@ public static class FFMpeg
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Remux(string input, string output, FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return Remux(FFProbe.Analyse(input, ffOptions), output, ffOptions);
+    }
+
+    /// <summary>
+    ///     Rewraps an already analysed file into a different container, copying the streams rather than re-encoding.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output media file. Its extension decides the container.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Remux(IMediaAnalysis source, string output, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
 
         return FFMpegArguments
             .FromFileInput(input)
@@ -448,7 +573,18 @@ public static class FFMpeg
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor RemoveAudio(string input, string output, FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return RemoveAudio(FFProbe.Analyse(input, ffOptions), output, ffOptions);
+    }
+
+    /// <summary>
+    ///     Strips an already analysed video file of its audio, copying every other stream.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor RemoveAudio(IMediaAnalysis source, string output, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
         FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments
@@ -501,7 +637,22 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor ReplaceAudio(string input, string inputAudio, string output, bool stopAtShortest = false,
         FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return ReplaceAudio(FFProbe.Analyse(input, ffOptions), inputAudio, output, stopAtShortest, ffOptions);
+    }
+
+    /// <summary>
+    ///     Adds audio to an already analysed video file. Only the video is analysed — the audio file is passed straight to
+    ///     ffmpeg.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="inputAudio">Source audio file.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="stopAtShortest">Indicates if the encoding should stop at the shortest input file.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string inputAudio, string output, bool stopAtShortest = false,
+        FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
         FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments

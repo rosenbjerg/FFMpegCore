@@ -1397,6 +1397,32 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_AnalysisOverload_BuildsTheSameArgumentsAsThePathOverload()
+    {
+        using var output = new TemporaryFile("out.mkv");
+        var source = FFProbe.Analyse(TestResources.Mp4Video);
+
+        Assert.AreEqual(FFMpeg.Remux(TestResources.Mp4Video, output).Arguments, FFMpeg.Remux(source, output).Arguments);
+        Assert.AreEqual(FFMpeg.RemoveAudio(TestResources.Mp4Video, output).Arguments, FFMpeg.RemoveAudio(source, output).Arguments);
+        Assert.AreEqual(FFMpeg.ThumbnailSheet(TestResources.Mp4Video, "sheet.png").Arguments,
+            FFMpeg.ThumbnailSheet(source, "sheet.png").Arguments);
+        Assert.AreEqual(FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, output).Arguments,
+            FFMpeg.Watermark(source, TestResources.PngImage, output).Arguments);
+    }
+
+    [TestMethod]
+    public void Video_AnalysisOverload_RejectsAnAnalysisThatCameFromAStream()
+    {
+        using var output = new TemporaryFile("out.mkv");
+        using var stream = File.OpenRead(TestResources.WebmVideo);
+        var source = FFProbe.Analyse(stream);
+
+        Assert.IsNull(source.Path);
+        var exception = Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.Remux(source, output));
+        Assert.Contains("came from a stream", exception.Message);
+    }
+
+    [TestMethod]
     public void Video_Subtitles_CodecNameSpellsTheSameThingAsTheConstant()
     {
         using var output = new TemporaryFile("out.mp4");
