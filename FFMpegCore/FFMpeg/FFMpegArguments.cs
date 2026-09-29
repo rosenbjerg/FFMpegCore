@@ -156,7 +156,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
         return ToProcessor(new OutputPipeArgument(reader), addArguments);
     }
-
+    
     private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegArgumentOptions>? addArguments)
     {
         var args = new FFMpegArgumentOptions();
@@ -179,6 +179,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         addOutputs(args);
         Arguments.AddRange(args.Arguments);
         return new FFMpegArgumentProcessor(this);
+    }
+    
+    public FFMpegArgumentProcessor OutputToNull(Action<FFMpegArgumentOptions>? addArguments = null)
+    {
+        return ToProcessor(new OutputNullArgument(), addArguments);
     }
 
     internal void Pre()
