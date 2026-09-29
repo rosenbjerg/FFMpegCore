@@ -263,6 +263,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   | `AddSubtitles` | Muxes a subtitle file in as its own switchable stream, rather than burning it into the picture. |
   | `ExtractSubtitles` | Writes a subtitle stream back out to a file. |
 
+- Every `FFMpeg.*` helper that probes its input also takes an `IMediaAnalysis` in place of the input path, so the probe can be done by the
+  caller with `FFProbe.AnalyseAsync` and the whole operation kept asynchronous. `Concat`, `Join` and `JoinImageSequence` take a sequence of
+  them, which also lets the probes run concurrently rather than one per input in a loop.
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
 - `NotifyOnPercentageProgress` without a duration after an `FFMpeg.*` helper that already probed the input.
 - `CancellableThrough(CancellationToken)` registers per run, so a processor can be run more than once.

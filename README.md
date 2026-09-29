@@ -235,6 +235,36 @@ The provided helper methods make it simple to perform common operations. Each on
 `FFMpegArgumentProcessor`, so you choose how to run it — `ProcessSynchronously()` or `await ProcessAsynchronously()` — and can
 attach progress callbacks or cancellation exactly as with `FFMpegArguments`.
 
+### Helpers and ffprobe
+
+Most helpers need to know something about their input before they can build the arguments — its duration, its resolution, whether it has an
+audio stream — so they run ffprobe while building. That probe is synchronous, which means `await FFMpeg.Remux(path, out).ProcessAsynchronously()`
+blocks the calling thread for the probe before it reaches the `await`.
+
+Every one of those helpers also has an overload taking an `IMediaAnalysis` instead of an input path, so you can do the probing yourself and
+keep the whole thing asynchronous. The analysis carries the path it was made from, so it replaces the path rather than accompanying it:
+
+```csharp
+var source = await FFProbe.AnalyseAsync(inputPath, cancellationToken: cancellationToken);
+
+await FFMpeg.Remux(source, "output.mkv")
+    .CancellableThrough(cancellationToken)
+    .ProcessAsynchronously();
+```
+
+For the helpers taking several inputs this also lets the probes run concurrently, where the path overloads probe one after another:
+
+```csharp
+var sources = await Task.WhenAll(parts.Select(part => FFProbe.AnalyseAsync(part, cancellationToken: cancellationToken)));
+
+await FFMpeg.Concat("joined.mp4", sources)
+    .CancellableThrough(cancellationToken)
+    .ProcessAsynchronously();
+```
+
+It is also worth using whenever you have already probed the input to decide what to do — passing the analysis in saves a second probe of the
+same file. An analysis made from a `Stream` has no path, so these overloads reject it; use the path overloads there.
+
 ### Easily capture snapshots from a video file:
 
 ```csharp

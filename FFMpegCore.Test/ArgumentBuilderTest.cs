@@ -1631,6 +1631,12 @@ public class ArgumentBuilderTest
                         """, str);
     }
 
+    [TestMethod]
+    public void ImageSequenceInput_RejectsMixedExtensions()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => new ImageSequenceInputArgument(new[] { "a.png", "b.jpg" }));
+    }
+
     private class BareNameVideoFilter : IVideoFilterArgument
     {
         public BareNameVideoFilter(string key)

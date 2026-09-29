@@ -114,10 +114,30 @@ public static class FFMpeg
     /// <param name="images">Image sequence collection</param>
     public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30, params string[] images)
     {
-        var arguments = FFMpegArguments.FromImageSequenceInput(images, options => options
+        return JoinImageSequence(ffOptions, output, frameRate, images.Select(image => FFProbe.Analyse(image, ffOptions)).ToArray());
+    }
+
+    /// <inheritdoc cref="JoinImageSequence(FFOptions,string,double,IMediaAnalysis[])" />
+    public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params IMediaAnalysis[] images)
+    {
+        return JoinImageSequence(null, output, frameRate, images);
+    }
+
+    /// <summary>
+    ///     Converts a sequence of already analysed images to a video.
+    /// </summary>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="frameRate">FPS</param>
+    /// <param name="images">Analyses of the images, in order. The first one's dimensions decide the output size.</param>
+    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30,
+        params IMediaAnalysis[] images)
+    {
+        var paths = images.Select(image => InputPathOf(image, nameof(images))).ToArray();
+        var arguments = FFMpegArguments.FromImageSequenceInput(paths, options => options
             .WithFrameRate(frameRate));
 
-        var streams = images.Select(image => FFProbe.Analyse(image, ffOptions).PrimaryVideoStream!).ToArray();
+        var streams = images.Select(image => image.PrimaryVideoStream!).ToArray();
         foreach (var stream in streams)
         {
             FFMpegHelper.ConversionSizeExceptionCheck(stream.Width, stream.Height);
@@ -439,7 +459,25 @@ public static class FFMpeg
     /// <param name="inputs">Files to join, in order.</param>
     public static FFMpegArgumentProcessor Concat(FFOptions? ffOptions, string output, params string[] inputs)
     {
-        var duration = inputs.Aggregate(TimeSpan.Zero, (total, input) => total + FFProbe.Analyse(input, ffOptions).Duration);
+        return Concat(ffOptions, output, inputs.Select(input => FFProbe.Analyse(input, ffOptions)).ToArray());
+    }
+
+    /// <inheritdoc cref="Concat(FFOptions,string,IMediaAnalysis[])" />
+    public static FFMpegArgumentProcessor Concat(string output, params IMediaAnalysis[] sources)
+    {
+        return Concat(null, output, sources);
+    }
+
+    /// <summary>
+    ///     Joins already analysed media files through the concat demuxer, copying the streams rather than re-encoding.
+    /// </summary>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="output">Output file.</param>
+    /// <param name="sources">Analyses of the files to join, in order.</param>
+    public static FFMpegArgumentProcessor Concat(FFOptions? ffOptions, string output, params IMediaAnalysis[] sources)
+    {
+        var inputs = sources.Select(source => InputPathOf(source, nameof(sources))).ToArray();
+        var duration = sources.Aggregate(TimeSpan.Zero, (total, source) => total + source.Duration);
 
         return FFMpegArguments
             .FromConcatDemuxerInput(inputs)
@@ -476,8 +514,34 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor Join(string output, IEnumerable<string> videos, Action<FFMpegOutputOptions>? addArguments = null,
         FFOptions? ffOptions = null)
     {
-        var paths = videos.ToArray();
-        var analyses = paths.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray();
+        return Join(output, videos.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray(), addArguments, ffOptions);
+    }
+
+    /// <inheritdoc cref="Join(string,IEnumerable{IMediaAnalysis},Action{FFMpegOutputOptions},FFOptions)" />
+    public static FFMpegArgumentProcessor Join(string output, params IMediaAnalysis[] sources)
+    {
+        return Join(output, sources, null);
+    }
+
+    /// <inheritdoc cref="Join(string,IEnumerable{IMediaAnalysis},Action{FFMpegOutputOptions},FFOptions)" />
+    public static FFMpegArgumentProcessor Join(FFOptions? ffOptions, string output, params IMediaAnalysis[] sources)
+    {
+        return Join(output, sources, null, ffOptions);
+    }
+
+    /// <summary>
+    ///     Joins already analysed videos by re-encoding them through the concat filter, which requires them to share a
+    ///     resolution.
+    /// </summary>
+    /// <param name="output">Output video file.</param>
+    /// <param name="sources">Analyses of the videos to join, in order.</param>
+    /// <param name="addArguments">Output options, replacing the default h264/aac encode.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor Join(string output, IEnumerable<IMediaAnalysis> sources, Action<FFMpegOutputOptions>? addArguments = null,
+        FFOptions? ffOptions = null)
+    {
+        var analyses = sources.ToArray();
+        var paths = analyses.Select(analysis => InputPathOf(analysis, nameof(sources))).ToArray();
         foreach (var analysis in analyses)
         {
             FFMpegHelper.ConversionSizeExceptionCheck(analysis);

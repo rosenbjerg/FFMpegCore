@@ -1411,6 +1411,24 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_AnalysisOverload_BuildsTheSameArgumentsForTheMultiInputHelpers()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var parts = new[] { TestResources.Mp4Video, TestResources.Mp4Video };
+        var sources = parts.Select(part => FFProbe.Analyse(part)).ToArray();
+
+        // The concat demuxer names its list file with a fresh guid per call, so compare without it.
+        Assert.AreEqual(WithoutConcatFileName(FFMpeg.Concat(output, parts).Arguments),
+            WithoutConcatFileName(FFMpeg.Concat(output, sources).Arguments));
+        Assert.AreEqual(FFMpeg.Join(output, parts).Arguments, FFMpeg.Join(output, sources).Arguments);
+
+        static string WithoutConcatFileName(string arguments)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(arguments, "concat_[0-9a-fA-F-]+", "concat_list");
+        }
+    }
+
+    [TestMethod]
     public void Video_AnalysisOverload_RejectsAnAnalysisThatCameFromAStream()
     {
         using var output = new TemporaryFile("out.mkv");
@@ -1695,11 +1713,5 @@ public class VideoTest
         Assert.IsTrue(result.Success);
         Assert.AreEqual(3, FFProbe.Analyse(mp4).Duration.Seconds);
         Assert.AreEqual(3, FFProbe.Analyse(mkv).Duration.Seconds);
-    }
-
-    [TestMethod]
-    public void Video_Join_Image_Sequence_RejectsMixedExtensions()
-    {
-        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.JoinImageSequence("out.mp4", 1, "a.png", "b.jpg"));
     }
 }
