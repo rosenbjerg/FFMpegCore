@@ -993,7 +993,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=60.0dB:d=2.00:m=0\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60.0dB:d=2.00:m=0\" \"output.mp4\"", str);
     }
 
     [TestMethod]

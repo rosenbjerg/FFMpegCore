@@ -221,6 +221,12 @@ builder.WithChapter("Intro", TimeSpan.FromSeconds(90));    // 6.0
 `inputFileIndex` although the arguments they build have exactly one input, so any value but `0` produced a `-map` against an input that was
 never added. Drop the argument; a positional `FFOptions` or `CancellationToken` after it moves up one place.
 
+### `SilenceDetect`'s noise threshold defaults to -60dB
+
+The default was `60`, which rendered as `silencedetect=n=60.0dB` — a threshold 60 dB *above* full scale. Everything is below that, so the
+whole input came back as one silent stretch. ffmpeg's own default is -60 dB, and that is what `SilenceDetect()` and
+`new SilenceDetectArgument()` now emit. Calls that passed a threshold are unaffected.
+
 ## Extension packages
 
 `Snapshot` and `SnapshotAsync` in both image extension packages take the run's `FFOptions`, placed before `cancellationToken` to match

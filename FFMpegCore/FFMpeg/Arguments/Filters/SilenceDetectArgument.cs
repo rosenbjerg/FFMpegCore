@@ -19,7 +19,7 @@ public class SilenceDetectArgument : IAudioFilterArgument
     ///     ffmpeg-utils(1) manual for the accepted syntax.
     /// </param>
     /// <param name="mono">Process each channel separately, instead of combined. By default is disabled.</param>
-    public SilenceDetectArgument(string noiseType = "db", double noise = 60, double duration = 2, bool mono = false)
+    public SilenceDetectArgument(string noiseType = "db", double noise = -60, double duration = 2, bool mono = false)
     {
         if (noiseType == "db")
         {

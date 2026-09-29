@@ -106,7 +106,7 @@ public class AudioFilterOptions
     }
 
     /// <summary>silencedetect</summary>
-    public AudioFilterOptions SilenceDetect(string noiseType = "db", double noise = 60, double duration = 2,
+    public AudioFilterOptions SilenceDetect(string noiseType = "db", double noise = -60, double duration = 2,
         bool mono = false)
     {
         return WithArgument(new SilenceDetectArgument(noiseType, noise, duration, mono));
