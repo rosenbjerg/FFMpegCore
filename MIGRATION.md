@@ -272,6 +272,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so
   naming a subtitle encoder no longer means `FFMpeg.GetCodec("mov_text")` and the `ffmpeg -codecs` run behind it.
+- `AddSubtitles`, `ExtractAudio` and `PosterWithAudio` take an encoder name as a `string` as well as a `Codec`, for the encoders that have
+  no constant. The `Codec` overload stays the one to prefer, since it checks the codec is of the right kind at the call rather than leaving
+  ffmpeg to reject it. Passing a bare `null` for the codec is now ambiguous between the two; omit it, or name `ffOptions:`.
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
 - Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,

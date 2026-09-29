@@ -391,6 +391,9 @@ FFMpeg.ExtractAudio(inputPath, "track.flac").ProcessSynchronously();
 
 // or lift the stream out untouched, with no re-encode
 FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy).ProcessSynchronously();
+
+// an encoder with no constant can be named directly
+FFMpeg.ExtractAudio(inputPath, "track.opus", "libopus").ProcessSynchronously();
 ```
 
 ### Record a remote stream to a file:

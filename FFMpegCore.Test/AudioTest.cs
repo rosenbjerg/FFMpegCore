@@ -69,6 +69,30 @@ public class AudioTest
     }
 
     [TestMethod]
+    public void Audio_Save_CodecNameSpellsTheSameThingAsTheConstant()
+    {
+        using var outputFile = new TemporaryFile("out.m4a");
+
+        var byConstant = FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile, AudioCodec.Copy).Arguments;
+        var byName = FFMpeg.ExtractAudio(TestResources.Mp4Video, outputFile, "copy").Arguments;
+
+        Assert.AreEqual(byConstant, byName);
+        Assert.Contains("-c:a copy", byName);
+    }
+
+    [TestMethod]
+    public void Audio_Poster_CodecNameSpellsTheSameThingAsTheConstant()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var byConstant = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile, AudioCodec.Aac).Arguments;
+        var byName = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile, "aac").Arguments;
+
+        Assert.AreEqual(byConstant, byName);
+        Assert.Contains("-c:a aac", byName);
+    }
+
+    [TestMethod]
     public async Task Audio_FromRaw()
     {
         await using var file = File.Open(TestResources.RawAudio, FileMode.Open);

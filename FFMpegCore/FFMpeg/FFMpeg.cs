@@ -103,6 +103,14 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <inheritdoc cref="PosterWithAudio(string,string,string,Codec,FFOptions)" />
+    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
+    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, string audioCodec,
+        FFOptions? ffOptions = null)
+    {
+        return PosterWithAudio(image, audio, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+    }
+
     public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, Codec? audioCodec = null,
         FFOptions? ffOptions = null)
     {
@@ -183,6 +191,14 @@ public static class FFMpeg
     /// <param name="language">ISO 639 language tag for the new stream, such as "eng".</param>
     /// <param name="subtitleCodec">Encoder for the subtitles. Defaults to the muxer's choice.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <inheritdoc cref="AddSubtitles(string,string,string,string,Codec,FFOptions)" />
+    /// <param name="subtitleCodec">Name of the encoder for the subtitles, such as "mov_text".</param>
+    public static FFMpegArgumentProcessor AddSubtitles(string input, string subtitle, string output, string? language,
+        string subtitleCodec, FFOptions? ffOptions = null)
+    {
+        return AddSubtitles(input, subtitle, output, language, new Codec(subtitleCodec, CodecType.Subtitle), ffOptions);
+    }
+
     public static FFMpegArgumentProcessor AddSubtitles(string input, string subtitle, string output, string? language = null,
         Codec? subtitleCodec = null, FFOptions? ffOptions = null)
     {
@@ -452,6 +468,13 @@ public static class FFMpeg
     /// <param name="output">Output audio file. Its extension decides the container.</param>
     /// <param name="audioCodec">Encoder for the audio, or <see cref="AudioCodec.Copy" /> to extract it as it is. Defaults to the muxer's choice.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <inheritdoc cref="ExtractAudio(string,string,Codec,FFOptions)" />
+    /// <param name="audioCodec">Name of the encoder for the audio, such as "copy" or "libopus".</param>
+    public static FFMpegArgumentProcessor ExtractAudio(string input, string output, string audioCodec, FFOptions? ffOptions = null)
+    {
+        return ExtractAudio(input, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+    }
+
     public static FFMpegArgumentProcessor ExtractAudio(string input, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
         return FFMpegArguments

@@ -1397,6 +1397,18 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_Subtitles_CodecNameSpellsTheSameThingAsTheConstant()
+    {
+        using var output = new TemporaryFile("out.mp4");
+
+        var byConstant = FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, output, "eng", SubtitleCodec.MovText).Arguments;
+        var byName = FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, output, "eng", "mov_text").Arguments;
+
+        Assert.AreEqual(byConstant, byName);
+        Assert.Contains("-c:s mov_text", byName);
+    }
+
+    [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Subtitles_RoundTripThroughASoftStream()
     {
