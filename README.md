@@ -310,7 +310,7 @@ changes. For anything more elaborate â€” scaling the logo first, fading it in â€
 FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mkv", language: "eng").ProcessSynchronously();
 
 // mp4 only carries subtitles as mov_text
-FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mp4", "eng", FFMpeg.GetCodec("mov_text")).ProcessSynchronously();
+FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mp4", "eng", SubtitleCodec.MovText).ProcessSynchronously();
 
 // and back out again
 FFMpeg.ExtractSubtitles("output.mkv", "subs.srt").ProcessSynchronously();

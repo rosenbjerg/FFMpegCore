@@ -169,6 +169,8 @@ public class CodecTests
             Assert.AreEqual("mjpeg", VideoCodec.Image.Jpg.Name);
             Assert.AreEqual("aac", AudioCodec.Aac.Name);
             Assert.AreEqual(CodecType.Audio, AudioCodec.Aac.Type);
+            Assert.AreEqual("mov_text", SubtitleCodec.MovText.Name);
+            Assert.AreEqual(CodecType.Subtitle, SubtitleCodec.MovText.Type);
             Assert.AreEqual(".mp4", ContainerFormats.Mp4.GetExtension());
         }
         finally
