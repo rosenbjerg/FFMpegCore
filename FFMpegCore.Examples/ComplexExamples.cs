@@ -18,10 +18,10 @@ public static class ComplexExamples
                         .WithCustomFilter("split", "3")
                         .As("full", "half", "quarter")
                         .From("half")
-                        .WithFilter(new ScaleArgument(1280, 720))
+                        .Video(filters => filters.Scale(1280, 720))
                         .As("v720")
                         .From("quarter")
-                        .WithFilter(new ScaleArgument(854, 480))
+                        .Video(filters => filters.Scale(854, 480))
                         .As("v480"))
                     .WithMap("full")
                     .WithMap(0, StreamType.Audio)
@@ -62,8 +62,9 @@ public static class ComplexExamples
             .OutputToFile(output, options => options
                 .WithComplexFilter(graph => graph
                     .From(1, StreamType.Video)
-                    .WithFilter(new ScaleArgument(240, -1))
-                    .WithFilter(new VideoFadeArgument(FadeDirection.In, TimeSpan.Zero, TimeSpan.FromSeconds(1)))
+                    .Video(filters => filters
+                        .Scale(240, -1)
+                        .Fade(FadeDirection.In, TimeSpan.Zero, TimeSpan.FromSeconds(1)))
                     .As("logo")
                     .From(0, StreamType.Video)
                     .From("logo")
@@ -95,12 +96,14 @@ public static class ComplexExamples
                 .WithComplexFilter(graph => graph
                     .From(0, StreamType.Video)
                     // -2 rounds the height to something h264 can encode, whatever the source aspect ratio is
-                    .WithFilter(new ScaleArgument(960, -2))
-                    .WithFilter(new DrawTextArgument("Before", Label(fontFile)))
+                    .Video(filters => filters
+                        .Scale(960, -2)
+                        .DrawText("Before", Label(fontFile)))
                     .As("left")
                     .From(1, StreamType.Video)
-                    .WithFilter(new ScaleArgument(960, -2))
-                    .WithFilter(new DrawTextArgument("After", Label(fontFile)))
+                    .Video(filters => filters
+                        .Scale(960, -2)
+                        .DrawText("After", Label(fontFile)))
                     .As("right")
                     .From("left")
                     .From("right")

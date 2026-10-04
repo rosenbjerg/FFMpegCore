@@ -93,6 +93,20 @@ public class ComplexFilterChain
         return _graph;
     }
 
+    public ComplexFilterChain Video(Action<VideoFilterOptions> filters)
+    {
+        var options = new VideoFilterOptions();
+        filters(options);
+        return options.Arguments.Aggregate(this, (chain, filter) => chain.WithFilter(filter));
+    }
+
+    public ComplexFilterChain Audio(Action<AudioFilterOptions> filters)
+    {
+        var options = new AudioFilterOptions();
+        filters(options);
+        return options.Arguments.Aggregate(this, (chain, filter) => chain.WithFilter(filter));
+    }
+
     public ComplexFilterChain WithFilter(IVideoFilterArgument filter)
     {
         _filters.Add((filter.Key, filter.Value));

@@ -1337,6 +1337,27 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_ComplexFilter_VideoAndAudioReuseTheFilterBuilders()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(g => g
+                    .From(0, StreamType.Video)
+                    .Video(f => f.Scale(640, -2).HorizontalFlip())
+                    .As("v")
+                    .From(0, StreamType.Audio)
+                    .Audio(f => f.Loudnorm())
+                    .As("a"))
+                .WithMap("v")
+                .WithMap("a"))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -filter_complex "[0:v]scale=640:-2,hflip[v];[0:a]loudnorm=I=-24.0:LRA=7.0:TP=-2.0[a]" -map "[v]" -map "[a]" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_ComplexFilter_ConcatWithAudio()
     {
         var str = FFMpegArguments.FromFileInput(new[] { "a.mp4", "b.mp4" })

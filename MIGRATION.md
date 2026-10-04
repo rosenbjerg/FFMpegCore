@@ -431,7 +431,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
 - Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,
   `Speed` and `Fade` on `AudioFilterOptions`.
-- `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. Filters needing
+- `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. A chain's
+  `Video(f => …)` and `Audio(f => …)` take the same builders as `WithVideoFilters` and `WithAudioFilters`. Filters needing
   more than one input — `Concat`, `Overlay`, `AudioMix` — are reachable for the first time without hand-writing the graph into
   `WithCustomArgument`.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence

@@ -145,15 +145,15 @@ closes with `As`, naming what it produced. `As` returns the graph, so the next `
 
 ```csharp
 .WithComplexFilter(graph => graph
-    .From(0, StreamType.Video).WithFilter(new ScaleArgument(640, 360)).As("small")
-    .From("small").WithFilter(FlipArgument.Horizontal).As("flipped"))
+    .From(0, StreamType.Video).Video(f => f.Scale(640, -2)).As("small")
+    .From("small").Video(f => f.HorizontalFlip()).As("flipped"))
 .WithMap("flipped")
 ```
 
 The chain has methods only for the filters ffmpeg accepts nowhere else — `Concat`, `Overlay` and `AudioMix`, all of which need more than one
-input and are rejected in `-vf`. Every other filter goes in through `WithFilter`, which takes the same `IVideoFilterArgument` and
-`IAudioFilterArgument` classes `WithVideoFilters` and `WithAudioFilters` are built from, so each filter is declared in exactly one place.
-`WithCustomFilter(key, value)` covers anything the library has no class for.
+input and are rejected in `-vf`. Every other filter goes in through `Video` and `Audio`, which take the same builders as `WithVideoFilters`
+and `WithAudioFilters`, so `Scale`, `Fade` and the rest are spelled the same in both places. `WithFilter` takes a filter argument object
+directly, and `WithCustomFilter(key, value)` covers anything the library has no method for.
 
 ### Reading the result
 
