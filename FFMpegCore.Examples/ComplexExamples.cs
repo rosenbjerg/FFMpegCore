@@ -176,7 +176,7 @@ public static class ComplexExamples
                 .ForceFormat("null"))
             // blackdetect and silencedetect report at info level; a quieter log level drops them silently
             .WithLogLevel(FFMpegLogLevel.Info)
-            .NotifyOnError(line =>
+            .NotifyOnStandardError(line =>
             {
                 if (line.Contains("black_start") || line.Contains("silence_start"))
                 {

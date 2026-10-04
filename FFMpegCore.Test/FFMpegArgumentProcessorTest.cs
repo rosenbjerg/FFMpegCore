@@ -156,8 +156,8 @@ public class FFMpegArgumentProcessorTest
         var quietLines = new List<string>();
         var infoLines = new List<string>();
 
-        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Quiet).NotifyOnError(quietLines.Add).ProcessSynchronously();
-        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).NotifyOnError(infoLines.Add).ProcessSynchronously();
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Quiet).NotifyOnStandardError(quietLines.Add).ProcessSynchronously();
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).NotifyOnStandardError(infoLines.Add).ProcessSynchronously();
 
         Assert.IsEmpty(quietLines);
         Assert.IsNotEmpty(infoLines);
@@ -169,7 +169,7 @@ public class FFMpegArgumentProcessorTest
     {
         using var output = new TemporaryFile("out.mp4");
         var lines = new List<string>();
-        var processor = CreateCopyProcessor(output).NotifyOnError(lines.Add);
+        var processor = CreateCopyProcessor(output).NotifyOnStandardError(lines.Add);
 
         processor.ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Quiet });
         Assert.IsEmpty(lines);
@@ -187,7 +187,7 @@ public class FFMpegArgumentProcessorTest
 
         CreateCopyProcessor(output)
             .WithLogLevel(FFMpegLogLevel.Quiet)
-            .NotifyOnError(lines.Add)
+            .NotifyOnStandardError(lines.Add)
             .ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Info });
 
         Assert.IsEmpty(lines);
@@ -210,7 +210,7 @@ public class FFMpegArgumentProcessorTest
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task Processor_NotifyOnOutput_ReceivesStdout()
+    public async Task Processor_NotifyOnStandardOutput_ReceivesStdout()
     {
         using var output = new TemporaryFile("out.mp4");
         var lines = new List<string>();
@@ -218,7 +218,7 @@ public class FFMpegArgumentProcessorTest
         var success = await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("-progress pipe:1"))
             .OutputToFile(output, true, options => options.CopyStreams())
-            .NotifyOnOutput(lines.Add)
+            .NotifyOnStandardOutput(lines.Add)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
 

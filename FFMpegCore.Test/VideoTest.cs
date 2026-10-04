@@ -975,7 +975,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithDuration(TimeSpan.FromSeconds(2)))
             .WithLogLevel(FFMpegLogLevel.Info)
-            .NotifyOnError(_ => dataReceived = true)
+            .NotifyOnStandardError(_ => dataReceived = true)
             .Configure(opt => opt.Encoding = Encoding.UTF8)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -1751,7 +1751,7 @@ public class VideoTest
                 .FromConcatDemuxerInput(new[] { TestResources.Mp4Video })
                 .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
                 .OutputToFile(outputFile, true, o => o.CopyStreams())
-                .NotifyOnError(stderr.Add)
+                .NotifyOnStandardError(stderr.Add)
                 .CancellableThrough(TestContext.CancellationToken)
                 .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder });
 
@@ -1777,7 +1777,7 @@ public class VideoTest
         {
             var images = Directory.GetFiles(TestResources.ImageCollection).OrderBy(image => image).ToArray();
             FFMpeg.JoinImageSequence(outputFile, 10, images)
-                .NotifyOnError(stderr.Add)
+                .NotifyOnStandardError(stderr.Add)
                 .CancellableThrough(TestContext.CancellationToken)
                 .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder });
 

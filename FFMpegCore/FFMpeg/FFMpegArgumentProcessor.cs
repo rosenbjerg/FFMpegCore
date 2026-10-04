@@ -19,8 +19,8 @@ public class FFMpegArgumentProcessor
     private FFOptions? _ffOptions;
     private TimeSpan? _knownDuration;
     private FFMpegLogLevel? _logLevel;
-    private Action<string>? _onError;
-    private Action<string>? _onOutput;
+    private Action<string>? _onStandardError;
+    private Action<string>? _onStandardOutput;
     private Action<double>? _onPercentageProgress;
     private Action<TimeSpan>? _onTimeProgress;
     private TimeSpan? _totalTimespan;
@@ -90,19 +90,15 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-    /// <summary>
-    ///     Register action that will be invoked during the ffmpeg processing, when a line is output
-    /// </summary>
-    /// <param name="onOutput"></param>
-    public FFMpegArgumentProcessor NotifyOnOutput(Action<string> onOutput)
+    public FFMpegArgumentProcessor NotifyOnStandardOutput(Action<string> onStandardOutput)
     {
-        _onOutput = onOutput;
+        _onStandardOutput = onStandardOutput;
         return this;
     }
 
-    public FFMpegArgumentProcessor NotifyOnError(Action<string> onError)
+    public FFMpegArgumentProcessor NotifyOnStandardError(Action<string> onStandardError)
     {
-        _onError = onError;
+        _onStandardError = onStandardError;
         return this;
     }
 
@@ -363,12 +359,12 @@ public class FFMpegArgumentProcessor
         };
         var processArguments = new ProcessArguments(startInfo);
 
-        if (_onOutput != null)
+        if (_onStandardOutput != null)
         {
             processArguments.OutputDataReceived += OutputData;
         }
 
-        if (_onError != null || reportsProgress)
+        if (_onStandardError != null || reportsProgress)
         {
             processArguments.ErrorDataReceived += ErrorData;
         }
@@ -378,7 +374,7 @@ public class FFMpegArgumentProcessor
 
     private void ErrorData(object sender, string msg)
     {
-        _onError?.Invoke(msg);
+        _onStandardError?.Invoke(msg);
 
         var match = ProgressRegex.Match(msg);
         if (!match.Success)
@@ -401,6 +397,6 @@ public class FFMpegArgumentProcessor
     private void OutputData(object sender, string msg)
     {
         Debug.WriteLine(msg);
-        _onOutput?.Invoke(msg);
+        _onStandardOutput?.Invoke(msg);
     }
 }

@@ -167,6 +167,8 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `AddMetaData(…)` | `AddMetadata(…)` |
 | `MapMetaData(i)` / `MapMetadata(i)` on `FFMpegArguments` | `WithMapMetadata(i)` on the output options — see [below](#-map_metadata-is-an-output-option) |
 | `ProcessSynchronously(…, ffMpegOptions: o)` | `ProcessSynchronously(…, ffOptions: o)` — named only |
+| `NotifyOnError(…)` | `NotifyOnStandardError(…)` — it receives every stderr line, which is all of ffmpeg's logging and progress, not just errors |
+| `NotifyOnOutput(…)` | `NotifyOnStandardOutput(…)` |
 | `WithVideoBitrate(bitrate: n)` / `WithAudioBitrate(bitrate: n)` | `WithVideoBitrate(kilobitsPerSecond: n)` — the unit was always kbps; only a named argument changes |
 
 ## Renamed and removed types
