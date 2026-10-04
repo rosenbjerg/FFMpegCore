@@ -17,6 +17,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
             .Where(text => !string.IsNullOrEmpty(text)));
     }
 
+    public static FFMpegArguments FromInput(IInputArgument input, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return new FFMpegArguments().WithInput(input, addArguments);
+    }
+
     public static FFMpegArguments FromConcatProtocolInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)
     {
         return new FFMpegArguments().WithInput(new ConcatProtocolArgument(filePaths), addArguments);
@@ -80,6 +85,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     public static FFMpegArguments FromImageSequenceInput(IEnumerable<string> images, Action<FFMpegInputOptions>? addArguments = null)
     {
         return new FFMpegArguments().WithInput(new ImageSequenceInputArgument(images), addArguments);
+    }
+
+    public FFMpegArguments AddInput(IInputArgument input, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return WithInput(input, addArguments);
     }
 
     public FFMpegArguments AddConcatProtocolInput(IEnumerable<string> filePaths, Action<FFMpegInputOptions>? addArguments = null)

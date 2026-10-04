@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
@@ -205,11 +206,28 @@ public static class FFMpeg
         Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
         var image = InputPathOf(imageSource, nameof(imageSource));
+        var imageSize = new Size(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream.Height);
+
+        return PosterWithAudio(new InputArgument(image, false), imageSize, audioSource, output, audioCodec, ffOptions);
+    }
+
+    /// <summary>
+    ///     Adds a poster image, supplied by an input argument rather than a file, to an already analysed audio file.
+    /// </summary>
+    /// <param name="image">The input that provides the image, such as an argument that writes a bitmap to a temporary file.</param>
+    /// <param name="imageSize">The image's dimensions, which must both be even.</param>
+    /// <param name="audioSource">Analysis of the audio, which supplies its path and the output's duration.</param>
+    /// <param name="output">Output video file.</param>
+    /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor PosterWithAudio(IInputArgument image, Size imageSize, IMediaAnalysis audioSource, string output,
+        Codec? audioCodec = null, FFOptions? ffOptions = null)
+    {
         var audio = InputPathOf(audioSource, nameof(audioSource));
-        FFMpegHelper.ConversionSizeExceptionCheck(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream!.Height);
+        FFMpegHelper.ConversionSizeExceptionCheck(imageSize.Width, imageSize.Height);
 
         return FFMpegArguments
-            .FromFileInput(image, false, options => options
+            .FromInput(image, options => options
                 .WithLoop(1)
                 .ForceFormat("image2"))
             .AddFileInput(audio)

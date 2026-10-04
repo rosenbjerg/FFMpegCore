@@ -114,7 +114,7 @@ FFMpeg.PosterWithAudio(image, audio, output, AudioCodec.Aac);             // 6.0
 
 It also no longer requires an `.mp4` output — `.mkv`, `.mov` and `.webm` (with a codec that container takes) work as well.
 
-`AddAudio`/`AddAudioAsync` in the image extension packages follow the same default.
+`AddAudio` in the image extension packages follows the same default.
 
 ### `FFMpeg.ReplaceAudio` uses the new track, and copies it
 
@@ -395,7 +395,17 @@ await FFMpegImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, input
 await SystemDrawingImage.SnapshotAsync(inputPath, size, captureTime, streamIndex, ffOptions, cancellationToken);
 ```
 
-`AddAudio` takes the same `FFOptions`, and `AddAudioAsync` adds cancellation.
+`AddAudio` returns the `FFMpegArgumentProcessor` instead of running, like the `FFMpeg.*` helpers, so progress, cancellation and the choice
+of sync or async are the caller's. `AddAudioAsync` is gone. It takes an optional `Codec` for the audio, and an overload takes the audio's
+`IMediaAnalysis`. The bitmap is written to a temporary file when the run starts rather than when `AddAudio` is called, so keep it alive until
+the run ends:
+
+```csharp
+bitmap.AddAudio(audio, output);                                                          // 5.x — ran immediately
+await bitmap.AddAudioAsync(audio, output, cancellationToken: token);                     // 5.x
+bitmap.AddAudio(audio, output).ProcessSynchronously();                                   // 6.0
+await bitmap.AddAudio(audio, output).ProcessAsynchronously(cancellationToken: token);    // 6.0
+```
 
 ## FFProbe's async overloads take the token last
 
@@ -438,6 +448,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `FromFileInput`, `AddFileInput` and `OutputToFile` take the options lambda straight after the path, so
   `OutputToFile(path, true, options => …)` can be written `OutputToFile(path, options => …)`. The overloads with the `bool` stay, for
   `verifyExists: false` and `overwrite: false`.
+- `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for, and a `PosterWithAudio` overload
+  taking the image as such an argument.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so

@@ -1,43 +1,19 @@
 ﻿using System.Drawing;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common;
 
 public static class SystemDrawingImageExtensions
 {
-    public static FFMpegResult AddAudio(this Image poster, string audio, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor AddAudio(this Image poster, string audio, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
-        var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
-        try
-        {
-            return FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions).ProcessSynchronously();
-        }
-        finally
-        {
-            File.Delete(destination);
-        }
+        return poster.AddAudio(FFProbe.Analyse(audio, ffOptions), output, audioCodec, ffOptions);
     }
 
-    public static async Task<FFMpegResult> AddAudioAsync(this Image poster, string audio, string output, FFOptions? ffOptions = null,
-        CancellationToken cancellationToken = default)
+    public static FFMpegArgumentProcessor AddAudio(this Image poster, IMediaAnalysis audioSource, string output, Codec? audioCodec = null,
+        FFOptions? ffOptions = null)
     {
-        var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
-        try
-        {
-            return await FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions)
-                .CancellableThrough(cancellationToken)
-                .ProcessAsynchronously()
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            File.Delete(destination);
-        }
-    }
-
-    private static string SavePoster(Image poster, FFOptions ffOptions)
-    {
-        var destination = Path.Combine(ffOptions.TemporaryFilesFolder, $"{Guid.NewGuid()}.png");
-        poster.Save(destination);
-        return destination;
+        return FFMpeg.PosterWithAudio(new SystemDrawingPosterInputArgument(poster), new Size(poster.Width, poster.Height), audioSource, output, audioCodec,
+            ffOptions);
     }
 }

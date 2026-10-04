@@ -1,44 +1,19 @@
-﻿using SkiaSharp;
+﻿using FFMpegCore.Enums;
+using SkiaSharp;
 
 namespace FFMpegCore.Extensions.SkiaSharp;
 
 public static class SkiaSharpBitmapExtensions
 {
-    public static FFMpegResult AddAudio(this SKBitmap poster, string audio, string output, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor AddAudio(this SKBitmap poster, string audio, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
-        var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
-        try
-        {
-            return FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions).ProcessSynchronously();
-        }
-        finally
-        {
-            File.Delete(destination);
-        }
+        return poster.AddAudio(FFProbe.Analyse(audio, ffOptions), output, audioCodec, ffOptions);
     }
 
-    public static async Task<FFMpegResult> AddAudioAsync(this SKBitmap poster, string audio, string output, FFOptions? ffOptions = null,
-        CancellationToken cancellationToken = default)
+    public static FFMpegArgumentProcessor AddAudio(this SKBitmap poster, IMediaAnalysis audioSource, string output, Codec? audioCodec = null,
+        FFOptions? ffOptions = null)
     {
-        var destination = SavePoster(poster, ffOptions ?? GlobalFFOptions.Current);
-        try
-        {
-            return await FFMpeg.PosterWithAudio(destination, audio, output, ffOptions: ffOptions)
-                .CancellableThrough(cancellationToken)
-                .ProcessAsynchronously()
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            File.Delete(destination);
-        }
-    }
-
-    private static string SavePoster(SKBitmap poster, FFOptions ffOptions)
-    {
-        var destination = Path.Combine(ffOptions.TemporaryFilesFolder, $"{Guid.NewGuid()}.png");
-        using var fileStream = File.OpenWrite(destination);
-        poster.Encode(fileStream, SKEncodedImageFormat.Png, default);
-        return destination;
+        return FFMpeg.PosterWithAudio(new SkiaSharpPosterInputArgument(poster), new System.Drawing.Size(poster.Width, poster.Height), audioSource, output, audioCodec,
+            ffOptions);
     }
 }

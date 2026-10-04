@@ -502,11 +502,13 @@ you pass a codec.
 ```csharp
 FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath).ProcessSynchronously();
 
-// or using one of the image extension packages
-var image = Image.FromFile(inputImagePath);
-image.AddAudio(inputAudioPath, outputPath);
-await image.AddAudioAsync(inputAudioPath, outputPath, cancellationToken: cancellationToken);
+// or from a bitmap in memory, using one of the image extension packages
+using var image = SKBitmap.Decode(inputImagePath);
+await image.AddAudio(inputAudioPath, outputPath).ProcessAsynchronously(cancellationToken: cancellationToken);
 ```
+
+`AddAudio` returns the processor like the `FFMpeg.*` helpers. The bitmap is written to a temporary file when the run starts and deleted when
+it ends, so keep it alive until then.
 
 The audio is copied, not re-encoded, so the track is not degraded a second time on its way to a platform that will transcode it anyway. Pass a
 codec if you do need to re-encode:

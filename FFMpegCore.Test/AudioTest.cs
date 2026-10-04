@@ -190,15 +190,27 @@ public class AudioTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public async Task Image_AddAudioAsync()
+    public async Task Image_AddAudio_ReturnsAProcessorThatCleansUpThePoster()
     {
         using var outputFile = new TemporaryFile("out.mp4");
         using var poster = SKBitmap.Decode(TestResources.PngImage);
+        var temporaryFiles = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+        var percentages = new List<double>();
 
-        var result = await poster.AddAudioAsync(TestResources.Mp3Audio, outputFile, cancellationToken: TestContext.CancellationToken);
+        try
+        {
+            var result = await poster.AddAudio(TestResources.Mp3Audio, outputFile, ffOptions: new FFOptions { TemporaryFilesFolder = temporaryFiles.FullName })
+                .NotifyOnPercentageProgress(percentages.Add)
+                .ProcessAsynchronously(cancellationToken: TestContext.CancellationToken);
 
-        Assert.IsTrue(result.Success);
-        Assert.IsTrue(File.Exists(outputFile));
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual(100.0, percentages.Last());
+            Assert.IsEmpty(temporaryFiles.GetFiles());
+        }
+        finally
+        {
+            temporaryFiles.Delete(true);
+        }
     }
 
     [TestMethod]
@@ -206,9 +218,9 @@ public class AudioTest
     {
         var missingFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         using var poster = SKBitmap.Decode(TestResources.PngImage);
+        var processor = poster.AddAudio(TestResources.Mp3Audio, "out.mp4", ffOptions: new FFOptions { TemporaryFilesFolder = missingFolder });
 
-        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
-            poster.AddAudio(TestResources.Mp3Audio, "out.mp4", new FFOptions { TemporaryFilesFolder = missingFolder }));
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() => processor.ProcessSynchronously());
     }
 
     [TestMethod]

@@ -214,11 +214,11 @@ var inputImagePath = "/path/to/input/image";
     // or using FFMpegCore.Extensions.System.Drawing.Common
 #pragma warning disable CA1416
     using var image = Image.FromFile(inputImagePath);
-    image.AddAudio(inputAudioPath, outputPath);
+    image.AddAudio(inputAudioPath, outputPath).ProcessSynchronously();
 #pragma warning restore CA1416
     // or using FFMpegCore.Extensions.SkiaSharp
     using var skiaSharpImage = SKBitmap.Decode(inputImagePath);
-    skiaSharpImage.AddAudio(inputAudioPath, outputPath);
+    skiaSharpImage.AddAudio(inputAudioPath, outputPath).ProcessSynchronously();
 }
 
 IVideoFrame GetNextFrame()
