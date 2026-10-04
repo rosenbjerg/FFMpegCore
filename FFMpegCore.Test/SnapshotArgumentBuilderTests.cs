@@ -23,7 +23,7 @@ public class SnapshotArgumentBuilderTests
         public List<VideoStream> VideoStreams { get; }
         public List<AudioStream> AudioStreams => new();
         public List<SubtitleStream> SubtitleStreams => new();
-        public IReadOnlyList<string> ErrorData => Array.Empty<string>();
+        public IReadOnlyList<string> ErrorOutput => Array.Empty<string>();
     }
 
     private static string SnapshotArguments(IMediaAnalysis source, Size? size)

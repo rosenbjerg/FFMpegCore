@@ -2,11 +2,13 @@
 
 public class FFProbeProcessException : FFProbeException
 {
-    public FFProbeProcessException(string message, IReadOnlyCollection<string> errorOutput, Exception? inner = null)
-        : base(FFMpegExceptionType.Process, message, inner, string.Join("\n", errorOutput))
+    public FFProbeProcessException(int exitCode, IReadOnlyList<string> errorOutput, Exception? inner = null)
+        : base(FFMpegExceptionType.Process, $"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", errorOutput)})", inner)
     {
+        ExitCode = exitCode;
         ErrorOutput = errorOutput;
     }
 
-    public IReadOnlyCollection<string> ErrorOutput { get; }
+    public int ExitCode { get; }
+    public IReadOnlyList<string> ErrorOutput { get; }
 }

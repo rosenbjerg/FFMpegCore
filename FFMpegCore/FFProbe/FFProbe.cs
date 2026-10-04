@@ -213,7 +213,7 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
-        ffprobeAnalysis.ErrorData = instance.ErrorData;
+        ffprobeAnalysis.ErrorOutput = instance.ErrorData;
         return new MediaAnalysis(ffprobeAnalysis, path);
     }
 
@@ -255,8 +255,7 @@ public static class FFProbe
     {
         if (result.ExitCode != 0)
         {
-            var message = $"ffprobe exited with non-zero exit-code ({result.ExitCode} - {string.Join("\n", result.ErrorData)})";
-            throw new FFProbeProcessException(message, result.ErrorData);
+            throw new FFProbeProcessException(result.ExitCode, result.ErrorData);
         }
     }
 

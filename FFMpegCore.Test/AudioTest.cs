@@ -295,7 +295,7 @@ public class AudioTest
 
         var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { Channels = 0 };
 
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+        Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
@@ -311,7 +311,7 @@ public class AudioTest
 
         var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { Format = "s8le" };
 
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+        Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
@@ -327,7 +327,7 @@ public class AudioTest
 
         var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { SampleRate = 0 };
 
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments
+        Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac))
@@ -395,7 +395,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
-        Assert.ThrowsExactly<FFMpegException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
+        Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments.FromFileInput(TestResources.Mp3Audio)
             .OutputToFile(outputFile, true,
                 argumentOptions => argumentOptions
                     .WithAudioFilters(filter => filter.Pan("mono", "c0=c0", "c1=c1")))

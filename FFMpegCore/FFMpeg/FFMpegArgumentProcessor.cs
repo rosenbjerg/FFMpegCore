@@ -304,8 +304,7 @@ public class FFMpegArgumentProcessor
         var result = new FFMpegResult(processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>(), cancelled);
         if (throwOnError && result.ExitCode != 0)
         {
-            var errorOutput = string.Join("\n", result.ErrorOutput);
-            throw new FFMpegException(FFMpegExceptionType.Process, $"ffmpeg exited with non-zero exit-code ({result.ExitCode} - {errorOutput})", null, errorOutput);
+            throw new FFMpegProcessException(result);
         }
 
         if (result.Success)

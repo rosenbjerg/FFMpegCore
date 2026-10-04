@@ -361,10 +361,10 @@ public class FFMpegArgumentProcessorTest
         using var output = new TemporaryFile("out.mp4");
         File.WriteAllText(output, string.Empty);
 
-        var exception = Assert.ThrowsExactly<FFMpegException>(() =>
+        var exception = Assert.ThrowsExactly<IOException>(() =>
             FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile(output, false).ProcessSynchronously());
 
-        Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
+        StringAssert.Contains(exception.Message, output);
     }
 
     // Don't shrink the output format - ffmpeg must still be writing when the sink throws, or the pipe never breaks
@@ -396,12 +396,14 @@ public class FFMpegArgumentProcessorTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public async Task Processor_BrokenOutputPipe_ThrowsFFMpegException_NotThePipeException()
+    public async Task Processor_BrokenOutputPipe_ThrowsFFMpegProcessException_NotThePipeException()
     {
-        var exception = await Assert.ThrowsExactlyAsync<FFMpegException>(() => CreateProcessorWithFailingSink().ProcessAsynchronously());
+        var exception = await Assert.ThrowsExactlyAsync<FFMpegProcessException>(() => CreateProcessorWithFailingSink().ProcessAsynchronously());
 
         Assert.AreEqual(FFMpegExceptionType.Process, exception.Type);
-        Assert.IsNotEmpty(exception.FFMpegErrorOutput);
+        Assert.AreNotEqual(0, exception.Result.ExitCode);
+        Assert.IsFalse(exception.Result.Success);
+        Assert.IsNotEmpty(exception.Result.ErrorOutput);
     }
 
     public TestContext TestContext { get; set; }

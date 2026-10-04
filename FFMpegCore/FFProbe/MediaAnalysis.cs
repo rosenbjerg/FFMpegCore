@@ -10,7 +10,7 @@ internal class MediaAnalysis : IMediaAnalysis
         VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
         AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
         SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
-        ErrorData = analysis.ErrorData;
+        ErrorOutput = analysis.ErrorOutput;
     }
 
     public string? Path { get; }
@@ -28,7 +28,7 @@ internal class MediaAnalysis : IMediaAnalysis
     public List<VideoStream> VideoStreams { get; }
     public List<AudioStream> AudioStreams { get; }
     public List<SubtitleStream> SubtitleStreams { get; }
-    public IReadOnlyList<string> ErrorData { get; }
+    public IReadOnlyList<string> ErrorOutput { get; }
 
     private MediaFormat ParseFormat(Format analysisFormat)
     {

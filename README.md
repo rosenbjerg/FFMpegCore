@@ -31,8 +31,8 @@ or
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
-A missing input throws `FFProbeException`, and a non-zero exit throws `FFProbeProcessException`, which carries the captured stderr lines in
-`ErrorOutput`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
+A missing input throws `FFProbeException`, and a non-zero exit throws `FFProbeProcessException`, which carries `ExitCode` and the captured
+stderr lines in `ErrorOutput`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
 
 ## FFMpeg
 
@@ -172,8 +172,23 @@ if (!result.Success)
 }
 ```
 
-By default (`throwOnError: true`) a non-zero exit throws `FFMpegException` and a cancellation throws `OperationCanceledException`. Pass
-`false` and the result reports what happened instead, through `ExitCode`, `ErrorOutput`, `Cancelled` and `Success`.
+By default (`throwOnError: true`) a non-zero exit throws `FFMpegProcessException`, whose `Result` is the same `FFMpegResult`, and a
+cancellation throws `OperationCanceledException`. Pass `false` and the result reports what happened instead, through `ExitCode`,
+`ErrorOutput`, `Cancelled` and `Success`.
+
+```csharp
+try
+{
+    FFMpeg.Remux(inputPath, outputPath).ProcessSynchronously();
+}
+catch (FFMpegProcessException exception)
+{
+    logger.LogError("ffmpeg exited with {ExitCode}: {Output}", exception.Result.ExitCode, exception.Result.ErrorOutput);
+}
+```
+
+Problems found before ffmpeg starts throw the usual .NET exceptions: `FileNotFoundException` for a missing input, `IOException` for an
+existing output when `overwrite: false`.
 
 ### Progress and cancellation
 

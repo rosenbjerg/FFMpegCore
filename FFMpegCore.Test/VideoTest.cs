@@ -320,7 +320,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_ToMP4_Args_StreamOutputPipe_Async_Failure()
     {
-        await Assert.ThrowsExactlyAsync<FFMpegException>(async () =>
+        await Assert.ThrowsExactlyAsync<FFMpegProcessException>(async () =>
         {
             await using var ms = new MemoryStream();
             var pipeSource = new StreamPipeSink(ms);
@@ -355,7 +355,7 @@ public class VideoTest
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ToMP4_Args_StreamOutputPipe_Failure()
     {
-        Assert.ThrowsExactly<FFMpegException>(() =>
+        Assert.ThrowsExactly<FFMpegProcessException>(() =>
         {
             using var ms = new MemoryStream();
             FFMpegArguments

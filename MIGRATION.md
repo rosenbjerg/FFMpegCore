@@ -271,6 +271,24 @@ FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, o => o.Wit
 
 `MapMetadataArgument` takes the index it maps, and is no longer an input argument. `MetadataArgument` emits only its `-i`.
 
+## Errors
+
+A failed ffmpeg run throws `FFMpegProcessException`, which derives from `FFMpegException` and carries the run's `FFMpegResult` as `Result`
+— so `ExitCode` and `ErrorOutput` are there whether you let the run throw or pass `throwOnError: false`. `catch (FFMpegException)` still
+catches it.
+
+The captured stderr had four names across three types. It is now `ErrorOutput`, an `IReadOnlyList<string>`, everywhere:
+
+| 5.x / early 6.0 | 6.0 |
+|---|---|
+| `FFMpegException.FFMpegErrorOutput` (`string`) | `FFMpegProcessException.Result.ErrorOutput`; removed from `FFMpegException` along with the constructors taking it |
+| `FFProbeProcessException.ErrorOutput` (`IReadOnlyCollection<string>`) | `IReadOnlyList<string>`, alongside a new `ExitCode`. Its constructor takes `(exitCode, errorOutput)` |
+| `IMediaAnalysis.ErrorData` | `IMediaAnalysis.ErrorOutput` |
+| `FFProbeException(…, ffProbeErrorOutput)` | the parameter is gone |
+
+`OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
+input already threw `FileNotFoundException`; the two now match.
+
 ## Cancellation waits for ffmpeg to finalise the output
 
 `CancellableThrough` sent ffmpeg `q` and then killed it after `timeout` milliseconds — and the default was `0`, so it killed straight away
