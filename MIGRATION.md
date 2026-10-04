@@ -111,6 +111,21 @@ FFMpeg.PosterWithAudio(image, audio, output, AudioCodec.Aac);             // 6.0
 
 `AddAudio`/`AddAudioAsync` in the image extension packages follow the same default.
 
+### `FFMpeg.ReplaceAudio` uses the new track, and copies it
+
+It mapped no streams, so ffmpeg picked the "best" audio across both inputs — the one with the most channels, or on a tie the first input's.
+A video that already had audio usually kept it, and the replacement was silently dropped. It now takes the video of the first input and the
+audio of the second.
+
+It also re-encoded the new track to 192 kbps AAC unconditionally. Like `PosterWithAudio`, it now copies it, and takes a codec when you do
+want a re-encode. The new parameter sits before `stopAtShortest`, so a positional `bool` stops compiling — name it:
+
+```csharp
+FFMpeg.ReplaceAudio(input, audio, output, true);                          // 5.x / early 6.0
+FFMpeg.ReplaceAudio(input, audio, output, stopAtShortest: true);          // 6.0 — copies the audio
+FFMpeg.ReplaceAudio(input, audio, output, AudioCodec.Aac);                // 6.0 — old behaviour, at ffmpeg's default bitrate
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.
@@ -282,9 +297,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so
   naming a subtitle encoder no longer means `FFMpeg.GetCodec("mov_text")` and the `ffmpeg -codecs` run behind it.
-- `AddSubtitles`, `ExtractAudio` and `PosterWithAudio` take an encoder name as a `string` as well as a `Codec`, for the encoders that have
-  no constant. The `Codec` overload stays the one to prefer, since it checks the codec is of the right kind at the call rather than leaving
-  ffmpeg to reject it. Passing a bare `null` for the codec is now ambiguous between the two; omit it, or name `ffOptions:`.
+- `AddSubtitles`, `ExtractAudio`, `PosterWithAudio` and `ReplaceAudio` take an encoder name as a `string` as well as a `Codec`, for the
+  encoders that have no constant. The `Codec` overload stays the one to prefer, since it checks the codec is of the right kind at the call
+  rather than leaving ffmpeg to reject it. Passing a bare `null` for the codec is now ambiguous between the two; omit it, or name `ffOptions:`.
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
 - Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,

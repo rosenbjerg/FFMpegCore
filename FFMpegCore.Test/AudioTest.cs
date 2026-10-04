@@ -120,6 +120,31 @@ public class AudioTest
     }
 
     [TestMethod]
+    public void Audio_Replace_TakesTheNewTrackOverTheExistingOne()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var result = FFMpeg.ReplaceAudio(TestResources.Mp4Video, TestResources.Mp3Audio, outputFile).ProcessSynchronously();
+        var outputAnalysis = FFProbe.Analyse(outputFile);
+
+        Assert.IsTrue(result.Success);
+        Assert.HasCount(1, outputAnalysis.AudioStreams);
+        Assert.AreEqual("mp3", outputAnalysis.PrimaryAudioStream!.CodecName);
+        Assert.AreEqual(FFProbe.Analyse(TestResources.Mp4Video).PrimaryVideoStream!.CodecName, outputAnalysis.PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    public void Audio_Replace_ReencodesWhenGivenACodec()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var result = FFMpeg.ReplaceAudio(TestResources.Mp4Video, TestResources.Mp3Audio, outputFile, AudioCodec.Aac).ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("aac", FFProbe.Analyse(outputFile).PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
     public void Image_AddAudio()
     {
         using var outputFile = new TemporaryFile("out.mp4");

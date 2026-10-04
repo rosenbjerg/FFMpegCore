@@ -442,7 +442,13 @@ anything long-running: an mp4 is only finalised when the run ends, so a crash lo
 
 ```csharp
 FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath).ProcessSynchronously();
+
+// re-encode the new track, for audio the output container cannot carry as it is
+FFMpeg.ReplaceAudio(inputPath, "voiceover.wav", outputPath, AudioCodec.Aac).ProcessSynchronously();
 ```
+
+The output takes the video of the first file and the audio of the second, whatever audio the video already had. Both are copied unless
+you pass a codec.
 
 ### Combine an image with audio file, for youtube or similar platforms
 
