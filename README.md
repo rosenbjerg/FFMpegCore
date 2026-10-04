@@ -402,7 +402,7 @@ FFMpegArguments
     .FromFileInput(inputPath)
     .OutputToFile(outputPath, options => options
         .WithVideoFilters(filters => filters
-            .HardBurnSubtitle(SubtitleHardBurnOptions.Create("subs.srt"))))
+            .HardBurnSubtitle("subs.srt")))
     .ProcessSynchronously();
 ```
 

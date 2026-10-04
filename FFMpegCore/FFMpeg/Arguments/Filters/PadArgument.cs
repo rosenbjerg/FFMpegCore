@@ -6,9 +6,14 @@ public class PadArgument : IVideoFilterArgument
 {
     private readonly PadOptions _options;
 
-    public PadArgument(PadOptions options)
+    public PadArgument(string? width = null, string? height = null, Action<PadOptions>? configure = null)
     {
-        _options = options;
+        _options = new PadOptions(width, height);
+        configure?.Invoke(_options);
+        if (!_options.Parameters.ContainsKey("width") && !_options.Parameters.ContainsKey("height") && !_options.Parameters.ContainsKey("aspect"))
+        {
+            throw new ArgumentException("Pad needs a width, a height or an aspect ratio");
+        }
     }
 
     public string Key => "pad";
@@ -19,13 +24,8 @@ public class PadOptions
 {
     public readonly Dictionary<string, string> Parameters = new();
 
-    private PadOptions(string? width, string? height)
+    internal PadOptions(string? width, string? height)
     {
-        if (width == null && height == null)
-        {
-            throw new Exception("At least one of the parameters must be not null");
-        }
-
         if (width != null)
         {
             Parameters.Add("width", width);
@@ -37,21 +37,11 @@ public class PadOptions
         }
     }
 
-    private PadOptions(string aspectRatio)
-    {
-        Parameters.Add("aspect", aspectRatio);
-    }
-
     internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
 
-    public static PadOptions Create(string? width, string? height)
+    public PadOptions WithAspectRatio(string aspectRatio)
     {
-        return new PadOptions(width, height);
-    }
-
-    public static PadOptions Create(string aspectRatio)
-    {
-        return new PadOptions(aspectRatio);
+        return WithParameter("aspect", aspectRatio);
     }
 
     public PadOptions WithParameter(string key, string value)

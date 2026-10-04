@@ -96,11 +96,11 @@ public static class ComplexExamples
                     .From(0, StreamType.Video)
                     // -2 rounds the height to something h264 can encode, whatever the source aspect ratio is
                     .WithFilter(new ScaleArgument(960, -2))
-                    .WithFilter(new DrawTextArgument(Label("Before", fontFile)))
+                    .WithFilter(new DrawTextArgument("Before", Label(fontFile)))
                     .As("left")
                     .From(1, StreamType.Video)
                     .WithFilter(new ScaleArgument(960, -2))
-                    .WithFilter(new DrawTextArgument(Label("After", fontFile)))
+                    .WithFilter(new DrawTextArgument("After", Label(fontFile)))
                     .As("right")
                     .From("left")
                     .From("right")
@@ -112,15 +112,16 @@ public static class ComplexExamples
                 .WithConstantRateFactor(18))
             .ProcessSynchronously();
 
-        static DrawTextOptions Label(string text, string fontFile)
+        static Action<DrawTextOptions> Label(string fontFile)
         {
-            return DrawTextOptions.Create(text, fontFile,
-                ("x", "24"),
-                ("y", "24"),
-                ("fontsize", "42"),
-                ("fontcolor", "white"),
-                ("box", "1"),
-                ("boxcolor", "black@0.6"));
+            return text => text
+                .WithFontFile(fontFile)
+                .WithParameter("x", "24")
+                .WithParameter("y", "24")
+                .WithParameter("fontsize", "42")
+                .WithParameter("fontcolor", "white")
+                .WithParameter("box", "1")
+                .WithParameter("boxcolor", "black@0.6");
         }
     }
 

@@ -7,9 +7,10 @@ public class SubtitleHardBurnArgument : IVideoFilterArgument
 {
     private readonly SubtitleHardBurnOptions _subtitleHardBurnOptions;
 
-    public SubtitleHardBurnArgument(SubtitleHardBurnOptions subtitleHardBurnOptions)
+    public SubtitleHardBurnArgument(string subtitlePath, Action<SubtitleHardBurnOptions>? configure = null)
     {
-        _subtitleHardBurnOptions = subtitleHardBurnOptions;
+        _subtitleHardBurnOptions = new SubtitleHardBurnOptions(subtitlePath);
+        configure?.Invoke(_subtitleHardBurnOptions);
     }
 
     public string Key => "subtitles";
@@ -23,7 +24,7 @@ public class SubtitleHardBurnOptions
 
     public readonly Dictionary<string, string> Parameters = new();
 
-    private SubtitleHardBurnOptions(string subtitle)
+    internal SubtitleHardBurnOptions(string subtitle)
     {
         _subtitle = subtitle;
     }
@@ -32,70 +33,30 @@ public class SubtitleHardBurnOptions
         .Join(":", new[] { StringExtensions.EncloseInQuotes(StringExtensions.ToFFmpegLibavfilterPath(_subtitle)) }
             .Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(true))));
 
-    /// <summary>
-    ///     Create a new <see cref="SubtitleHardBurnOptions" /> using a provided subtitle file or a video file
-    ///     containing one.
-    /// </summary>
-    /// <param name="subtitlePath"></param>
-    /// <returns></returns>
-    /// <remarks>Only support .srt and .ass files, and subrip and ssa subtitle streams</remarks>
-    public static SubtitleHardBurnOptions Create(string subtitlePath)
-    {
-        return new SubtitleHardBurnOptions(subtitlePath);
-    }
-
-    /// <summary>
-    ///     Specify the size of the original video, the video for which the ASS file was composed.
-    /// </summary>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    /// <returns></returns>
-    public SubtitleHardBurnOptions SetOriginalSize(int width, int height)
+    public SubtitleHardBurnOptions WithOriginalSize(int width, int height)
     {
         return WithParameter("original_size", $"{width}x{height}");
     }
 
-    /// <summary>
-    ///     Specify the size of the original video, the video for which the ASS file was composed.
-    /// </summary>
-    /// <param name="size"></param>
-    /// <returns></returns>
-    public SubtitleHardBurnOptions SetOriginalSize(Size size)
+    public SubtitleHardBurnOptions WithOriginalSize(Size size)
     {
-        return SetOriginalSize(size.Width, size.Height);
+        return WithOriginalSize(size.Width, size.Height);
     }
 
-    /// <summary>
-    ///     Set subtitles stream index.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    /// <remarks>
-    ///     Used when the provided subtitle is an stream of a video file (ex. .mkv) with multiple subtitles.
-    ///     Represent the index of the subtitle not the stream, them the first subtitle index is 0 and second is 1
-    /// </remarks>
-    public SubtitleHardBurnOptions SetSubtitleIndex(int index)
+    public SubtitleHardBurnOptions WithSubtitleIndex(int index)
     {
         return WithParameter("stream_index", index.ToString());
     }
 
-    /// <summary>
-    ///     Set subtitles input character encoding. Only useful if not UTF-8
-    /// </summary>
-    /// <param name="encode">Charset encoding</param>
-    /// <returns></returns>
-    public SubtitleHardBurnOptions SetCharacterEncoding(string encode)
+    public SubtitleHardBurnOptions WithCharacterEncoding(string encoding)
     {
-        return WithParameter("charenc", encode);
+        return WithParameter("charenc", encoding);
     }
 
-    /// <summary>
-    ///     Override default style or script info parameters of the subtitles
-    /// </summary>
-    /// <param name="styleOptions"></param>
-    /// <returns></returns>
-    public SubtitleHardBurnOptions WithStyle(StyleOptions styleOptions)
+    public SubtitleHardBurnOptions WithStyle(Action<StyleOptions> configure)
     {
+        var styleOptions = new StyleOptions();
+        configure(styleOptions);
         return WithParameter("force_style", styleOptions.TextInternal);
     }
 
@@ -110,19 +71,10 @@ public class StyleOptions
 {
     public readonly Dictionary<string, string> Parameters = new();
 
+    internal StyleOptions() { }
+
     internal string TextInternal => string.Join(",", Parameters.Select(parameter => parameter.FormatArgumentPair(false)));
 
-    public static StyleOptions Create()
-    {
-        return new StyleOptions();
-    }
-
-    /// <summary>
-    ///     Used to override default style or script info parameters of the subtitles. It accepts ASS style format
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
     public StyleOptions WithParameter(string key, string value)
     {
         Parameters.Add(key, value);

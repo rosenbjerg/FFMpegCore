@@ -419,8 +419,8 @@ public class ArgumentBuilderTest
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .DrawText(DrawTextOptions
-                        .Create("Stack Overflow", "/path/to/font.ttf")
+                    .DrawText("Stack Overflow", text => text
+                        .WithFontFile("/path/to/font.ttf")
                         .WithParameter("fontcolor", "white")
                         .WithParameter("fontsize", "24")
                         .WithParameter("box", "1")
@@ -436,19 +436,16 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_DrawtextFilter_Alt()
+    public void Builder_BuildString_DrawtextFilter_TextOnly()
     {
         var str = FFMpegArguments
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .DrawText(DrawTextOptions
-                        .Create("Stack Overflow", "/path/to/font.ttf", ("fontcolor", "white"), ("fontsize", "24")))))
+                    .DrawText("Hello")))
             .Arguments;
 
-        Assert.AreEqual(
-            "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24\" \"output.mp4\"",
-            str);
+        Assert.AreEqual("-i \"input.mp4\" -vf \"drawtext=text=Hello\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -458,12 +455,11 @@ public class ArgumentBuilderTest
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .HardBurnSubtitle(SubtitleHardBurnOptions
-                        .Create("sample.srt")
-                        .SetCharacterEncoding("UTF-8")
-                        .SetOriginalSize(1366, 768)
-                        .SetSubtitleIndex(0)
-                        .WithStyle(StyleOptions.Create()
+                    .HardBurnSubtitle("sample.srt", subtitles => subtitles
+                        .WithCharacterEncoding("UTF-8")
+                        .WithOriginalSize(1366, 768)
+                        .WithSubtitleIndex(0)
+                        .WithStyle(style => style
                             .WithParameter("FontName", "DejaVu Serif")
                             .WithParameter("PrimaryColour", "&HAA00FF00")))))
             .Arguments;
@@ -480,8 +476,7 @@ public class ArgumentBuilderTest
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .HardBurnSubtitle(SubtitleHardBurnOptions
-                        .Create(@"sample( \ : [ ] , ' ).srt"))))
+                    .HardBurnSubtitle(@"sample( \ : [ ] , ' ).srt")))
             .Arguments;
 
         Assert.AreEqual(@"-i ""input.mp4"" -vf ""subtitles='sample( \\ \: \[ \] \, '\\\'' ).srt'"" ""output.mp4""",
@@ -628,8 +623,7 @@ public class ArgumentBuilderTest
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .Pad(PadOptions
-                        .Create("max(iw,ih)", "ow")
+                    .Pad("max(iw,ih)", "ow", pad => pad
                         .WithParameter("x", "(ow-iw)/2")
                         .WithParameter("y", "(oh-ih)/2")
                         .WithParameter("color", "violet")
@@ -648,8 +642,8 @@ public class ArgumentBuilderTest
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .Pad(PadOptions
-                        .Create("4/3")
+                    .Pad(configure: pad => pad
+                        .WithAspectRatio("4/3")
                         .WithParameter("x", "(ow-iw)/2")
                         .WithParameter("y", "(oh-ih)/2")
                         .WithParameter("color", "violet")
@@ -659,6 +653,13 @@ public class ArgumentBuilderTest
         Assert.AreEqual(
             "-i \"input.mp4\" -vf \"pad=aspect=4/3:x=(ow-iw)/2:y=(oh-ih)/2:color=violet:eval=frame\" \"output.mp4\"",
             str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_PadFilter_NeedsASize()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => new PadArgument());
+        Assert.ThrowsExactly<ArgumentException>(() => new PadArgument(configure: pad => pad.WithParameter("color", "black")));
     }
 
     [TestMethod]

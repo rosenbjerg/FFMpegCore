@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using FFMpegCore;
-using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.SkiaSharp;
@@ -132,8 +131,8 @@ var outputStream = new MemoryStream();
         .FromFileInput(inputPath)
         .OutputToFile(outputPath, options => options
             .WithVideoFilters(filterOptions => filterOptions
-                .HardBurnSubtitle(SubtitleHardBurnOptions.Create(@"..\subs.srt")
-                    .WithStyle(StyleOptions.Create()
+                .HardBurnSubtitle(@"..\subs.srt", subtitles => subtitles
+                    .WithStyle(style => style
                         .WithParameter("FontName", "DejaVu Serif")
                         .WithParameter("FontSize", "24")))))
         .ProcessSynchronously();

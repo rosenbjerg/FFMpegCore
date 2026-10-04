@@ -90,15 +90,15 @@ public class VideoFilterOptions
     }
 
     /// <summary>drawtext</summary>
-    public VideoFilterOptions DrawText(DrawTextOptions drawTextOptions)
+    public VideoFilterOptions DrawText(string text, Action<DrawTextOptions>? configure = null)
     {
-        return WithArgument(new DrawTextArgument(drawTextOptions));
+        return WithArgument(new DrawTextArgument(text, configure));
     }
 
     /// <summary>subtitles</summary>
-    public VideoFilterOptions HardBurnSubtitle(SubtitleHardBurnOptions subtitleHardBurnOptions)
+    public VideoFilterOptions HardBurnSubtitle(string subtitlePath, Action<SubtitleHardBurnOptions>? configure = null)
     {
-        return WithArgument(new SubtitleHardBurnArgument(subtitleHardBurnOptions));
+        return WithArgument(new SubtitleHardBurnArgument(subtitlePath, configure));
     }
 
     /// <summary>blackdetect</summary>
@@ -138,9 +138,9 @@ public class VideoFilterOptions
     }
 
     /// <summary>pad</summary>
-    public VideoFilterOptions Pad(PadOptions padOptions)
+    public VideoFilterOptions Pad(string? width = null, string? height = null, Action<PadOptions>? configure = null)
     {
-        return WithArgument(new PadArgument(padOptions));
+        return WithArgument(new PadArgument(width, height, configure));
     }
 
     private VideoFilterOptions WithArgument(IVideoFilterArgument argument)
