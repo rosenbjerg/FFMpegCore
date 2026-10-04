@@ -110,6 +110,12 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
         return WithArgument(new AudioSamplingRateArgument(samplingRate));
     }
 
+    /// <summary>-ac</summary>
+    public FFMpegInputOptions WithAudioChannels(int channels)
+    {
+        return WithArgument(new AudioChannelsArgument(channels));
+    }
+
     /// <summary>-start_number</summary>
     public FFMpegInputOptions WithStartNumber(int startNumber)
     {

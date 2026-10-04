@@ -449,6 +449,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `FromFileInput`, `AddFileInput` and `OutputToFile` take the options lambda straight after the path, so
   `OutputToFile(path, true, options => …)` can be written `OutputToFile(path, options => …)`. The overloads with the `bool` stay, for
   `verifyExists: false` and `overwrite: false`.
+- Encoder tuning options that needed `WithCustomArgument`: `WithAudioChannels` (`-ac`, on inputs too), `WithVideoProfile` (`-profile:v`),
+  `WithTune` (`-tune`), `WithGopSize` (`-g`), `WithMaxBitrate` and `WithBufferSize` (`-maxrate`/`-bufsize`), and
+  `WithVideoQualityScale`/`WithAudioQualityScale` (`-q:v`/`-q:a`). `VideoProfile` and `EncoderTune` list the common values.
 - `WithMetadata`, `WithStreamMetadata` and `WithDisposition` for `-metadata`, `-metadata:s` and `-disposition`, which needed
   `WithCustomArgument` before. `StreamDisposition` lists the dispositions and combines them with `+`.
 - `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for, and a `PosterWithAudio` overload

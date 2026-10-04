@@ -82,6 +82,26 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_EncoderTuning()
+    {
+        var str = FFMpegArguments.FromFileInput("input.raw", false, opt => opt.WithAudioChannels(2))
+            .OutputToFile("output.mp4", opt => opt
+                .WithVideoProfile(VideoProfile.High)
+                .WithTune(EncoderTune.ZeroLatency)
+                .WithGopSize(50)
+                .WithMaxBitrate(3000)
+                .WithBufferSize(6000)
+                .WithVideoQualityScale(3)
+                .WithAudioQualityScale(2)
+                .WithAudioChannels(1))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-ac 2 -i \"input.raw\" -profile:v high -tune zerolatency -g 50 -maxrate 3000k -bufsize 6000k -q:v 3 -q:a 2 -ac 1 \"output.mp4\" -y",
+            str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_AudioCodec_Fluent()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false,

@@ -1893,6 +1893,40 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_EncoderTuning_IsAcceptedByTheEncoders()
+    {
+        using var video = new TemporaryFile("tuned.mp4");
+        using var audio = new TemporaryFile("tuned.mp3");
+
+        var videoResult = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(video, options => options
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithVideoProfile(VideoProfile.Main)
+                .WithTune(EncoderTune.FastDecode)
+                .WithGopSize(25)
+                .WithMaxBitrate(1000)
+                .WithBufferSize(2000)
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithAudioChannels(1))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+        var audioResult = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(audio, options => options
+                .DisableVideo()
+                .WithAudioCodec(AudioCodec.LibMp3Lame)
+                .WithAudioQualityScale(4))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        var analysis = FFProbe.Analyse(video);
+        Assert.IsTrue(videoResult.Success);
+        Assert.IsTrue(audioResult.Success);
+        Assert.AreEqual("Main", analysis.PrimaryVideoStream!.Profile);
+        Assert.AreEqual(1, analysis.PrimaryAudioStream!.Channels);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_MetadataAndDisposition_ReachTheOutput()
     {
         using var subtitled = new TemporaryFile("subtitled.mkv");

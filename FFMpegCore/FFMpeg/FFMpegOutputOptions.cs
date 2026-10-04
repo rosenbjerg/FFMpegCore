@@ -68,6 +68,48 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new AudioBitrateArgument(kilobitsPerSecond));
     }
 
+    /// <summary>-maxrate, which also needs -bufsize to take effect</summary>
+    public FFMpegOutputOptions WithMaxBitrate(int kilobitsPerSecond)
+    {
+        return WithArgument(new MaxBitrateArgument(kilobitsPerSecond));
+    }
+
+    /// <summary>-bufsize</summary>
+    public FFMpegOutputOptions WithBufferSize(int kilobits)
+    {
+        return WithArgument(new BufferSizeArgument(kilobits));
+    }
+
+    /// <summary>-q:v, the encoder's own quality scale</summary>
+    public FFMpegOutputOptions WithVideoQualityScale(int quality)
+    {
+        return WithArgument(new QualityScaleArgument(StreamType.Video, quality));
+    }
+
+    /// <summary>-q:a, the encoder's own quality scale</summary>
+    public FFMpegOutputOptions WithAudioQualityScale(int quality)
+    {
+        return WithArgument(new QualityScaleArgument(StreamType.Audio, quality));
+    }
+
+    /// <summary>-profile:v</summary>
+    public FFMpegOutputOptions WithVideoProfile(VideoProfile profile)
+    {
+        return WithArgument(new VideoProfileArgument(profile));
+    }
+
+    /// <summary>-tune</summary>
+    public FFMpegOutputOptions WithTune(EncoderTune tune)
+    {
+        return WithArgument(new TuneArgument(tune));
+    }
+
+    /// <summary>-g</summary>
+    public FFMpegOutputOptions WithGopSize(int frames)
+    {
+        return WithArgument(new GopSizeArgument(frames));
+    }
+
     /// <summary>-vbr</summary>
     public FFMpegOutputOptions WithVariableBitrate(int vbr)
     {
@@ -264,6 +306,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     public FFMpegOutputOptions WithAudioSamplingRate(int samplingRate = 48000)
     {
         return WithArgument(new AudioSamplingRateArgument(samplingRate));
+    }
+
+    /// <summary>-ac</summary>
+    public FFMpegOutputOptions WithAudioChannels(int channels)
+    {
+        return WithArgument(new AudioChannelsArgument(channels));
     }
 
     /// <summary>-start_number</summary>
