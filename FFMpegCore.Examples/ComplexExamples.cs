@@ -174,10 +174,9 @@ public static class ComplexExamples
 
         FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(OperatingSystem.IsWindows() ? "NUL" : "/dev/null", options => options
+            .OutputToNull(options => options
                 .WithVideoFilters(filters => filters.BlackDetect(0.5))
-                .WithAudioFilters(filters => filters.SilenceDetect(SilenceDetectNoiseUnit.Decibels, -45, 1))
-                .ForceFormat("null"))
+                .WithAudioFilters(filters => filters.SilenceDetect(SilenceDetectNoiseUnit.Decibels, -45, 1)))
             // blackdetect and silencedetect report at info level; a quieter log level drops them silently
             .WithLogLevel(FFMpegLogLevel.Info)
             .NotifyOnStandardError(line =>

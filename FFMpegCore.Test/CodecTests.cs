@@ -75,6 +75,14 @@ public class CodecTests
     }
 
     [TestMethod]
+    public void ContainerFormats_ExtensionsOfFormatsNamedOtherThanTheirFiles()
+    {
+        Assert.AreEqual(".mkv", ContainerFormats.Matroska.GetExtension());
+        Assert.AreEqual(".m3u8", ContainerFormats.Hls.GetExtension());
+        Assert.AreEqual(".flac", ContainerFormats.Flac.GetExtension());
+    }
+
+    [TestMethod]
     public void ContainerFormats_TryGetNotExisting()
     {
         Assert.IsFalse(FFMpeg.TryGetContainerFormat("not-a-container", out _));

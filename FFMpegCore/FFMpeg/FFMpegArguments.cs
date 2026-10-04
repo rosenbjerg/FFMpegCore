@@ -201,6 +201,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return ToProcessor(new OutputPipeArgument(reader), addArguments);
     }
 
+    public FFMpegArgumentProcessor OutputToNull(Action<FFMpegOutputOptions>? addArguments = null)
+    {
+        return ToProcessor(new NullOutputArgument(), addArguments);
+    }
+
     private FFMpegArgumentProcessor ToProcessor(IOutputArgument argument, Action<FFMpegOutputOptions>? addArguments)
     {
         var args = new FFMpegOutputOptions();

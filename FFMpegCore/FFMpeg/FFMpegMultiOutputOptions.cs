@@ -34,6 +34,11 @@ public class FFMpegMultiOutputOptions
         return AddOutput(new OutputPipeArgument(reader), addArguments);
     }
 
+    public FFMpegMultiOutputOptions OutputToNull(Action<FFMpegOutputOptions>? addArguments = null)
+    {
+        return AddOutput(new NullOutputArgument(), addArguments);
+    }
+
     public FFMpegMultiOutputOptions AddOutput(IOutputArgument argument, Action<FFMpegOutputOptions>? addArguments = null)
     {
         var args = new FFMpegOutputOptions();

@@ -452,6 +452,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - Encoder tuning options that needed `WithCustomArgument`: `WithAudioChannels` (`-ac`, on inputs too), `WithVideoProfile` (`-profile:v`),
   `WithTune` (`-tune`), `WithGopSize` (`-g`), `WithMaxBitrate` and `WithBufferSize` (`-maxrate`/`-bufsize`), and
   `WithVideoQualityScale`/`WithAudioQualityScale` (`-q:v`/`-q:a`). `VideoProfile` and `EncoderTune` list the common values.
+- `OutputToNull()` for analysis-only runs (`-f null -`), so `SilenceDetect` and `BlackDetect` no longer need a dummy output path.
+- `ContainerFormats.Matroska`, `Flv`, `Mp3`, `Wav`, `Flac`, `Hls`, `Image2`, `RawVideo` and `Null`. `FFOptions.ExtensionOverrides` maps
+  `matroska` to `.mkv` and `hls` to `.m3u8` by default, alongside `mpegts` to `.ts`.
 - `WithMetadata`, `WithStreamMetadata` and `WithDisposition` for `-metadata`, `-metadata:s` and `-disposition`, which needed
   `WithCustomArgument` before. `StreamDisposition` lists the dispositions and combines them with `+`.
 - `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for, and a `PosterWithAudio` overload

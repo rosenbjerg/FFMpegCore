@@ -229,7 +229,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromInput(image, options => options
                 .WithLoop(1)
-                .ForceFormat("image2"))
+                .ForceFormat(ContainerFormats.Image2))
             .AddFileInput(audio)
             .OutputToFile(output, options => options
                 .WithPixelFormat("yuv420p")

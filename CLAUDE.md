@@ -41,7 +41,7 @@ Each packable csproj carries its own `PackageVersion`; there is no central versi
 ```
 FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
     .AddFileInput / .AddPipeInput    // more inputs
-    .OutputToFile / .OutputToPipe    // adds the IOutputArgument, returns FFMpegArgumentProcessor
+    .OutputToFile / .OutputToPipe / .OutputToNull  // adds the IOutputArgument, returns FFMpegArgumentProcessor
     .NotifyOnProgress / .CancellableThrough / .Configure
     .ProcessSynchronously() / .ProcessAsynchronously()
 ```

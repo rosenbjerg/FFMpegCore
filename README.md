@@ -65,7 +65,7 @@ await FFMpegArguments
     .FromPipeInput(new StreamPipeSource(inputStream))
     .OutputToPipe(new StreamPipeSink(outputStream), options => options
         .WithVideoCodec("vp9")
-        .ForceFormat("webm"))
+        .ForceFormat(ContainerFormats.WebM))
     .ProcessAsynchronously();
 ```
 
@@ -259,10 +259,29 @@ FFMpegArguments
     .FromFileInput(inputPath)
     .OutputToTee(outputs => outputs
         .OutputToFile("recording.mp4")
-        .OutputToUrl("rtmp://example.com/live/key", options => options.ForceFormat("flv")),
+        .OutputToUrl("rtmp://example.com/live/key", options => options.ForceFormat(ContainerFormats.Flv)),
         options => options.CopyStreams())
     .ProcessSynchronously();
 ```
+
+### Analysing without writing an output
+
+Detection filters such as `SilenceDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`
+decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `ErrorOutput`, or arrive line by
+line through `NotifyOnStandardError`:
+
+```csharp
+var result = FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToNull(options => options
+        .DisableVideo()
+        .WithAudioFilters(filters => filters.SilenceDetect(noise: -50, duration: 1)))
+    .ProcessSynchronously();
+
+var silences = result.ErrorOutput.Where(line => line.Contains("silence_start") || line.Contains("silence_end"));
+```
+
+The filters log at ffmpeg's `info` level, so a quieter `LogLevel` drops their findings.
 
 ### Metadata
 

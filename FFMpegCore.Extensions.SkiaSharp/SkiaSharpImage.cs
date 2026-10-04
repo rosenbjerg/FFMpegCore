@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using FFMpegCore.Enums;
 using FFMpegCore.Pipes;
 using SkiaSharp;
 
@@ -24,7 +25,7 @@ public static class SkiaSharpImage
 
         arguments
             .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
-                .ForceFormat("rawvideo")))
+                .ForceFormat(ContainerFormats.RawVideo)))
             .ProcessSynchronously(true, ffOptions);
 
         ms.Position = 0;
@@ -50,7 +51,7 @@ public static class SkiaSharpImage
 
         await arguments
             .OutputToPipe(new StreamPipeSink(ms), options => outputOptions(options
-                .ForceFormat("rawvideo")))
+                .ForceFormat(ContainerFormats.RawVideo)))
             .CancellableThrough(cancellationToken)
             .ProcessAsynchronously(true, ffOptions)
             .ConfigureAwait(false);

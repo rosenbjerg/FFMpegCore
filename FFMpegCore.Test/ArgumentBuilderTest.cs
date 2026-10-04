@@ -1646,6 +1646,22 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_OutputToNull()
+    {
+        var single = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToNull(opt => opt.WithAudioFilters(f => f.SilenceDetect()))
+            .Arguments;
+        var many = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToMany(outputs => outputs
+                .OutputToFile("output.mp4", opt => opt.CopyStreams())
+                .OutputToNull(opt => opt.DisableVideo()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60.0dB:d=2.00:m=0\" -f null -", single);
+        Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\" -y -vn -f null -", many);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_MetadataAndDisposition()
     {
         var str = FFMpegArguments.FromFileInput("input.mkv")

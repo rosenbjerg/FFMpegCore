@@ -85,7 +85,7 @@ var outputStream = new MemoryStream();
         .FromPipeInput(new StreamPipeSource(inputStream))
         .OutputToPipe(new StreamPipeSink(outputStream), options => options
             .WithVideoCodec("vp9")
-            .ForceFormat("webm"))
+            .ForceFormat(ContainerFormats.WebM))
         .ProcessAsynchronously();
 }
 
@@ -203,7 +203,7 @@ var inputAudioPath = "/path/to/input/audio";
         .FromFileInput(inputPath)
         .OutputToTee(outputs => outputs
                 .OutputToFile(@"..\recording.mp4")
-                .OutputToUrl("rtmp://example.com/live/key", options => options.ForceFormat("flv")),
+                .OutputToUrl("rtmp://example.com/live/key", options => options.ForceFormat(ContainerFormats.Flv)),
             options => options.CopyStreams())
         .ProcessSynchronously();
 }

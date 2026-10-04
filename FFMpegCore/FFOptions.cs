@@ -55,7 +55,7 @@ public class FFOptions : ICloneable
     ///     File extensions to use for containers whose ffmpeg name is not the extension, keyed by container name.
     ///     Read by <see cref="ContainerFormat.GetExtension" />.
     /// </summary>
-    public Dictionary<string, string> ExtensionOverrides { get; set; } = new() { { "mpegts", ".ts" } };
+    public Dictionary<string, string> ExtensionOverrides { get; set; } = new() { { "mpegts", ".ts" }, { "matroska", ".mkv" }, { "hls", ".m3u8" } };
 
     /// <summary>
     ///     Whether to cache calls to get ffmpeg codec, pixel- and container-formats

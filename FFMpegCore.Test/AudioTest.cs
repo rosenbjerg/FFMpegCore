@@ -145,6 +145,20 @@ public class AudioTest
     }
 
     [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Audio_SilenceDetect_ThroughANullOutput()
+    {
+        var result = FFMpegArguments
+            .FromFileInput("anullsrc=d=3", false, options => options.ForceFormat("lavfi"))
+            .OutputToNull(options => options
+                .WithAudioFilters(filters => filters.SilenceDetect(duration: 1)))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.IsTrue(result.ErrorOutput.Any(line => line.Contains("silence_start: 0")));
+    }
+
+    [TestMethod]
     public void Image_AddAudio_IntoAnyContainer()
     {
         using var outputFile = new TemporaryFile("out.mkv");
