@@ -16,7 +16,7 @@ public class RawVideoPipeSource : IPipeSource
         _framesEnumerator = framesEnumerator.GetEnumerator();
     }
 
-    public string StreamFormat { get; private set; } = null!;
+    public string PixelFormat { get; private set; } = null!;
     public int Width { get; private set; }
     public int Height { get; private set; }
     public double FrameRate { get; set; } = 25;
@@ -34,14 +34,14 @@ public class RawVideoPipeSource : IPipeSource
                 }
             }
 
-            StreamFormat = _framesEnumerator.Current!.Format;
+            PixelFormat = _framesEnumerator.Current!.Format;
             Width = _framesEnumerator.Current!.Width;
             Height = _framesEnumerator.Current!.Height;
 
             _formatInitialized = true;
         }
 
-        return $"-f rawvideo -r {FrameRate.ToString(CultureInfo.InvariantCulture)} -pix_fmt {StreamFormat} -s {Width}x{Height}";
+        return $"-f rawvideo -r {FrameRate.ToString(CultureInfo.InvariantCulture)} -pix_fmt {PixelFormat} -s {Width}x{Height}";
     }
 
     public async Task WriteAsync(Stream outputStream, CancellationToken cancellationToken)
@@ -61,11 +61,11 @@ public class RawVideoPipeSource : IPipeSource
 
     private void CheckFrameAndThrow(IVideoFrame frame)
     {
-        if (frame.Width != Width || frame.Height != Height || frame.Format != StreamFormat)
+        if (frame.Width != Width || frame.Height != Height || frame.Format != PixelFormat)
         {
             throw new FFMpegStreamFormatException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
                                                                                  $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
-                                                                                 $"Stream format: {Width}x{Height} pix_fmt: {StreamFormat}");
+                                                                                 $"Stream format: {Width}x{Height} pix_fmt: {PixelFormat}");
         }
     }
 }

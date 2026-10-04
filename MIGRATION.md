@@ -274,6 +274,21 @@ FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, o => o.Wit
 
 `MapMetadataArgument` takes the index it maps, and is no longer an input argument. `MetadataArgument` emits only its `-i`.
 
+## Pipes
+
+`IPipeSink.GetFormat()` is `GetStreamArguments()`, matching `IPipeSource`: both return the arguments ffmpeg needs on their side of the pipe.
+It was never called, so `StreamPipeSink.Format` did nothing — the output format had to be forced with `ForceFormat` regardless. Setting it
+now emits `-f`. `StreamPipeSource` gains the same settable `Format` (its `StreamFormat` was get-only and always empty), and `BlockSize`
+becomes settable as on the sink.
+
+```csharp
+.OutputToPipe(new StreamPipeSink(stream), o => o.ForceFormat("matroska"))  // still works
+.OutputToPipe(new StreamPipeSink(stream) { Format = "matroska" })           // 6.0 — now does what it says
+.FromPipeInput(new StreamPipeSource(stream) { Format = "mpegts" })          // 6.0
+```
+
+`RawVideoPipeSource.StreamFormat` is `PixelFormat`, since it holds the frames' `-pix_fmt`, not a container format.
+
 ## Errors
 
 A failed ffmpeg run throws `FFMpegProcessException`, which derives from `FFMpegException` and carries the run's `FFMpegResult` as `Result`

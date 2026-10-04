@@ -12,7 +12,14 @@ public class OutputPipeArgument : PipeArgument, IOutputArgument
         Reader = reader;
     }
 
-    public override string Text => $"\"{PipePath}\" -y";
+    public override string Text
+    {
+        get
+        {
+            var streamArguments = Reader.GetStreamArguments();
+            return string.IsNullOrEmpty(streamArguments) ? $"\"{PipePath}\" -y" : $"{streamArguments} \"{PipePath}\" -y";
+        }
+    }
 
     protected override async Task ProcessDataAsync(CancellationToken token)
     {

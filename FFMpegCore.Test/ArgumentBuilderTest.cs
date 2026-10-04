@@ -1516,6 +1516,27 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_StreamPipeFormats_AreForcedOnTheirSide()
+    {
+        var source = new StreamPipeSource(Stream.Null) { Format = "mpegts" };
+        var sink = new StreamPipeSink(Stream.Null) { Format = "matroska" };
+
+        var str = FFMpegArguments.FromPipeInput(source).OutputToPipe(sink, opt => opt.CopyStreams()).Arguments;
+
+        StringAssert.Matches(str, new Regex("^-f mpegts -i \".+\" -c copy -f matroska \".+\" -y$"));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_StreamPipesWithoutFormat_AddNothing()
+    {
+        var str = FFMpegArguments.FromPipeInput(new StreamPipeSource(Stream.Null))
+            .OutputToPipe(new StreamPipeSink(Stream.Null), opt => opt.ForceFormat("webm"))
+            .Arguments;
+
+        StringAssert.Matches(str, new Regex("^-i \".+\" -f webm \".+\" -y$"));
+    }
+
+    [TestMethod]
     public void Builder_BuildString_AddImageSequenceInput()
     {
         var str = FFMpegArguments.FromFileInput("first.mp4")
