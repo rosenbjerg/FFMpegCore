@@ -7,9 +7,9 @@ public class VideoBitrateArgument : IArgument
 {
     public readonly int Bitrate;
 
-    public VideoBitrateArgument(int bitrate)
+    public VideoBitrateArgument(int kilobitsPerSecond)
     {
-        Bitrate = bitrate;
+        Bitrate = kilobitsPerSecond;
     }
 
     public string Text => $"-b:v {Bitrate}k";

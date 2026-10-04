@@ -74,6 +74,14 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_Bitrates_AreInKilobitsPerSecond()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", opt => opt.WithVideoBitrate(kilobitsPerSecond: 2400).WithAudioBitrate(kilobitsPerSecond: 160)).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -b:v 2400k -b:a 160k \"output.mp4\" -y", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_AudioCodec_Fluent()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false,

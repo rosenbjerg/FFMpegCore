@@ -10,9 +10,9 @@ public class AudioBitrateArgument : IArgument
     public readonly int Bitrate;
     public AudioBitrateArgument(AudioQuality value) : this((int)value) { }
 
-    public AudioBitrateArgument(int bitrate)
+    public AudioBitrateArgument(int kilobitsPerSecond)
     {
-        Bitrate = bitrate;
+        Bitrate = kilobitsPerSecond;
     }
 
     public string Text => $"-b:a {Bitrate}k";

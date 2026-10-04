@@ -51,9 +51,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-b:v</summary>
-    public FFMpegOutputOptions WithVideoBitrate(int bitrate)
+    public FFMpegOutputOptions WithVideoBitrate(int kilobitsPerSecond)
     {
-        return WithArgument(new VideoBitrateArgument(bitrate));
+        return WithArgument(new VideoBitrateArgument(kilobitsPerSecond));
     }
 
     /// <summary>-b:a</summary>
@@ -63,9 +63,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-b:a</summary>
-    public FFMpegOutputOptions WithAudioBitrate(int bitrate)
+    public FFMpegOutputOptions WithAudioBitrate(int kilobitsPerSecond)
     {
-        return WithArgument(new AudioBitrateArgument(bitrate));
+        return WithArgument(new AudioBitrateArgument(kilobitsPerSecond));
     }
 
     /// <summary>-vbr</summary>
