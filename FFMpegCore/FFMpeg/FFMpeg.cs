@@ -39,7 +39,7 @@ public static class FFMpeg
         var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex);
 
-        return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
+        return arguments.OutputToFile(output, outputOptions).WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public static class FFMpeg
         var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
 
-        return arguments.OutputToFile(output, true, outputOptions).WithOptions(ffOptions);
+        return arguments.OutputToFile(output, outputOptions).WithOptions(ffOptions);
     }
 
     private static string InputPathOf(IMediaAnalysis source, string parameterName)
@@ -144,7 +144,7 @@ public static class FFMpeg
         }
 
         return arguments
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithPixelFormat("yuv420p")
                 .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
                 .WithFrameRate(frameRate))
@@ -201,7 +201,7 @@ public static class FFMpeg
                 .WithLoop(1)
                 .ForceFormat("image2"))
             .AddFileInput(audio)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithPixelFormat("yuv420p")
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithConstantRateFactor(21)
@@ -244,7 +244,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .AddFileInput(watermark)
-            .OutputToFile(output, true, options =>
+            .OutputToFile(output, options =>
             {
                 options
                     .WithComplexFilter(graph => graph
@@ -324,7 +324,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .AddFileInput(subtitle)
-            .OutputToFile(output, true, options =>
+            .OutputToFile(output, options =>
             {
                 options
                     .WithMap(0)
@@ -355,7 +355,7 @@ public static class FFMpeg
     {
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0, StreamType.Subtitle, streamIndex))
             .WithOptions(ffOptions);
     }
@@ -401,7 +401,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithVideoFilters(filters => filters
                     .Fps(1 / step.TotalSeconds)
                     .Scale(size)
@@ -434,7 +434,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0)
                 .CopyStreams())
             .WithKnownDuration(source.Duration)
@@ -480,7 +480,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromConcatDemuxerInput(inputs)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0)
                 .CopyStreams())
             .WithKnownDuration(duration)
@@ -552,7 +552,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(paths)
-            .OutputToFile(output, true, options =>
+            .OutputToFile(output, options =>
             {
                 options.WithComplexFilter(graph =>
                 {
@@ -607,8 +607,8 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor Trim(string input, string output, TimeSpan startTime, TimeSpan endTime, FFOptions? ffOptions = null)
     {
         return FFMpegArguments
-            .FromFileInput(input, true, options => options.WithStartTime(startTime).WithStopTime(endTime))
-            .OutputToFile(output, true, options => options
+            .FromFileInput(input, options => options.WithStartTime(startTime).WithStopTime(endTime))
+            .OutputToFile(output, options => options
                 .WithMap(0)
                 .CopyStreams())
             .WithKnownDuration(endTime - startTime)
@@ -628,7 +628,7 @@ public static class FFMpeg
     {
         return FFMpegArguments
             .FromUrlInput(uri)
-            .OutputToFile(output, true, options => options.CopyStreams())
+            .OutputToFile(output, options => options.CopyStreams())
             .WithOptions(ffOptions);
     }
 
@@ -656,7 +656,7 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0)
                 .CopyStreams()
                 .DisableAudio())
@@ -682,7 +682,7 @@ public static class FFMpeg
     {
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, true, options =>
+            .OutputToFile(output, options =>
             {
                 options.DisableVideo();
                 if (audioCodec != null)
@@ -743,7 +743,7 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .AddFileInput(inputAudio)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0, StreamType.Video)
                 .WithMap(1, StreamType.Audio)
                 .CopyStreams()

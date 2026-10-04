@@ -38,7 +38,7 @@ FFMpeg.Convert(inputPath, "output.mp4", VideoType.Mp4, Speed.Medium, VideoSize.H
 // 6.0
 FFMpegArguments
     .FromFileInput(inputPath)
-    .OutputToFile("output.mp4", true, options => options
+    .OutputToFile("output.mp4", options => options
         .WithVideoCodec(VideoCodec.LibX264)
         .WithVideoBitrate(2400)
         .WithVideoFilters(filters => filters.Scale(VideoSize.Hd))
@@ -265,7 +265,7 @@ input url". The index was also computed by counting input arguments, so `FromFil
 
 ```csharp
 FFMpegArguments.FromFileInput(a).AddFileInput(b).MapMetadata(1).OutputToFile(output);                     // 5.x / early 6.0
-FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, true, o => o.WithMapMetadata(1));   // 6.0
+FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, o => o.WithMapMetadata(1));         // 6.0
 ```
 
 `MapMetadataArgument` takes the index it maps, and is no longer an input argument. `MetadataArgument` emits only its `-i`.
@@ -342,6 +342,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `FromImageSequenceInput` and `AddImageSequenceInput` for building a video from images through the argument builder.
 - `WithMap`/`WithNegativeMap` take a `StreamType` in place of a stream index, so `-map 0:a` — every audio stream of an input — is
   expressible without probing first to count them.
+- `FromFileInput`, `AddFileInput` and `OutputToFile` take the options lambda straight after the path, so
+  `OutputToFile(path, true, options => …)` can be written `OutputToFile(path, options => …)`. The overloads with the `bool` stay, for
+  `verifyExists: false` and `overwrite: false`.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so

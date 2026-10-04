@@ -9,6 +9,11 @@ public class FFMpegMultiOutputOptions
 
     public IEnumerable<IArgument> Arguments => Outputs.SelectMany(o => o.Arguments);
 
+    public FFMpegMultiOutputOptions OutputToFile(string file, Action<FFMpegOutputOptions> addArguments)
+    {
+        return OutputToFile(file, true, addArguments);
+    }
+
     public FFMpegMultiOutputOptions OutputToFile(string file, bool overwrite = true, Action<FFMpegOutputOptions>? addArguments = null)
     {
         return AddOutput(new OutputArgument(file, overwrite), addArguments);

@@ -22,7 +22,7 @@ var outputPath = "/path/to/output";
 {
     FFMpegArguments
         .FromFileInput(inputPath)
-        .OutputToFile(outputPath, false, options => options
+        .OutputToFile(outputPath, options => options
             .WithVideoCodec(VideoCodec.LibX264)
             .WithConstantRateFactor(21)
             .WithAudioCodec(AudioCodec.Aac)
@@ -39,7 +39,7 @@ var outputPath = "/path/to/output";
     // throwOnError: false reports the failure through the result instead of throwing
     var result = await FFMpegArguments
         .FromFileInput(inputPath)
-        .OutputToFile(outputPath, true, options => options
+        .OutputToFile(outputPath, options => options
             .WithVideoCodec(VideoCodec.LibX264)
             .WithSpeedPreset(Speed.Fast))
         .NotifyOnProgress(time => Console.WriteLine($"at {time}"))
@@ -56,10 +56,10 @@ var outputPath = "/path/to/output";
 {
     // seeking on the input skips ahead before decoding, which is what makes copying a section near-instant
     FFMpegArguments
-        .FromFileInput(inputPath, true, options => options
+        .FromFileInput(inputPath, options => options
             .WithStartTime(TimeSpan.FromMinutes(1))
             .WithDuration(TimeSpan.FromSeconds(30)))
-        .OutputToFile(outputPath, true, options => options
+        .OutputToFile(outputPath, options => options
             .CopyStreams())
         .ProcessSynchronously();
 }
@@ -130,7 +130,7 @@ var outputStream = new MemoryStream();
     // burnt into the picture instead, so they cannot be switched off
     FFMpegArguments
         .FromFileInput(inputPath)
-        .OutputToFile(outputPath, true, options => options
+        .OutputToFile(outputPath, options => options
             .WithVideoFilters(filterOptions => filterOptions
                 .HardBurnSubtitle(SubtitleHardBurnOptions.Create(@"..\subs.srt")
                     .WithStyle(StyleOptions.Create()
@@ -149,7 +149,7 @@ var outputStream = new MemoryStream();
     FFMpegArguments
         .FromFileInput(inputPath)
         .AddMetadata(metadata)
-        .OutputToFile(outputPath, true, options => options.CopyStreams())
+        .OutputToFile(outputPath, options => options.CopyStreams())
         .ProcessSynchronously();
 }
 
@@ -182,7 +182,7 @@ var inputAudioPath = "/path/to/input/audio";
     FFMpegArguments
         .FromFileInput(inputPath)
         .AddFileInput(inputAudioPath)
-        .OutputToFile(outputPath, true, options => options
+        .OutputToFile(outputPath, options => options
             .WithMap(0, StreamType.Video)
             .WithMap(1, StreamType.Audio)
             .WithNegativeMap(0, StreamType.Subtitle)
@@ -195,8 +195,8 @@ var inputAudioPath = "/path/to/input/audio";
     FFMpegArguments
         .FromFileInput(inputPath)
         .OutputToMany(outputs => outputs
-            .OutputToFile(@"..\sd.mp4", true, options => options.WithVideoFilters(f => f.Scale(VideoSize.Ed)))
-            .OutputToFile(@"..\hd.mp4", true, options => options.WithVideoFilters(f => f.Scale(VideoSize.Hd))))
+            .OutputToFile(@"..\sd.mp4", options => options.WithVideoFilters(f => f.Scale(VideoSize.Ed)))
+            .OutputToFile(@"..\hd.mp4", options => options.WithVideoFilters(f => f.Scale(VideoSize.Hd))))
         .ProcessSynchronously();
 
     // the tee muxer: one encode fanned out, so every target gets the same streams
@@ -243,7 +243,7 @@ IVideoFrame GetNextFrame()
         };
     await FFMpegArguments
         .FromPipeInput(videoFramesSource)
-        .OutputToFile(outputPath, false, options => options
+        .OutputToFile(outputPath, options => options
             .WithVideoCodec(VideoCodec.LibVpx))
         .ProcessAsynchronously();
 }

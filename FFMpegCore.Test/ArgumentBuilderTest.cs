@@ -23,6 +23,30 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_LambdaStraightAfterThePath_KeepsTheDefaults()
+    {
+        var withFlags = FFMpegArguments
+            .FromFileInput("input.mp4", true, opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
+            .AddFileInput(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop(1))
+            .AddFileInput(new FileInfo("c.mp3"), true, opt => opt.WithLoop(2))
+            .OutputToFile("output.mp4", true, opt => opt.CopyStreams())
+            .Arguments;
+        var withoutFlags = FFMpegArguments
+            .FromFileInput("input.mp4", opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
+            .AddFileInput(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop(1))
+            .AddFileInput(new FileInfo("c.mp3"), opt => opt.WithLoop(2))
+            .OutputToFile("output.mp4", opt => opt.CopyStreams())
+            .Arguments;
+        var many = FFMpegArguments
+            .FromFileInput(new FileInfo("input.mp4"), opt => opt.WithLoop(1))
+            .OutputToMany(outputs => outputs.OutputToFile("output.mp4", opt => opt.CopyStreams()))
+            .Arguments;
+
+        Assert.AreEqual(withFlags, withoutFlags);
+        StringAssert.EndsWith(many, "-c copy \"output.mp4\" -y");
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Scale()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

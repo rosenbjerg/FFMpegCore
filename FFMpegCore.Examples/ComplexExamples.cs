@@ -12,7 +12,7 @@ public static class ComplexExamples
         FFMpegArguments
             .FromFileInput(input)
             .OutputToMany(outputs => outputs
-                .OutputToFile(Path.Combine(outputFolder, "1080.mp4"), true, options => options
+                .OutputToFile(Path.Combine(outputFolder, "1080.mp4"), options => options
                     .WithComplexFilter(graph => graph
                         .From(0, StreamType.Video)
                         .WithCustomFilter("split", "3")
@@ -30,7 +30,7 @@ public static class ComplexExamples
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithAudioBitrate(AudioQuality.Good)
                     .WithFastStart())
-                .OutputToFile(Path.Combine(outputFolder, "720.mp4"), true, options => options
+                .OutputToFile(Path.Combine(outputFolder, "720.mp4"), options => options
                     .WithMap("v720")
                     .WithMap(0, StreamType.Audio)
                     .WithVideoCodec(VideoCodec.LibX264)
@@ -38,7 +38,7 @@ public static class ComplexExamples
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithAudioBitrate(AudioQuality.Normal)
                     .WithFastStart())
-                .OutputToFile(Path.Combine(outputFolder, "480.mp4"), true, options => options
+                .OutputToFile(Path.Combine(outputFolder, "480.mp4"), options => options
                     .WithMap("v480")
                     .WithMap(0, StreamType.Audio)
                     .WithVideoCodec(VideoCodec.LibX264)
@@ -55,11 +55,11 @@ public static class ComplexExamples
         FFMpegArguments
             .FromFileInput(video)
             // a still image is one frame, and one frame cannot fade; looping it gives the fade something to run over
-            .AddFileInput(logo, true, options => options
+            .AddFileInput(logo, options => options
                 .WithLoop(1)
                 .WithFrameRate(25))
             .AddFileInput(music)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithComplexFilter(graph => graph
                     .From(1, StreamType.Video)
                     .WithFilter(new ScaleArgument(240, -1))
@@ -91,7 +91,7 @@ public static class ComplexExamples
         FFMpegArguments
             .FromFileInput(before)
             .AddFileInput(after)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithComplexFilter(graph => graph
                     .From(0, StreamType.Video)
                     // -2 rounds the height to something h264 can encode, whatever the source aspect ratio is
@@ -139,12 +139,12 @@ public static class ComplexExamples
             .WithChapter("Outro", TimeSpan.FromMinutes(5));
 
         await FFMpegArguments
-            .FromFileInput(poster, true, options => options
+            .FromFileInput(poster, options => options
                 .WithLoop(1)
                 .WithFrameRate(2))
             .AddFileInput(audio)
             .AddMetadata(metadata)
-            .OutputToFile(output, true, options => options
+            .OutputToFile(output, options => options
                 .WithMap(0, StreamType.Video)
                 .WithMap(1, StreamType.Audio)
                 .WithVideoCodec(VideoCodec.LibX264)
@@ -170,7 +170,7 @@ public static class ComplexExamples
 
         FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(OperatingSystem.IsWindows() ? "NUL" : "/dev/null", true, options => options
+            .OutputToFile(OperatingSystem.IsWindows() ? "NUL" : "/dev/null", options => options
                 .WithVideoFilters(filters => filters.BlackDetect(0.5))
                 .WithAudioFilters(filters => filters.SilenceDetect("db", -45, 1))
                 .ForceFormat("null"))

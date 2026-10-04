@@ -27,14 +27,29 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArguments().WithInput(new ConcatDemuxerArgument(filePaths), addArguments);
     }
 
+    public static FFMpegArguments FromFileInput(string filePath, Action<FFMpegInputOptions> addArguments)
+    {
+        return FromFileInput(filePath, true, addArguments);
+    }
+
     public static FFMpegArguments FromFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
         return new FFMpegArguments().WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
+    public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, Action<FFMpegInputOptions> addArguments)
+    {
+        return FromFileInput(filePath, true, addArguments);
+    }
+
     public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
         return new FFMpegArguments().WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
+    }
+
+    public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)
+    {
+        return FromFileInput(fileInfo, true, addArguments);
     }
 
     public static FFMpegArguments FromFileInput(FileInfo fileInfo, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
@@ -77,14 +92,29 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new ConcatDemuxerArgument(filePaths), addArguments);
     }
 
+    public FFMpegArguments AddFileInput(string filePath, Action<FFMpegInputOptions> addArguments)
+    {
+        return AddFileInput(filePath, true, addArguments);
+    }
+
     public FFMpegArguments AddFileInput(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
+    public FFMpegArguments AddFileInput(IEnumerable<string> filePath, Action<FFMpegInputOptions> addArguments)
+    {
+        return AddFileInput(filePath, true, addArguments);
+    }
+
     public FFMpegArguments AddFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
+    }
+
+    public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)
+    {
+        return AddFileInput(fileInfo, true, addArguments);
     }
 
     public FFMpegArguments AddFileInput(FileInfo fileInfo, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
@@ -134,6 +164,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         Arguments.AddRange(arguments.Arguments);
         Arguments.Add(inputArgument);
         return this;
+    }
+
+    public FFMpegArgumentProcessor OutputToFile(string file, Action<FFMpegOutputOptions> addArguments)
+    {
+        return OutputToFile(file, true, addArguments);
     }
 
     public FFMpegArgumentProcessor OutputToFile(string file, bool overwrite = true, Action<FFMpegOutputOptions>? addArguments = null)

@@ -44,7 +44,7 @@ Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
 ```csharp
 FFMpegArguments
     .FromFileInput(inputPath)
-    .OutputToFile(outputPath, false, options => options
+    .OutputToFile(outputPath, options => options
         .WithVideoCodec(VideoCodec.LibX264)
         .WithConstantRateFactor(21)
         .WithAudioCodec(AudioCodec.Aac)
@@ -80,15 +80,25 @@ Seeking on the input is fast, because ffmpeg skips ahead before decoding:
 
 ```csharp
 FFMpegArguments
-    .FromFileInput(inputPath, true, options => options
+    .FromFileInput(inputPath, options => options
         .WithStartTime(TimeSpan.FromSeconds(10))
         .WithDuration(TimeSpan.FromSeconds(30)))
-    .OutputToFile(outputPath, true, options => options
+    .OutputToFile(outputPath, options => options
         .CopyStreams())
     .ProcessSynchronously();
 ```
 
 Each option method's summary names the ffmpeg option it emits, so searching your IDE for `-ss` finds `WithStartTime`.
+
+The options lambda goes straight after the path. File inputs check that the file exists before ffmpeg starts, and file outputs overwrite
+an existing file; to change either, use the overload with the flag before the lambda, and name it so the call says what it does:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath, verifyExists: false, options => options.ForceFormat("mpegts"))
+    .OutputToFile(outputPath, overwrite: false, options => options.CopyStreams())
+    .ProcessSynchronously();
+```
 
 ### Selecting streams
 
@@ -99,7 +109,7 @@ every stream of that kind, which is what you want when the input's stream count 
 FFMpegArguments
     .FromFileInput(inputPath)
     .AddFileInput(audioPath)
-    .OutputToFile(outputPath, true, options => options
+    .OutputToFile(outputPath, options => options
         .WithMap(0, StreamType.Video)              // -map 0:v  — every video stream of the first input
         .WithMap(1, StreamType.Audio)              // -map 1:a  — every audio stream of the second
         .WithNegativeMap(0, StreamType.Subtitle)   // -map -0:s — but none of its subtitles
@@ -119,7 +129,7 @@ filter produces into another, use `WithComplexFilter`, which builds `-filter_com
 FFMpegArguments
     .FromFileInput(inputPath)
     .AddFileInput(logoPath)
-    .OutputToFile(outputPath, true, options => options
+    .OutputToFile(outputPath, options => options
         .WithComplexFilter(graph => graph
             .From(0, StreamType.Video)
             .From(1, StreamType.Video)
@@ -203,8 +213,8 @@ Pass `TimeSpan.Zero` to kill ffmpeg straight away, at the cost of whatever it ha
 FFMpegArguments
     .FromFileInput(inputPath)
     .OutputToMany(outputs => outputs
-        .OutputToFile("sd.mp4", true, options => options.WithVideoFilters(f => f.Scale(1280, 720)))
-        .OutputToFile("hd.mp4", true, options => options.WithVideoFilters(f => f.Scale(1920, 1080))))
+        .OutputToFile("sd.mp4", options => options.WithVideoFilters(f => f.Scale(1280, 720)))
+        .OutputToFile("hd.mp4", options => options.WithVideoFilters(f => f.Scale(1920, 1080))))
     .ProcessSynchronously();
 ```
 
@@ -235,7 +245,7 @@ var metadata = new FFMetadataBuilder()
 FFMpegArguments
     .FromFileInput(inputPath)
     .AddMetadata(metadata)
-    .OutputToFile(outputPath, true, options => options.CopyStreams())
+    .OutputToFile(outputPath, options => options.CopyStreams())
     .ProcessSynchronously();
 ```
 
@@ -250,7 +260,7 @@ drop it, say so on the output — `WithMapMetadata(inputIndex)` and `WithoutMeta
 FFMpegArguments
     .FromFileInput(videoPath)
     .AddFileInput(audiobookPath)
-    .OutputToFile(outputPath, true, options => options
+    .OutputToFile(outputPath, options => options
         .WithMapMetadata(1)   // -map_metadata 1 — keep the audiobook's tags
         .CopyStreams())
     .ProcessSynchronously();
@@ -375,7 +385,7 @@ To burn the subtitles into the picture instead, so they cannot be switched off, 
 ```csharp
 FFMpegArguments
     .FromFileInput(inputPath)
-    .OutputToFile(outputPath, true, options => options
+    .OutputToFile(outputPath, options => options
         .WithVideoFilters(filters => filters
             .HardBurnSubtitle(SubtitleHardBurnOptions.Create("subs.srt"))))
     .ProcessSynchronously();
@@ -523,7 +533,7 @@ var videoFramesSource = new RawVideoPipeSource(CreateFrames(64))
 };
 await FFMpegArguments
     .FromPipeInput(videoFramesSource)
-    .OutputToFile(outputPath, false, options => options
+    .OutputToFile(outputPath, options => options
         .WithVideoCodec(VideoCodec.LibVpx))
     .ProcessAsynchronously();
 ```
