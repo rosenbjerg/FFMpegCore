@@ -19,13 +19,14 @@ public class SilenceDetectArgument : IAudioFilterArgument
     ///     ffmpeg-utils(1) manual for the accepted syntax.
     /// </param>
     /// <param name="mono">Process each channel separately, instead of combined. By default is disabled.</param>
-    public SilenceDetectArgument(string noiseType = "db", double noise = -60, double duration = 2, bool mono = false)
+    public SilenceDetectArgument(SilenceDetectNoiseUnit? noiseType = null, double noise = -60, double duration = 2, bool mono = false)
     {
-        if (noiseType == "db")
+        var unit = (noiseType ?? SilenceDetectNoiseUnit.Decibels).Value;
+        if (unit == SilenceDetectNoiseUnit.Decibels.Value)
         {
             _arguments.Add("n", $"{noise.ToString("0.0", CultureInfo.InvariantCulture)}dB");
         }
-        else if (noiseType == "ar")
+        else if (unit == SilenceDetectNoiseUnit.AmplitudeRatio.Value)
         {
             _arguments.Add("n", noise.ToString("0.00", CultureInfo.InvariantCulture));
         }
@@ -41,4 +42,27 @@ public class SilenceDetectArgument : IAudioFilterArgument
     public string Key { get; } = "silencedetect";
 
     public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
+}
+
+public readonly struct SilenceDetectNoiseUnit
+{
+    private SilenceDetectNoiseUnit(string value)
+    {
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string Value { get; }
+
+    public static SilenceDetectNoiseUnit Decibels => new("db");
+    public static SilenceDetectNoiseUnit AmplitudeRatio => new("ar");
+
+    public static implicit operator SilenceDetectNoiseUnit(string value)
+    {
+        return new SilenceDetectNoiseUnit(value);
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

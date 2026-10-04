@@ -132,15 +132,15 @@ public class ComplexFilterChain
     }
 
     /// <summary>overlay</summary>
-    public ComplexFilterChain Overlay(string x = "0", string y = "0", string? eofAction = null, bool shortest = false)
+    public ComplexFilterChain Overlay(string x = "0", string y = "0", OverlayEofAction? eofAction = null, bool shortest = false)
     {
         return WithFilter(new OverlayArgument(x, y, eofAction, shortest));
     }
 
     /// <summary>amix</summary>
-    public ComplexFilterChain AudioMix(int inputs, string duration = "longest")
+    public ComplexFilterChain AudioMix(int inputs, AudioMixDuration? duration = null)
     {
-        return WithCustomFilter("amix", $"inputs={inputs}:duration={duration}");
+        return WithCustomFilter("amix", $"inputs={inputs}:duration={duration ?? AudioMixDuration.Longest}");
     }
 
     internal string GetText()
@@ -158,5 +158,29 @@ public class ComplexFilterChain
         var pads = string.Concat(_inputs.Select(input => $"[{input}]"));
         var outputs = string.Concat(_outputs.Select(output => $"[{output}]"));
         return $"{pads}{string.Join(",", rendered)}{outputs}";
+    }
+}
+
+public readonly struct AudioMixDuration
+{
+    private AudioMixDuration(string value)
+    {
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string Value { get; }
+
+    public static AudioMixDuration Longest => new("longest");
+    public static AudioMixDuration Shortest => new("shortest");
+    public static AudioMixDuration First => new("first");
+
+    public static implicit operator AudioMixDuration(string value)
+    {
+        return new AudioMixDuration(value);
+    }
+
+    public override string ToString()
+    {
+        return Value;
     }
 }

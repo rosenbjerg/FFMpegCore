@@ -38,17 +38,13 @@ public class AudioGateArgument : IAudioFilterArgument
     ///     Choose if the average level between all channels or the louder channel affects the reduction. Default is average. Can be
     ///     average or maximum.
     /// </param>
-    public AudioGateArgument(double levelIn = 1, string mode = "downward", double range = 0.06125, double threshold = 0.125, int ratio = 2,
-        double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, string detection = "rms", string link = "average")
+    public AudioGateArgument(double levelIn = 1, AudioGateMode? mode = null, double range = 0.06125, double threshold = 0.125, int ratio = 2,
+        double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, AudioGateDetection? detection = null,
+        AudioGateLink? link = null)
     {
         if (levelIn is < 0.015625 or > 64)
         {
             throw new ArgumentOutOfRangeException(nameof(levelIn), "Level in must be between 0.015625 to 64");
-        }
-
-        if (mode != "upward" && mode != "downward")
-        {
-            throw new ArgumentOutOfRangeException(nameof(mode), "Mode must be either upward or downward");
         }
 
         if (range is <= 0 or > 1)
@@ -86,18 +82,8 @@ public class AudioGateArgument : IAudioFilterArgument
             throw new ArgumentOutOfRangeException(nameof(knee), "Knee must be between 1 and 8");
         }
 
-        if (detection != "peak" && detection != "rms")
-        {
-            throw new ArgumentOutOfRangeException(nameof(detection), "Detection must be either peak or rms");
-        }
-
-        if (link != "average" && link != "maximum")
-        {
-            throw new ArgumentOutOfRangeException(nameof(link), "Link must be either average or maximum");
-        }
-
         _arguments.Add("level_in", levelIn.ToString("0.00", CultureInfo.InvariantCulture));
-        _arguments.Add("mode", mode);
+        _arguments.Add("mode", (mode ?? AudioGateMode.Downward).Value);
         _arguments.Add("range", range.ToString("0.00", CultureInfo.InvariantCulture));
         _arguments.Add("threshold", threshold.ToString("0.00", CultureInfo.InvariantCulture));
         _arguments.Add("ratio", ratio.ToString());
@@ -105,11 +91,80 @@ public class AudioGateArgument : IAudioFilterArgument
         _arguments.Add("release", release.ToString("0.00", CultureInfo.InvariantCulture));
         _arguments.Add("makeup", makeup.ToString());
         _arguments.Add("knee", knee.ToString("0.00", CultureInfo.InvariantCulture));
-        _arguments.Add("detection", detection);
-        _arguments.Add("link", link);
+        _arguments.Add("detection", (detection ?? AudioGateDetection.Rms).Value);
+        _arguments.Add("link", (link ?? AudioGateLink.Average).Value);
     }
 
     public string Key { get; } = "agate";
 
     public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
+}
+
+public readonly struct AudioGateMode
+{
+    private AudioGateMode(string value)
+    {
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string Value { get; }
+
+    public static AudioGateMode Downward => new("downward");
+    public static AudioGateMode Upward => new("upward");
+
+    public static implicit operator AudioGateMode(string value)
+    {
+        return new AudioGateMode(value);
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
+}
+
+public readonly struct AudioGateDetection
+{
+    private AudioGateDetection(string value)
+    {
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string Value { get; }
+
+    public static AudioGateDetection Peak => new("peak");
+    public static AudioGateDetection Rms => new("rms");
+
+    public static implicit operator AudioGateDetection(string value)
+    {
+        return new AudioGateDetection(value);
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
+}
+
+public readonly struct AudioGateLink
+{
+    private AudioGateLink(string value)
+    {
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string Value { get; }
+
+    public static AudioGateLink Average => new("average");
+    public static AudioGateLink Maximum => new("maximum");
+
+    public static implicit operator AudioGateLink(string value)
+    {
+        return new AudioGateLink(value);
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

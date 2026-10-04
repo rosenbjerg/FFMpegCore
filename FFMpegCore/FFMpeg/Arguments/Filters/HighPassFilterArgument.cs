@@ -6,35 +6,6 @@ public class HighPassFilterArgument : IAudioFilterArgument
 {
     private readonly Dictionary<string, string> _arguments = new();
 
-    private readonly List<string> _precision = new()
-    {
-        "auto",
-        "s16",
-        "s32",
-        "f32",
-        "f64"
-    };
-
-    private readonly List<string> _transformTypes = new()
-    {
-        "di",
-        "dii",
-        "tdi",
-        "tdii",
-        "latt",
-        "svf",
-        "zdf"
-    };
-
-    private readonly List<string> _widthTypes = new()
-    {
-        "h",
-        "q",
-        "o",
-        "s",
-        "k"
-    };
-
     /// <summary>
     ///     HighPass Filter. <see href="https://ffmpeg.org/ffmpeg-filters.html#highpass" />
     /// </summary>
@@ -55,8 +26,8 @@ public class HighPassFilterArgument : IAudioFilterArgument
     ///     response length truncated when reaches near zero values) filtering will become linear phase otherwise if not big enough it will just
     ///     produce nasty artifacts.
     /// </param>
-    public HighPassFilterArgument(double frequency = 3000, int poles = 2, string widthType = "q", double width = 0.707, double mix = 1, string channels = "",
-        bool normalize = false, string transform = "", string precision = "auto", int? blockSize = null)
+    public HighPassFilterArgument(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707, double mix = 1,
+        string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null, int? blockSize = null)
     {
         if (frequency < 0)
         {
@@ -68,24 +39,14 @@ public class HighPassFilterArgument : IAudioFilterArgument
             throw new ArgumentOutOfRangeException(nameof(poles), "Poles must be either 1 or 2");
         }
 
-        if (!_widthTypes.Contains(widthType))
-        {
-            throw new ArgumentOutOfRangeException(nameof(widthType), "Width type must be either " + _widthTypes);
-        }
-
         if (mix < 0 || mix > 1)
         {
             throw new ArgumentOutOfRangeException(nameof(mix), "Mix must be between 0 and 1");
         }
 
-        if (!_precision.Contains(precision))
-        {
-            throw new ArgumentOutOfRangeException(nameof(precision), "Precision must be either " + _precision);
-        }
-
         _arguments.Add("f", frequency.ToString("0.00", CultureInfo.InvariantCulture));
         _arguments.Add("p", poles.ToString());
-        _arguments.Add("t", widthType);
+        _arguments.Add("t", (widthType ?? FilterWidthType.QFactor).Value);
         _arguments.Add("w", width.ToString("0.00", CultureInfo.InvariantCulture));
         _arguments.Add("m", mix.ToString("0.00", CultureInfo.InvariantCulture));
         if (channels != "")
@@ -94,12 +55,12 @@ public class HighPassFilterArgument : IAudioFilterArgument
         }
 
         _arguments.Add("n", (normalize ? 1 : 0).ToString());
-        if (transform != "" && _transformTypes.Contains(transform))
+        if (transform != null)
         {
-            _arguments.Add("a", transform);
+            _arguments.Add("a", transform.Value.Value);
         }
 
-        _arguments.Add("r", precision);
+        _arguments.Add("r", (precision ?? FilterPrecision.Auto).Value);
         if (blockSize != null && blockSize >= 0)
         {
             _arguments.Add("b", blockSize.ToString());

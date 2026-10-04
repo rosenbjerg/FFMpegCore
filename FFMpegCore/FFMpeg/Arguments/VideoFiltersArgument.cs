@@ -114,7 +114,7 @@ public class VideoFilterOptions
     }
 
     /// <summary>fps</summary>
-    public VideoFilterOptions Fps(double frameRate, string? round = null)
+    public VideoFilterOptions Fps(double frameRate, FpsRounding? round = null)
     {
         return WithArgument(new FpsArgument(frameRate, round));
     }

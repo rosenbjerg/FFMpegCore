@@ -76,7 +76,7 @@ public static class ComplexExamples
                     .As("bed")
                     .From(0, StreamType.Audio)
                     .From("bed")
-                    .AudioMix(2, "first")
+                    .AudioMix(2, AudioMixDuration.First)
                     .As("a"))
                 .WithMap("v")
                 .WithMap("a")
@@ -176,7 +176,7 @@ public static class ComplexExamples
             .FromFileInput(input)
             .OutputToFile(OperatingSystem.IsWindows() ? "NUL" : "/dev/null", options => options
                 .WithVideoFilters(filters => filters.BlackDetect(0.5))
-                .WithAudioFilters(filters => filters.SilenceDetect("db", -45, 1))
+                .WithAudioFilters(filters => filters.SilenceDetect(SilenceDetectNoiseUnit.Decibels, -45, 1))
                 .ForceFormat("null"))
             // blackdetect and silencedetect report at info level; a quieter log level drops them silently
             .WithLogLevel(FFMpegLogLevel.Info)

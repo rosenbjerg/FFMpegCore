@@ -311,6 +311,24 @@ and `SetCharacterEncoding` are `WithOriginalSize`, `WithSubtitleIndex` and `With
 `new PadArgument(…)` and `new SubtitleHardBurnArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
 or aspect ratio throws `ArgumentException` instead of a bare `Exception`.
 
+## Filter parameters with a fixed set of values are typed
+
+`Overlay`'s `eofAction`, `AudioMix`'s `duration`, `Fps`'s `round`, `SilenceDetect`'s `noiseType`, `HighPass`/`LowPass`'s `widthType`,
+`transform` and `precision`, and `AudioGate`'s `mode`, `detection` and `link` take a small type per parameter — `OverlayEofAction`,
+`AudioMixDuration`, `FpsRounding`, `SilenceDetectNoiseUnit`, `FilterWidthType`, `FilterTransform`, `FilterPrecision`, `AudioGateMode`,
+`AudioGateDetection`, `AudioGateLink` — whose members list the values ffmpeg accepts. A plain string still converts to each of them, so
+existing calls compile unchanged:
+
+```csharp
+.Overlay("W-w-10", "H-h-10", OverlayEofAction.Pass)
+.Overlay("W-w-10", "H-h-10", "pass")   // still fine
+```
+
+Values the library does not know are passed on to ffmpeg as they are rather than rejected, so a newer ffmpeg's options stay reachable.
+In particular `HighPass`/`LowPass` silently dropped a `transform` they did not recognise; it is now emitted. The exception is
+`SilenceDetect`'s `noiseType`, which decides how the library formats the threshold and is not an ffmpeg value: anything but `db` and `ar`
+still throws.
+
 ## Pipes
 
 `IPipeSink.GetFormat()` is `GetStreamArguments()`, matching `IPipeSource`: both return the arguments ffmpeg needs on their side of the pipe.

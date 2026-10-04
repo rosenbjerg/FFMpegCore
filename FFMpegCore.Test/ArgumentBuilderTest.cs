@@ -934,15 +934,45 @@ public class ArgumentBuilderTest
     [TestMethod]
     [DataRow(-1.0, 2, "q", 1.0, "auto")]
     [DataRow(3000.0, 3, "q", 1.0, "auto")]
-    [DataRow(3000.0, 2, "x", 1.0, "auto")]
     [DataRow(3000.0, 2, "q", 1.5, "auto")]
-    [DataRow(3000.0, 2, "q", 1.0, "s8")]
     public void Builder_LowPassFilter_Rejects_InvalidArguments(double frequency, int poles, string widthType, double mix, string precision)
     {
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
             new LowPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
             new HighPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+    }
+
+    [TestMethod]
+    public void Builder_ClosedSetValues_TypedAndPlainStringsRenderTheSame()
+    {
+        var typed = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", opt => opt.WithAudioFilters(f => f
+                .HighPass(200, 2, FilterWidthType.Octave, transform: FilterTransform.StateVariable, precision: FilterPrecision.F32)
+                .AudioGate(mode: AudioGateMode.Upward, detection: AudioGateDetection.Peak, link: AudioGateLink.Maximum)
+                .SilenceDetect(SilenceDetectNoiseUnit.AmplitudeRatio, 0.01)))
+            .Arguments;
+        var plain = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", opt => opt.WithAudioFilters(f => f
+                .HighPass(200, 2, "o", transform: "svf", precision: "f32")
+                .AudioGate(mode: "upward", detection: "peak", link: "maximum")
+                .SilenceDetect("ar", 0.01)))
+            .Arguments;
+
+        Assert.AreEqual(typed, plain);
+    }
+
+    [TestMethod]
+    public void Builder_ClosedSetValues_PassUnknownStringsThroughToFFMpeg()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", opt => opt
+                .WithVideoFilters(f => f.Fps(30, "some_future_mode"))
+                .WithAudioFilters(f => f.LowPass(transform: "some_future_transform")))
+            .Arguments;
+
+        StringAssert.Contains(str, "fps=fps=30:round=some_future_mode");
+        StringAssert.Contains(str, ":a=some_future_transform:");
     }
 
     [TestMethod]
@@ -974,7 +1004,6 @@ public class ArgumentBuilderTest
 
     [TestMethod]
     [DataRow(0.001, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
-    [DataRow(1.0, "sideways", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.0, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 1.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 0, 20.0, 250.0, 1, 2.0, "rms", "average")]
@@ -983,8 +1012,6 @@ public class ArgumentBuilderTest
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 65, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 0.5, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 9.0, "rms", "average")]
-    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "loudness", "average")]
-    [DataRow(1.0, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "minimum")]
     public void Builder_AudioGate_Rejects_InvalidArguments(double levelIn, string mode, double range, double threshold, int ratio, double attack,
         double release, int makeup, double knee, string detection, string link)
     {
