@@ -1482,6 +1482,26 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ScaleToVideoSize_KeepsTheWidthEvenForYuv420Encoders()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var success = FFMpegArguments
+            .FromFileInput(TestResources.Mp4VideoRotation)
+            .OutputToFile(outputFile, true, options => options
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithVideoFilters(filters => filters.Scale(VideoSize.Hd)))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(success.Success);
+        var video = FFProbe.Analyse(outputFile).PrimaryVideoStream!;
+        Assert.AreEqual(0, video.Width % 2);
+        Assert.AreEqual(720, video.Height);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_ThumbnailSheet_TilesTheSampledFrames()
     {
         using var outputFile = new TemporaryFile("out.png");

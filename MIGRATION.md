@@ -242,6 +242,12 @@ The default was `60`, which rendered as `silencedetect=n=60.0dB` — a threshold
 whole input came back as one silent stretch. ffmpeg's own default is -60 dB, and that is what `SilenceDetect()` and
 `new SilenceDetectArgument()` now emit. Calls that passed a threshold are unaffected.
 
+### `Scale(VideoSize.…)` keeps the width even
+
+It rendered `scale=-1:720`, which keeps the aspect ratio exactly and so can produce an odd width — a 1080×1920 portrait video becomes
+405×720, which libx264 and most other encoders reject for `yuv420p`. It now renders `scale=-2:720`, rounding the computed width to an even
+number. `ThumbnailSheet`'s default tile size does the same.
+
 ## Extension packages
 
 `Snapshot` and `SnapshotAsync` in both image extension packages take the run's `FFOptions`, placed before `cancellationToken` to match

@@ -26,7 +26,6 @@ var outputPath = "/path/to/output";
             .WithVideoCodec(VideoCodec.LibX264)
             .WithConstantRateFactor(21)
             .WithAudioCodec(AudioCodec.Aac)
-            .WithVariableBitrate(4)
             .WithVideoFilters(filterOptions => filterOptions
                 .Scale(VideoSize.Hd))
             .WithFastStart())

@@ -48,12 +48,15 @@ FFMpegArguments
         .WithVideoCodec(VideoCodec.LibX264)
         .WithConstantRateFactor(21)
         .WithAudioCodec(AudioCodec.Aac)
-        .WithVariableBitrate(4)
         .WithVideoFilters(filterOptions => filterOptions
             .Scale(VideoSize.Hd))
         .WithFastStart())
     .ProcessSynchronously();
 ```
+
+`Scale(VideoSize.Hd)` sets the height and lets ffmpeg pick a width that keeps the aspect ratio, rounded to an even number — `scale=-2:720`.
+Most video encoders reject odd dimensions for the usual `yuv420p` pixel format, so when you pass a size yourself, use `-2` rather than `-1`
+for the side ffmpeg should compute.
 
 Convert to and/or from streams
 

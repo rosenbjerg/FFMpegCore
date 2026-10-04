@@ -30,7 +30,7 @@ public class ArgumentBuilderTest
                 .WithVideoFilters(filterOptions => filterOptions
                     .Scale(VideoSize.Hd)))
             .Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -vf \"scale=-1:720\" \"output.mp4\" -y", str);
+        Assert.AreEqual("-i \"input.mp4\" -vf \"scale=-2:720\" \"output.mp4\" -y", str);
     }
 
     [TestMethod]

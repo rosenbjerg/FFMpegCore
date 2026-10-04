@@ -398,7 +398,7 @@ public static class FFMpeg
 
         var input = InputPathOf(source, nameof(source));
         var step = interval ?? TimeSpan.FromTicks(Math.Max(source.Duration.Ticks / (columns * rows), TimeSpan.TicksPerMillisecond));
-        var size = tileSize ?? new Size(-1, 120);
+        var size = tileSize ?? new Size(-2, 120);
 
         return FFMpegArguments
             .FromFileInput(input)
