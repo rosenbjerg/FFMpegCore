@@ -193,7 +193,6 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, string audio, string output, Codec? audioCodec = null,
         FFOptions? ffOptions = null)
     {
-        FFMpegHelper.ExtensionExceptionCheck(output, FileExtension.Mp4);
         var image = InputPathOf(imageSource, nameof(imageSource));
         FFMpegHelper.ConversionSizeExceptionCheck(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream!.Height);
 
@@ -481,7 +480,9 @@ public static class FFMpeg
 
         return FFMpegArguments
             .FromConcatDemuxerInput(inputs)
-            .OutputToFile(output, true, options => options.CopyStreams())
+            .OutputToFile(output, true, options => options
+                .WithMap(0)
+                .CopyStreams())
             .WithKnownDuration(duration)
             .WithOptions(ffOptions);
     }
@@ -607,7 +608,9 @@ public static class FFMpeg
     {
         return FFMpegArguments
             .FromFileInput(input, true, options => options.WithStartTime(startTime).WithStopTime(endTime))
-            .OutputToFile(output, true, options => options.CopyStreams())
+            .OutputToFile(output, true, options => options
+                .WithMap(0)
+                .CopyStreams())
             .WithKnownDuration(endTime - startTime)
             .WithOptions(ffOptions);
     }

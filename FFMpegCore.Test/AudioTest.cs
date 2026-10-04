@@ -145,6 +145,17 @@ public class AudioTest
     }
 
     [TestMethod]
+    public void Image_AddAudio_IntoAnyContainer()
+    {
+        using var outputFile = new TemporaryFile("out.mkv");
+
+        var result = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, outputFile).ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("mp3", FFProbe.Analyse(outputFile).PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
     public void Image_AddAudio()
     {
         using var outputFile = new TemporaryFile("out.mp4");

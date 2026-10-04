@@ -1397,6 +1397,34 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TrimAndConcat_KeepEveryStream()
+    {
+        using var twoAudioTracks = new TemporaryFile("dual.mkv");
+        using var trimmed = new TemporaryFile("trimmed.mkv");
+        using var joined = new TemporaryFile("joined.mkv");
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .AddFileInput(TestResources.Mp3Audio)
+            .OutputToFile(twoAudioTracks, true, options => options
+                .WithMap(0)
+                .WithMap(1, StreamType.Audio)
+                .CopyStreams()
+                .WithShortest())
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        var trimResult = FFMpeg.Trim(twoAudioTracks, trimmed, TimeSpan.Zero, TimeSpan.FromSeconds(2))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+        var concatResult = FFMpeg.Concat(joined, twoAudioTracks, twoAudioTracks)
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(trimResult.Success);
+        Assert.IsTrue(concatResult.Success);
+        Assert.HasCount(2, FFProbe.Analyse(trimmed).AudioStreams);
+        Assert.HasCount(2, FFProbe.Analyse(joined).AudioStreams);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Trim_WritesTheRequestedOutput()
     {
         using var requestedOutput = new TemporaryFile("out.mkv");

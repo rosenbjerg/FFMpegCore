@@ -75,6 +75,9 @@ FFMpeg.Trim(inputPath, "out.mkv", start, end);     // 6.0 — writes out.mkv
 Because it still copies the streams, a container that cannot mux them now fails the run instead of being quietly swapped out. Pick a
 container that can, or re-encode with `FFMpegArguments`.
 
+It also keeps every stream now. Without a `-map`, ffmpeg kept one stream of each kind, so a second audio track or a second subtitle
+language was dropped. `Concat` does the same.
+
 ### `FFMpeg.ExtractAudio` takes any container, and can copy the stream
 
 It required a `.mp3` output, although its arguments are just `-vn` and would have muxed `.m4a`, `.wav`, `.flac` or `.ogg` just as well. The
@@ -108,6 +111,8 @@ FFMpeg.PosterWithAudio(image, audio, output, ffOptions);                  // 5.x
 FFMpeg.PosterWithAudio(image, audio, output, ffOptions: ffOptions);       // 6.0 — copies the audio
 FFMpeg.PosterWithAudio(image, audio, output, AudioCodec.Aac);             // 6.0 — old behaviour
 ```
+
+It also no longer requires an `.mp4` output — `.mkv`, `.mov` and `.webm` (with a codec that container takes) work as well.
 
 `AddAudio`/`AddAudioAsync` in the image extension packages follow the same default.
 
