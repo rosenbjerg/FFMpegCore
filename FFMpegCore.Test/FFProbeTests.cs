@@ -136,7 +136,7 @@ public class FFProbeTests
         Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
         Assert.AreEqual(720, info.PrimaryVideoStream.Height);
         Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
-        Assert.AreEqual(25, info.PrimaryVideoStream.FrameRate);
+        Assert.AreEqual(25, info.PrimaryVideoStream.RealFrameRate);
         Assert.AreEqual("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10", info.PrimaryVideoStream.CodecLongName);
         Assert.AreEqual("h264", info.PrimaryVideoStream.CodecName);
         Assert.AreEqual(8, info.PrimaryVideoStream.BitsPerRawSample);

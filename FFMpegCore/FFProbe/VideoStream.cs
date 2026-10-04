@@ -13,7 +13,7 @@ public class VideoStream : MediaStream
     public int Width { get; set; }
     public int Height { get; set; }
     /// <summary>ffprobe's r_frame_rate: the lowest rate every timestamp is a multiple of.</summary>
-    public double FrameRate { get; set; }
+    public double RealFrameRate { get; set; }
     public string PixelFormat { get; set; } = null!;
     public int Level { get; set; }
     public string FieldOrder { get; set; } = null!;

@@ -81,7 +81,7 @@ internal class MediaAnalysis : IMediaAnalysis
             SampleAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.SampleAspectRatio, ':'),
             Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
-            FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
+            RealFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
             Height = stream.Height ?? 0,
             Width = stream.Width ?? 0,
             Profile = stream.Profile,
