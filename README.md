@@ -193,8 +193,8 @@ existing output when `overwrite: false`.
 ### Progress and cancellation
 
 `NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage, which needs the output
-duration — pass it explicitly, or omit it after an `FFMpeg.*` helper that already probed the input. Both take an `Action<T>` or an
-`IProgress<T>`:
+duration — pass it explicitly, or omit it after any `FFMpeg.*` helper except `SaveStream`, which reads a live stream with no known length.
+Both take an `Action<T>` or an `IProgress<T>`:
 
 ```csharp
 await FFMpegArguments

@@ -131,6 +131,16 @@ FFMpeg.ReplaceAudio(input, audio, output, stopAtShortest: true);          // 6.0
 FFMpeg.ReplaceAudio(input, audio, output, AudioCodec.Aac);                // 6.0 — old behaviour, at ffmpeg's default bitrate
 ```
 
+### `FFMpeg.PosterWithAudio`'s analysis overload takes the audio's analysis too
+
+It probes the audio to learn the output's duration, so percentage progress works without passing one. The overload taking the image's
+`IMediaAnalysis` therefore takes the audio's in place of its path:
+
+```csharp
+FFMpeg.PosterWithAudio(imageAnalysis, audioPath, output);                                // early 6.0
+FFMpeg.PosterWithAudio(imageAnalysis, await FFProbe.AnalyseAsync(audioPath), output);    // 6.0
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.
@@ -374,7 +384,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   caller with `FFProbe.AnalyseAsync` and the whole operation kept asynchronous. `Concat`, `Join` and `JoinImageSequence` take a sequence of
   them, which also lets the probes run concurrently rather than one per input in a loop.
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
-- `NotifyOnPercentageProgress` without a duration after an `FFMpeg.*` helper that already probed the input.
+- `NotifyOnPercentageProgress` without a duration after any `FFMpeg.*` helper except `SaveStream`. To know the duration, `ExtractAudio`
+  and `ExtractSubtitles` now probe their input, and take an `IMediaAnalysis` in its place like the other helpers.
 - `CancellableThrough(CancellationToken)` registers per run, so a processor can be run more than once.
 - `ProcessSynchronously` and `ProcessAsynchronously` take a `CancellationToken`.
 - `FromImageSequenceInput` and `AddImageSequenceInput` for building a video from images through the argument builder.

@@ -39,7 +39,9 @@ public static class FFMpeg
         var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex);
 
-        return arguments.OutputToFile(output, outputOptions).WithOptions(ffOptions);
+        return arguments.OutputToFile(output, outputOptions)
+            .WithKnownDuration(OneFrameOf(source))
+            .WithOptions(ffOptions);
     }
 
     /// <summary>
@@ -75,8 +77,17 @@ public static class FFMpeg
 
         var input = InputPathOf(source, nameof(source));
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+        var start = captureTime ?? TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
 
-        return arguments.OutputToFile(output, outputOptions).WithOptions(ffOptions);
+        return arguments.OutputToFile(output, outputOptions)
+            .WithKnownDuration(duration ?? source.Duration - start)
+            .WithOptions(ffOptions);
+    }
+
+    private static TimeSpan OneFrameOf(IMediaAnalysis source)
+    {
+        var frameRate = source.PrimaryVideoStream?.AvgFrameRate ?? 0;
+        return TimeSpan.FromSeconds(1 / (frameRate > 0 ? frameRate : 25));
     }
 
     private static string InputPathOf(IMediaAnalysis source, string parameterName)
@@ -171,29 +182,30 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, Codec? audioCodec = null,
         FFOptions? ffOptions = null)
     {
-        return PosterWithAudio(FFProbe.Analyse(image, ffOptions), audio, output, audioCodec, ffOptions);
+        return PosterWithAudio(FFProbe.Analyse(image, ffOptions), FFProbe.Analyse(audio, ffOptions), output, audioCodec, ffOptions);
     }
 
-    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,string,string,Codec,FFOptions)" />
+    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,IMediaAnalysis,string,Codec,FFOptions)" />
     /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, string audio, string output, string audioCodec,
+    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, IMediaAnalysis audioSource, string output, string audioCodec,
         FFOptions? ffOptions = null)
     {
-        return PosterWithAudio(imageSource, audio, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+        return PosterWithAudio(imageSource, audioSource, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
     }
 
     /// <summary>
-    ///     Adds an already analysed poster image to an audio file.
+    ///     Adds an already analysed poster image to an already analysed audio file.
     /// </summary>
     /// <param name="imageSource">Analysis of the poster image, which supplies its path and its dimensions.</param>
-    /// <param name="audio">Source audio file.</param>
+    /// <param name="audioSource">Analysis of the audio, which supplies its path and the output's duration.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, string audio, string output, Codec? audioCodec = null,
-        FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, IMediaAnalysis audioSource, string output,
+        Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
         var image = InputPathOf(imageSource, nameof(imageSource));
+        var audio = InputPathOf(audioSource, nameof(audioSource));
         FFMpegHelper.ConversionSizeExceptionCheck(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream!.Height);
 
         return FFMpegArguments
@@ -207,6 +219,7 @@ public static class FFMpeg
                 .WithConstantRateFactor(21)
                 .WithAudioCodec(audioCodec ?? AudioCodec.Copy)
                 .WithShortest())
+            .WithKnownDuration(audioSource.Duration)
             .WithOptions(ffOptions);
     }
 
@@ -353,10 +366,25 @@ public static class FFMpeg
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor ExtractSubtitles(string input, string output, int streamIndex = 0, FFOptions? ffOptions = null)
     {
+        return ExtractSubtitles(FFProbe.Analyse(input, ffOptions), output, streamIndex, ffOptions);
+    }
+
+    /// <summary>
+    ///     Writes one of an already analysed input's subtitle streams out to its own file.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output subtitle file. Its extension decides the format.</param>
+    /// <param name="streamIndex">Which subtitle stream to take, counting from zero among the subtitle streams.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ExtractSubtitles(IMediaAnalysis source, string output, int streamIndex = 0, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
+
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, options => options
                 .WithMap(0, StreamType.Subtitle, streamIndex))
+            .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
     }
 
@@ -407,6 +435,7 @@ public static class FFMpeg
                     .Scale(size)
                     .Tile(columns, rows))
                 .WithFrameCount(1))
+            .WithKnownDuration(OneFrameOf(source))
             .WithOptions(ffOptions);
     }
 
@@ -680,6 +709,27 @@ public static class FFMpeg
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor ExtractAudio(string input, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
+        return ExtractAudio(FFProbe.Analyse(input, ffOptions), output, audioCodec, ffOptions);
+    }
+
+    /// <inheritdoc cref="ExtractAudio(IMediaAnalysis,string,Codec,FFOptions)" />
+    /// <param name="audioCodec">Name of the encoder for the audio, such as "copy" or "libopus".</param>
+    public static FFMpegArgumentProcessor ExtractAudio(IMediaAnalysis source, string output, string audioCodec, FFOptions? ffOptions = null)
+    {
+        return ExtractAudio(source, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+    }
+
+    /// <summary>
+    ///     Saves the audio of an already analysed file to disk.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
+    /// <param name="output">Output audio file. Its extension decides the container.</param>
+    /// <param name="audioCodec">Encoder for the audio, or <see cref="AudioCodec.Copy" /> to extract it as it is. Defaults to the muxer's choice.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor ExtractAudio(IMediaAnalysis source, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
+    {
+        var input = InputPathOf(source, nameof(source));
+
         return FFMpegArguments
             .FromFileInput(input)
             .OutputToFile(output, options =>
@@ -690,6 +740,7 @@ public static class FFMpeg
                     options.WithAudioCodec(audioCodec);
                 }
             })
+            .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
     }
 

@@ -1504,6 +1504,63 @@ public class VideoTest
             FFMpeg.ThumbnailSheet(source, "sheet.png").Arguments);
         Assert.AreEqual(FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, output).Arguments,
             FFMpeg.Watermark(source, TestResources.PngImage, output).Arguments);
+        Assert.AreEqual(FFMpeg.ExtractAudio(TestResources.Mp4Video, "out.m4a").Arguments, FFMpeg.ExtractAudio(source, "out.m4a").Arguments);
+        Assert.AreEqual(FFMpeg.ExtractSubtitles(TestResources.Mp4Video, "out.srt").Arguments, FFMpeg.ExtractSubtitles(source, "out.srt").Arguments);
+        Assert.AreEqual(FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, output).Arguments,
+            FFMpeg.PosterWithAudio(FFProbe.Analyse(TestResources.PngImage), FFProbe.Analyse(TestResources.Mp3Audio), output).Arguments);
+    }
+
+    [TestMethod]
+    public void Video_EveryHelperButSaveStream_KnowsItsDurationForPercentageProgress()
+    {
+        var processors = new Dictionary<string, FFMpegArgumentProcessor>
+        {
+            ["Snapshot"] = FFMpeg.Snapshot(TestResources.Mp4Video, "out.png"),
+            ["GifSnapshot"] = FFMpeg.GifSnapshot(TestResources.Mp4Video, "out.gif"),
+            ["ThumbnailSheet"] = FFMpeg.ThumbnailSheet(TestResources.Mp4Video, "out.png"),
+            ["JoinImageSequence"] = FFMpeg.JoinImageSequence("out.mp4", 1, TestResources.PngImage),
+            ["PosterWithAudio"] = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, "out.mp4"),
+            ["Watermark"] = FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, "out.mp4"),
+            ["AddSubtitles"] = FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, "out.mkv"),
+            ["ExtractSubtitles"] = FFMpeg.ExtractSubtitles(TestResources.MkvVideo, "out.srt"),
+            ["Remux"] = FFMpeg.Remux(TestResources.Mp4Video, "out.mkv"),
+            ["Concat"] = FFMpeg.Concat("out.mp4", TestResources.Mp4Video, TestResources.Mp4Video),
+            ["Join"] = FFMpeg.Join("out.mp4", TestResources.Mp4Video, TestResources.Mp4Video),
+            ["Trim"] = FFMpeg.Trim(TestResources.Mp4Video, "out.mp4", TimeSpan.Zero, TimeSpan.FromSeconds(1)),
+            ["RemoveAudio"] = FFMpeg.RemoveAudio(TestResources.Mp4Video, "out.mp4"),
+            ["ExtractAudio"] = FFMpeg.ExtractAudio(TestResources.Mp4Video, "out.m4a"),
+            ["ReplaceAudio"] = FFMpeg.ReplaceAudio(TestResources.Mp4Video, TestResources.Mp3Audio, "out.mp4")
+        };
+
+        foreach (var (helper, processor) in processors)
+        {
+            try
+            {
+                processor.NotifyOnPercentageProgress(_ => { });
+            }
+            catch (InvalidOperationException)
+            {
+                Assert.Fail($"{helper} does not know its output duration");
+            }
+        }
+
+        Assert.ThrowsExactly<InvalidOperationException>(() =>
+            FFMpeg.SaveStream(new Uri("https://example.com/live.m3u8"), "out.ts").NotifyOnPercentageProgress(_ => { }));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ExtractAudio_ReportsPercentageProgressWithoutADuration()
+    {
+        using var output = new TemporaryFile("out.m4a");
+        var percentages = new List<double>();
+
+        var result = FFMpeg.ExtractAudio(TestResources.Mp4Video, output)
+            .NotifyOnPercentageProgress(percentages.Add)
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(100.0, percentages.Last());
     }
 
     [TestMethod]
