@@ -120,6 +120,24 @@ FFMpegArguments
 `WithMap(0)` maps everything from the first input, and `WithMap(0, StreamType.All, 3)` picks a single stream by index — `-map 0:3`.
 `WithMap(string)` and `WithNegativeMap(string)` select a label a complex-filter chain produced instead.
 
+### Metadata tags and dispositions
+
+`WithMetadata` sets a tag on the output, and `WithStreamMetadata` sets one on its streams — every stream of a type, or one of them by index.
+`WithDisposition` marks streams as the default, forced, and so on:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, options => options
+        .WithMap(0)
+        .CopyStreams()
+        .WithMetadata("title", "Interview")                                    // -metadata "title=Interview"
+        .WithStreamMetadata("language", "dan", StreamType.Audio, 0)            // -metadata:s:a:0 "language=dan"
+        .WithDisposition(StreamDisposition.Default + StreamDisposition.Forced,
+            StreamType.Subtitle, 0))                                           // -disposition:s:0 default+forced
+    .ProcessSynchronously();
+```
+
 ### Complex filters
 
 `WithVideoFilters` builds the single `-vf` chain that one input feeds. When a filter needs more than one input, or you want to route what a

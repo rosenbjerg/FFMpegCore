@@ -448,6 +448,8 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `FromFileInput`, `AddFileInput` and `OutputToFile` take the options lambda straight after the path, so
   `OutputToFile(path, true, options => …)` can be written `OutputToFile(path, options => …)`. The overloads with the `bool` stay, for
   `verifyExists: false` and `overwrite: false`.
+- `WithMetadata`, `WithStreamMetadata` and `WithDisposition` for `-metadata`, `-metadata:s` and `-disposition`, which needed
+  `WithCustomArgument` before. `StreamDisposition` lists the dispositions and combines them with `+`.
 - `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for, and a `PosterWithAudio` overload
   taking the image as such an argument.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.

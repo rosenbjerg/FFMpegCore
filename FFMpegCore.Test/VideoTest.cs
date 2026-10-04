@@ -1893,6 +1893,32 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_MetadataAndDisposition_ReachTheOutput()
+    {
+        using var subtitled = new TemporaryFile("subtitled.mkv");
+        using var outputFile = new TemporaryFile("out.mkv");
+        FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, subtitled, "eng").ProcessSynchronously();
+
+        var result = FFMpegArguments
+            .FromFileInput(subtitled)
+            .OutputToFile(outputFile, options => options
+                .WithMap(0)
+                .CopyStreams()
+                .WithMetadata("title", "Say \"hi\"")
+                .WithStreamMetadata("language", "dan", StreamType.Audio, 0)
+                .WithDisposition(StreamDisposition.Default + StreamDisposition.Forced, StreamType.Subtitle, 0))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("eng", FFProbe.Analyse(subtitled).PrimarySubtitleStream!.Language);
+        Assert.AreEqual("Say \"hi\"", analysis.Format.Tags!["title"]);
+        Assert.AreEqual("dan", analysis.PrimaryAudioStream!.Language);
+        Assert.IsTrue(analysis.PrimarySubtitleStream!.Disposition!["forced"]);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_OutputToMany_WritesEveryOutput()
     {
         using var mp4 = new TemporaryFile("many.mp4");

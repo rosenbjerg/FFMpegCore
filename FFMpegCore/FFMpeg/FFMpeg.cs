@@ -368,7 +368,7 @@ public static class FFMpeg
 
                 if (language != null)
                 {
-                    options.WithCustomArgument($"-metadata:s:s:{source.SubtitleStreams.Count} language={language}");
+                    options.WithStreamMetadata("language", language, StreamType.Subtitle, source.SubtitleStreams.Count);
                 }
             })
             .WithKnownDuration(source.Duration)

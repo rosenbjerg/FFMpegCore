@@ -146,6 +146,24 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new MapLabelArgument(label, true));
     }
 
+    /// <summary>-metadata</summary>
+    public FFMpegOutputOptions WithMetadata(string key, string value)
+    {
+        return WithArgument(new MetadataTagArgument(key, value));
+    }
+
+    /// <summary>-metadata:s, on every stream of a type or on one of them</summary>
+    public FFMpegOutputOptions WithStreamMetadata(string key, string value, StreamType streamType = StreamType.All, int? streamIndex = null)
+    {
+        return WithArgument(new MetadataTagArgument(key, value, streamType, streamIndex));
+    }
+
+    /// <summary>-disposition</summary>
+    public FFMpegOutputOptions WithDisposition(StreamDisposition disposition, StreamType streamType = StreamType.All, int? streamIndex = null)
+    {
+        return WithArgument(new DispositionArgument(disposition, streamType, streamIndex));
+    }
+
     /// <summary>-map_metadata</summary>
     public FFMpegOutputOptions WithMapMetadata(int inputFileIndex)
     {

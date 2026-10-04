@@ -1626,6 +1626,24 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_MetadataAndDisposition()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mkv")
+            .OutputToFile("output.mkv", false, opt => opt
+                .WithMetadata("title", "Say \"hi\"")
+                .WithStreamMetadata("language", "eng", StreamType.Audio, 1)
+                .WithStreamMetadata("handler_name", "Main")
+                .WithDisposition(StreamDisposition.Default, StreamType.Subtitle, 0)
+                .WithDisposition(StreamDisposition.Default + "forced", StreamType.Audio))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mkv\" -metadata \"title=Say \\\"hi\\\"\" -metadata:s:a:1 \"language=eng\" -metadata:s \"handler_name=Main\" " +
+            "-disposition:s:0 default -disposition:a default+forced \"output.mkv\"",
+            str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_MapMetadata_ExplicitIndex()
     {
         var str = FFMpegArguments.FromFileInput("video.mp4")
