@@ -127,15 +127,6 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new MetadataArgument(metadataBuilder.Build()), addArguments);
     }
 
-    /// <summary>
-    ///     Maps the metadata of the given stream
-    /// </summary>
-    /// <param name="inputIndex">null means, the previous input will be used</param>
-    public FFMpegArguments MapMetadata(int? inputIndex = null, Action<FFMpegInputOptions>? addArguments = null)
-    {
-        return WithInput(new MapMetadataArgument(inputIndex), addArguments);
-    }
-
     private FFMpegArguments WithInput(IInputArgument inputArgument, Action<FFMpegInputOptions>? addArguments)
     {
         var arguments = new FFMpegInputOptions();
@@ -169,9 +160,35 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
         var args = new FFMpegOutputOptions();
         addArguments?.Invoke(args);
+        MapAddedMetadata(args.Arguments);
         Arguments.AddRange(args.Arguments);
         Arguments.Add(argument);
         return new FFMpegArgumentProcessor(this);
+    }
+
+    private void MapAddedMetadata(List<IArgument> outputArguments)
+    {
+        if (outputArguments.Any(argument => argument is MapMetadataArgument or RemoveMetadataArgument))
+        {
+            return;
+        }
+
+        var inputIndex = 0;
+        int? metadataInputIndex = null;
+        foreach (var input in Arguments.OfType<IInputArgument>())
+        {
+            if (input is MetadataArgument)
+            {
+                metadataInputIndex = inputIndex;
+            }
+
+            inputIndex += input is MultiInputArgument multiInput ? multiInput.FilePaths.Count() : 1;
+        }
+
+        if (metadataInputIndex != null)
+        {
+            outputArguments.Insert(0, new MapMetadataArgument(metadataInputIndex.Value));
+        }
     }
 
     public FFMpegArgumentProcessor OutputToTee(Action<FFMpegMultiOutputOptions> addOutputs, Action<FFMpegOutputOptions>? addArguments = null)
@@ -185,6 +202,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
     {
         var args = new FFMpegMultiOutputOptions();
         addOutputs(args);
+        foreach (var output in args.Outputs)
+        {
+            MapAddedMetadata(output.Arguments);
+        }
+
         Arguments.AddRange(args.Arguments);
         return new FFMpegArgumentProcessor(this);
     }

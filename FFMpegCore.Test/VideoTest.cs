@@ -1785,6 +1785,29 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_AddMetadata_FollowedByAnotherInput()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4WithoutAudio)
+            .AddMetadata(new FFMetadataBuilder().WithTitle("with audio"))
+            .AddFileInput(TestResources.Mp3Audio)
+            .OutputToFile(outputFile, true, options => options
+                .WithMap(0, StreamType.Video)
+                .WithMap(2, StreamType.Audio)
+                .CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("with audio", analysis.Format.Tags!["title"]);
+        Assert.HasCount(1, analysis.AudioStreams);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_OutputToMany_WritesEveryOutput()
     {
         using var mp4 = new TemporaryFile("many.mp4");

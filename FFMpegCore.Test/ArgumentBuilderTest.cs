@@ -583,8 +583,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_Audible_AAXC_Decryption()
     {
         var str = FFMpegArguments.FromFileInput("input.aaxc", false, x => x.WithAudibleEncryptionKeys("123", "456"))
-            .MapMetadata()
-            .OutputToFile("output.m4b", true, x => x.WithId3v2Version().DisableVideo().CopyStreams(StreamType.Audio))
+            .OutputToFile("output.m4b", true, x => x.WithMapMetadata(0).WithId3v2Version().DisableVideo().CopyStreams(StreamType.Audio))
             .Arguments;
 
         Assert.AreEqual("-audible_key 123 -audible_iv 456 -i \"input.aaxc\" -map_metadata 0 -id3v2_version 3 -vn -c:a copy \"output.m4b\" -y", str);
@@ -1529,13 +1528,75 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("video.mp4")
             .AddFileInput("audio.mp3")
-            .MapMetadata(1)
-            .OutputToFile("output.mp4", false)
+            .OutputToFile("output.mp4", false, opt => opt.WithMapMetadata(1))
             .Arguments;
 
         Assert.AreEqual("-i \"video.mp4\" -i \"audio.mp3\" -map_metadata 1 \"output.mp4\"", str);
-        Assert.AreEqual("-map_metadata 0", new MapMetadataArgument().Text);
-        Assert.AreEqual("-map_metadata 2", new MapMetadataArgument(2).Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetadata_FollowedByAnotherInput_MapsOnTheOutputSide()
+    {
+        var str = FFMpegArguments.FromFileInput("video.mp4")
+            .AddMetadata(";FFMETADATA1")
+            .AddFileInput("audio.mp3")
+            .OutputToFile("output.mp4", false, opt => opt.CopyStreams())
+            .Arguments;
+
+        StringAssert.Matches(str,
+            new Regex("^-i \"video.mp4\" -i \".*metadata_[0-9a-f-]+\\.txt\" -i \"audio.mp3\" -map_metadata 1 -c copy \"output.mp4\"$"));
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetadata_CountsEveryFileOfAMultiInput()
+    {
+        var str = FFMpegArguments.FromFileInput(new[] { "a.mp4", "b.mp4", "c.mp4" }, false)
+            .AddMetadata(";FFMETADATA1")
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        StringAssert.EndsWith(str, "-map_metadata 3 \"output.mp4\"");
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetadata_CountsTheConcatDemuxerAsOneInput()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .AddConcatDemuxerInput(new[] { "a.mp4", "b.mp4" })
+            .AddMetadata(";FFMETADATA1")
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        StringAssert.EndsWith(str, "-map_metadata 2 \"output.mp4\"");
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetadata_ExplicitMappingWins()
+    {
+        var mapped = FFMpegArguments.FromFileInput("input.mp4")
+            .AddMetadata(";FFMETADATA1")
+            .OutputToFile("output.mp4", false, opt => opt.WithMapMetadata(0))
+            .Arguments;
+        var removed = FFMpegArguments.FromFileInput("input.mp4")
+            .AddMetadata(";FFMETADATA1")
+            .OutputToFile("output.mp4", false, opt => opt.WithoutMetadata())
+            .Arguments;
+
+        StringAssert.EndsWith(mapped, "txt\" -map_metadata 0 \"output.mp4\"");
+        StringAssert.EndsWith(removed, "txt\" -map_metadata -1 \"output.mp4\"");
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AddMetadata_MapsOnEveryOutput()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .AddMetadata(";FFMETADATA1")
+            .OutputToMany(outputs => outputs
+                .OutputToFile("a.mp4", false)
+                .OutputToFile("b.mp4", false, opt => opt.WithoutMetadata()))
+            .Arguments;
+
+        StringAssert.EndsWith(str, "txt\" -map_metadata 1 \"a.mp4\" -map_metadata -1 \"b.mp4\"");
     }
 
     [TestMethod]

@@ -243,6 +243,19 @@ A chapter given a single `TimeSpan` is a duration, and starts where the previous
 explicitly. Chapters are `ChapterData`, the same type `IMediaAnalysis.Chapters` returns, so chapters read from one file can be fed straight
 into another. Call `Build()` if you want the document text itself.
 
+`AddMetadata` adds the document as an input and maps its metadata onto every output. To take the metadata from another input instead, or
+drop it, say so on the output — `WithMapMetadata(inputIndex)` and `WithoutMetadata()` replace the automatic mapping:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(videoPath)
+    .AddFileInput(audiobookPath)
+    .OutputToFile(outputPath, true, options => options
+        .WithMapMetadata(1)   // -map_metadata 1 — keep the audiobook's tags
+        .CopyStreams())
+    .ProcessSynchronously();
+```
+
 ## Helper methods
 
 The provided helper methods make it simple to perform common operations. Each one builds the ffmpeg arguments and returns an

@@ -136,20 +136,16 @@ public class FFMetadataBuilderTests
     [TestMethod]
     public void TestMapMetadata()
     {
-        //-i "whaterver0" // index: 0
-        //-f concat -safe 0
-        //-i "\AppData\Local\Temp\concat_b511f2bf-c4af-4f71-b9bd-24d706bf4861.txt"   // index: 1
-        //-i "\AppData\Local\Temp\metadata_210d3259-3d5c-43c8-9786-54b5c414fa70.txt" // index: 2
-        //-map_metadata 2
-
         var text0 = FFMpegArguments.FromFileInput("whaterver0")
             .AddMetadata("WhatEver3")
-            .Text;
+            .OutputToFile("out.mp4")
+            .Arguments;
 
         var text1 = FFMpegArguments.FromFileInput("whaterver0")
             .AddConcatDemuxerInput(new[] { "whaterver", "whaterver1" })
             .AddMetadata("WhatEver3")
-            .Text;
+            .OutputToFile("out.mp4")
+            .Arguments;
 
         Assert.IsTrue(Regex.IsMatch(text0, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 1"), "map_metadata index is calculated incorrectly.");
         Assert.IsTrue(Regex.IsMatch(text1, "metadata_[0-9a-f-]+\\.txt\" -map_metadata 2"), "map_metadata index is calculated incorrectly.");

@@ -159,7 +159,8 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Mirror(Mirroring.Horizontal)` | `WithVideoFilters(f => f.HorizontalFlip())` |
 | `WithGlobalOptions(g => g.WithVerbosityLevel(v))` | `WithLogLevel(FFMpegLogLevel.…)` |
 | `MultiOutput(…)` | `OutputToMany(…)` |
-| `AddMetaData(…)` / `MapMetaData(…)` | `AddMetadata(…)` / `MapMetadata(…)` |
+| `AddMetaData(…)` | `AddMetadata(…)` |
+| `MapMetaData(i)` / `MapMetadata(i)` on `FFMpegArguments` | `WithMapMetadata(i)` on the output options — see [below](#-map_metadata-is-an-output-option) |
 | `ProcessSynchronously(…, ffMpegOptions: o)` | `ProcessSynchronously(…, ffOptions: o)` — named only |
 
 ## Renamed and removed types
@@ -247,6 +248,22 @@ whole input came back as one silent stretch. ffmpeg's own default is -60 dB, and
 It rendered `scale=-1:720`, which keeps the aspect ratio exactly and so can produce an odd width — a 1080×1920 portrait video becomes
 405×720, which libx264 and most other encoders reject for `yuv420p`. It now renders `scale=-2:720`, rounding the computed width to an even
 number. `ThumbnailSheet`'s default tile size does the same.
+
+## `-map_metadata` is an output option
+
+`MapMetadata` sat on `FFMpegArguments` among the inputs, and `AddMetadata` emitted its `-map_metadata` straight after its own `-i`. ffmpeg
+reads `-map_metadata` as an option of the *next* file, so any input added after either of them failed the run with "cannot be applied to
+input url". The index was also computed by counting input arguments, so `FromFileInput(IEnumerable<string>)` — one argument, several `-i`
+— threw it off, as did `MapMetadata` itself.
+
+`AddMetadata` now only adds the input, and maps it on every output that does not choose its own mapping. Choosing one is an output option:
+
+```csharp
+FFMpegArguments.FromFileInput(a).AddFileInput(b).MapMetadata(1).OutputToFile(output);                     // 5.x / early 6.0
+FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, true, o => o.WithMapMetadata(1));   // 6.0
+```
+
+`MapMetadataArgument` takes the index it maps, and is no longer an input argument. `MetadataArgument` emits only its `-i`.
 
 ## Cancellation waits for ffmpeg to finalise the output
 

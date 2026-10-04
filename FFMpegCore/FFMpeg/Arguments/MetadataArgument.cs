@@ -1,6 +1,6 @@
 ﻿namespace FFMpegCore.Arguments;
 
-public class MetadataArgument : IInputArgument, IDynamicArgument
+public class MetadataArgument : IInputArgument
 {
     private readonly string _metadataContent;
     private string? _tempFileName;
@@ -10,19 +10,7 @@ public class MetadataArgument : IInputArgument, IDynamicArgument
         _metadataContent = metadataContent;
     }
 
-    public string GetText(IEnumerable<IArgument>? arguments)
-    {
-        arguments ??= Enumerable.Empty<IArgument>();
-
-        var index = arguments
-            .TakeWhile(x => x != this)
-            .OfType<IInputArgument>()
-            .Count();
-
-        return $"-i \"{TempFileName}\" -map_metadata {index}";
-    }
-
-    public string Text => GetText(null);
+    public string Text => $"-i \"{TempFileName}\"";
 
     public Task During(CancellationToken cancellationToken = default)
     {

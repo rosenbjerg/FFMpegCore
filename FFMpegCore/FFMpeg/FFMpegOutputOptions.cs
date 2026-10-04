@@ -146,6 +146,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new MapLabelArgument(label, true));
     }
 
+    /// <summary>-map_metadata</summary>
+    public FFMpegOutputOptions WithMapMetadata(int inputFileIndex)
+    {
+        return WithArgument(new MapMetadataArgument(inputFileIndex));
+    }
+
     /// <summary>-map_metadata -1</summary>
     public FFMpegOutputOptions WithoutMetadata()
     {
