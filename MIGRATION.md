@@ -169,6 +169,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `ProcessSynchronously(…, ffMpegOptions: o)` | `ProcessSynchronously(…, ffOptions: o)` — named only |
 | `NotifyOnError(…)` | `NotifyOnStandardError(…)` — it receives every stderr line, which is all of ffmpeg's logging and progress, not just errors |
 | `NotifyOnOutput(…)` | `NotifyOnStandardOutput(…)` |
+| `FFMpegArguments.Text` | `….OutputTo…(…).Arguments` — the rendered command line is read from the processor, which is the only place it is complete |
 | `WithVideoBitrate(bitrate: n)` / `WithAudioBitrate(bitrate: n)` | `WithVideoBitrate(kilobitsPerSecond: n)` — the unit was always kbps; only a named argument changes |
 
 ## Renamed and removed types

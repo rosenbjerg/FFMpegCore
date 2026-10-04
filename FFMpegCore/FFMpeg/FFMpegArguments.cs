@@ -7,7 +7,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 {
     private FFMpegArguments() { }
 
-    public string Text => GetText();
+    internal string Text => GetText();
 
     private string GetText()
     {
