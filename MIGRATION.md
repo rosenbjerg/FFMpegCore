@@ -248,6 +248,26 @@ It rendered `scale=-1:720`, which keeps the aspect ratio exactly and so can prod
 405×720, which libx264 and most other encoders reject for `yuv420p`. It now renders `scale=-2:720`, rounding the computed width to an even
 number. `ThumbnailSheet`'s default tile size does the same.
 
+## Cancellation waits for ffmpeg to finalise the output
+
+`CancellableThrough` sent ffmpeg `q` and then killed it after `timeout` milliseconds — and the default was `0`, so it killed straight away
+and an mp4 was left without its index. It now waits up to five seconds for ffmpeg to finish before killing it, and takes the grace period
+as a `TimeSpan`:
+
+```csharp
+.CancellableThrough(token, 10000)                    // 5.x / early 6.0
+.CancellableThrough(token, TimeSpan.FromSeconds(10)) // 6.0
+.CancellableThrough(token, TimeSpan.Zero)            // 6.0 — the old default
+```
+
+`ProcessSynchronously` and `ProcessAsynchronously` also take a `CancellationToken` now, as their last parameter, for cancelling a single
+run without attaching the token to the processor:
+
+```csharp
+await processor.CancellableThrough(token).ProcessAsynchronously(); // still works
+await processor.ProcessAsynchronously(cancellationToken: token);   // 6.0
+```
+
 ## Extension packages
 
 `Snapshot` and `SnapshotAsync` in both image extension packages take the run's `FFOptions`, placed before `cancellationToken` to match
@@ -296,6 +316,7 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks.
 - `NotifyOnPercentageProgress` without a duration after an `FFMpeg.*` helper that already probed the input.
 - `CancellableThrough(CancellationToken)` registers per run, so a processor can be run more than once.
+- `ProcessSynchronously` and `ProcessAsynchronously` take a `CancellationToken`.
 - `FromImageSequenceInput` and `AddImageSequenceInput` for building a video from images through the argument builder.
 - `WithMap`/`WithNegativeMap` take a `StreamType` in place of a stream index, so `-map 0:a` — every audio stream of an input — is
   expressible without probing first to count them.

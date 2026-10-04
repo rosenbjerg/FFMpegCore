@@ -177,12 +177,23 @@ await FFMpegArguments
     .OutputToFile(outputPath)
     .NotifyOnProgress(time => Console.WriteLine($"at {time}"))
     .NotifyOnPercentageProgress(percent => Console.WriteLine($"{percent}%"), mediaInfo.Duration)
-    .CancellableThrough(cancellationToken)
-    .ProcessAsynchronously();
+    .ProcessAsynchronously(cancellationToken: cancellationToken);
 ```
 
-`CancellableThrough` sends `q` to ffmpeg so it finalises the output, then kills the process after the optional timeout. It also accepts an
-`out Action` if you would rather cancel by calling it. Tokens are registered per run, so the same processor can be run more than once.
+Cancelling sends `q` to ffmpeg, so it finalises the output — an mp4 gets its index written and stays playable — and kills the process if it
+has not exited within five seconds. `ProcessSynchronously` and `ProcessAsynchronously` take the token for a single run. `CancellableThrough`
+attaches one to the processor instead, for every run it makes, and is where to choose a different grace period, or take an `out Action` to
+cancel by calling it:
+
+```csharp
+var processor = FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath)
+    .CancellableThrough(shutdownToken, TimeSpan.FromSeconds(30))
+    .CancellableThrough(out var cancel);
+```
+
+Pass `TimeSpan.Zero` to kill ffmpeg straight away, at the cost of whatever it had not yet written.
 
 ### Multiple outputs
 
@@ -251,8 +262,7 @@ keep the whole thing asynchronous. The analysis carries the path it was made fro
 var source = await FFProbe.AnalyseAsync(inputPath, cancellationToken: cancellationToken);
 
 await FFMpeg.Remux(source, "output.mkv")
-    .CancellableThrough(cancellationToken)
-    .ProcessAsynchronously();
+    .ProcessAsynchronously(cancellationToken: cancellationToken);
 ```
 
 For the helpers taking several inputs this also lets the probes run concurrently, where the path overloads probe one after another:
@@ -261,8 +271,7 @@ For the helpers taking several inputs this also lets the probes run concurrently
 var sources = await Task.WhenAll(parts.Select(part => FFProbe.AnalyseAsync(part, cancellationToken: cancellationToken)));
 
 await FFMpeg.Concat("joined.mp4", sources)
-    .CancellableThrough(cancellationToken)
-    .ProcessAsynchronously();
+    .ProcessAsynchronously(cancellationToken: cancellationToken);
 ```
 
 It is also worth using whenever you have already probed the input to decide what to do — passing the analysis in saves a second probe of the
@@ -277,8 +286,7 @@ FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(
 
 // or asynchronously, with cancellation
 await FFMpeg.Snapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromMinutes(1))
-    .CancellableThrough(cancellationToken)
-    .ProcessAsynchronously();
+    .ProcessAsynchronously(cancellationToken: cancellationToken);
 
 // or process the snapshot in-memory using one of the image extension packages
 var bitmap = SystemDrawingImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1)); // FFMpegCore.Extensions.System.Drawing.Common
@@ -433,13 +441,11 @@ FFMpeg.ExtractAudio(inputPath, "track.opus", "libopus").ProcessSynchronously();
 
 ```csharp
 await FFMpeg.SaveStream(new Uri("https://example.com/live/stream.m3u8"), "recording.ts")
-    .CancellableThrough(cancellationToken)
-    .ProcessAsynchronously();
+    .ProcessAsynchronously(cancellationToken: cancellationToken);
 ```
 
 Any protocol ffmpeg can open works — http(s), rtmp, rtsp, srt. The streams are copied, not re-encoded. Prefer `.ts` or `.mkv` over `.mp4` for
-anything long-running: an mp4 is only finalised when the run ends, so a crash loses the recording, while cancelling through
-`CancellableThrough` finalises it properly.
+anything long-running: an mp4 is only finalised when the run ends, so a crash loses the recording, while cancelling finalises it properly.
 
 ### Add or replace the audio track of a video file:
 

@@ -12,8 +12,10 @@ public class FFMpegArgumentProcessor
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
-    private readonly List<(CancellationToken Token, int Timeout)> _cancellationTokens = new();
+    private static readonly TimeSpan DefaultCancellationGracePeriod = TimeSpan.FromSeconds(5);
+    private readonly List<(CancellationToken Token, TimeSpan GracePeriod)> _cancellationTokens = new();
     private bool _cancelled;
+    private TimeSpan _cancellationGracePeriod;
     private FFOptions? _ffOptions;
     private TimeSpan? _knownDuration;
     private FFMpegLogLevel? _logLevel;
@@ -31,7 +33,7 @@ public class FFMpegArgumentProcessor
 
     public string Arguments => _ffMpegArguments.Text;
 
-    private event EventHandler<int> CancelEvent = null!;
+    private event EventHandler<TimeSpan> CancelEvent = null!;
 
     /// <summary>
     ///     Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed and progress percentage is
@@ -104,22 +106,24 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-    private void Cancel(int timeout)
+    private void Cancel(TimeSpan gracePeriod)
     {
         _cancelled = true;
-        CancelEvent?.Invoke(this, timeout);
+        _cancellationGracePeriod = gracePeriod;
+        CancelEvent?.Invoke(this, gracePeriod);
     }
 
-    public FFMpegArgumentProcessor CancellableThrough(out Action cancel, int timeout = 0)
+    public FFMpegArgumentProcessor CancellableThrough(out Action cancel, TimeSpan? gracePeriod = null)
     {
-        cancel = () => Cancel(timeout);
+        var resolvedGracePeriod = gracePeriod ?? DefaultCancellationGracePeriod;
+        cancel = () => Cancel(resolvedGracePeriod);
         return this;
     }
 
-    public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, int timeout = 0)
+    public FFMpegArgumentProcessor CancellableThrough(CancellationToken token, TimeSpan? gracePeriod = null)
     {
         token.ThrowIfCancellationRequested();
-        _cancellationTokens.Add((token, timeout));
+        _cancellationTokens.Add((token, gracePeriod ?? DefaultCancellationGracePeriod));
         return this;
     }
 
@@ -140,7 +144,7 @@ public class FFMpegArgumentProcessor
         return this;
     }
 
-    public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffOptions = null)
+    public FFMpegResult ProcessSynchronously(bool throwOnError = true, FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
         var options = GetConfiguredOptions(ffOptions);
         using var cancellationTokenSource = new CancellationTokenSource();
@@ -149,7 +153,7 @@ public class FFMpegArgumentProcessor
         var cancelled = false;
         try
         {
-            processResult = Process(options, cancellationTokenSource).ConfigureAwait(false).GetAwaiter().GetResult();
+            processResult = Process(options, cancellationTokenSource, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         catch (OperationCanceledException)
         {
@@ -164,7 +168,8 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
-    public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffOptions = null)
+    public async Task<FFMpegResult> ProcessAsynchronously(bool throwOnError = true, FFOptions? ffOptions = null,
+        CancellationToken cancellationToken = default)
     {
         var options = GetConfiguredOptions(ffOptions);
         using var cancellationTokenSource = new CancellationTokenSource();
@@ -173,7 +178,7 @@ public class FFMpegArgumentProcessor
         var cancelled = false;
         try
         {
-            processResult = await Process(options, cancellationTokenSource).ConfigureAwait(false);
+            processResult = await Process(options, cancellationTokenSource, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -188,17 +193,20 @@ public class FFMpegArgumentProcessor
         return HandleCompletion(throwOnError, processResult, cancelled);
     }
 
-    private async Task<IProcessResult> Process(FFOptions options, CancellationTokenSource cancellationTokenSource)
+    private async Task<IProcessResult> Process(FFOptions options, CancellationTokenSource cancellationTokenSource, CancellationToken runToken)
     {
         IProcessResult processResult = null!;
-        if (_cancelled || _cancellationTokens.Any(registered => registered.Token.IsCancellationRequested))
+        var tokens = runToken.CanBeCanceled
+            ? _cancellationTokens.Append((Token: runToken, GracePeriod: DefaultCancellationGracePeriod)).ToList()
+            : _cancellationTokens;
+        if (_cancelled || tokens.Any(registered => registered.Token.IsCancellationRequested))
         {
             _cancelled = false;
             throw new OperationCanceledException("cancelled before starting processing");
         }
 
         FFMpegHelper.VerifyFFMpegExists(options);
-        var registrations = _cancellationTokens.Select(registered => registered.Token.Register(() => Cancel(registered.Timeout))).ToList();
+        var registrations = tokens.Select(registered => registered.Token.Register(() => Cancel(registered.GracePeriod))).ToList();
         _ffMpegArguments.Pre(options);
         try
         {
@@ -220,15 +228,21 @@ public class FFMpegArgumentProcessor
         {
             using var instance = PrepareProcessArguments(options).Start();
 
-            void OnCancelEvent(object sender, int timeout)
+            void OnCancelEvent(object sender, TimeSpan gracePeriod)
             {
                 ExecuteIgnoringFinishedProcessExceptions(() => instance.SendInput("q"));
 
-                if (!cancellationTokenSource.Token.WaitHandle.WaitOne(timeout, true))
+                // Don't wait for the grace period here: this runs inside the caller's CancellationTokenSource.Cancel()
+                Task.Delay(gracePeriod, cancellationTokenSource.Token).ContinueWith(delay =>
                 {
-                    cancellationTokenSource.Cancel();
+                    if (delay.IsCanceled)
+                    {
+                        return;
+                    }
+
+                    ExecuteIgnoringFinishedProcessExceptions(cancellationTokenSource.Cancel);
                     ExecuteIgnoringFinishedProcessExceptions(() => instance.Kill());
-                }
+                }, TaskScheduler.Default);
 
                 static void ExecuteIgnoringFinishedProcessExceptions(Action action)
                 {
@@ -250,7 +264,7 @@ public class FFMpegArgumentProcessor
             CancelEvent += OnCancelEvent;
             if (_cancelled)
             {
-                OnCancelEvent(this, 0);
+                OnCancelEvent(this, _cancellationGracePeriod);
             }
 
             try

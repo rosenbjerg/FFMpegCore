@@ -44,8 +44,7 @@ var outputPath = "/path/to/output";
             .WithSpeedPreset(Speed.Fast))
         .NotifyOnProgress(time => Console.WriteLine($"at {time}"))
         .NotifyOnPercentageProgress(percent => Console.WriteLine($"{percent:0.#}%"), source.Duration)
-        .CancellableThrough(conversion.Token)
-        .ProcessAsynchronously(false);
+        .ProcessAsynchronously(false, cancellationToken: conversion.Token);
 
     if (!result.Success)
     {
@@ -170,8 +169,7 @@ var outputStream = new MemoryStream();
     // cancelling sends q, so ffmpeg finalises the recording rather than leaving it truncated
     using var recording = new CancellationTokenSource(TimeSpan.FromMinutes(30));
     await FFMpeg.SaveStream(new Uri("https://example.com/live/stream.m3u8"), @"..\recording.ts")
-        .CancellableThrough(recording.Token)
-        .ProcessAsynchronously(false);
+        .ProcessAsynchronously(false, cancellationToken: recording.Token);
 }
 
 var inputAudioPath = "/path/to/input/audio";

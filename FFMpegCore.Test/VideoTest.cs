@@ -1107,7 +1107,7 @@ public class VideoTest
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
-            .CancellableThrough(out var cancel, 10000)
+            .CancellableThrough(out var cancel, TimeSpan.FromSeconds(10))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
 
@@ -1283,7 +1283,7 @@ public class VideoTest
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(Speed.VeryFast))
-            .CancellableThrough(cts.Token, 8000)
+            .CancellableThrough(cts.Token, TimeSpan.FromSeconds(8))
             .ProcessAsynchronously(false);
 
         cts.CancelAfter(300);
@@ -1297,6 +1297,74 @@ public class VideoTest
         Assert.AreEqual(240, outputInfo.PrimaryVideoStream.Height);
         Assert.AreEqual("h264", outputInfo.PrimaryVideoStream.CodecName);
         Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_Cancel_RunToken_FinalisesTheOutput()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+
+        var task = FFMpegArguments
+            .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                .WithCustomArgument("-re")
+                .ForceFormat("lavfi"))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithSpeedPreset(Speed.VeryFast))
+            .ProcessAsynchronously(false, cancellationToken: cts.Token);
+
+        cts.CancelAfter(300);
+
+        var result = await task;
+        var outputInfo = await FFProbe.AnalyseAsync(outputFile, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Cancelled);
+        Assert.AreEqual("h264", outputInfo.PrimaryVideoStream!.CodecName);
+        Assert.AreEqual("aac", outputInfo.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Cancel_DefaultGracePeriod_FinalisesTheOutput()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        var processor = FFMpegArguments
+            .FromFileInput("testsrc2=size=320x240[out0]; sine[out1]", false, args => args
+                .WithCustomArgument("-re")
+                .ForceFormat("lavfi"))
+            .OutputToFile(outputFile, false, opt => opt
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithSpeedPreset(Speed.VeryFast))
+            .CancellableThrough(out var cancel)
+            .CancellableThrough(TestContext.CancellationToken);
+
+        Task.Delay(300, TestContext.CancellationToken).ContinueWith(_ => cancel(), TestContext.CancellationToken);
+        var result = processor.ProcessSynchronously(false);
+        var outputInfo = FFProbe.Analyse(outputFile);
+
+        Assert.IsTrue(result.Cancelled);
+        Assert.AreEqual("h264", outputInfo.PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Cancel_RunTokenAlreadyCancelled_DoesNotStart()
+    {
+        using var outputFile = new TemporaryFile("out.mp4");
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var processor = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(outputFile, true, opt => opt.CopyStreams());
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously(cancellationToken: cts.Token));
+        Assert.IsFalse(File.Exists(outputFile));
+        Assert.IsTrue(processor.ProcessSynchronously().Success);
     }
 
     [TestMethod]
