@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Exceptions;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 

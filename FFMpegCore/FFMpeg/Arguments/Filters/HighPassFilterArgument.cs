@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Arguments;
 

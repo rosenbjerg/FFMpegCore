@@ -1,12 +1,7 @@
 ﻿using System.Globalization;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Arguments;
-
-public enum FadeDirection
-{
-    In,
-    Out
-}
 
 /// <summary>fade</summary>
 public class VideoFadeArgument : IVideoFilterArgument

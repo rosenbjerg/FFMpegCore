@@ -1,4 +1,6 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Enums;
+
+namespace FFMpegCore.Arguments;
 
 /// <summary>
 ///     overlay. Only meaningful inside a complex filter graph, which is where a second input can reach it.
@@ -28,28 +30,4 @@ public class OverlayArgument : IVideoFilterArgument
 
     public string Key { get; } = "overlay";
     public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
-}
-
-public readonly struct OverlayEofAction
-{
-    private OverlayEofAction(string value)
-    {
-        Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public string Value { get; }
-
-    public static OverlayEofAction Repeat => new("repeat");
-    public static OverlayEofAction EndAll => new("endall");
-    public static OverlayEofAction Pass => new("pass");
-
-    public static implicit operator OverlayEofAction(string value)
-    {
-        return new OverlayEofAction(value);
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
 }

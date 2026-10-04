@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using FFMpegCore.Enums;
 
 namespace FFMpegCore.Arguments;
 
@@ -98,73 +99,4 @@ public class AudioGateArgument : IAudioFilterArgument
     public string Key { get; } = "agate";
 
     public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
-}
-
-public readonly struct AudioGateMode
-{
-    private AudioGateMode(string value)
-    {
-        Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public string Value { get; }
-
-    public static AudioGateMode Downward => new("downward");
-    public static AudioGateMode Upward => new("upward");
-
-    public static implicit operator AudioGateMode(string value)
-    {
-        return new AudioGateMode(value);
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
-}
-
-public readonly struct AudioGateDetection
-{
-    private AudioGateDetection(string value)
-    {
-        Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public string Value { get; }
-
-    public static AudioGateDetection Peak => new("peak");
-    public static AudioGateDetection Rms => new("rms");
-
-    public static implicit operator AudioGateDetection(string value)
-    {
-        return new AudioGateDetection(value);
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
-}
-
-public readonly struct AudioGateLink
-{
-    private AudioGateLink(string value)
-    {
-        Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public string Value { get; }
-
-    public static AudioGateLink Average => new("average");
-    public static AudioGateLink Maximum => new("maximum");
-
-    public static implicit operator AudioGateLink(string value)
-    {
-        return new AudioGateLink(value);
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
 }

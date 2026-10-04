@@ -188,6 +188,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 |---|---|
 | `FFMpegArgumentOptions` | `FFMpegInputOptions`, `FFMpegOutputOptions` |
 | `Channel` | `StreamType` — `Channel.Both` is gone, use `StreamType.All` |
+| `FFMpegCore.Arguments.FadeDirection` | `FFMpegCore.Enums.FadeDirection`, with the other values passed to builder methods |
 | `Filter` | `BitstreamFilter` |
 | `Mirroring` | removed — use `HorizontalFlip()` / `VerticalFlip()` |
 | `MetaDataBuilder`, `MetaData`, `IReadOnlyMetaData` (namespace `FFMpegCore.Builders.MetaData`) | `FFMetadataBuilder` in `FFMpegCore` |
@@ -316,7 +317,7 @@ or aspect ratio throws `ArgumentException` instead of a bare `Exception`.
 `Overlay`'s `eofAction`, `AudioMix`'s `duration`, `Fps`'s `round`, `SilenceDetect`'s `noiseType`, `HighPass`/`LowPass`'s `widthType`,
 `transform` and `precision`, and `AudioGate`'s `mode`, `detection` and `link` take a small type per parameter — `OverlayEofAction`,
 `AudioMixDuration`, `FpsRounding`, `SilenceDetectNoiseUnit`, `FilterWidthType`, `FilterTransform`, `FilterPrecision`, `AudioGateMode`,
-`AudioGateDetection`, `AudioGateLink` — whose members list the values ffmpeg accepts. A plain string still converts to each of them, so
+`AudioGateDetection`, `AudioGateLink`, all in `FFMpegCore.Enums` — whose members list the values ffmpeg accepts. A plain string still converts to each of them, so
 existing calls compile unchanged:
 
 ```csharp
