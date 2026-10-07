@@ -16,13 +16,13 @@ public class SnapshotArgumentBuilderTests
         public string Path => "input.mp4";
         public TimeSpan Duration => TimeSpan.FromSeconds(3);
         public MediaFormat Format => new();
-        public List<ChapterData> Chapters => new();
+        public IReadOnlyList<ChapterData> Chapters => [];
         public AudioStream PrimaryAudioStream => null;
         public VideoStream PrimaryVideoStream { get; }
         public SubtitleStream PrimarySubtitleStream => null;
-        public List<VideoStream> VideoStreams { get; }
-        public List<AudioStream> AudioStreams => new();
-        public List<SubtitleStream> SubtitleStreams => new();
+        public IReadOnlyList<VideoStream> VideoStreams { get; }
+        public IReadOnlyList<AudioStream> AudioStreams => [];
+        public IReadOnlyList<SubtitleStream> SubtitleStreams => [];
         public IReadOnlyList<string> ErrorOutput => Array.Empty<string>();
     }
 

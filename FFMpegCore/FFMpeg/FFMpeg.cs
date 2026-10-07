@@ -95,7 +95,7 @@ public static class FFMpeg
             "This analysis came from a stream, so it names no input ffmpeg could open. Use the overload that takes an input path.", parameterName);
     }
 
-    private static void CheckSnapshotOutputExtension(string output, List<string> extensions)
+    private static void CheckSnapshotOutputExtension(string output, IReadOnlyList<string> extensions)
     {
         if (!extensions.Contains(Path.GetExtension(output).ToLower()))
         {

@@ -15,6 +15,6 @@ public static class FileExtension
         public const string Jpg = ".jpg";
         public const string Bmp = ".bmp";
         public const string Webp = ".webp";
-        public static readonly List<string> All = [Png, Jpg, Bmp, Webp];
+        public static readonly IReadOnlyList<string> All = [Png, Jpg, Bmp, Webp];
     }
 }

@@ -19,15 +19,15 @@ internal class MediaAnalysis : IMediaAnalysis
 
     public MediaFormat Format { get; }
 
-    public List<ChapterData> Chapters { get; }
+    public IReadOnlyList<ChapterData> Chapters { get; }
 
     public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
     public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
     public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
 
-    public List<VideoStream> VideoStreams { get; }
-    public List<AudioStream> AudioStreams { get; }
-    public List<SubtitleStream> SubtitleStreams { get; }
+    public IReadOnlyList<VideoStream> VideoStreams { get; }
+    public IReadOnlyList<AudioStream> AudioStreams { get; }
+    public IReadOnlyList<SubtitleStream> SubtitleStreams { get; }
     public IReadOnlyList<string> ErrorOutput { get; }
 
     private MediaFormat ParseFormat(Format analysisFormat)
