@@ -143,6 +143,18 @@ FFMpeg.PosterWithAudio(imageAnalysis, audioPath, output);                       
 FFMpeg.PosterWithAudio(imageAnalysis, await FFProbe.AnalyseAsync(audioPath), output);    // 6.0
 ```
 
+### `FFMpeg.Join` no longer forces 2400 kbps h264
+
+Without output options it encoded libx264 at a fixed 2400 kbps with the `superfast` preset, the same hard-coded bitrate that `Convert`
+was removed for: too little for 4K, wasteful for small inputs, and wrong for a `.webm` output. It now sets no encoder, so ffmpeg uses
+the output container's default at its default quality — libx264 at CRF 23 and AAC for `.mp4`. Pass output options for the old result:
+
+```csharp
+FFMpeg.Join(output, parts, options => options
+    .WithVideoCodec(VideoCodec.LibX264).WithVideoBitrate(2400).WithSpeedPreset(EncoderPreset.SuperFast)
+    .WithAudioCodec(AudioCodec.Aac).WithAudioBitrate(AudioQuality.Normal));
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.

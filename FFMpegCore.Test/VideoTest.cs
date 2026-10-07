@@ -1791,6 +1791,16 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_Join_LeavesTheEncoderToTheContainerByDefault()
+    {
+        var arguments = FFMpeg.Join("out.webm", TestResources.Mp4Video, TestResources.Mp4Video).Arguments;
+
+        Assert.DoesNotContain("-c:", arguments);
+        Assert.DoesNotContain("-b:", arguments);
+        Assert.DoesNotContain("-preset", arguments);
+    }
+
+    [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Join_TakesOutputOptions()
     {

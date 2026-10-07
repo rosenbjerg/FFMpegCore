@@ -406,7 +406,7 @@ FFMpeg.Join(@"..\joined_video.mp4",
     @"..\part2.mkv"
 ).ProcessSynchronously();
 
-// the default is h264/aac at 2400 kbps; pass output options to choose your own
+// by default ffmpeg picks the container's encoder at its default quality; pass output options to choose your own
 FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
     .WithVideoCodec(VideoCodec.LibX265)
     .WithConstantRateFactor(23)

@@ -559,7 +559,7 @@ public static class FFMpeg
     /// <inheritdoc cref="Join(string, string[])" />
     /// <param name="output">Output video file.</param>
     /// <param name="videos">Videos to join, in order.</param>
-    /// <param name="addArguments">Output options, replacing the default h264/aac encode.</param>
+    /// <param name="addArguments">Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default encoder.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Join(string output, IEnumerable<string> videos, Action<FFMpegOutputOptions>? addArguments = null,
         FFOptions? ffOptions = null)
@@ -585,7 +585,7 @@ public static class FFMpeg
     /// </summary>
     /// <param name="output">Output video file.</param>
     /// <param name="sources">Analyses of the videos to join, in order.</param>
-    /// <param name="addArguments">Output options, replacing the default h264/aac encode.</param>
+    /// <param name="addArguments">Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default encoder.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Join(string output, IEnumerable<IMediaAnalysis> sources, Action<FFMpegOutputOptions>? addArguments = null,
         FFOptions? ffOptions = null)
@@ -628,18 +628,7 @@ public static class FFMpeg
                     options.WithMap("a");
                 }
 
-                if (addArguments != null)
-                {
-                    addArguments(options);
-                    return;
-                }
-
-                options
-                    .WithVideoCodec(VideoCodec.LibX264)
-                    .WithVideoBitrate(2400)
-                    .WithSpeedPreset(EncoderPreset.SuperFast)
-                    .WithAudioCodec(AudioCodec.Aac)
-                    .WithAudioBitrate(AudioQuality.Normal);
+                addArguments?.Invoke(options);
             })
             .WithKnownDuration(analyses.Aggregate(TimeSpan.Zero, (total, analysis) => total + analysis.Duration))
             .WithOptions(ffOptions);
