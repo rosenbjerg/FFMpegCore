@@ -694,7 +694,9 @@ public static class FFMpeg
     }
 
     /// <summary>
-    ///     Cuts the section between two timestamps out of a media file, copying the streams rather than re-encoding.
+    ///     Cuts the section between two timestamps out of a media file, copying the streams rather than re-encoding. Without
+    ///     a re-encode the video can only start on a keyframe, so the cut begins at the keyframe at or before
+    ///     <paramref name="startTime" /> and may include up to a few seconds more than asked.
     /// </summary>
     /// <param name="input">Input media file.</param>
     /// <param name="output">Output media file. Its container must be able to mux the input's streams as they are.</param>

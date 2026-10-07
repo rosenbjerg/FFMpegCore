@@ -40,7 +40,7 @@ public class FFMpegArgumentProcessor
     ///     calculated.
     ///     Total time is needed to calculate the percentage that has been processed of the full file.
     /// </summary>
-    /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated</param>
+    /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated, with a value from 0 to 100</param>
     /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
     public FFMpegArgumentProcessor NotifyOnPercentageProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
     {

@@ -215,7 +215,7 @@ existing output when `overwrite: false`.
 
 ### Progress and cancellation
 
-`NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage, which needs the output
+`NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage from 0 to 100, which needs the output
 duration — pass it explicitly, or omit it after any `FFMpeg.*` helper except `SaveStream`, which reads a live stream with no known length.
 Both take an `Action<T>` or an `IProgress<T>`:
 
@@ -486,7 +486,9 @@ FFMpeg.Trim(inputPath,
 ```
 
 `Trim` copies every stream rather than re-encoding, so the output container has to be able to mux them as they are — cutting an h264/aac mp4
-into a `.mkv` is fine, into a `.webm` is not, and ffmpeg says so.
+into a `.mkv` is fine, into a `.webm` is not, and ffmpeg says so. Without a re-encode the video can only start on a keyframe, so the
+cut begins at the keyframe at or before `startTime` and may run a few seconds longer than asked. For a frame-exact cut, re-encode with
+`FFMpegArguments` and `WithStartTime`/`WithStopTime` on the input.
 
 ### Join images into a video:
 
