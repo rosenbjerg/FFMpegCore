@@ -159,9 +159,9 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_HardwareAcceleration_Specific()
     {
-        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration(HardwareAccelerationDevice.CUVID))
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration(HardwareAccelerationDevice.CUDA))
             .OutputToFile("output.mp4", false).Arguments;
-        Assert.AreEqual("-hwaccel cuvid -i \"input.mp4\" \"output.mp4\"", str);
+        Assert.AreEqual("-hwaccel cuda -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]

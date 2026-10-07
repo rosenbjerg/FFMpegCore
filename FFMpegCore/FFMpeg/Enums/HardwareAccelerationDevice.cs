@@ -12,9 +12,7 @@ public readonly struct HardwareAccelerationDevice
     public static HardwareAccelerationDevice Auto => new("auto");
     public static HardwareAccelerationDevice VideoToolbox => new("videotoolbox");
     public static HardwareAccelerationDevice CUDA => new("cuda");
-    public static HardwareAccelerationDevice CUVID => new("cuvid");
     public static HardwareAccelerationDevice QSV => new("qsv");
-    public static HardwareAccelerationDevice LibMFX => new("libmfx");
     public static HardwareAccelerationDevice VAAPI => new("vaapi");
     public static HardwareAccelerationDevice VDPAU => new("vdpau");
     public static HardwareAccelerationDevice D3D11VA => new("d3d11va");
