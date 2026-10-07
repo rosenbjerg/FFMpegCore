@@ -1,4 +1,6 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Enums;
+
+namespace FFMpegCore.Arguments;
 
 internal class OutputTeeArgument : IOutputArgument
 {
@@ -85,7 +87,8 @@ internal class OutputTeeArgument : IOutputArgument
 
         if (argument is BitstreamFilterArgument bitstreamFilter)
         {
-            return bitstreamFilter.Text.Replace("-bsf:", "bsfs/").Replace(' ', '=');
+            var specifier = bitstreamFilter.StreamType.Specifier().TrimStart(':');
+            return $"bsfs{(specifier.Length > 0 ? "/" + specifier : string.Empty)}={bitstreamFilter.Filter}";
         }
 
         return argument.Text.TrimStart('-').Replace(' ', '=');

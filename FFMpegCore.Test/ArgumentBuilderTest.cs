@@ -138,14 +138,25 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    [DataRow(StreamType.All)]
-    [DataRow(StreamType.Attachment)]
-    [DataRow(StreamType.VideoNoAttachedPic)]
-    [DataRow(StreamType.Subtitle)]
-    [DataRow(StreamType.Data)]
-    public void BitstreamFilter_RejectsStreamTypesWithoutABsfSpelling(StreamType streamType)
+    [DataRow(StreamType.All, "-bsf setts=ts=PTS")]
+    [DataRow(StreamType.Subtitle, "-bsf:s setts=ts=PTS")]
+    [DataRow(StreamType.Data, "-bsf:d setts=ts=PTS")]
+    [DataRow(StreamType.VideoNoAttachedPic, "-bsf:V setts=ts=PTS")]
+    public void BitstreamFilter_TakesEveryStreamSpecifier(StreamType streamType, string expected)
     {
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtsToAsc));
+        Assert.AreEqual(expected, new BitstreamFilterArgument(streamType, "setts=ts=PTS").Text);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_TeeOutput_BitstreamFilterOnEveryStream()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToTee(args => args
+                .OutputToFile("output.ts", false, options => options.ForceFormat("mpegts").WithBitstreamFilter(StreamType.All, "setts=ts=PTS"))
+                .OutputToFile("output.mkv", false, options => options.ForceFormat("matroska").WithBitstreamFilter(StreamType.Video, "null")))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -f tee \"[f=mpegts:bsfs=setts=ts=PTS]output.ts|[f=matroska:bsfs/v=null]output.mkv\"", str);
     }
 
     [TestMethod]

@@ -193,7 +193,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `FFMpegArgumentOptions` | `FFMpegInputOptions`, `FFMpegOutputOptions` |
 | `Channel` | `StreamType` — `Channel.Both` is gone, use `StreamType.All` |
 | `FFMpegCore.Arguments.FadeDirection` | `FFMpegCore.Enums.FadeDirection`, with the other values passed to builder methods |
-| `Filter` | `BitstreamFilter` — a struct, adding `Hevc_Mp4ToAnnexB`, `Mpeg4_UnpackBFrames`, `ExtractExtradata` and `DumpExtra`; any other bitstream filter passes through as a string |
+| `Filter` | `BitstreamFilter` — a struct, adding `Hevc_Mp4ToAnnexB`, `Mpeg4_UnpackBFrames`, `ExtractExtradata` and `DumpExtra`; any other bitstream filter passes through as a string. `WithBitstreamFilter` takes every `StreamType`, not only audio and video: `All` renders a bare `-bsf`, `Subtitle` renders `-bsf:s` |
 | `Speed` | `EncoderPreset` — a struct like `EncoderTune`, so `"p4"` (NVENC) or `"8"` (SVT-AV1) pass through as strings; `Speed.UltraFast` is `EncoderPreset.UltraFast`, and `Placebo` is new |
 | `HardwareAccelerationDevice` enum | a struct with the same member names plus `VideoToolbox`, `Vulkan`, `D3D12VA`, `OpenCL` and `DRM`, except `CUVID` (ffmpeg only accepts it as an alias of `cuda`; use `CUDA`) and `LibMFX` (not a `-hwaccel` value; Intel decoding is `QSV`, whichever of libmfx or libvpl backs it); any other `-hwaccel` value passes through as a string. A `switch` over it no longer compiles — compare `Value` instead. `HardwareAccelerationArgument.HardwareAccelerationDevice` is the field `Device` |
 | `Mirroring` | removed — use `HorizontalFlip()` / `VerticalFlip()` |
@@ -398,7 +398,7 @@ types. `FFMpegArgumentException` is gone — it derived from neither `FFMpegExce
 | Mistake | 5.x / early 6.0 | 6.0 |
 |---|---|---|
 | A `Codec` of the wrong type for `WithVideoCodec`/`WithAudioCodec`/`WithSubtitleCodec` | `FFMpegException` | `ArgumentException` |
-| A `StreamType` that `-bsf` or `-vn`/`-an`/… has no spelling for | `FFMpegException` | `ArgumentOutOfRangeException` |
+| A `StreamType` that `-vn`/`-an`/… has no spelling for | `FFMpegException` | `ArgumentOutOfRangeException` |
 | `WithVideoFilters`/`WithAudioFilters`/`WithComplexFilter` that add nothing | `FFMpegArgumentException`, when the command line was rendered | `ArgumentException`, from the `With…Filter…` call itself |
 
 `OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
