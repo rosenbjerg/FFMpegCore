@@ -19,7 +19,7 @@ public static class SystemDrawingImage
         FFOptions? ffOptions = null)
     {
         var source = FFProbe.Analyse(input, ffOptions);
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 
         arguments
@@ -46,7 +46,7 @@ public static class SystemDrawingImage
         FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
         var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, source, size, captureTime, streamIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 
         await arguments

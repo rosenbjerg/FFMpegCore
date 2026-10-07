@@ -37,8 +37,7 @@ public static class FFMpeg
     {
         CheckSnapshotOutputExtension(output, FileExtension.Image.All);
 
-        var input = InputPathOf(source, nameof(source));
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, source, size, captureTime, streamIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, output, size, captureTime, streamIndex);
 
         return arguments.OutputToFile(output, outputOptions)
             .WithKnownDuration(OneFrameOf(source))
@@ -76,8 +75,7 @@ public static class FFMpeg
     {
         CheckSnapshotOutputExtension(output, [FileExtension.Gif]);
 
-        var input = InputPathOf(source, nameof(source));
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(input, source, size, captureTime, duration, streamIndex);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildGifSnapshotArguments(source, size, captureTime, duration, streamIndex);
         var start = captureTime ?? TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
 
         return arguments.OutputToFile(output, outputOptions)
@@ -91,7 +89,7 @@ public static class FFMpeg
         return TimeSpan.FromSeconds(1 / (frameRate > 0 ? frameRate : 25));
     }
 
-    private static string InputPathOf(IMediaAnalysis source, string parameterName)
+    internal static string InputPathOf(IMediaAnalysis source, string parameterName)
     {
         return source.Path ?? throw new ArgumentException(
             "This analysis came from a stream, so it names no input ffmpeg could open. Use the overload that takes an input path.", parameterName);

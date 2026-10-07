@@ -28,7 +28,7 @@ public class SnapshotArgumentBuilderTests
 
     private static string SnapshotArguments(IMediaAnalysis source, Size? size)
     {
-        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments("input.mp4", "output.png", source, size);
+        var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, "output.png", size);
         return arguments.OutputToFile("output.png", true, outputOptions).Arguments;
     }
 

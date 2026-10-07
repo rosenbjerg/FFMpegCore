@@ -6,30 +6,27 @@ namespace FFMpegCore;
 public static class SnapshotArgumentBuilder
 {
     public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
-        string input,
-        string output,
         IMediaAnalysis source,
+        string output,
         Size? size = null,
         TimeSpan? captureTime = null,
         int? streamIndex = null)
     {
-        return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex);
+        return BuildSnapshotArguments(source, VideoCodec.Image.GetByExtension(output), size, captureTime, streamIndex);
     }
 
     public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
-        string input,
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
         int? streamIndex = null)
     {
-        return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex);
+        return BuildSnapshotArguments(source, VideoCodec.Image.Png, size, captureTime, streamIndex);
     }
 
     private static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
-        string input,
-        Codec codec,
         IMediaAnalysis source,
+        Codec codec,
         Size? size = null,
         TimeSpan? captureTime = null,
         int? streamIndex = null)
@@ -41,7 +38,7 @@ public static class SnapshotArgumentBuilder
                         ?? 0;
 
         return (FFMpegArguments
-                .FromFileInput(input, false, options => options
+                .FromFileInput(FFMpeg.InputPathOf(source, nameof(source)), false, options => options
                     .WithStartTime(captureTime)),
             options =>
             {
@@ -58,7 +55,6 @@ public static class SnapshotArgumentBuilder
     }
 
     public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildGifSnapshotArguments(
-        string input,
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
@@ -75,7 +71,7 @@ public static class SnapshotArgumentBuilder
                         ?? 0;
 
         return (FFMpegArguments
-                .FromFileInput(input, false, options => options
+                .FromFileInput(FFMpeg.InputPathOf(source, nameof(source)), false, options => options
                     .WithStartTime(captureTime)
                     .WithDuration(duration)),
             options => options

@@ -261,6 +261,14 @@ builder.WithChapter("Intro", TimeSpan.FromSeconds(90));    // 6.0
 `inputFileIndex` although the arguments they build have exactly one input, so any value but `0` produced a `-map` against an input that was
 never added. Drop the argument; a positional `FFOptions` or `CancellationToken` after it moves up one place.
 
+`SnapshotArgumentBuilder`'s methods also took the input path alongside the `IMediaAnalysis` that already carries it. They take the analysis
+first and no path, as the `FFMpeg.*` helpers' analysis overloads do:
+
+```csharp
+SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, analysis, size);  // 5.x / early 6.0
+SnapshotArgumentBuilder.BuildSnapshotArguments(analysis, output, size);         // 6.0
+```
+
 ### `WithGifPalette`'s `streamIndex` is a stream index
 
 It rendered `[N:v]` — the video of *input* `N` — so `GifSnapshot`, which passes the video stream's index, failed with "Invalid file
