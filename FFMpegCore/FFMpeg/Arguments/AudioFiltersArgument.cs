@@ -38,18 +38,20 @@ public interface IAudioFilterArgument
 
 public class AudioFilterOptions
 {
-    public List<IAudioFilterArgument> Arguments { get; } = new();
+    private readonly List<IAudioFilterArgument> _arguments = new();
+
+    public IReadOnlyList<IAudioFilterArgument> Arguments => _arguments;
 
     /// <summary>pan</summary>
     public AudioFilterOptions Pan(string channelLayout, params string[] outputDefinitions)
     {
-        return WithArgument(new PanArgument(channelLayout, outputDefinitions));
+        return WithFilter(new PanArgument(channelLayout, outputDefinitions));
     }
 
     /// <summary>pan</summary>
     public AudioFilterOptions Pan(int channels, params string[] outputDefinitions)
     {
-        return WithArgument(new PanArgument(channels, outputDefinitions));
+        return WithFilter(new PanArgument(channels, outputDefinitions));
     }
 
     /// <summary>dynaudnorm</summary>
@@ -58,7 +60,7 @@ public class AudioFilterOptions
         bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false,
         double compressorFactor = 0.0)
     {
-        return WithArgument(new DynamicNormalizerArgument(frameLength, filterWindow,
+        return WithFilter(new DynamicNormalizerArgument(frameLength, filterWindow,
             targetPeak, gainFactor, targetRms, channelCoupling, enableDcBiasCorrection, enableAlternativeBoundary,
             compressorFactor));
     }
@@ -68,7 +70,7 @@ public class AudioFilterOptions
         double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
-        return WithArgument(new HighPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
+        return WithFilter(new HighPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
     }
 
     /// <summary>lowpass</summary>
@@ -76,7 +78,7 @@ public class AudioFilterOptions
         double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
-        return WithArgument(new LowPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
+        return WithFilter(new LowPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
     }
 
     /// <summary>agate</summary>
@@ -84,38 +86,43 @@ public class AudioFilterOptions
         int ratio = 2, double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, AudioGateDetection? detection = null,
         AudioGateLink? link = null)
     {
-        return WithArgument(new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
+        return WithFilter(new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));
     }
 
     /// <summary>loudnorm</summary>
     public AudioFilterOptions Loudnorm(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
     {
-        return WithArgument(new LoudnormArgument(integratedLoudness, loudnessRange, truePeak, dualMono));
+        return WithFilter(new LoudnormArgument(integratedLoudness, loudnessRange, truePeak, dualMono));
     }
 
     /// <summary>atempo, chained when the multiplier is outside the 0.5x-100x a single atempo spans</summary>
     public AudioFilterOptions Speed(double multiplier)
     {
         return AudioSpeedArgument.StepsFor(multiplier)
-            .Aggregate(this, (options, step) => options.WithArgument(new AudioSpeedArgument(step)));
+            .Aggregate(this, (options, step) => options.WithFilter(new AudioSpeedArgument(step)));
     }
 
     /// <summary>afade</summary>
     public AudioFilterOptions Fade(FadeDirection direction, TimeSpan start, TimeSpan duration, string? curve = null)
     {
-        return WithArgument(new AudioFadeArgument(direction, start, duration, curve));
+        return WithFilter(new AudioFadeArgument(direction, start, duration, curve));
     }
 
     /// <summary>silencedetect</summary>
     public AudioFilterOptions SilenceDetect(SilenceDetectNoiseUnit? noiseType = null, double noise = -60, double duration = 2,
         bool mono = false)
     {
-        return WithArgument(new SilenceDetectArgument(noiseType, noise, duration, mono));
+        return WithFilter(new SilenceDetectArgument(noiseType, noise, duration, mono));
     }
 
-    private AudioFilterOptions WithArgument(IAudioFilterArgument argument)
+    public AudioFilterOptions WithFilter(IAudioFilterArgument filter)
     {
-        Arguments.Add(argument);
+        _arguments.Add(filter);
         return this;
+    }
+
+    public AudioFilterOptions WithCustomFilter(string key, string value = "")
+    {
+        return WithFilter(new CustomFilterArgument(key, value));
     }
 }

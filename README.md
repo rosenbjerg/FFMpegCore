@@ -171,7 +171,12 @@ closes with `As`, naming what it produced. `As` returns the graph, so the next `
 The chain has methods only for the filters ffmpeg accepts nowhere else — `Concat`, `Overlay` and `AudioMix`, all of which need more than one
 input and are rejected in `-vf`. Every other filter goes in through `Video` and `Audio`, which take the same builders as `WithVideoFilters`
 and `WithAudioFilters`, so `Scale`, `Fade` and the rest are spelled the same in both places. `WithFilter` takes a filter argument object
-directly, and `WithCustomFilter(key, value)` covers anything the library has no method for.
+directly, and `WithCustomFilter(key, value)` covers anything the library has no method for. Both are on the `-vf` and `-af` builders as
+well, so a filter without a method joins the built-in ones rather than replacing the whole chain:
+
+```csharp
+.WithVideoFilters(f => f.WithCustomFilter("yadif").Scale(VideoSize.Hd))
+```
 
 ### Reading the result
 

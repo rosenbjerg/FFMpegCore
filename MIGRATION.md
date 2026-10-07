@@ -476,6 +476,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   rather than leaving ffmpeg to reject it. Passing a bare `null` for the codec is now ambiguous between the two; omit it, or name `ffOptions:`.
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. Previously `GetPackets` took
   only a path and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
+- `WithFilter` and `WithCustomFilter(key, value)` on `VideoFilterOptions` and `AudioFilterOptions`, so a filter the library has no method
+  for joins the `-vf`/`-af` chain instead of forcing the whole chain into `WithCustomArgument`. Their `Arguments` list is now read-only;
+  `f.Arguments.Add(filter)` becomes `f.WithFilter(filter)`.
 - Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,
   `Speed` and `Fade` on `AudioFilterOptions`.
 - `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. A chain's

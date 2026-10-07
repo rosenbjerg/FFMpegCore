@@ -1803,17 +1803,31 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
-                .WithVideoFilters(f => f.Arguments.Add(new BareNameVideoFilter("yadif"))))
+                .WithVideoFilters(f => f.WithFilter(new BareNameVideoFilter("yadif"))))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -vf \"yadif\" \"output.mp4\"", str);
     }
 
     [TestMethod]
+    public void Builder_BuildString_CustomFiltersJoinTheBuiltInOnes()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(f => f.WithCustomFilter("yadif").Scale(640, 360).WithCustomFilter("eq", "contrast=1.2:brightness=0.05"))
+                .WithAudioFilters(f => f.WithCustomFilter("volume", "0.5")))
+            .Arguments;
+
+        Assert.AreEqual("""
+                        -i "input.mp4" -vf "yadif, scale=640:360, eq=contrast=1.2:brightness=0.05" -af "volume=0.5" "output.mp4"
+                        """, str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_VideoFilter_FilterWithNeitherKeyNorValueIsRejected()
     {
         var options = new VideoFilterOptions();
-        options.Arguments.Add(new BareNameVideoFilter(string.Empty));
+        options.WithFilter(new BareNameVideoFilter(string.Empty));
         var argument = new VideoFiltersArgument(options);
 
         Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = argument.Text);
