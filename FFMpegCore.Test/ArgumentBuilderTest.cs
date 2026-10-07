@@ -118,6 +118,14 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_BitStream_PassesAnUnlistedFilterThrough()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false,
+            opt => opt.WithBitstreamFilter(StreamType.Video, "vp9_superframe")).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -bsf:v vp9_superframe \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     [DataRow(StreamType.All)]
     [DataRow(StreamType.Attachment)]
     [DataRow(StreamType.VideoNoAttachedPic)]

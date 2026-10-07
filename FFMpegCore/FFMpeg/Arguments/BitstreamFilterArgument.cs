@@ -19,5 +19,5 @@ public class BitstreamFilterArgument : IArgument
         Filter = filter;
     }
 
-    public string Text => $"-bsf{StreamType.Specifier()} {Filter.ToString().ToLowerInvariant()}";
+    public string Text => $"-bsf{StreamType.Specifier()} {Filter}";
 }

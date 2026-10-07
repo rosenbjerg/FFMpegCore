@@ -189,7 +189,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `FFMpegArgumentOptions` | `FFMpegInputOptions`, `FFMpegOutputOptions` |
 | `Channel` | `StreamType` — `Channel.Both` is gone, use `StreamType.All` |
 | `FFMpegCore.Arguments.FadeDirection` | `FFMpegCore.Enums.FadeDirection`, with the other values passed to builder methods |
-| `Filter` | `BitstreamFilter` |
+| `Filter` | `BitstreamFilter` — a struct, adding `Hevc_Mp4ToAnnexB`, `Mpeg4_UnpackBFrames`, `ExtractExtradata` and `DumpExtra`; any other bitstream filter passes through as a string |
 | `Speed` | `EncoderPreset` — a struct like `EncoderTune`, so `"p4"` (NVENC) or `"8"` (SVT-AV1) pass through as strings; `Speed.UltraFast` is `EncoderPreset.UltraFast`, and `Placebo` is new |
 | `HardwareAccelerationDevice` enum | a struct with the same member names plus `VideoToolbox`, `Vulkan`, `D3D12VA`, `OpenCL` and `DRM`; any other `-hwaccel` value passes through as a string. A `switch` over it no longer compiles — compare `Value` instead. `HardwareAccelerationArgument.HardwareAccelerationDevice` is the field `Device` |
 | `Mirroring` | removed — use `HorizontalFlip()` / `VerticalFlip()` |
