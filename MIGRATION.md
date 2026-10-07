@@ -247,6 +247,10 @@ so a later `GlobalFFOptions.Configure` never reached them.
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
 
+`FromFileInput` and `AddFileInput` given several paths applied their options to the first file only: the options were written once, in
+front of the whole `-i a -i b` run, and ffmpeg reads an input option as belonging to the next `-i`. They are now repeated before every
+file, so `opt => opt.WithStartTime(…)` seeks in each of them.
+
 `FFMetadataBuilder` is constructed directly (`new FFMetadataBuilder()`) and produces its document with `Build()`.
 
 ### `WithChapter` takes a `TimeSpan`, not a number

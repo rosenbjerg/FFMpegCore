@@ -49,7 +49,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
+        return new FFMpegArguments().AddFileInput(filePath, verifyExists, addArguments);
     }
 
     public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)
@@ -119,7 +119,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArguments AddFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new MultiInputArgument(filePath, verifyExists), addArguments);
+        return filePath.Aggregate(this, (arguments, path) => arguments.WithInput(new InputArgument(path, verifyExists), addArguments));
     }
 
     public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)

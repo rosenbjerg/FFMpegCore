@@ -22,6 +22,19 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_MultipleFileInputs_ApplyTheirOptionsToEveryFile()
+    {
+        var str = FFMpegArguments
+            .FromFileInput(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop(1))
+            .AddFileInput(new[] { "c.mp3", "d.mp3" }, false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
+            .OutputToFile("output.mp4", false)
+            .Arguments;
+
+        Assert.AreEqual(
+            "-loop 1 -i \"a.png\" -loop 1 -i \"b.png\" -ss 00:00:02.000 -i \"c.mp3\" -ss 00:00:02.000 -i \"d.mp3\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_LambdaStraightAfterThePath_KeepsTheDefaults()
     {
         var withFlags = FFMpegArguments
