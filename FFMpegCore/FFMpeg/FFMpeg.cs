@@ -124,50 +124,84 @@ public static class FFMpeg
     /// <param name="images">Image sequence collection</param>
     public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30, params string[] images)
     {
-        return JoinImageSequence(ffOptions, output, frameRate, images.Select(image => FFProbe.Analyse(image, ffOptions)).ToArray());
+        return JoinImageSequence(output, images, frameRate, null, ffOptions);
     }
 
-    /// <inheritdoc cref="JoinImageSequence(FFOptions,string,double,IMediaAnalysis[])" />
+    /// <summary>
+    ///     Converts an image sequence to a video.
+    /// </summary>
+    /// <param name="output">Output video file.</param>
+    /// <param name="images">Image sequence collection</param>
+    /// <param name="frameRate">FPS</param>
+    /// <param name="addArguments">Output options for the encode, replacing the default yuv420p pixel format.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor JoinImageSequence(string output, IEnumerable<string> images, double frameRate = 30,
+        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
+    {
+        return JoinImageSequence(output, images.Select(image => FFProbe.Analyse(image, ffOptions)).ToArray(), frameRate, addArguments, ffOptions);
+    }
+
+    /// <inheritdoc cref="JoinImageSequence(string,IEnumerable{IMediaAnalysis},double,Action{FFMpegOutputOptions},FFOptions)" />
     public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params IMediaAnalysis[] images)
     {
         return JoinImageSequence(null, output, frameRate, images);
     }
 
-    /// <summary>
-    ///     Converts a sequence of already analysed images to a video.
-    /// </summary>
-    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    /// <param name="output">Output video file.</param>
-    /// <param name="frameRate">FPS</param>
-    /// <param name="images">Analyses of the images, in order. The first one's dimensions decide the output size.</param>
+    /// <inheritdoc cref="JoinImageSequence(string,IEnumerable{IMediaAnalysis},double,Action{FFMpegOutputOptions},FFOptions)" />
     public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30,
         params IMediaAnalysis[] images)
     {
-        var paths = images.Select(image => InputPathOf(image, nameof(images))).ToArray();
+        return JoinImageSequence(output, images, frameRate, null, ffOptions);
+    }
+
+    /// <summary>
+    ///     Converts a sequence of already analysed images to a video.
+    /// </summary>
+    /// <param name="output">Output video file.</param>
+    /// <param name="images">Analyses of the images, in order. The first one's dimensions decide the output size.</param>
+    /// <param name="frameRate">FPS</param>
+    /// <param name="addArguments">Output options for the encode, replacing the default yuv420p pixel format.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    public static FFMpegArgumentProcessor JoinImageSequence(string output, IEnumerable<IMediaAnalysis> images, double frameRate = 30,
+        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
+    {
+        var analyses = images.ToArray();
+        var paths = analyses.Select(image => InputPathOf(image, nameof(images))).ToArray();
         var arguments = FFMpegArguments.FromImageSequenceInput(paths, options => options
             .WithFrameRate(frameRate));
 
-        var streams = images.Select(image => image.PrimaryVideoStream!).ToArray();
-        foreach (var stream in streams)
+        var streams = analyses.Select(image => image.PrimaryVideoStream!).ToArray();
+        if (addArguments == null)
         {
-            FFMpegHelper.ConversionSizeExceptionCheck(stream.Width, stream.Height);
+            foreach (var stream in streams)
+            {
+                FFMpegHelper.ConversionSizeExceptionCheck(stream.Width, stream.Height);
+            }
         }
 
         return arguments
-            .OutputToFile(output, options => options
-                .WithPixelFormat("yuv420p")
-                .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
-                .WithFrameRate(frameRate))
-            .WithKnownDuration(TimeSpan.FromSeconds(images.Length / frameRate))
+            .OutputToFile(output, options =>
+            {
+                if (addArguments == null)
+                {
+                    options.WithPixelFormat("yuv420p");
+                }
+
+                options
+                    .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
+                    .WithFrameRate(frameRate);
+                addArguments?.Invoke(options);
+            })
+            .WithKnownDuration(TimeSpan.FromSeconds(analyses.Length / frameRate))
             .WithOptions(ffOptions);
     }
 
-    /// <inheritdoc cref="PosterWithAudio(string,string,string,Codec,FFOptions)" />
+    /// <inheritdoc cref="PosterWithAudio(string,string,string,Codec,Action{FFMpegOutputOptions},FFOptions)" />
     /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
     public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, string audioCodec,
-        FFOptions? ffOptions = null)
+        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
-        return PosterWithAudio(image, audio, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+        return PosterWithAudio(image, audio, output, new Codec(audioCodec, CodecType.Audio), addArguments, ffOptions);
     }
 
     /// <summary>
@@ -177,19 +211,20 @@ public static class FFMpeg
     /// <param name="audio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
+    /// <param name="addArguments">Output options for the video encode, replacing the default libx264 at CRF 21 in yuv420p.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, Codec? audioCodec = null,
-        FFOptions? ffOptions = null)
+        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
-        return PosterWithAudio(FFProbe.Analyse(image, ffOptions), FFProbe.Analyse(audio, ffOptions), output, audioCodec, ffOptions);
+        return PosterWithAudio(FFProbe.Analyse(image, ffOptions), FFProbe.Analyse(audio, ffOptions), output, audioCodec, addArguments, ffOptions);
     }
 
-    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,IMediaAnalysis,string,Codec,FFOptions)" />
+    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,IMediaAnalysis,string,Codec,Action{FFMpegOutputOptions},FFOptions)" />
     /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
     public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, IMediaAnalysis audioSource, string output, string audioCodec,
-        FFOptions? ffOptions = null)
+        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
-        return PosterWithAudio(imageSource, audioSource, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
+        return PosterWithAudio(imageSource, audioSource, output, new Codec(audioCodec, CodecType.Audio), addArguments, ffOptions);
     }
 
     /// <summary>
@@ -199,14 +234,15 @@ public static class FFMpeg
     /// <param name="audioSource">Analysis of the audio, which supplies its path and the output's duration.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
+    /// <param name="addArguments">Output options for the video encode, replacing the default libx264 at CRF 21 in yuv420p.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, IMediaAnalysis audioSource, string output,
-        Codec? audioCodec = null, FFOptions? ffOptions = null)
+        Codec? audioCodec = null, Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
         var image = InputPathOf(imageSource, nameof(imageSource));
         var imageSize = new Size(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream.Height);
 
-        return PosterWithAudio(new InputArgument(image, false), imageSize, audioSource, output, audioCodec, ffOptions);
+        return PosterWithAudio(new InputArgument(image, false), imageSize, audioSource, output, audioCodec, addArguments, ffOptions);
     }
 
     /// <summary>
@@ -217,24 +253,37 @@ public static class FFMpeg
     /// <param name="audioSource">Analysis of the audio, which supplies its path and the output's duration.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
+    /// <param name="addArguments">Output options for the video encode, replacing the default libx264 at CRF 21 in yuv420p.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor PosterWithAudio(IInputArgument image, Size imageSize, IMediaAnalysis audioSource, string output,
-        Codec? audioCodec = null, FFOptions? ffOptions = null)
+        Codec? audioCodec = null, Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
         var audio = InputPathOf(audioSource, nameof(audioSource));
-        FFMpegHelper.ConversionSizeExceptionCheck(imageSize.Width, imageSize.Height);
+        if (addArguments == null)
+        {
+            FFMpegHelper.ConversionSizeExceptionCheck(imageSize.Width, imageSize.Height);
+        }
 
         return FFMpegArguments
             .FromInput(image, options => options
                 .WithLoop()
                 .ForceFormat(ContainerFormats.Image2))
             .AddFileInput(audio)
-            .OutputToFile(output, options => options
-                .WithPixelFormat("yuv420p")
-                .WithVideoCodec(VideoCodec.LibX264)
-                .WithConstantRateFactor(21)
-                .WithAudioCodec(audioCodec ?? AudioCodec.Copy)
-                .WithShortest())
+            .OutputToFile(output, options =>
+            {
+                if (addArguments == null)
+                {
+                    options
+                        .WithPixelFormat("yuv420p")
+                        .WithVideoCodec(VideoCodec.LibX264)
+                        .WithConstantRateFactor(21);
+                }
+
+                options
+                    .WithAudioCodec(audioCodec ?? AudioCodec.Copy)
+                    .WithShortest();
+                addArguments?.Invoke(options);
+            })
             .WithKnownDuration(audioSource.Duration)
             .WithOptions(ffOptions);
     }
@@ -247,11 +296,13 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="position">Corner to place it in.</param>
     /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
+    /// <param name="addArguments">Output options such as the video encoder and its quality. Passing them drops the default of copying the audio; add <c>CopyStreams(StreamType.Audio)</c> to keep it.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Watermark(string input, string watermark, string output,
-        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, FFOptions? ffOptions = null)
+        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, Action<FFMpegOutputOptions>? addArguments = null,
+        FFOptions? ffOptions = null)
     {
-        return Watermark(FFProbe.Analyse(input, ffOptions), watermark, output, position, margin, ffOptions);
+        return Watermark(FFProbe.Analyse(input, ffOptions), watermark, output, position, margin, addArguments, ffOptions);
     }
 
     /// <summary>
@@ -263,9 +314,11 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="position">Corner to place it in.</param>
     /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
+    /// <param name="addArguments">Output options such as the video encoder and its quality. Passing them drops the default of copying the audio; add <c>CopyStreams(StreamType.Audio)</c> to keep it.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Watermark(IMediaAnalysis source, string watermark, string output,
-        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, FFOptions? ffOptions = null)
+        WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, Action<FFMpegOutputOptions>? addArguments = null,
+        FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
         var (x, y) = OverlayPosition(position, margin);
@@ -284,8 +337,14 @@ public static class FFMpeg
                     .WithMap("v");
                 if (source.PrimaryAudioStream != null)
                 {
-                    options.WithMap(0, StreamType.Audio).CopyStreams(StreamType.Audio);
+                    options.WithMap(0, StreamType.Audio);
+                    if (addArguments == null)
+                    {
+                        options.CopyStreams(StreamType.Audio);
+                    }
                 }
+
+                addArguments?.Invoke(options);
             })
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);

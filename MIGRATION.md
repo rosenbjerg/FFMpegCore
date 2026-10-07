@@ -112,6 +112,9 @@ FFMpeg.PosterWithAudio(image, audio, output, ffOptions: ffOptions);       // 6.0
 FFMpeg.PosterWithAudio(image, audio, output, AudioCodec.Aac);             // 6.0 — old behaviour
 ```
 
+An `addArguments` parameter for the video encode follows `audioCodec`, so `ffOptions` has to be named. The same parameter, in the same
+place before `ffOptions`, is on `Watermark` and on `AddAudio` in the image extension packages.
+
 It also no longer requires an `.mp4` output — `.mkv`, `.mov` and `.webm` (with a codec that container takes) work as well.
 
 `AddAudio` in the image extension packages follows the same default.
@@ -506,6 +509,9 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - Encoder tuning options that needed `WithCustomArgument`: `WithAudioChannels` (`-ac`, on inputs too), `WithVideoProfile` (`-profile:v`),
   `WithTune` (`-tune`), `WithGopSize` (`-g`), `WithMaxBitrate` and `WithBufferSize` (`-maxrate`/`-bufsize`), and
   `WithVideoQualityScale`/`WithAudioQualityScale` (`-q:v`/`-q:a`). `VideoProfile` and `EncoderTune` list the common values.
+- Output options on the helpers that re-encode — `Watermark`, `PosterWithAudio`, `JoinImageSequence` (on a new overload taking an
+  `IEnumerable`, as `Join` has) and the image extensions' `AddAudio`. They replace the helper's own encode choices (libx264 at CRF 21,
+  yuv420p, copying the audio) and keep what the helper needs to work.
 - `OutputToNull()` for analysis-only runs (`-f null -`), so `SilenceDetect` and `BlackDetect` no longer need a dummy output path.
 - `ContainerFormats.Matroska`, `Flv`, `Mp3`, `Wav`, `Flac`, `Hls`, `Image2`, `RawVideo` and `Null`. `FFOptions.ExtensionOverrides` maps
   `matroska` to `.mkv` and `hls` to `.m3u8` by default, alongside `mpegts` to `.ts`.

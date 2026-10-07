@@ -1791,6 +1791,27 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_ReencodingHelpers_TakeTheEncodeFromTheirOutputOptions()
+    {
+        Action<FFMpegOutputOptions> x265 = options => options.WithVideoCodec(VideoCodec.LibX265).WithConstantRateFactor(28);
+
+        var watermark = FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, "out.mp4", addArguments: x265).Arguments;
+        var poster = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, "out.mp4", addArguments: x265).Arguments;
+        var sequence = FFMpeg.JoinImageSequence("out.mp4", new[] { TestResources.PngImage }, 1, x265).Arguments;
+
+        foreach (var arguments in new[] { watermark, poster, sequence })
+        {
+            StringAssert.Contains(arguments, "-c:v libx265 -crf 28");
+            Assert.DoesNotContain("libx264", arguments);
+            Assert.DoesNotContain("yuv420p", arguments);
+        }
+
+        Assert.DoesNotContain("-c:a copy", watermark);
+        StringAssert.Contains(poster, "-c:a copy -shortest");
+        StringAssert.Contains(FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, "out.mp4").Arguments, "-c:a copy");
+    }
+
+    [TestMethod]
     public void Video_Join_LeavesTheEncoderToTheContainerByDefault()
     {
         var arguments = FFMpeg.Join("out.webm", TestResources.Mp4Video, TestResources.Mp4Video).Arguments;
