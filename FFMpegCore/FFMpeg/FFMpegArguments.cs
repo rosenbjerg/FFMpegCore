@@ -246,9 +246,9 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         }
     }
 
-    public FFMpegArgumentProcessor OutputToTee(Action<FFMpegMultiOutputOptions> addOutputs, Action<FFMpegOutputOptions>? addArguments = null)
+    public FFMpegArgumentProcessor OutputToTee(Action<TeeOutputOptions> addOutputs, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        var outputs = new FFMpegMultiOutputOptions();
+        var outputs = new TeeOutputOptions();
         addOutputs(outputs);
         return ToProcessor(new OutputTeeArgument(outputs), addArguments);
     }

@@ -375,6 +375,19 @@ In particular `HighPass`/`LowPass` silently dropped a `transform` they did not r
 `SilenceDetect`'s `noiseType`, which decides how the library formats the threshold and is not an ffmpeg value: anything but `db` and `ar`
 still throws.
 
+## `OutputToTee` targets take tee options
+
+Each target of `OutputToTee` took the full `FFMpegOutputOptions`, but only a few of them mean anything to a tee target, and the rest
+rendered as slave options ffmpeg rejects — `WithVideoCodec` became `[c:v=libx264]`. `WithMap` on a target even rendered
+`select='0:v:0'`, which ffmpeg rejects as an invalid stream specifier. Targets now take `TeeTargetOptions`: `ForceFormat`,
+`WithSelect(StreamType, streamIndex)` in place of `WithMap`, `WithBitstreamFilter`, `WithFastStart`, `WithMovFlags`, `WithOnFail` and
+`WithMuxerOption(key, value)`. Encoder options go in the tee's own options lambda, as before.
+
+```csharp
+.OutputToTee(t => t.OutputToUrl(url, o => o.ForceFormat("mpegts").WithMap(0, StreamType.Video, 0)))  // 5.x / early 6.0 — rejected by ffmpeg
+.OutputToTee(t => t.OutputToUrl(url, o => o.ForceFormat("mpegts").WithSelect(StreamType.Video, 0)))  // 6.0
+```
+
 ## Pipes
 
 `IPipeSink.GetFormat()` is `GetStreamArguments()`, matching `IPipeSource`: both return the arguments ffmpeg needs on their side of the pipe.

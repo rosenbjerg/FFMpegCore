@@ -868,22 +868,22 @@ public class ArgumentBuilderTest
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToTee(args => args
                 .OutputToFile("output.mp4", false, args => args.WithFastStart())
-                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(0, StreamType.Video, 0)))
+                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithSelect(StreamType.Video, 0).WithOnFail(TeeOnFail.Ignore)))
             .Arguments;
         Assert.AreEqual("""
-                        -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'0:v:0\']http://server/path"
+                        -i "input.mp4" -f tee "[movflags=faststart]output.mp4|[f=mpegts:select=\'v:0\':onfail=ignore]http://server/path"
                         """, str);
     }
 
     [TestMethod]
-    public void Builder_BuildString_TeeOutput_MapByTypeSelectsEveryStream()
+    public void Builder_BuildString_TeeOutput_SelectByTypeTakesEveryStreamOfIt()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToTee(args => args
-                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithMap(0, StreamType.Video)))
+                .OutputToUrl("http://server/path", options => options.ForceFormat("mpegts").WithSelect(StreamType.Video).WithMuxerOption("mpegts_flags", "resend_headers")))
             .Arguments;
         Assert.AreEqual("""
-                        -i "input.mp4" -f tee "[f=mpegts:select=\'0:v\']http://server/path"
+                        -i "input.mp4" -f tee "[f=mpegts:select=\'v\':mpegts_flags=resend_headers]http://server/path"
                         """, str);
     }
 

@@ -269,6 +269,10 @@ FFMpegArguments
     .ProcessSynchronously();
 ```
 
+Encoder options go on the tee itself, since there is only one encode. A target takes what the `tee` muxer lets each target choose —
+`ForceFormat`, `WithSelect` for which of the encoded streams it gets, `WithBitstreamFilter`, `WithMovFlags`/`WithFastStart`,
+`WithOnFail(TeeOnFail.Ignore)` to keep the others running when one fails, and `WithMuxerOption` for anything else its muxer accepts.
+
 ### Analysing without writing an output
 
 Detection filters such as `SilenceDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`

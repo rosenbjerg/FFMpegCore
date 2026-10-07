@@ -1,16 +1,14 @@
-﻿using FFMpegCore.Enums;
-
-namespace FFMpegCore.Arguments;
+﻿namespace FFMpegCore.Arguments;
 
 internal class OutputTeeArgument : IOutputArgument
 {
-    private readonly FFMpegMultiOutputOptions _options;
+    private readonly TeeOutputOptions _options;
 
-    public OutputTeeArgument(FFMpegMultiOutputOptions options)
+    public OutputTeeArgument(TeeOutputOptions options)
     {
-        if (options.Outputs.Count == 0)
+        if (options.Targets.Count == 0)
         {
-            throw new ArgumentException("Atleast one output must be specified.", nameof(options));
+            throw new ArgumentException("At least one output must be specified.", nameof(options));
         }
 
         _options = options;
@@ -20,12 +18,12 @@ internal class OutputTeeArgument : IOutputArgument
     {
         get
         {
-            var overwrite = _options.Outputs.SelectMany(o => o.Arguments).OfType<OutputArgument>().Any(o => o.Overwrite);
-            return $"-f tee \"{string.Join("|", _options.Outputs.Select(MapOptions))}\"{(overwrite ? " -y" : string.Empty)}";
+            var overwrite = Targets.OfType<OutputArgument>().Any(o => o.Overwrite);
+            return $"-f tee \"{string.Join("|", _options.Targets.Select(MapTarget))}\"{(overwrite ? " -y" : string.Empty)}";
         }
     }
 
-    private IEnumerable<IOutputArgument> Targets => _options.Outputs.Select(TargetOf);
+    private IEnumerable<IOutputArgument> Targets => _options.Targets.Select(target => target.Target);
 
     public Task During(CancellationToken cancellationToken = default)
     {
@@ -48,49 +46,28 @@ internal class OutputTeeArgument : IOutputArgument
         }
     }
 
-    private static IOutputArgument TargetOf(FFMpegOutputOptions option)
+    private static string MapTarget(TeeTargetOptions target)
     {
-        return option.Arguments.OfType<IOutputArgument>().Single();
-    }
-
-    private static string MapOptions(FFMpegOutputOptions option)
-    {
-        var output = TargetOf(option);
-        var options = option.Arguments.Where(argument => argument != output).Select(MapArgument).ToList();
-        if (output is OutputPipeArgument pipe && pipe.Reader.GetStreamArguments() is { Length: > 0 } streamArguments)
+        var options = target.Options.Select(option => $"{option.Key}={option.Value}").ToList();
+        if (target.Target is OutputPipeArgument pipe && pipe.Reader.GetStreamArguments() is { Length: > 0 } streamArguments)
         {
-            options.Add(MapArgument(new CustomArgument(streamArguments)));
+            options.Add(streamArguments.TrimStart('-').Replace(' ', '='));
         }
 
         var optionPrefix = options.Count > 0 ? $"[{string.Join(":", options)}]" : string.Empty;
-        var target = output switch
+        var path = target.Target switch
         {
             OutputArgument file => file.Path,
+            OutputUrlArgument url => url.Url,
             PipeArgument pipeTarget => pipeTarget.PipePath,
-            _ => output.Text.Trim('"')
+            _ => target.Target.Text.Trim('"')
         };
-        return $"{optionPrefix}{EscapeTarget(target)}";
+        return $"{optionPrefix}{EscapeTarget(path)}";
     }
 
     // The tee muxer tokenises slave specs itself: backslash escapes, single quotes group, | separates slaves
     private static string EscapeTarget(string target)
     {
         return target.Replace("\\", "\\\\").Replace("'", "\\'").Replace("|", "\\|");
-    }
-
-    private static string MapArgument(IArgument argument)
-    {
-        if (argument is MapStreamArgument map)
-        {
-            return map.Text.Replace("-map ", "select=\\'") + "\\'";
-        }
-
-        if (argument is BitstreamFilterArgument bitstreamFilter)
-        {
-            var specifier = bitstreamFilter.StreamType.Specifier().TrimStart(':');
-            return $"bsfs{(specifier.Length > 0 ? "/" + specifier : string.Empty)}={bitstreamFilter.Filter}";
-        }
-
-        return argument.Text.TrimStart('-').Replace(' ', '=');
     }
 }

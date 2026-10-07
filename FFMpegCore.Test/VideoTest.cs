@@ -1947,6 +1947,28 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TeeOutput_SelectsStreamsPerTarget()
+    {
+        using var everything = new TemporaryFile("everything.mp4");
+        using var videoOnly = new TemporaryFile("video-only.mp4");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                    .OutputToFile(everything, options => options.ForceFormat(ContainerFormats.Mp4))
+                    .OutputToFile(videoOnly, options => options.ForceFormat(ContainerFormats.Mp4).WithSelect(StreamType.Video)),
+                options => options.WithMap(0).CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.IsNotEmpty(FFProbe.Analyse(everything).AudioStreams);
+        Assert.IsEmpty(FFProbe.Analyse(videoOnly).AudioStreams);
+        Assert.IsNotEmpty(FFProbe.Analyse(videoOnly).VideoStreams);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TeeOutput_WritesToAPipe()
     {
         using var file = new TemporaryFile("out.ts");
