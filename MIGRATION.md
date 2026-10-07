@@ -551,7 +551,7 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
 - `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. A chain's
   `Video(f => …)` and `Audio(f => …)` take the same builders as `WithVideoFilters` and `WithAudioFilters`. Filters needing
   more than one input — `Concat`, `Overlay`, `AudioMix` — are reachable for the first time without hand-writing the graph into
-  `WithCustomArgument`.
+  `WithCustomArgument`. `Concat` and `AudioMix` count the chain's inputs themselves unless told otherwise.
 - Per-run `FFOptions` now reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.

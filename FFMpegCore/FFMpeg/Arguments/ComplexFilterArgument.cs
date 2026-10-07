@@ -129,10 +129,18 @@ public class ComplexFilterChain
         return this;
     }
 
-    /// <summary>concat</summary>
-    public ComplexFilterChain Concat(int segments, int videoStreams = 1, int audioStreams = 0)
+    /// <summary>concat; <paramref name="segments" /> defaults to this chain's inputs divided by the streams per segment</summary>
+    public ComplexFilterChain Concat(int? segments = null, int videoStreams = 1, int audioStreams = 0)
     {
-        return WithCustomFilter("concat", $"n={segments}:v={videoStreams}:a={audioStreams}");
+        var streamsPerSegment = videoStreams + audioStreams;
+        if (segments == null && (streamsPerSegment == 0 || _inputs.Count % streamsPerSegment != 0))
+        {
+            throw new ArgumentException(
+                $"The chain's {_inputs.Count} inputs do not divide into segments of {videoStreams} video and {audioStreams} audio streams",
+                nameof(segments));
+        }
+
+        return WithCustomFilter("concat", $"n={segments ?? _inputs.Count / streamsPerSegment}:v={videoStreams}:a={audioStreams}");
     }
 
     /// <summary>overlay</summary>
@@ -141,10 +149,10 @@ public class ComplexFilterChain
         return WithFilter(new OverlayArgument(x, y, eofAction, shortest));
     }
 
-    /// <summary>amix</summary>
-    public ComplexFilterChain AudioMix(int inputs, AudioMixDuration? duration = null)
+    /// <summary>amix; <paramref name="inputs" /> defaults to this chain's inputs</summary>
+    public ComplexFilterChain AudioMix(int? inputs = null, AudioMixDuration? duration = null)
     {
-        return WithCustomFilter("amix", $"inputs={inputs}:duration={duration ?? AudioMixDuration.Longest}");
+        return WithCustomFilter("amix", $"inputs={inputs ?? _inputs.Count}:duration={duration ?? AudioMixDuration.Longest}");
     }
 
     internal bool HasFilters => _filters.Any(filter => FilterRenderer.HasText(filter.Key, filter.Value));

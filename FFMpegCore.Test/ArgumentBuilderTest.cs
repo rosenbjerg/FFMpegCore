@@ -1521,6 +1521,31 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void ComplexFilter_ConcatAndAudioMixCountTheChainsInputs()
+    {
+        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4" }, false)
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithComplexFilter(graph => graph
+                    .From(0, StreamType.Video, 0).From(0, StreamType.Audio, 0)
+                    .From(1, StreamType.Video, 0).From(1, StreamType.Audio, 0)
+                    .Concat(audioStreams: 1).As("v", "a")
+                    .From(0, StreamType.Audio, 0).From(1, StreamType.Audio, 0)
+                    .AudioMix().As("mix")))
+            .Arguments;
+
+        StringAssert.Contains(str, "[0:v:0][0:a:0][1:v:0][1:a:0]concat=n=2:v=1:a=1[v][a];[0:a:0][1:a:0]amix=inputs=2:duration=longest[mix]");
+    }
+
+    [TestMethod]
+    public void ComplexFilter_ConcatRejectsInputsThatDoNotMakeWholeSegments()
+    {
+        var graph = new ComplexFilterGraph();
+        var chain = graph.From(0, StreamType.Video).From(1, StreamType.Video).From(1, StreamType.Audio);
+
+        Assert.ThrowsExactly<ArgumentException>(() => chain.Concat(audioStreams: 1));
+    }
+
+    [TestMethod]
     public void ComplexFilter_RejectsAnEmptyGraph()
     {
         Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(new ComplexFilterGraph()));

@@ -76,7 +76,7 @@ public static class ComplexExamples
                     .As("bed")
                     .From(0, StreamType.Audio)
                     .From("bed")
-                    .AudioMix(2, AudioMixDuration.First)
+                    .AudioMix(duration: AudioMixDuration.First)
                     .As("a"))
                 .WithMap("v")
                 .WithMap("a")

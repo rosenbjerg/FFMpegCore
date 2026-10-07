@@ -678,7 +678,7 @@ public static class FFMpeg
                         }
                     }
 
-                    chain.Concat(paths.Length, 1, withAudio ? 1 : 0)
+                    chain.Concat(audioStreams: withAudio ? 1 : 0)
                         .As(withAudio ? ["v", "a"] : ["v"]);
                 });
                 options.WithMap("v");
