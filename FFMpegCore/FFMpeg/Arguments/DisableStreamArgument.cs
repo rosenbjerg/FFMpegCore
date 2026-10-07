@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -16,7 +15,7 @@ public class DisableStreamArgument : IArgument
             StreamType.Audio => "-an",
             StreamType.Subtitle => "-sn",
             StreamType.Data => "-dn",
-            _ => throw new FFMpegException(FFMpegExceptionType.Operation, $"{streamType} streams cannot be disabled")
+            _ => throw new ArgumentOutOfRangeException(nameof(streamType), streamType, $"{streamType} streams cannot be disabled")
         };
     }
 

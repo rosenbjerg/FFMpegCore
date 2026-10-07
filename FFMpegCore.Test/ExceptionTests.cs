@@ -29,18 +29,6 @@ public class ExceptionTests
     }
 
     [TestMethod]
-    public void FFMpegArgumentException_WrapsMessageAndInner()
-    {
-        var inner = new Exception("inner");
-
-        var argument = new FFMpegArgumentException("argument", inner);
-        var argumentDefault = new FFMpegArgumentException();
-
-        Assert.AreEqual(("argument", inner), (argument.Message, argument.InnerException));
-        Assert.IsNull(argumentDefault.InnerException);
-    }
-
-    [TestMethod]
     public void FFProbeExceptions_AreFFMpegExceptions()
     {
         var inner = new Exception("inner");

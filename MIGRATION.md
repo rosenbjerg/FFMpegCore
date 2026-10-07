@@ -369,6 +369,15 @@ The captured stderr had four names across three types. It is now `ErrorOutput`, 
 | `IMediaAnalysis.ErrorData` | `IMediaAnalysis.ErrorOutput` |
 | `FFProbeException(…, ffProbeErrorOutput)` | the parameter is gone |
 
+Calling a builder method wrongly throws `ArgumentException` or `ArgumentOutOfRangeException`, as .NET APIs do, instead of one of three
+types. `FFMpegArgumentException` is gone — it derived from neither `FFMpegException` nor `ArgumentException`, so neither `catch` caught it:
+
+| Mistake | 5.x / early 6.0 | 6.0 |
+|---|---|---|
+| A `Codec` of the wrong type for `WithVideoCodec`/`WithAudioCodec`/`WithSubtitleCodec` | `FFMpegException` | `ArgumentException` |
+| A `StreamType` that `-bsf` or `-vn`/`-an`/… has no spelling for | `FFMpegException` | `ArgumentOutOfRangeException` |
+| `WithVideoFilters`/`WithAudioFilters`/`WithComplexFilter` that add nothing | `FFMpegArgumentException`, when the command line was rendered | `ArgumentException`, from the `With…Filter…` call itself |
+
 `OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
 input already threw `FileNotFoundException`; the two now match. This now applies to the targets of `OutputToTee` too, which were
 overwritten regardless whenever another target allowed it.

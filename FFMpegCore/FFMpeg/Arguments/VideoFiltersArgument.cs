@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -10,6 +9,11 @@ public class VideoFiltersArgument : IArgument
 
     public VideoFiltersArgument(VideoFilterOptions options)
     {
+        if (!options.Arguments.Any(arg => FilterRenderer.HasText(arg.Key, arg.Value)))
+        {
+            throw new ArgumentException("No video filters were added", nameof(options));
+        }
+
         Options = options;
     }
 
@@ -21,11 +25,6 @@ public class VideoFiltersArgument : IArgument
             .Where(arg => FilterRenderer.HasText(arg.Key, arg.Value))
             .Select(arg => FilterRenderer.Render(arg.Key, arg.Value, true))
             .ToArray();
-
-        if (arguments.Length == 0)
-        {
-            throw new FFMpegArgumentException("No video-filter arguments provided");
-        }
 
         return $"-vf \"{string.Join(", ", arguments)}\"";
     }

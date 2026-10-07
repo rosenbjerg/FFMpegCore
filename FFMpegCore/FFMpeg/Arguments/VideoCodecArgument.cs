@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -19,7 +18,7 @@ public class VideoCodecArgument : IArgument
     {
         if (value.Type != CodecType.Video)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{value.Name}\" is not a video codec");
+            throw new ArgumentException($"Codec \"{value.Name}\" is not a video codec", nameof(value));
         }
 
         Codec = value.Name;

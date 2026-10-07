@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -9,6 +8,16 @@ public class ComplexFilterArgument : IArgument
 
     public ComplexFilterArgument(FFMpegComplexFilterOptions options)
     {
+        if (options.Chains.Count == 0)
+        {
+            throw new ArgumentException("No complex-filter chains were added", nameof(options));
+        }
+
+        if (options.Chains.Any(chain => !chain.HasFilters))
+        {
+            throw new ArgumentException("A complex-filter chain needs at least one filter", nameof(options));
+        }
+
         Options = options;
     }
 
@@ -47,11 +56,6 @@ public class FFMpegComplexFilterOptions
 
     internal string GetText()
     {
-        if (Chains.Count == 0)
-        {
-            throw new FFMpegArgumentException("No complex-filter chains provided");
-        }
-
         return string.Join(";", Chains.Select(chain => chain.GetText()));
     }
 }
@@ -143,17 +147,14 @@ public class ComplexFilterChain
         return WithCustomFilter("amix", $"inputs={inputs}:duration={duration ?? AudioMixDuration.Longest}");
     }
 
+    internal bool HasFilters => _filters.Any(filter => FilterRenderer.HasText(filter.Key, filter.Value));
+
     internal string GetText()
     {
         var rendered = _filters
             .Where(filter => FilterRenderer.HasText(filter.Key, filter.Value))
             .Select(filter => FilterRenderer.Render(filter.Key, filter.Value, false))
             .ToArray();
-
-        if (rendered.Length == 0)
-        {
-            throw new FFMpegArgumentException("A complex-filter chain needs at least one filter");
-        }
 
         var pads = string.Concat(_inputs.Select(input => $"[{input}]"));
         var outputs = string.Concat(_outputs.Select(output => $"[{output}]"));

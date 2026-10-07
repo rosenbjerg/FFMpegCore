@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -14,7 +13,7 @@ public class SubtitleCodecArgument : IArgument
     {
         if (subtitleCodec.Type != CodecType.Subtitle)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{subtitleCodec.Name}\" is not a subtitle codec");
+            throw new ArgumentException($"Codec \"{subtitleCodec.Name}\" is not a subtitle codec", nameof(subtitleCodec));
         }
 
         SubtitleCodec = subtitleCodec.Name;

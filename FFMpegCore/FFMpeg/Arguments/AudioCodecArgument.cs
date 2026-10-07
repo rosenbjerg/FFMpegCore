@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -14,7 +13,7 @@ public class AudioCodecArgument : IArgument
     {
         if (audioCodec.Type != CodecType.Audio)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{audioCodec.Name}\" is not an audio codec");
+            throw new ArgumentException($"Codec \"{audioCodec.Name}\" is not an audio codec", nameof(audioCodec));
         }
 
         AudioCodec = audioCodec.Name;

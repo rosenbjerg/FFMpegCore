@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -12,7 +11,7 @@ public class BitstreamFilterArgument : IArgument
     {
         if (streamType is not (StreamType.Audio or StreamType.Video))
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"{streamType} streams cannot be bitstream-filtered");
+            throw new ArgumentOutOfRangeException(nameof(streamType), streamType, $"{streamType} streams cannot be bitstream-filtered");
         }
 
         StreamType = streamType;

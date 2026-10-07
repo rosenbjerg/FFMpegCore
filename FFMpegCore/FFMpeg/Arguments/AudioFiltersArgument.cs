@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -9,6 +8,11 @@ public class AudioFiltersArgument : IArgument
 
     public AudioFiltersArgument(AudioFilterOptions options)
     {
+        if (!options.Arguments.Any(arg => FilterRenderer.HasText(arg.Key, arg.Value)))
+        {
+            throw new ArgumentException("No audio filters were added", nameof(options));
+        }
+
         Options = options;
     }
 
@@ -20,11 +24,6 @@ public class AudioFiltersArgument : IArgument
             .Where(arg => FilterRenderer.HasText(arg.Key, arg.Value))
             .Select(arg => FilterRenderer.Render(arg.Key, arg.Value, true))
             .ToArray();
-
-        if (arguments.Length == 0)
-        {
-            throw new FFMpegArgumentException("No audio-filter arguments provided");
-        }
 
         return $"-af \"{string.Join(", ", arguments)}\"";
     }

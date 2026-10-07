@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Test;
@@ -133,7 +132,7 @@ public class ArgumentBuilderTest
     [DataRow(StreamType.Data)]
     public void BitstreamFilter_RejectsStreamTypesWithoutABsfSpelling(StreamType streamType)
     {
-        Assert.ThrowsExactly<FFMpegException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtsToAsc));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new BitstreamFilterArgument(streamType, BitstreamFilter.Aac_AdtsToAsc));
     }
 
     [TestMethod]
@@ -276,7 +275,7 @@ public class ArgumentBuilderTest
     [DataRow(StreamType.VideoNoAttachedPic)]
     public void DisableStream_RejectsStreamTypesFFMpegCannotDisable(StreamType streamType)
     {
-        Assert.ThrowsExactly<FFMpegException>(() => new DisableStreamArgument(streamType));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new DisableStreamArgument(streamType));
     }
 
     [TestMethod]
@@ -1466,9 +1465,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void ComplexFilter_RejectsAnEmptyGraph()
     {
-        var argument = new ComplexFilterArgument(new FFMpegComplexFilterOptions());
-
-        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = argument.Text);
+        Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(new FFMpegComplexFilterOptions()));
     }
 
     [TestMethod]
@@ -1477,7 +1474,7 @@ public class ArgumentBuilderTest
         var options = new FFMpegComplexFilterOptions();
         options.From(0, StreamType.Video).As("v");
 
-        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = new ComplexFilterArgument(options).Text);
+        Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(options));
     }
 
     [TestMethod]
@@ -1493,7 +1490,14 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void SubtitleCodec_RejectsCodecsOfAnotherType()
     {
-        Assert.ThrowsExactly<FFMpegException>(() => new SubtitleCodecArgument(AudioCodec.Aac));
+        Assert.ThrowsExactly<ArgumentException>(() => new SubtitleCodecArgument(AudioCodec.Aac));
+    }
+
+    [TestMethod]
+    public void VideoAndAudioCodec_RejectCodecsOfAnotherType()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => new VideoCodecArgument(AudioCodec.Aac));
+        Assert.ThrowsExactly<ArgumentException>(() => new AudioCodecArgument(VideoCodec.LibX264));
     }
 
     [TestMethod]
@@ -1662,11 +1666,10 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_EmptyFilterOptions_Throw()
     {
-        var video = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(_ => { }));
-        var audio = FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(_ => { }));
-
-        Assert.ThrowsExactly<FFMpegArgumentException>(() => video.Arguments);
-        Assert.ThrowsExactly<FFMpegArgumentException>(() => audio.Arguments);
+        Assert.ThrowsExactly<ArgumentException>(() =>
+            FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithVideoFilters(_ => { })));
+        Assert.ThrowsExactly<ArgumentException>(() =>
+            FFMpegArguments.FromFileInput("input.mp4").OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(_ => { })));
     }
 
     [TestMethod]
@@ -1852,9 +1855,7 @@ public class ArgumentBuilderTest
     {
         var options = new VideoFilterOptions();
         options.WithFilter(new BareNameVideoFilter(string.Empty));
-        var argument = new VideoFiltersArgument(options);
-
-        Assert.ThrowsExactly<FFMpegArgumentException>(() => _ = argument.Text);
+        Assert.ThrowsExactly<ArgumentException>(() => new VideoFiltersArgument(options));
     }
 
     [TestMethod]
