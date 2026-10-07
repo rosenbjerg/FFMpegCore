@@ -526,6 +526,19 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_MovFlags_CombineIntoOneOption()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false)
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithFastStart()
+                .CopyStreams()
+                .WithMovFlags(MovFlags.FragmentKeyframe + MovFlags.EmptyMoov))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -movflags faststart+frag_keyframe+empty_moov -c copy \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Speed()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

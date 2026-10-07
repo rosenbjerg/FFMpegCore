@@ -234,7 +234,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoCodec.LibaomAv1` | `VideoCodec.LibAomAv1`, cased like `LibX264` and the new `LibSvtAv1` |
 | `Filter.Aac_AdtstoAsc` | `BitstreamFilter.Aac_AdtsToAsc` |
 | `MetaDataArgument` | `MetadataArgument`, matching `AddMetadata` and `MapMetadataArgument` |
-| `FaststartArgument` | `FastStartArgument` |
+| `FaststartArgument` | `MovFlagsArgument(MovFlags.FastStart)`; `WithFastStart()` is unchanged |
 | `VariableBitRateArgument` | `VariableBitrateArgument` |
 | `ID3V2VersionArgument` | `Id3v2VersionArgument` |
 | `Codec.Extension()` (the `FileExtension` extension method) | removed — it mapped eight codecs to a container extension and threw a bare `Exception` for anything else |
@@ -531,6 +531,8 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
 - `WithFpsMode` for `-fps_mode` (the replacement for `-vsync`), with `FpsMode.ConstantFrameRate` for the constant-frame-rate output
   editing software expects.
 - `WithMapChapters(inputFileIndex)` and `WithoutChapters()` for `-map_chapters`, alongside `WithMapMetadata` and `WithoutMetadata`.
+- `WithMovFlags` for any `-movflags`, such as fragmented MP4 (`MovFlags.FragmentKeyframe + MovFlags.EmptyMoov`). Calls combine into one
+  option, with `WithFastStart` too, since ffmpeg would keep only the last `-movflags`.
 - Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`), `WithFrameRate(string)` for exact
   rates such as `30000/1001`, and `double` for `AudioGate`'s `ratio` and `makeup`. Existing integer calls compile unchanged.
   `FrameRateArgument.Framerate` (`double`) is `FrameRate` (`string`).

@@ -149,7 +149,20 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     /// <summary>-movflags faststart</summary>
     public FFMpegOutputOptions WithFastStart()
     {
-        return WithArgument(new FastStartArgument());
+        return WithMovFlags(MovFlags.FastStart);
+    }
+
+    /// <summary>-movflags; repeated calls add to the same option</summary>
+    public FFMpegOutputOptions WithMovFlags(MovFlags flags)
+    {
+        var index = Arguments.FindIndex(argument => argument is MovFlagsArgument);
+        if (index < 0)
+        {
+            return WithArgument(new MovFlagsArgument(flags));
+        }
+
+        Arguments[index] = new MovFlagsArgument(((MovFlagsArgument)Arguments[index]).Flags + flags);
+        return this;
     }
 
     /// <summary>-shortest</summary>
