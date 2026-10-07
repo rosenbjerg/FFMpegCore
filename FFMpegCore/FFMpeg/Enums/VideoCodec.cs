@@ -5,8 +5,10 @@ public static class VideoCodec
     public static Codec LibX264 => new("libx264", CodecType.Video);
     public static Codec LibX265 => new("libx265", CodecType.Video);
     public static Codec LibVpx => new("libvpx", CodecType.Video);
+    public static Codec LibVpxVp9 => new("libvpx-vp9", CodecType.Video);
     public static Codec LibTheora => new("libtheora", CodecType.Video);
-    public static Codec LibaomAv1 => new("libaom-av1", CodecType.Video);
+    public static Codec LibAomAv1 => new("libaom-av1", CodecType.Video);
+    public static Codec LibSvtAv1 => new("libsvtav1", CodecType.Video);
     public static Codec Copy => new("copy", CodecType.Video);
 
     public static class Image

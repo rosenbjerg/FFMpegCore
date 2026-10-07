@@ -84,7 +84,7 @@ var outputStream = new MemoryStream();
     await FFMpegArguments
         .FromPipeInput(new StreamPipeSource(inputStream))
         .OutputToPipe(new StreamPipeSink(outputStream), options => options
-            .WithVideoCodec("vp9")
+            .WithVideoCodec(VideoCodec.LibVpxVp9)
             .ForceFormat(ContainerFormats.WebM))
         .ProcessAsynchronously();
 }

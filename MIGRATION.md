@@ -231,6 +231,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `VideoType` | `ContainerFormats` — its members are `ContainerFormat` values, so the old name claimed a video type it never was |
 | `VideoType.MpegTs` | `ContainerFormats.Ts` — they were the same value under two names |
 | `AudioCodec.LibFdk_Aac` | `AudioCodec.LibFdkAac` |
+| `VideoCodec.LibaomAv1` | `VideoCodec.LibAomAv1`, cased like `LibX264` and the new `LibSvtAv1` |
 | `Filter.Aac_AdtstoAsc` | `BitstreamFilter.Aac_AdtsToAsc` |
 | `MetaDataArgument` | `MetadataArgument`, matching `AddMetadata` and `MapMetadataArgument` |
 | `FaststartArgument` | `FastStartArgument` |
@@ -521,6 +522,7 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
   taking the image as such an argument.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
+- `VideoCodec.LibVpxVp9` and `AudioCodec.LibOpus` (the WebM pair), `VideoCodec.LibSvtAv1`, and `AudioCodec.Flac`, `Alac` and `PcmS16Le`.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so
   naming a subtitle encoder no longer means `FFMpeg.GetCodec("mov_text")` and the `ffmpeg -codecs` run behind it.
 - `AddSubtitles`, `ExtractAudio`, `PosterWithAudio` and `ReplaceAudio` take an encoder name as a `string` as well as a `Codec`, for the

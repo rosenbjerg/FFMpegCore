@@ -1032,7 +1032,7 @@ public class VideoTest
         FFMpegArguments
             .FromPipeInput(writer)
             .OutputToPipe(reader, opt => opt
-                .WithVideoCodec("vp9")
+                .WithVideoCodec(VideoCodec.LibVpxVp9)
                 .ForceFormat("webm"))
             .CancellableThrough(cancellationToken)
             .ProcessSynchronously();
@@ -1052,7 +1052,7 @@ public class VideoTest
         FFMpegArguments
             .FromFileInput(TestResources.WebmVideo)
             .OutputToPipe(new StreamPipeSink(memoryStream), opt => opt
-                .WithVideoCodec("vp9")
+                .WithVideoCodec(VideoCodec.LibVpxVp9)
                 .ForceFormat("webm"))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();

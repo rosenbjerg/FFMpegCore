@@ -175,6 +175,11 @@ public class CodecTests
             Assert.AreEqual("libx264", VideoCodec.LibX264.Name);
             Assert.AreEqual(CodecType.Video, VideoCodec.LibX264.Type);
             Assert.AreEqual("mjpeg", VideoCodec.Image.Jpg.Name);
+            Assert.AreEqual("libvpx-vp9", VideoCodec.LibVpxVp9.Name);
+            Assert.AreEqual("libsvtav1", VideoCodec.LibSvtAv1.Name);
+            Assert.AreEqual("libaom-av1", VideoCodec.LibAomAv1.Name);
+            Assert.AreEqual("libopus", AudioCodec.LibOpus.Name);
+            Assert.AreEqual("pcm_s16le", AudioCodec.PcmS16Le.Name);
             Assert.AreEqual("aac", AudioCodec.Aac.Name);
             Assert.AreEqual(CodecType.Audio, AudioCodec.Aac.Type);
             Assert.AreEqual("mov_text", SubtitleCodec.MovText.Name);
