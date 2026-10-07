@@ -40,7 +40,7 @@ public class ExceptionTests
         Assert.AreEqual((FFMpegExceptionType.File, "probe", inner), (probe.Type, probe.Message, probe.InnerException));
         Assert.IsInstanceOfType<FFProbeException>(process);
         Assert.AreEqual((FFMpegExceptionType.Process, 1), (process.Type, process.ExitCode));
-        CollectionAssert.AreEqual(new[] { "line1", "line2" }, process.ErrorOutput.ToArray());
+        CollectionAssert.AreEqual(new[] { "line1", "line2" }, process.StandardError.ToArray());
         Assert.IsInstanceOfType<FFProbeException>(formatNull);
         Assert.AreEqual("Format not specified", formatNull.Message);
     }

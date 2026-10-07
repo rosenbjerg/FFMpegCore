@@ -240,7 +240,7 @@ public class FFMpegArgumentProcessorTest
         Assert.IsFalse(result.Success);
         Assert.IsFalse(result.Cancelled);
         Assert.AreNotEqual(0, result.ExitCode);
-        Assert.IsTrue(result.ErrorOutput.Any(line => line.Contains("Unrecognized option")));
+        Assert.IsTrue(result.StandardError.Any(line => line.Contains("Unrecognized option")));
     }
 
     [TestMethod]
@@ -391,7 +391,7 @@ public class FFMpegArgumentProcessorTest
         Assert.IsFalse(result.Success);
         Assert.IsFalse(result.Cancelled);
         Assert.AreNotEqual(0, result.ExitCode);
-        Assert.IsNotEmpty(result.ErrorOutput);
+        Assert.IsNotEmpty(result.StandardError);
     }
 
     [TestMethod]
@@ -403,7 +403,7 @@ public class FFMpegArgumentProcessorTest
         Assert.AreEqual(FFMpegExceptionType.Process, exception.Type);
         Assert.AreNotEqual(0, exception.Result.ExitCode);
         Assert.IsFalse(exception.Result.Success);
-        Assert.IsNotEmpty(exception.Result.ErrorOutput);
+        Assert.IsNotEmpty(exception.Result.StandardError);
     }
 
     public TestContext TestContext { get; set; }

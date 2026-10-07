@@ -370,16 +370,17 @@ its property.
 ## Errors
 
 A failed ffmpeg run throws `FFMpegProcessException`, which derives from `FFMpegException` and carries the run's `FFMpegResult` as `Result`
-— so `ExitCode` and `ErrorOutput` are there whether you let the run throw or pass `throwOnError: false`. `catch (FFMpegException)` still
+— so `ExitCode` and `StandardError` are there whether you let the run throw or pass `throwOnError: false`. `catch (FFMpegException)` still
 catches it.
 
-The captured stderr had four names across three types. It is now `ErrorOutput`, an `IReadOnlyList<string>`, everywhere:
+The captured stderr had four names across three types. It is now `StandardError`, an `IReadOnlyList<string>`, everywhere — the name
+`NotifyOnStandardError` uses, because it holds all of ffmpeg's logging and progress, not just its errors:
 
 | 5.x / early 6.0 | 6.0 |
 |---|---|
-| `FFMpegException.FFMpegErrorOutput` (`string`) | `FFMpegProcessException.Result.ErrorOutput`; removed from `FFMpegException` along with the constructors taking it |
-| `FFProbeProcessException.ErrorOutput` (`IReadOnlyCollection<string>`) | `IReadOnlyList<string>`, alongside a new `ExitCode`. Its constructor takes `(exitCode, errorOutput)` |
-| `IMediaAnalysis.ErrorData` | `IMediaAnalysis.ErrorOutput` |
+| `FFMpegException.FFMpegErrorOutput` (`string`) | `FFMpegProcessException.Result.StandardError`; removed from `FFMpegException` along with the constructors taking it |
+| `FFProbeProcessException.ErrorOutput` (`IReadOnlyCollection<string>`) | `FFProbeProcessException.StandardError` (`IReadOnlyList<string>`), alongside a new `ExitCode`. Its constructor takes `(exitCode, standardError)` |
+| `IMediaAnalysis.ErrorData` | `IMediaAnalysis.StandardError` |
 | `FFProbeException(…, ffProbeErrorOutput)` | the parameter is gone |
 
 Calling a builder method wrongly throws `ArgumentException` or `ArgumentOutOfRangeException`, as .NET APIs do, instead of one of three

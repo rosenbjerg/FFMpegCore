@@ -17,5 +17,5 @@ public interface IMediaAnalysis
     IReadOnlyList<VideoStream> VideoStreams { get; }
     IReadOnlyList<AudioStream> AudioStreams { get; }
     IReadOnlyList<SubtitleStream> SubtitleStreams { get; }
-    IReadOnlyList<string> ErrorOutput { get; }
+    IReadOnlyList<string> StandardError { get; }
 }

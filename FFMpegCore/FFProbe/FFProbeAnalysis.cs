@@ -11,7 +11,7 @@ public class FFProbeAnalysis
 
     [JsonPropertyName("chapters")] public List<Chapter> Chapters { get; set; } = null!;
 
-    [JsonIgnore] public IReadOnlyList<string> ErrorOutput { get; set; } = new List<string>();
+    [JsonIgnore] public IReadOnlyList<string> StandardError { get; set; } = new List<string>();
 }
 
 public class FFProbeStream : ITagsContainer, IDispositionContainer

@@ -434,7 +434,7 @@ public class FFProbeTests
         var input = TestResources.SrtSubtitle; //non media file
         var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.AnalyseAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
-        Assert.IsNotEmpty(exception.ErrorOutput);
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     [TestMethod]
@@ -444,7 +444,7 @@ public class FFProbeTests
         var input = TestResources.SrtSubtitle; //non media file
         var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetFramesAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
-        Assert.IsNotEmpty(exception.ErrorOutput);
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     [TestMethod]
@@ -454,7 +454,7 @@ public class FFProbeTests
         var input = TestResources.SrtSubtitle; //non media file
         var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetPacketsAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
-        Assert.IsNotEmpty(exception.ErrorOutput);
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows

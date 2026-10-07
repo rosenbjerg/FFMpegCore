@@ -195,7 +195,7 @@ public class AudioTest
             .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
 
         Assert.IsTrue(result.Success);
-        Assert.IsTrue(result.ErrorOutput.Any(line => line.Contains("silence_start: 0")));
+        Assert.IsTrue(result.StandardError.Any(line => line.Contains("silence_start: 0")));
     }
 
     [TestMethod]

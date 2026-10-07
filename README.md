@@ -32,7 +32,7 @@ var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
 A missing input throws `FFProbeException`, and a non-zero exit throws `FFProbeProcessException`, which carries `ExitCode` and the captured
-stderr lines in `ErrorOutput`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
+stderr lines in `StandardError`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
 
 ## FFMpeg
 
@@ -191,13 +191,13 @@ var result = FFMpegArguments
 if (!result.Success)
 {
     Console.Error.WriteLine($"ffmpeg exited with {result.ExitCode}");
-    Console.Error.WriteLine(string.Join("\n", result.ErrorOutput));
+    Console.Error.WriteLine(string.Join("\n", result.StandardError));
 }
 ```
 
 By default (`throwOnError: true`) a non-zero exit throws `FFMpegProcessException`, whose `Result` is the same `FFMpegResult`, and a
 cancellation throws `OperationCanceledException`. Pass `false` and the result reports what happened instead, through `ExitCode`,
-`ErrorOutput`, `Cancelled` and `Success`.
+`StandardError`, `Cancelled` and `Success`.
 
 ```csharp
 try
@@ -206,7 +206,7 @@ try
 }
 catch (FFMpegProcessException exception)
 {
-    logger.LogError("ffmpeg exited with {ExitCode}: {Output}", exception.Result.ExitCode, exception.Result.ErrorOutput);
+    logger.LogError("ffmpeg exited with {ExitCode}: {Output}", exception.Result.ExitCode, exception.Result.StandardError);
 }
 ```
 
@@ -272,7 +272,7 @@ FFMpegArguments
 ### Analysing without writing an output
 
 Detection filters such as `SilenceDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`
-decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `ErrorOutput`, or arrive line by
+decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `StandardError`, or arrive line by
 line through `NotifyOnStandardError`:
 
 ```csharp
@@ -283,7 +283,7 @@ var result = FFMpegArguments
         .WithAudioFilters(filters => filters.SilenceDetect(noise: -50, duration: 1)))
     .ProcessSynchronously();
 
-var silences = result.ErrorOutput.Where(line => line.Contains("silence_start") || line.Contains("silence_end"));
+var silences = result.StandardError.Where(line => line.Contains("silence_start") || line.Contains("silence_end"));
 ```
 
 The filters log at ffmpeg's `info` level, so a quieter `LogLevel` drops their findings.

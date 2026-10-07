@@ -2,15 +2,15 @@
 
 public sealed class FFMpegResult
 {
-    internal FFMpegResult(int exitCode, IReadOnlyList<string> errorOutput, bool cancelled)
+    internal FFMpegResult(int exitCode, IReadOnlyList<string> standardError, bool cancelled)
     {
         ExitCode = exitCode;
-        ErrorOutput = errorOutput;
+        StandardError = standardError;
         Cancelled = cancelled;
     }
 
     public int ExitCode { get; }
-    public IReadOnlyList<string> ErrorOutput { get; }
+    public IReadOnlyList<string> StandardError { get; }
     public bool Cancelled { get; }
     public bool Success => ExitCode == 0 && !Cancelled;
 }

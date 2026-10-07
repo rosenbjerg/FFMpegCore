@@ -213,7 +213,7 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
-        ffprobeAnalysis.ErrorOutput = instance.ErrorData;
+        ffprobeAnalysis.StandardError = instance.ErrorData;
         return new MediaAnalysis(ffprobeAnalysis, path);
     }
 

@@ -48,7 +48,7 @@ var outputPath = "/path/to/output";
     if (!result.Success)
     {
         Console.Error.WriteLine($"ffmpeg exited with {result.ExitCode}");
-        Console.Error.WriteLine(string.Join(Environment.NewLine, result.ErrorOutput));
+        Console.Error.WriteLine(string.Join(Environment.NewLine, result.StandardError));
     }
 }
 
