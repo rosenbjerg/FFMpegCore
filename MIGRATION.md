@@ -156,7 +156,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Seek(t)` / `EndSeek(t)` | `WithStartTime(t)` / `WithStopTime(t)` |
 | `Loop(n)` | `WithLoop(n)` |
 | `WithFramerate(r)` | `WithFrameRate(r)` |
-| `UsingShortest(b)` | `WithShortest(b)` |
+| `UsingShortest(b)` | `WithShortest()` — it takes no `bool`; leave the call out where you passed `false` |
 | `UsingThreads(n)` | `WithThreads(n)` |
 | `UsingMultithreading(true)` | `WithThreads(Environment.ProcessorCount)` |
 | `SelectStream(streamIndex, inputFileIndex, …)` | `WithMap(inputFileIndex, streamType, streamIndex)` — **note the order**: input, then stream type, then index, in every overload |

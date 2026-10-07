@@ -147,9 +147,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-shortest</summary>
-    public FFMpegOutputOptions WithShortest(bool shortest = true)
+    public FFMpegOutputOptions WithShortest()
     {
-        return WithArgument(new ShortestArgument(shortest));
+        return WithArgument(new ShortestArgument());
     }
 
     /// <summary>-map</summary>

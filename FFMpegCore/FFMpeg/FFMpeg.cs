@@ -817,12 +817,18 @@ public static class FFMpeg
         return FFMpegArguments
             .FromFileInput(input)
             .AddFileInput(audio)
-            .OutputToFile(output, options => options
-                .WithMap(0, StreamType.Video)
-                .WithMap(1, StreamType.Audio)
-                .CopyStreams()
-                .WithAudioCodec(audioCodec ?? AudioCodec.Copy)
-                .WithShortest(stopAtShortest))
+            .OutputToFile(output, options =>
+            {
+                options
+                    .WithMap(0, StreamType.Video)
+                    .WithMap(1, StreamType.Audio)
+                    .CopyStreams()
+                    .WithAudioCodec(audioCodec ?? AudioCodec.Copy);
+                if (stopAtShortest)
+                {
+                    options.WithShortest();
+                }
+            })
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
     }
