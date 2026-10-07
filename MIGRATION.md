@@ -523,6 +523,9 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
 - Output options on the helpers that re-encode — `Watermark`, `PosterWithAudio`, `JoinImageSequence` (on a new overload taking an
   `IEnumerable`, as `Join` has) and the image extensions' `AddAudio`. They replace the helper's own encode choices (libx264 at CRF 21,
   yuv420p, copying the audio) and keep what the helper needs to work.
+- Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`), `WithFrameRate(string)` for exact
+  rates such as `30000/1001`, and `double` for `AudioGate`'s `ratio` and `makeup`. Existing integer calls compile unchanged.
+  `FrameRateArgument.Framerate` (`double`) is `FrameRate` (`string`).
 - `OutputToNull()` for analysis-only runs (`-f null -`), so `SilenceDetect` and `BlackDetect` no longer need a dummy output path.
 - `ContainerFormats.Matroska`, `Flv`, `Mp3`, `Wav`, `Flac`, `Hls`, `Image2`, `RawVideo` and `Null`. `FFOptions.ExtensionOverrides` maps
   `matroska` to `.mkv` and `hls` to `.m3u8` by default, alongside `mpegts` to `.ts`.

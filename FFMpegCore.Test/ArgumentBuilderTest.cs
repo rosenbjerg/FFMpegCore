@@ -1104,6 +1104,32 @@ public class ArgumentBuilderTest
 
     [TestMethod]
     [DoNotParallelize]
+    public void Builder_BuildString_FractionalEncoderValues_AreCultureInvariant()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithFrameRate(29.97))
+                .OutputToFile("output.mp4", false, opt => opt
+                    .WithConstantRateFactor(18.5)
+                    .WithFrameRate("30000/1001")
+                    .WithAudioFilters(f => f.AudioGate(ratio: 1.5, makeup: 2.5)))
+                .Arguments;
+
+            StringAssert.StartsWith(str, "-r 29.97 -i \"input.mp4\" -crf 18.5 -r 30000/1001 -af ");
+            StringAssert.Contains(str, "ratio=1.5");
+            StringAssert.Contains(str, "makeup=2.5");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public void Builder_BuildString_BlackDetect_IsCultureInvariant()
     {
         var culture = CultureInfo.CurrentCulture;

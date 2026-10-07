@@ -117,7 +117,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-crf</summary>
-    public FFMpegOutputOptions WithConstantRateFactor(int crf)
+    public FFMpegOutputOptions WithConstantRateFactor(double crf)
     {
         return WithArgument(new ConstantRateFactorArgument(crf));
     }
@@ -274,6 +274,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
 
     /// <summary>-r</summary>
     public FFMpegOutputOptions WithFrameRate(double frameRate)
+    {
+        return WithArgument(new FrameRateArgument(frameRate));
+    }
+
+    /// <summary>-r, as a fraction such as 30000/1001 or an abbreviation such as ntsc</summary>
+    public FFMpegOutputOptions WithFrameRate(string frameRate)
     {
         return WithArgument(new FrameRateArgument(frameRate));
     }

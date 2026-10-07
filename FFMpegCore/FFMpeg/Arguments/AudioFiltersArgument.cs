@@ -82,7 +82,7 @@ public class AudioFilterOptions
 
     /// <summary>agate</summary>
     public AudioFilterOptions AudioGate(double levelIn = 1, AudioGateMode? mode = null, double range = 0.06125, double threshold = 0.125,
-        int ratio = 2, double attack = 20, double release = 250, int makeup = 1, double knee = 2.828427125, AudioGateDetection? detection = null,
+        double ratio = 2, double attack = 20, double release = 250, double makeup = 1, double knee = 2.828427125, AudioGateDetection? detection = null,
         AudioGateLink? link = null)
     {
         return WithFilter(new AudioGateArgument(levelIn, mode, range, threshold, ratio, attack, release, makeup, knee, detection, link));

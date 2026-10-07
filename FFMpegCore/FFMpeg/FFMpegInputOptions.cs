@@ -86,6 +86,12 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
         return WithArgument(new FrameRateArgument(frameRate));
     }
 
+    /// <summary>-r, as a fraction such as 30000/1001 or an abbreviation such as ntsc</summary>
+    public FFMpegInputOptions WithFrameRate(string frameRate)
+    {
+        return WithArgument(new FrameRateArgument(frameRate));
+    }
+
     /// <summary>-f</summary>
     public FFMpegInputOptions ForceFormat(ContainerFormat format)
     {

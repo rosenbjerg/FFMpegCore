@@ -2,17 +2,16 @@
 
 namespace FFMpegCore.Arguments;
 
-/// <summary>
-///     Represents frame rate parameter
-/// </summary>
 public class FrameRateArgument : IArgument
 {
-    public readonly double Framerate;
+    public readonly string FrameRate;
 
-    public FrameRateArgument(double framerate)
+    public FrameRateArgument(double frameRate) : this(frameRate.ToString(CultureInfo.InvariantCulture)) { }
+
+    public FrameRateArgument(string frameRate)
     {
-        Framerate = framerate;
+        FrameRate = frameRate;
     }
 
-    public string Text => $"-r {Framerate.ToString(CultureInfo.InvariantCulture)}";
+    public string Text => $"-r {FrameRate}";
 }
