@@ -773,6 +773,29 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_GifSnapshot_VideoIsNotFirstStream()
+    {
+        using var audioFirst = new TemporaryFile("audio-first.mp4");
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(audioFirst, options => options
+                .WithMap(0, StreamType.Audio)
+                .WithMap(0, StreamType.Video)
+                .CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+        Assert.AreEqual(1, FFProbe.Analyse(audioFirst).PrimaryVideoStream!.Index);
+        using var outputPath = new TemporaryFile("out.gif");
+
+        FFMpeg.GifSnapshot(audioFirst, outputPath, captureTime: TimeSpan.FromSeconds(0))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.AreEqual("gif", FFProbe.Analyse(outputPath).PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_GifSnapshot_PersistSnapshot_SizeSupplied()
     {
         using var outputPath = new TemporaryFile("out.gif");

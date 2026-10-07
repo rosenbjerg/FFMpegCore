@@ -258,6 +258,13 @@ builder.WithChapter("Intro", TimeSpan.FromSeconds(90));    // 6.0
 `inputFileIndex` although the arguments they build have exactly one input, so any value but `0` produced a `-map` against an input that was
 never added. Drop the argument; a positional `FFOptions` or `CancellationToken` after it moves up one place.
 
+### `WithGifPalette`'s `streamIndex` is a stream index
+
+It rendered `[N:v]` — the video of *input* `N` — so `GifSnapshot`, which passes the video stream's index, failed with "Invalid file
+index" on any file whose video is not stream 0. It now renders `[0:N]`, stream `N` of the first input, as its name and `Snapshot`'s
+`streamIndex` always said. A call passing `0` for a file whose first stream is audio now selects that audio stream; pass the video
+stream's `Index` instead.
+
 ### `SilenceDetect`'s noise threshold defaults to -60dB
 
 The default was `60`, which rendered as `silencedetect=n=60.0dB` — a threshold 60 dB *above* full scale. Everything is below that, so the

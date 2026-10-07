@@ -695,7 +695,7 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual($"""
-                         -i "input.mp4" -filter_complex "[0:v] fps=12,scale=w={size.Width}:h={size.Height},split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
+                         -i "input.mp4" -filter_complex "[0:{streamIndex}] fps=12,scale=w={size.Width}:h={size.Height},split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
                          """, str);
     }
 
@@ -711,7 +711,7 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual($"""
-                         -i "input.mp4" -filter_complex "[{streamIndex}:v] fps=10,split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
+                         -i "input.mp4" -filter_complex "[0:{streamIndex}] fps=10,split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer" "output.gif"
                          """, str);
     }
 
