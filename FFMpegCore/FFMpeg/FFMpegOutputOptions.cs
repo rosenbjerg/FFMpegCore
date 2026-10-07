@@ -140,7 +140,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new FrameCountArgument(frames));
     }
 
-    /// <summary>-bsf:v or -bsf:a</summary>
+    /// <summary>-bsf, or -bsf:v / -bsf:a / -bsf:s for one stream type</summary>
     public FFMpegOutputOptions WithBitstreamFilter(StreamType streamType, BitstreamFilter filter)
     {
         return WithArgument(new BitstreamFilterArgument(streamType, filter));
