@@ -206,6 +206,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new DispositionArgument(disposition, streamType, streamIndex));
     }
 
+    /// <summary>-tag, the codec tag (fourcc) the stream is written with</summary>
+    public FFMpegOutputOptions WithTag(string tag, StreamType streamType = StreamType.All, int? streamIndex = null)
+    {
+        return WithArgument(new TagArgument(tag, streamType, streamIndex));
+    }
+
     /// <summary>-map_metadata</summary>
     public FFMpegOutputOptions WithMapMetadata(int inputFileIndex)
     {
