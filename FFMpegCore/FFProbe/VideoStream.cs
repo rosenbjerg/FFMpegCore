@@ -5,7 +5,7 @@ namespace FFMpegCore;
 public class VideoStream : MediaStream
 {
     /// <summary>ffprobe's avg_frame_rate: total frames divided by total duration.</summary>
-    public double AvgFrameRate { get; set; }
+    public double AverageFrameRate { get; set; }
     public int BitsPerRawSample { get; set; }
     public (int Width, int Height) DisplayAspectRatio { get; set; }
     public (int Width, int Height) SampleAspectRatio { get; set; }

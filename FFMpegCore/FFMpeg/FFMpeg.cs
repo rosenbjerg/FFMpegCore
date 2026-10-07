@@ -85,7 +85,7 @@ public static class FFMpeg
 
     private static TimeSpan OneFrameOf(IMediaAnalysis source)
     {
-        var frameRate = source.PrimaryVideoStream?.AvgFrameRate ?? 0;
+        var frameRate = source.PrimaryVideoStream?.AverageFrameRate ?? 0;
         return TimeSpan.FromSeconds(1 / (frameRate > 0 ? frameRate : 25));
     }
 

@@ -204,8 +204,9 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream |
 | `IMediaAnalysis.VideoStreams`, `AudioStreams`, `SubtitleStreams`, `Chapters` (`List<T>`) | `IReadOnlyList<T>` — an analysis describes a file, and adding to it changed nothing but the helpers' view of that file |
 | `FileExtension.Image.All` (`List<string>`) | `IReadOnlyList<string>` — it was a writable global the snapshot helpers validate against |
-| `VideoStream.AverageFrameRate` | removed — it was never populated and always read `0`; use `AvgFrameRate` (ffprobe's `avg_frame_rate`) or `RealFrameRate` (`r_frame_rate`) |
-| `VideoStream.FrameRate` | `RealFrameRate` — it holds ffprobe's `r_frame_rate`, the lowest rate that represents every timestamp, which for variable-frame-rate video (most phone recordings) can be far above the rate the video plays at. `AvgFrameRate` is usually the one you want |
+| `VideoStream.AvgFrameRate` | `AverageFrameRate`, ffprobe's `avg_frame_rate` |
+| `VideoStream.AverageFrameRate` | now populated — it was never filled in and always read `0`; it now holds what `AvgFrameRate` held, so code reading it starts getting the real rate |
+| `VideoStream.FrameRate` | `RealFrameRate` — it holds ffprobe's `r_frame_rate`, the lowest rate that represents every timestamp, which for variable-frame-rate video (most phone recordings) can be far above the rate the video plays at. `AverageFrameRate` is usually the one you want |
 | `new InputArgument(bool, string)` | `new InputArgument(string path, bool verifyExists)` — the two constructors differed only in argument order |
 | `new MultiInputArgument(bool, IEnumerable<string>)` | `new MultiInputArgument(IEnumerable<string> paths, bool verifyExists)` — likewise |
 | `VideoCodec.MpegTs` | removed — `mpegts` is a container, not a video codec; it emitted `-c:v mpegts`. Use `ForceFormat(ContainerFormats.Ts)` |
