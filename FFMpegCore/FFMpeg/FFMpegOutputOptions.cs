@@ -159,7 +159,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-map, once per index</summary>
-    public FFMpegOutputOptions WithMap(int inputFileIndex, IEnumerable<int> streamIndices, StreamType streamType = StreamType.All)
+    public FFMpegOutputOptions WithMap(int inputFileIndex, StreamType streamType, IEnumerable<int> streamIndices)
     {
         return streamIndices.Aggregate(this, (options, streamIndex) => options.WithMap(inputFileIndex, streamType, streamIndex));
     }
@@ -177,7 +177,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-map -, once per index</summary>
-    public FFMpegOutputOptions WithNegativeMap(int inputFileIndex, IEnumerable<int> streamIndices, StreamType streamType = StreamType.All)
+    public FFMpegOutputOptions WithNegativeMap(int inputFileIndex, StreamType streamType, IEnumerable<int> streamIndices)
     {
         return streamIndices.Aggregate(this, (options, streamIndex) => options.WithNegativeMap(inputFileIndex, streamType, streamIndex));
     }

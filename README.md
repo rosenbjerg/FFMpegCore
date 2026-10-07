@@ -311,7 +311,7 @@ explicitly. Chapters are `ChapterData`, the same type `IMediaAnalysis.Chapters` 
 into another. Call `Build()` if you want the document text itself.
 
 `AddMetadata` adds the document as an input and maps its metadata onto every output. To take the metadata from another input instead, or
-drop it, say so on the output — `WithMapMetadata(inputIndex)` and `WithoutMetadata()` replace the automatic mapping:
+drop it, say so on the output — `WithMapMetadata(inputFileIndex)` and `WithoutMetadata()` replace the automatic mapping:
 
 ```csharp
 FFMpegArguments

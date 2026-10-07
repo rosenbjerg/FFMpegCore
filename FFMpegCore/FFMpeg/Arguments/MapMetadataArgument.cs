@@ -2,12 +2,12 @@
 
 public class MapMetadataArgument : IArgument
 {
-    public readonly int InputIndex;
+    public readonly int InputFileIndex;
 
-    public MapMetadataArgument(int inputIndex)
+    public MapMetadataArgument(int inputFileIndex)
     {
-        InputIndex = inputIndex;
+        InputFileIndex = inputFileIndex;
     }
 
-    public string Text => $"-map_metadata {InputIndex}";
+    public string Text => $"-map_metadata {InputFileIndex}";
 }

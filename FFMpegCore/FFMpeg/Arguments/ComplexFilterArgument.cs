@@ -33,12 +33,12 @@ public class FFMpegComplexFilterOptions
     internal readonly List<ComplexFilterChain> Chains = new();
 
     /// <summary>Starts a chain reading a stream of an input file.</summary>
-    /// <param name="inputIndex">Index of the input, in the order the inputs were added.</param>
+    /// <param name="inputFileIndex">Index of the input, in the order the inputs were added.</param>
     /// <param name="streamType">Which kind of stream to take.</param>
     /// <param name="streamIndex">Which stream of that kind, or null for all of them.</param>
-    public ComplexFilterChain From(int inputIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
+    public ComplexFilterChain From(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        return NewChain().From(inputIndex, streamType, streamIndex);
+        return NewChain().From(inputFileIndex, streamType, streamIndex);
     }
 
     /// <summary>Starts a chain reading a label an earlier chain produced.</summary>
@@ -77,9 +77,9 @@ public class ComplexFilterChain
     }
 
     /// <summary>Reads another stream of an input file into this chain.</summary>
-    public ComplexFilterChain From(int inputIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
+    public ComplexFilterChain From(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        _inputs.Add($"{inputIndex}{streamType.Specifier()}{(streamIndex == null ? "" : $":{streamIndex}")}");
+        _inputs.Add($"{inputFileIndex}{streamType.Specifier()}{(streamIndex == null ? "" : $":{streamIndex}")}");
         return this;
     }
 

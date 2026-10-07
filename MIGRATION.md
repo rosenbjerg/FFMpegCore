@@ -157,8 +157,8 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `UsingShortest(b)` | `WithShortest(b)` |
 | `UsingThreads(n)` | `WithThreads(n)` |
 | `UsingMultithreading(true)` | `WithThreads(Environment.ProcessorCount)` |
-| `SelectStream(streamIndex, inputFileIndex, …)` | `WithMap(inputFileIndex, streamType, streamIndex)` — **note the order** |
-| `SelectStreams(streamIndices, inputFileIndex, …)` | `WithMap(inputFileIndex, streamIndices, streamType)` |
+| `SelectStream(streamIndex, inputFileIndex, …)` | `WithMap(inputFileIndex, streamType, streamIndex)` — **note the order**: input, then stream type, then index, in every overload |
+| `SelectStreams(streamIndices, inputFileIndex, …)` | `WithMap(inputFileIndex, streamType, streamIndices)` — the stream type is required here, `StreamType.All` for absolute indices |
 | `DeselectStream(…)` / `DeselectStreams(…)` | `WithNegativeMap(…)`, reordered the same way |
 | `WithCopyCodec()` / `CopyChannel(Channel.Both)` | `CopyStreams()` |
 | `CopyChannel(Channel.Audio)` | `CopyStreams(StreamType.Audio)` |
