@@ -635,7 +635,7 @@ public static class FFMpeg
                 options
                     .WithVideoCodec(VideoCodec.LibX264)
                     .WithVideoBitrate(2400)
-                    .WithSpeedPreset(Speed.SuperFast)
+                    .WithSpeedPreset(EncoderPreset.SuperFast)
                     .WithAudioCodec(AudioCodec.Aac)
                     .WithAudioBitrate(AudioQuality.Normal);
             })

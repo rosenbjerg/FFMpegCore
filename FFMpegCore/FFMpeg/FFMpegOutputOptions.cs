@@ -123,9 +123,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-preset</summary>
-    public FFMpegOutputOptions WithSpeedPreset(Speed speed)
+    public FFMpegOutputOptions WithSpeedPreset(EncoderPreset preset)
     {
-        return WithArgument(new SpeedPresetArgument(speed));
+        return WithArgument(new SpeedPresetArgument(preset));
     }
 
     /// <summary>-frames:v</summary>

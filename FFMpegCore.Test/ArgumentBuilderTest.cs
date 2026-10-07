@@ -428,8 +428,16 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_Speed()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithSpeedPreset(Speed.Fast)).Arguments;
+            .OutputToFile("output.mp4", false, opt => opt.WithSpeedPreset(EncoderPreset.Fast)).Arguments;
         Assert.AreEqual("-i \"input.mp4\" -preset fast \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Speed_PassesAnUnlistedPresetThrough()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithSpeedPreset("p4")).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -preset p4 \"output.mp4\"", str);
     }
 
     [TestMethod]

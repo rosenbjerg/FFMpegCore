@@ -42,7 +42,7 @@ FFMpegArguments
         .WithVideoCodec(VideoCodec.LibX264)
         .WithVideoBitrate(2400)
         .WithVideoFilters(filters => filters.Scale(VideoSize.Hd))
-        .WithSpeedPreset(Speed.Medium)
+        .WithSpeedPreset(EncoderPreset.Medium)
         .WithAudioCodec(AudioCodec.Aac)
         .WithAudioBitrate(AudioQuality.Good)
         .WithThreads(Environment.ProcessorCount))
@@ -190,6 +190,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Channel` | `StreamType` — `Channel.Both` is gone, use `StreamType.All` |
 | `FFMpegCore.Arguments.FadeDirection` | `FFMpegCore.Enums.FadeDirection`, with the other values passed to builder methods |
 | `Filter` | `BitstreamFilter` |
+| `Speed` | `EncoderPreset` — a struct like `EncoderTune`, so `"p4"` (NVENC) or `"8"` (SVT-AV1) pass through as strings; `Speed.UltraFast` is `EncoderPreset.UltraFast`, and `Placebo` is new |
 | `Mirroring` | removed — use `HorizontalFlip()` / `VerticalFlip()` |
 | `MetaDataBuilder`, `MetaData`, `IReadOnlyMetaData` (namespace `FFMpegCore.Builders.MetaData`) | `FFMetadataBuilder` in `FFMpegCore` |
 | `FFMpegImage` in both image extension packages | `SystemDrawingImage` and `SkiaSharpImage`, so both can be referenced at once |

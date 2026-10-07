@@ -1076,7 +1076,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(out var cancel)
             .CancellableThrough(TestContext.CancellationToken)
             .CancellableThrough(TestContext.CancellationToken)
@@ -1103,7 +1103,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(out var cancel)
             .CancellableThrough(TestContext.CancellationToken);
 
@@ -1129,7 +1129,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(out var cancel, TimeSpan.FromSeconds(10))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously(false);
@@ -1163,7 +1163,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(cts.Token)
             .ProcessAsynchronously(false);
 
@@ -1190,7 +1190,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(cts.Token)
             .ProcessAsynchronously();
 
@@ -1214,7 +1214,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(cts.Token);
 
         cts.CancelAfter(300);
@@ -1237,7 +1237,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(first.Token)
             .CancellableThrough(second.Token)
             .CancellableThrough(TestContext.CancellationToken);
@@ -1262,7 +1262,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(cts.Token);
 
         cts.Cancel();
@@ -1285,7 +1285,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast));
+                .WithSpeedPreset(EncoderPreset.VeryFast));
 
         Assert.ThrowsExactly<OperationCanceledException>(() => task.CancellableThrough(cts.Token));
     }
@@ -1305,7 +1305,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(cts.Token, TimeSpan.FromSeconds(8))
             .ProcessAsynchronously(false);
 
@@ -1336,7 +1336,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .ProcessAsynchronously(false, cancellationToken: cts.Token);
 
         cts.CancelAfter(300);
@@ -1361,7 +1361,7 @@ public class VideoTest
             .OutputToFile(outputFile, false, opt => opt
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVideoCodec(VideoCodec.LibX264)
-                .WithSpeedPreset(Speed.VeryFast))
+                .WithSpeedPreset(EncoderPreset.VeryFast))
             .CancellableThrough(out var cancel)
             .CancellableThrough(TestContext.CancellationToken);
 
@@ -1774,7 +1774,7 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
 
         var success = FFMpeg.Join(outputFile, new[] { TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio },
-                options => options.WithVideoCodec(VideoCodec.LibX264).WithConstantRateFactor(30).WithSpeedPreset(Speed.UltraFast))
+                options => options.WithVideoCodec(VideoCodec.LibX264).WithConstantRateFactor(30).WithSpeedPreset(EncoderPreset.UltraFast))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
 

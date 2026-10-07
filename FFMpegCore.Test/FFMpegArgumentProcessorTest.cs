@@ -305,7 +305,7 @@ public class FFMpegArgumentProcessorTest
 
         await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
-            .OutputToFile(output, true, options => options.WithVideoCodec(VideoCodec.LibX264).WithSpeedPreset(Speed.UltraFast))
+            .OutputToFile(output, true, options => options.WithVideoCodec(VideoCodec.LibX264).WithSpeedPreset(EncoderPreset.UltraFast))
             .NotifyOnPercentageProgress(percentages, duration)
             .NotifyOnProgress(times)
             .CancellableThrough(TestContext.CancellationToken)

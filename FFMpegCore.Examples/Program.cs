@@ -40,7 +40,7 @@ var outputPath = "/path/to/output";
         .FromFileInput(inputPath)
         .OutputToFile(outputPath, options => options
             .WithVideoCodec(VideoCodec.LibX264)
-            .WithSpeedPreset(Speed.Fast))
+            .WithSpeedPreset(EncoderPreset.Fast))
         .NotifyOnProgress(time => Console.WriteLine($"at {time}"))
         .NotifyOnPercentageProgress(percent => Console.WriteLine($"{percent:0.#}%"), source.Duration)
         .ProcessAsynchronously(false, cancellationToken: conversion.Token);
