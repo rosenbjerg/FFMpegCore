@@ -38,10 +38,16 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
         return WithArgument(new HardwareAccelerationArgument(device ?? HardwareAccelerationDevice.Auto));
     }
 
-    /// <summary>-loop</summary>
-    public FFMpegInputOptions WithLoop(int times)
+    /// <summary>-loop 1, repeating a still image</summary>
+    public FFMpegInputOptions WithLoop()
     {
-        return WithArgument(new LoopArgument(times));
+        return WithArgument(new LoopArgument());
+    }
+
+    /// <summary>-stream_loop; -1 repeats forever</summary>
+    public FFMpegInputOptions WithStreamLoop(int count)
+    {
+        return WithArgument(new StreamLoopArgument(count));
     }
 
     /// <summary>-audible_key and -audible_iv</summary>

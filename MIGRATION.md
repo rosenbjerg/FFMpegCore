@@ -154,7 +154,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | 5.x | 6.0 |
 |---|---|
 | `Seek(t)` / `EndSeek(t)` | `WithStartTime(t)` / `WithStopTime(t)` |
-| `Loop(n)` | `WithLoop(n)` |
+| `Loop(n)` | `WithLoop()` to repeat a still image (`-loop 1` — for image inputs `-loop` is on or off, never a count), or `WithStreamLoop(n)` to play any input `n` more times (`-stream_loop`, `-1` for ever) |
 | `WithFramerate(r)` | `WithFrameRate(r)` |
 | `UsingShortest(b)` | `WithShortest()` — it takes no `bool`; leave the call out where you passed `false` |
 | `UsingThreads(n)` | `WithThreads(n)` |

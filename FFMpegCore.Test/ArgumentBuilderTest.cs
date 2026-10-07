@@ -25,7 +25,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_MultipleFileInputs_ApplyTheirOptionsToEveryFile()
     {
         var str = FFMpegArguments
-            .FromFileInputs(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop(1))
+            .FromFileInputs(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop())
             .AddFileInputs(new[] { "c.mp3", "d.mp3" }, false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
             .OutputToFile("output.mp4", false)
             .Arguments;
@@ -39,18 +39,18 @@ public class ArgumentBuilderTest
     {
         var withFlags = FFMpegArguments
             .FromFileInput("input.mp4", true, opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop(1))
-            .AddFileInput(new FileInfo("c.mp3"), true, opt => opt.WithLoop(2))
+            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop())
+            .AddFileInput(new FileInfo("c.mp3"), true, opt => opt.WithStreamLoop(2))
             .OutputToFile("output.mp4", true, opt => opt.CopyStreams())
             .Arguments;
         var withoutFlags = FFMpegArguments
             .FromFileInput("input.mp4", opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop(1))
-            .AddFileInput(new FileInfo("c.mp3"), opt => opt.WithLoop(2))
+            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop())
+            .AddFileInput(new FileInfo("c.mp3"), opt => opt.WithStreamLoop(2))
             .OutputToFile("output.mp4", opt => opt.CopyStreams())
             .Arguments;
         var many = FFMpegArguments
-            .FromFileInput(new FileInfo("input.mp4"), opt => opt.WithLoop(1))
+            .FromFileInput(new FileInfo("input.mp4"), opt => opt.WithLoop())
             .OutputToMany(outputs => outputs.OutputToFile("output.mp4", opt => opt.CopyStreams()))
             .Arguments;
 
@@ -418,9 +418,17 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_Loop()
     {
-        var str = FFMpegArguments.FromFileInput("input.png", false, opt => opt.WithLoop(50)).OutputToFile("output.mp4", false)
+        var str = FFMpegArguments.FromFileInput("input.png", false, opt => opt.WithLoop()).OutputToFile("output.mp4", false)
             .Arguments;
-        Assert.AreEqual("-loop 50 -i \"input.png\" \"output.mp4\"", str);
+        Assert.AreEqual("-loop 1 -i \"input.png\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_StreamLoop()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithStreamLoop(-1)).OutputToFile("output.mp4", false)
+            .Arguments;
+        Assert.AreEqual("-stream_loop -1 -i \"input.mp4\" \"output.mp4\"", str);
     }
 
     [TestMethod]

@@ -56,7 +56,7 @@ public static class ComplexExamples
             .FromFileInput(video)
             // a still image is one frame, and one frame cannot fade; looping it gives the fade something to run over
             .AddFileInput(logo, options => options
-                .WithLoop(1)
+                .WithLoop()
                 .WithFrameRate(25))
             .AddFileInput(music)
             .OutputToFile(output, options => options
@@ -144,7 +144,7 @@ public static class ComplexExamples
 
         await FFMpegArguments
             .FromFileInput(poster, options => options
-                .WithLoop(1)
+                .WithLoop()
                 .WithFrameRate(2))
             .AddFileInput(audio)
             .AddMetadata(metadata)
