@@ -699,7 +699,6 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor RemoveAudio(IMediaAnalysis source, string output, FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
-        FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments
             .FromFileInput(input)
@@ -807,7 +806,6 @@ public static class FFMpeg
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
-        FFMpegHelper.ConversionSizeExceptionCheck(source);
 
         return FFMpegArguments
             .FromFileInput(input)

@@ -146,6 +146,46 @@ public class AudioTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Audio_Remove_FromOddSizedVideo()
+    {
+        using var input = CreateOddSizedVideoWithAudio();
+        using var outputFile = new TemporaryFile("out.mkv");
+
+        var result = FFMpeg.RemoveAudio(input, outputFile).ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.IsEmpty(FFProbe.Analyse(outputFile).AudioStreams);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Audio_Replace_InOddSizedVideo()
+    {
+        using var input = CreateOddSizedVideoWithAudio();
+        using var outputFile = new TemporaryFile("out.mkv");
+
+        var result = FFMpeg.ReplaceAudio(input, TestResources.Mp3Audio, outputFile)
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("mp3", FFProbe.Analyse(outputFile).PrimaryAudioStream!.CodecName);
+    }
+
+    private TemporaryFile CreateOddSizedVideoWithAudio()
+    {
+        var video = new TemporaryFile("odd.mkv");
+        FFMpegArguments
+            .FromFileInput("testsrc=d=1:s=319x239", false, options => options.ForceFormat("lavfi"))
+            .AddFileInput("sine=d=1", false, options => options.ForceFormat("lavfi"))
+            .OutputToFile(video, options => options
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithPixelFormat("yuv444p"))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+        return video;
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Audio_SilenceDetect_ThroughANullOutput()
     {
         var result = FFMpegArguments
