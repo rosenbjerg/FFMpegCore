@@ -285,7 +285,7 @@ public class AudioTest
 
         var samples = new List<IAudioSample> { new PcmAudioSampleWrapper([0, 0]), new PcmAudioSampleWrapper([0, 0]) };
 
-        var audioSamplesSource = new RawAudioPipeSource(samples) { Channels = 2, Format = "s8", SampleRate = 8000 };
+        var audioSamplesSource = new RawAudioPipeSource(samples, 8000, 2) { Format = "s8" };
 
         var success = FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -304,7 +304,7 @@ public class AudioTest
 
         var samples = new List<IAudioSample> { new PcmAudioSampleWrapper([0, 0]), new PcmAudioSampleWrapper([0, 0]) };
 
-        var audioSamplesSource = new RawAudioPipeSource(samples) { Channels = 2, Format = "s8", SampleRate = 8000 };
+        var audioSamplesSource = new RawAudioPipeSource(samples, 8000, 2) { Format = "s8" };
 
         var success = FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -323,7 +323,7 @@ public class AudioTest
 
         var samples = new List<IAudioSample> { new PcmAudioSampleWrapper([0, 0]), new PcmAudioSampleWrapper([0, 0]) };
 
-        var audioSamplesSource = new RawAudioPipeSource(samples) { Channels = 2, Format = "s8", SampleRate = 8000 };
+        var audioSamplesSource = new RawAudioPipeSource(samples, 8000, 2) { Format = "s8" };
 
         var success = await FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -336,13 +336,13 @@ public class AudioTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
-    public void Audio_ToAAC_Args_Pipe_ValidDefaultConfiguration()
+    public void Audio_ToAAC_Args_Pipe_ValidConfiguration()
     {
         using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
         var samples = new List<IAudioSample> { new PcmAudioSampleWrapper([0, 0]), new PcmAudioSampleWrapper([0, 0]) };
 
-        var audioSamplesSource = new RawAudioPipeSource(samples);
+        var audioSamplesSource = new RawAudioPipeSource(samples, 8000, 1);
 
         var success = FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -359,7 +359,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
-        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { Channels = 0 };
+        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>(), 8000, 0);
 
         Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -375,7 +375,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
-        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { Format = "s8le" };
+        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>(), 8000, 1) { Format = "s8le" };
 
         Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)
@@ -391,7 +391,7 @@ public class AudioTest
     {
         using var outputFile = new TemporaryFile($"out{ContainerFormats.Mp4.GetExtension()}");
 
-        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>()) { SampleRate = 0 };
+        var audioSamplesSource = new RawAudioPipeSource(new List<IAudioSample>(), 0, 1);
 
         Assert.ThrowsExactly<FFMpegProcessException>(() => FFMpegArguments
             .FromPipeInput(audioSamplesSource)

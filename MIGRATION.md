@@ -388,6 +388,15 @@ becomes settable as on the sink.
 .FromPipeInput(new StreamPipeSource(stream) { Format = "mpegts" })          // 6.0
 ```
 
+`RawAudioPipeSource` takes the sample rate and channel count in its constructor. They defaulted to 8000 Hz mono, so a source of 48 kHz
+stereo samples that forgot to say so played at the wrong speed and pitch without any error. Both are `int` now, like
+`WithAudioSamplingRate` and `WithAudioChannels`, and read-only:
+
+```csharp
+new RawAudioPipeSource(samples) { SampleRate = 48000, Channels = 2 }  // 5.x / early 6.0
+new RawAudioPipeSource(samples, sampleRate: 48000, channels: 2)       // 6.0
+```
+
 `RawVideoPipeSource.StreamFormat` is `PixelFormat`, since it holds the frames' `-pix_fmt`, not a container format. For the same reason
 `IVideoFrame.Format` is `IVideoFrame.PixelFormat`, on `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame` too; a custom frame type renames
 its property.
