@@ -131,6 +131,8 @@ FFMpeg.ReplaceAudio(input, audio, output, stopAtShortest: true);          // 6.0
 FFMpeg.ReplaceAudio(input, audio, output, AudioCodec.Aac);                // 6.0 — old behaviour, at ffmpeg's default bitrate
 ```
 
+Its `inputAudio` parameter is `audio`, as in `PosterWithAudio`; only a call naming it changes.
+
 ### `FFMpeg.PosterWithAudio`'s analysis overload takes the audio's analysis too
 
 It probes the audio to learn the output's duration, so percentage progress works without passing one. The overload taking the image's

@@ -770,33 +770,33 @@ public static class FFMpeg
 
     /// <inheritdoc cref="ReplaceAudio(string,string,string,Codec,bool,FFOptions)" />
     /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(string input, string inputAudio, string output, string audioCodec,
+    public static FFMpegArgumentProcessor ReplaceAudio(string input, string audio, string output, string audioCodec,
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
-        return ReplaceAudio(input, inputAudio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
+        return ReplaceAudio(input, audio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
     }
 
     /// <summary>
     ///     Replaces the audio of a video file with the audio of another file, or adds it if the video has none.
     /// </summary>
     /// <param name="input">Source video file.</param>
-    /// <param name="inputAudio">Source audio file.</param>
+    /// <param name="audio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
     /// <param name="stopAtShortest">Indicates if the encoding should stop at the shortest input file.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(string input, string inputAudio, string output, Codec? audioCodec = null,
+    public static FFMpegArgumentProcessor ReplaceAudio(string input, string audio, string output, Codec? audioCodec = null,
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
-        return ReplaceAudio(FFProbe.Analyse(input, ffOptions), inputAudio, output, audioCodec, stopAtShortest, ffOptions);
+        return ReplaceAudio(FFProbe.Analyse(input, ffOptions), audio, output, audioCodec, stopAtShortest, ffOptions);
     }
 
     /// <inheritdoc cref="ReplaceAudio(IMediaAnalysis,string,string,Codec,bool,FFOptions)" />
     /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string inputAudio, string output, string audioCodec,
+    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string audio, string output, string audioCodec,
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
-        return ReplaceAudio(source, inputAudio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
+        return ReplaceAudio(source, audio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
     }
 
     /// <summary>
@@ -804,19 +804,19 @@ public static class FFMpeg
     ///     none. Only the video is analysed — the audio file is passed straight to ffmpeg.
     /// </summary>
     /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
-    /// <param name="inputAudio">Source audio file.</param>
+    /// <param name="audio">Source audio file.</param>
     /// <param name="output">Output video file.</param>
     /// <param name="audioCodec">Encoder for the audio. Defaults to copying it, so the track is not degraded a second time.</param>
     /// <param name="stopAtShortest">Indicates if the encoding should stop at the shortest input file.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string inputAudio, string output, Codec? audioCodec = null,
+    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string audio, string output, Codec? audioCodec = null,
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
 
         return FFMpegArguments
             .FromFileInput(input)
-            .AddFileInput(inputAudio)
+            .AddFileInput(audio)
             .OutputToFile(output, options => options
                 .WithMap(0, StreamType.Video)
                 .WithMap(1, StreamType.Audio)
