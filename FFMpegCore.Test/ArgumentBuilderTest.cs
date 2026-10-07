@@ -145,6 +145,14 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_HardwareAcceleration_PassesAnUnlistedDeviceThrough()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithHardwareAcceleration("mediacodec"))
+            .OutputToFile("output.mp4", false).Arguments;
+        Assert.AreEqual("-hwaccel mediacodec -i \"input.mp4\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Concat()
     {
         var str = FFMpegArguments.FromConcatProtocolInput(_concatFiles).OutputToFile("output.mp4", false).Arguments;

@@ -191,6 +191,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `FFMpegCore.Arguments.FadeDirection` | `FFMpegCore.Enums.FadeDirection`, with the other values passed to builder methods |
 | `Filter` | `BitstreamFilter` |
 | `Speed` | `EncoderPreset` — a struct like `EncoderTune`, so `"p4"` (NVENC) or `"8"` (SVT-AV1) pass through as strings; `Speed.UltraFast` is `EncoderPreset.UltraFast`, and `Placebo` is new |
+| `HardwareAccelerationDevice` enum | a struct with the same member names plus `VideoToolbox`, `Vulkan`, `D3D12VA`, `OpenCL` and `DRM`; any other `-hwaccel` value passes through as a string. A `switch` over it no longer compiles — compare `Value` instead. `HardwareAccelerationArgument.HardwareAccelerationDevice` is the field `Device` |
 | `Mirroring` | removed — use `HorizontalFlip()` / `VerticalFlip()` |
 | `MetaDataBuilder`, `MetaData`, `IReadOnlyMetaData` (namespace `FFMpegCore.Builders.MetaData`) | `FFMetadataBuilder` in `FFMpegCore` |
 | `FFMpegImage` in both image extension packages | `SystemDrawingImage` and `SkiaSharpImage`, so both can be referenced at once |

@@ -33,9 +33,9 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-hwaccel</summary>
-    public FFMpegInputOptions WithHardwareAcceleration(HardwareAccelerationDevice hardwareAccelerationDevice = HardwareAccelerationDevice.Auto)
+    public FFMpegInputOptions WithHardwareAcceleration(HardwareAccelerationDevice? device = null)
     {
-        return WithArgument(new HardwareAccelerationArgument(hardwareAccelerationDevice));
+        return WithArgument(new HardwareAccelerationArgument(device ?? HardwareAccelerationDevice.Auto));
     }
 
     /// <summary>-loop</summary>
