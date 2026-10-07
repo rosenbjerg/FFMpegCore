@@ -314,7 +314,7 @@ public static class FFMpeg
 
     /// <summary>
     ///     Muxes a subtitle file in as its own stream, leaving the picture untouched. The player can then turn the subtitles
-    ///     on and off; to burn them into the picture instead, use <c>WithVideoFilters(f => f.HardBurnSubtitle(…))</c>.
+    ///     on and off; to burn them into the picture instead, use <c>WithVideoFilters(f => f.BurnSubtitles(…))</c>.
     /// </summary>
     /// <param name="input">Source video file.</param>
     /// <param name="subtitle">Subtitle file to add.</param>

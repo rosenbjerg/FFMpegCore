@@ -97,9 +97,9 @@ public class VideoFilterOptions
     }
 
     /// <summary>subtitles</summary>
-    public VideoFilterOptions HardBurnSubtitle(string subtitlePath, Action<SubtitleHardBurnOptions>? configure = null)
+    public VideoFilterOptions BurnSubtitles(string subtitlePath, Action<SubtitleBurnOptions>? configure = null)
     {
-        return WithFilter(new SubtitleHardBurnArgument(subtitlePath, configure));
+        return WithFilter(new SubtitleBurnArgument(subtitlePath, configure));
     }
 
     /// <summary>blackdetect</summary>

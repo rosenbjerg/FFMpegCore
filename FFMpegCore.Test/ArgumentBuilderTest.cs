@@ -492,13 +492,13 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_SubtitleHardBurnFilter()
+    public void Builder_BuildString_SubtitleBurnFilter()
     {
         var str = FFMpegArguments
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .HardBurnSubtitle("sample.srt", subtitles => subtitles
+                    .BurnSubtitles("sample.srt", subtitles => subtitles
                         .WithCharacterEncoding("UTF-8")
                         .WithOriginalSize(1366, 768)
                         .WithSubtitleIndex(0)
@@ -513,13 +513,13 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_SubtitleHardBurnFilterFixedPaths()
+    public void Builder_BuildString_SubtitleBurnFilterFixedPaths()
     {
         var str = FFMpegArguments
             .FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoFilters(filterOptions => filterOptions
-                    .HardBurnSubtitle(@"sample( \ : [ ] , ' ).srt")))
+                    .BurnSubtitles(@"sample( \ : [ ] , ' ).srt")))
             .Arguments;
 
         Assert.AreEqual(@"-i ""input.mp4"" -vf ""subtitles='sample( \\ \: \[ \] \, '\\\'' ).srt'"" ""output.mp4""",

@@ -172,6 +172,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Resize(w, h)` on an input | `WithFrameSize(w, h)` |
 | `Crop(…)` | `WithVideoFilters(f => f.Crop(…))` |
 | `Mirror(Mirroring.Horizontal)` | `WithVideoFilters(f => f.HorizontalFlip())` |
+| `HardBurnSubtitle(…)` | `BurnSubtitles(…)` — plural like `AddSubtitles`; `SubtitleHardBurnOptions` and `SubtitleHardBurnArgument` are `SubtitleBurnOptions` and `SubtitleBurnArgument` |
 | `WithGlobalOptions(g => g.WithVerbosityLevel(v))` | `WithLogLevel(FFMpegLogLevel.…)` |
 | `MultiOutput(…)` | `OutputToMany(…)` |
 | `AddMetaData(…)` | `AddMetadata(…)` |
@@ -306,7 +307,7 @@ FFMpegArguments.FromFileInput(a).AddFileInput(b).OutputToFile(output, o => o.Wit
 
 `MapMetadataArgument` takes the index it maps, and is no longer an input argument. `MetadataArgument` emits only its `-i`.
 
-## `DrawText`, `Pad` and `HardBurnSubtitle` take a lambda
+## `DrawText`, `Pad` and `HardBurnSubtitle` take a lambda, and `HardBurnSubtitle` is `BurnSubtitles`
 
 They took an options object built with a static `Create`, unlike every other part of the builder. They now take their required values
 directly and everything else through a lambda, and the options classes only offer `With*` methods:
@@ -323,13 +324,13 @@ directly and everything else through a lambda, and the options classes only offe
 .DrawText("Hello", text => text.WithFontFile("font.ttf").WithParameter("fontsize", "24"))
 .Pad("iw+20", "ih+20", pad => pad.WithParameter("color", "black"))
 .Pad(configure: pad => pad.WithAspectRatio("16/9"))
-.HardBurnSubtitle("subs.srt", subtitles => subtitles.WithOriginalSize(1920, 1080)
+.BurnSubtitles("subs.srt", subtitles => subtitles.WithOriginalSize(1920, 1080)
     .WithStyle(style => style.WithParameter("FontSize", "24")))
 ```
 
 `DrawText` no longer requires a font file: ffmpeg falls back to its default font through fontconfig. `SetOriginalSize`, `SetSubtitleIndex`
 and `SetCharacterEncoding` are `WithOriginalSize`, `WithSubtitleIndex` and `WithCharacterEncoding`. `new DrawTextArgument(…)`,
-`new PadArgument(…)` and `new SubtitleHardBurnArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
+`new PadArgument(…)` and `new SubtitleBurnArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
 or aspect ratio throws `ArgumentException` instead of a bare `Exception`.
 
 ## Filter parameters with a fixed set of values are typed
