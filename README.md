@@ -9,7 +9,7 @@
 [![GitHub code contributors](https://img.shields.io/github/contributors/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/graphs/contributors)
 
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both
-synchronous and asynchronous calls
+synchronous and asynchronous calls.
 
 > **Upgrading from 5.x?** Version 6.0 renames most option methods after the ffmpeg options they emit, splits input from output options, and
 > renames or removes several `FFMpeg.*` helpers. [MIGRATION.md](MIGRATION.md) lists every breaking change and its replacement, and the new
@@ -100,6 +100,10 @@ FFMpegArguments
     .ProcessSynchronously();
 ```
 
+`FromFileInputs(paths)` and `AddFileInputs(paths)` add one input per path, with the options repeated before each — to join files into one,
+see [`Concat`](#join-video-parts-into-one-single-file). `WithLoop()` repeats a still image for as long as the output runs, and
+`WithStreamLoop(n)` plays any input `n` more times (`-1` for ever).
+
 ### Selecting streams
 
 `WithMap` mirrors ffmpeg's own `-map input:specifier` — the input index first, then what to take from it. Leaving the stream index out maps
@@ -119,6 +123,44 @@ FFMpegArguments
 
 `WithMap(0)` maps everything from the first input, and `WithMap(0, StreamType.All, 3)` picks a single stream by index — `-map 0:3`.
 `WithMap(string)` and `WithNegativeMap(string)` select a label a complex-filter chain produced instead.
+
+The codec, bitrate and copy options take a stream index too, for settings that apply to one stream only. Like ffmpeg's `-c:a:1`, the index
+counts within the stream type:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile(outputPath, options => options
+        .WithMap(0)
+        .CopyStreams(StreamType.Video)       // -c:v copy
+        .CopyStreams(StreamType.Audio, 0)    // -c:a:0 copy — keep the first audio track as it is
+        .WithAudioCodec(AudioCodec.Aac, 1)   // -c:a:1 aac  — re-encode the second
+        .WithAudioBitrate(128, 1))           // -b:a:1 128k
+    .ProcessSynchronously();
+```
+
+### Encoder options
+
+The options for the encode are named after the ffmpeg options they emit. Where ffmpeg takes one of a set of values, the parameter is a small
+type listing the common ones — `EncoderPreset`, `EncoderTune`, `VideoProfile`, `FpsMode`, `MovFlags`, `HardwareAccelerationDevice` and
+others in `FFMpegCore.Enums` — which also accepts any string, so an encoder's own values pass straight through:
+
+```csharp
+FFMpegArguments
+    .FromFileInput(inputPath)
+    .OutputToFile("output.mp4", options => options
+        .WithVideoCodec(VideoCodec.LibX265)
+        .WithConstantRateFactor(26)
+        .WithSpeedPreset(EncoderPreset.Slow)    // or "p5" for NVENC, "8" for SVT-AV1
+        .WithTag("hvc1", StreamType.Video)      // -tag:v hvc1 — so Apple's players open HEVC in mp4
+        .WithFpsMode(FpsMode.ConstantFrameRate)
+        .WithFrameRate("30000/1001")            // exact NTSC, where 29.97 is an approximation
+        .WithFastStart())                       // -movflags faststart
+    .ProcessSynchronously();
+```
+
+`WithMovFlags(MovFlags.FragmentKeyframe + MovFlags.EmptyMoov)` writes a fragmented mp4 for streaming. Every `WithMovFlags` and `WithFastStart`
+on an output combines into one `-movflags`, since ffmpeg keeps only the last.
 
 ### Metadata tags and dispositions
 
@@ -169,7 +211,7 @@ closes with `As`, naming what it produced. `As` returns the graph, so the next `
 ```
 
 The chain has methods only for the filters ffmpeg accepts nowhere else — `Concat`, `Overlay` and `AudioMix`, all of which need more than one
-input and are rejected in `-vf`. Every other filter goes in through `Video` and `Audio`, which take the same builders as `WithVideoFilters`
+input and are rejected in `-vf`; `Concat` and `AudioMix` count the chain's inputs unless you pass a count. Every other filter goes in through `Video` and `Audio`, which take the same builders as `WithVideoFilters`
 and `WithAudioFilters`, so `Scale`, `Fade` and the rest are spelled the same in both places. `WithFilter` takes a filter argument object
 directly, and `WithCustomFilter(key, value)` covers anything the library has no method for. Both are on the `-vf` and `-af` builders as
 well, so a filter without a method joins the built-in ones rather than replacing the whole chain:
@@ -426,8 +468,10 @@ FFMpeg.Watermark(inputPath, "logo.png", outputPath,
 ```
 
 A PNG with an alpha channel keeps its transparency. The audio is copied across untouched; the video is re-encoded, since the picture is what
-changes. For anything more elaborate — scaling the logo first, fading it in — build the graph yourself with
-[`WithComplexFilter`](#complex-filters).
+changes, with ffmpeg's default encoder for the container. Pass output options to choose the encode instead —
+`addArguments: options => options.WithVideoCodec(VideoCodec.LibX264).WithConstantRateFactor(18)` — and add
+`CopyStreams(StreamType.Audio)` to them if the audio should still be copied. For anything more elaborate — scaling the logo first, fading it
+in — build the graph yourself with [`WithComplexFilter`](#complex-filters).
 
 ### Add or extract subtitles:
 
@@ -441,6 +485,9 @@ FFMpeg.AddSubtitles(inputPath, "subs.srt", "output.mp4", "eng", SubtitleCodec.Mo
 // and back out again
 FFMpeg.ExtractSubtitles("output.mkv", "subs.srt").ProcessSynchronously();
 ```
+
+`ExtractSubtitles` takes the first subtitle stream unless you pass a `streamIndex` — the stream's `Index` as `FFProbe` reports it — and
+throws `ArgumentException` when the input has no subtitles to extract.
 
 To burn the subtitles into the picture instead, so they cannot be switched off, use the `subtitles` filter:
 
@@ -502,6 +549,13 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
     @"..\2.png",
     @"..\3.png"
 ).ProcessSynchronously();
+
+// output options replace the default yuv420p, as with Join
+FFMpeg.JoinImageSequence(@"..\joined_video.mp4", images, frameRate: 1, options => options
+    .WithVideoCodec(VideoCodec.LibX264)
+    .WithConstantRateFactor(18)
+    .WithPixelFormat("yuv420p")
+).ProcessSynchronously();
 ```
 
 ### Remove the audio track of a video file:
@@ -560,13 +614,22 @@ await image.AddAudio(inputAudioPath, outputPath).ProcessAsynchronously(cancellat
 it ends, so keep it alive until then.
 
 The audio is copied, not re-encoded, so the track is not degraded a second time on its way to a platform that will transcode it anyway. Pass a
-codec if you do need to re-encode:
+codec if you do need to re-encode, and output options to change the video encode from libx264 at CRF 21 in yuv420p:
 
 ```csharp
 FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath, AudioCodec.Aac).ProcessSynchronously();
+
+FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath, addArguments: options => options
+    .WithVideoCodec(VideoCodec.LibX264)
+    .WithTune(EncoderTune.StillImage)
+    .WithPixelFormat("yuv420p")
+).ProcessSynchronously();
 ```
 
-Other available arguments could be found in `FFMpegCore.Arguments` namespace.
+## Options the builder has no method for
+
+`WithCustomArgument("-flag value")` on either the input or the output options passes text straight through, and `WithArgument` takes your
+own `IArgument`. On the filter builders, `WithCustomFilter(key, value)` does the same for a filter.
 
 ## Input piping
 
@@ -590,7 +653,7 @@ IEnumerable<IVideoFrame> CreateFrames(int count)
 }
 ```
 
-Then create a `RawVideoPipeSource` that utilises your video frame source
+Then create a `RawVideoPipeSource` that uses your video frame source
 
 ```csharp
 var videoFramesSource = new RawVideoPipeSource(CreateFrames(64))
@@ -607,11 +670,26 @@ await FFMpegArguments
 The image extension packages provide `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame`, which adapt a `System.Drawing.Bitmap` or an
 `SKBitmap` to `IVideoFrame`.
 
+### Working with raw audio samples
+
+`RawAudioPipeSource` takes the samples' rate and channel count, since nothing in raw samples says what they are; the sample format defaults
+to signed 16-bit little-endian (`s16le`):
+
+```csharp
+var audioSource = new RawAudioPipeSource(samples, sampleRate: 48000, channels: 2);
+await FFMpegArguments
+    .FromPipeInput(audioSource)
+    .OutputToFile("output.m4a", options => options
+        .WithAudioCodec(AudioCodec.Aac))
+    .ProcessAsynchronously();
+```
+
 # Binaries
 
 ## Runtime Auto Installation
 
-The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at runtime into the configured `BinaryFolder`:
+The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at runtime into the configured `BinaryFolder`. Set one first —
+with none, ffmpeg is looked up on `PATH`, so the download would never be used, and `DownloadBinariesAsync` throws:
 
 ```csharp
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
@@ -656,17 +734,17 @@ GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFiles
 // or
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
 
-// on some systems the absolute path may be required, in which case 
+// on some systems the absolute path may be required, in which case
 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Server.MapPath("./bin"), TemporaryFilesFolder = Server.MapPath("/tmp") });
 
 // or individual, per-run options
 await FFMpegArguments
     .FromFileInput(inputPath)
     .OutputToFile(outputPath)
-    .ProcessAsynchronously(true, new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
+    .ProcessAsynchronously(ffOptions: new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "/tmp" });
 
 // the FFMpeg.* helpers take the same options, covering the ffprobe call they make before the run
-await FFMpeg.RemoveAudio(inputPath, outputPath, new FFOptions { BinaryFolder = "./bin" })
+await FFMpeg.RemoveAudio(inputPath, outputPath, ffOptions: new FFOptions { BinaryFolder = "./bin" })
     .ProcessAsynchronously();
 
 // or combined, setting global defaults and adapting per-run options
