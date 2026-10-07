@@ -530,6 +530,7 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
   in Apple's players.
 - `WithFpsMode` for `-fps_mode` (the replacement for `-vsync`), with `FpsMode.ConstantFrameRate` for the constant-frame-rate output
   editing software expects.
+- `WithMapChapters(inputFileIndex)` and `WithoutChapters()` for `-map_chapters`, alongside `WithMapMetadata` and `WithoutMetadata`.
 - Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`), `WithFrameRate(string)` for exact
   rates such as `30000/1001`, and `double` for `AudioGate`'s `ratio` and `makeup`. Existing integer calls compile unchanged.
   `FrameRateArgument.Framerate` (`double`) is `FrameRate` (`string`).

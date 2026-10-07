@@ -230,6 +230,18 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new RemoveMetadataArgument());
     }
 
+    /// <summary>-map_chapters</summary>
+    public FFMpegOutputOptions WithMapChapters(int inputFileIndex)
+    {
+        return WithArgument(new MapChaptersArgument(inputFileIndex));
+    }
+
+    /// <summary>-map_chapters -1</summary>
+    public FFMpegOutputOptions WithoutChapters()
+    {
+        return WithArgument(new MapChaptersArgument(-1));
+    }
+
     /// <summary>-id3v2_version</summary>
     public FFMpegOutputOptions WithId3v2Version(int version = 3)
     {

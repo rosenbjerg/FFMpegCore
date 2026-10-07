@@ -514,6 +514,18 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_MapChapters()
+    {
+        var str = FFMpegArguments.FromFileInput("a.mkv", false).AddFileInput("b.mkv", false)
+            .OutputToMany(outputs => outputs
+                .OutputToFile("from-b.mkv", false, opt => opt.WithMapChapters(1))
+                .OutputToFile("none.mkv", false, opt => opt.WithoutChapters()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"a.mkv\" -i \"b.mkv\" -map_chapters 1 \"from-b.mkv\" -map_chapters -1 \"none.mkv\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Speed()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
