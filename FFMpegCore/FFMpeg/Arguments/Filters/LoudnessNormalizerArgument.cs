@@ -3,7 +3,7 @@
 namespace FFMpegCore.Arguments;
 
 /// <summary>loudnorm, EBU R128 loudness normalisation</summary>
-public class LoudnormArgument : IAudioFilterArgument
+public class LoudnessNormalizerArgument : IAudioFilterArgument
 {
     private readonly Dictionary<string, string> _arguments = new();
 
@@ -11,7 +11,7 @@ public class LoudnormArgument : IAudioFilterArgument
     /// <param name="loudnessRange">Target loudness range in LU, between 1 and 20.</param>
     /// <param name="truePeak">Maximum true peak in dBTP, between -9 and 0.</param>
     /// <param name="dualMono">Treat mono input as dual-mono, matching how it is perceived against stereo.</param>
-    public LoudnormArgument(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
+    public LoudnessNormalizerArgument(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
     {
         if (integratedLoudness < -70 || integratedLoudness > -5)
         {

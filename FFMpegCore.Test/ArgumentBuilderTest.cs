@@ -1308,10 +1308,10 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_LoudnormFilter()
+    public void Builder_BuildString_LoudnessNormalizerFilter()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f => f.Loudnorm(-16, 11, -1.5, true)))
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f => f.LoudnessNormalizer(-16, 11, -1.5, true)))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -af \"loudnorm=I=-16.0:LRA=11.0:TP=-1.5:dual_mono=true\" \"output.mp4\"", str);
@@ -1360,11 +1360,11 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Loudnorm_RejectsTargetsOutsideTheStandardRanges()
+    public void LoudnessNormalizer_RejectsTargetsOutsideTheStandardRanges()
     {
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(-80));
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(loudnessRange: 25));
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnormArgument(truePeak: 3));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnessNormalizerArgument(-80));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnessNormalizerArgument(loudnessRange: 25));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LoudnessNormalizerArgument(truePeak: 3));
     }
 
     [TestMethod]
@@ -1416,7 +1416,7 @@ public class ArgumentBuilderTest
                     .Video(f => f.Scale(640, -2).HorizontalFlip())
                     .As("v")
                     .From(0, StreamType.Audio)
-                    .Audio(f => f.Loudnorm())
+                    .Audio(f => f.LoudnessNormalizer())
                     .As("a"))
                 .WithMap("v")
                 .WithMap("a"))

@@ -504,7 +504,7 @@ This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 - `WithFilter` and `WithCustomFilter(key, value)` on `VideoFilterOptions` and `AudioFilterOptions`, so a filter the library has no method
   for joins the `-vf`/`-af` chain instead of forcing the whole chain into `WithCustomArgument`. Their `Arguments` list is now read-only;
   `f.Arguments.Add(filter)` becomes `f.WithFilter(filter)`.
-- Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `Loudnorm`,
+- Five filters that had no method on the filter builders: `Fps`, `Tile`, `Speed` and `Fade` on `VideoFilterOptions`, and `LoudnessNormalizer` (`loudnorm`),
   `Speed` and `Fade` on `AudioFilterOptions`.
 - `WithComplexFilter`, a typed builder for `-filter_complex`, with `WithMap(string label)` to select what a chain produced. A chain's
   `Video(f => …)` and `Audio(f => …)` take the same builders as `WithVideoFilters` and `WithAudioFilters`. Filters needing

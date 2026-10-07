@@ -156,7 +156,7 @@ public static class ComplexExamples
                 .WithPixelFormat("yuv420p")
                 .WithAudioFilters(filters => filters
                     .HighPass(80)
-                    .Loudnorm(-16, 7, -1.5))
+                    .LoudnessNormalizer(-16, 7, -1.5))
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithAudioBitrate(AudioQuality.Good)
                 // the looped poster never ends either; the audio is what decides the length

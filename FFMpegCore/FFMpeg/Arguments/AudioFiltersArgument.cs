@@ -89,9 +89,9 @@ public class AudioFilterOptions
     }
 
     /// <summary>loudnorm</summary>
-    public AudioFilterOptions Loudnorm(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
+    public AudioFilterOptions LoudnessNormalizer(double integratedLoudness = -24, double loudnessRange = 7, double truePeak = -2, bool dualMono = false)
     {
-        return WithFilter(new LoudnormArgument(integratedLoudness, loudnessRange, truePeak, dualMono));
+        return WithFilter(new LoudnessNormalizerArgument(integratedLoudness, loudnessRange, truePeak, dualMono));
     }
 
     /// <summary>atempo, chained when the multiplier is outside the 0.5x-100x a single atempo spans</summary>
