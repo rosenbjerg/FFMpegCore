@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Arguments;
 
-public class GifPaletteArgument : IArgument
+internal class GifPaletteArgument : IArgument
 {
     private readonly double _fps;
     private readonly Size? _size;

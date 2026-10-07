@@ -262,7 +262,7 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-filter_complex with palettegen and paletteuse</summary>
-    public FFMpegOutputOptions WithGifPalette(int streamIndex, Size? size, double fps = 12)
+    internal FFMpegOutputOptions WithGifPalette(int streamIndex, Size? size, double fps = 12)
     {
         return WithArgument(new GifPaletteArgument(streamIndex, fps, size));
     }

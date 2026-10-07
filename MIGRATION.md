@@ -184,7 +184,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `ForcePixelFormat(f)` | `WithPixelFormat(f)` |
 | `WithTagVersion(n)` | `WithId3v2Version(n)` |
 | `WithFrameOutputCount(n)` | `WithFrameCount(n)` |
-| `WithGifPaletteArgument(…)` | `WithGifPalette(…)` |
+| `WithGifPaletteArgument(…)` | removed — use `FFMpeg.GifSnapshot`, or build `palettegen`/`paletteuse` with `WithComplexFilter` (below). It wrote its own `-filter_complex`, which clashed with `WithComplexFilter` and `WithVideoFilters` on the same output, and its `streamIndex` was really an input index, so `GifSnapshot` failed on any file whose video is not stream 0 |
 | `Resize(w, h)` on an output | `WithVideoFilters(f => f.Scale(w, h))` |
 | `Resize(w, h)` on an input | `WithFrameSize(w, h)` |
 | `Crop(…)` | `WithVideoFilters(f => f.Crop(…))` |
@@ -296,12 +296,18 @@ SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, analysis, size);  
 SnapshotArgumentBuilder.BuildSnapshotArguments(analysis, output, size);         // 6.0
 ```
 
-### `WithGifPalette`'s `streamIndex` is a stream index
+### A GIF palette goes through the complex-filter graph
 
-It rendered `[N:v]` — the video of *input* `N` — so `GifSnapshot`, which passes the video stream's index, failed with "Invalid file
-index" on any file whose video is not stream 0. It now renders `[0:N]`, stream `N` of the first input, as its name and `Snapshot`'s
-`streamIndex` always said. A call passing `0` for a file whose first stream is audio now selects that audio stream; pass the video
-stream's `Index` instead.
+`WithGifPalette` is gone. `FFMpeg.GifSnapshot` covers the common case; a pipeline of your own is a graph:
+
+```csharp
+.OutputToFile("out.gif", options => options
+    .WithComplexFilter(graph => graph
+        .From(0, StreamType.Video).Video(f => f.Fps(12).Scale(320, -1)).WithCustomFilter("split").As("a", "b")
+        .From("a").WithCustomFilter("palettegen").As("palette")
+        .From("b").From("palette").WithCustomFilter("paletteuse").As("gif"))
+    .WithMap("gif"))
+```
 
 ### `SilenceDetect`'s noise threshold defaults to -60dB
 

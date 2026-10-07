@@ -796,6 +796,27 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_GifPalette_ThroughTheComplexFilterGraph()
+    {
+        using var outputPath = new TemporaryFile("out.gif");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video, options => options.WithDuration(TimeSpan.FromSeconds(1)))
+            .OutputToFile(outputPath, options => options
+                .WithComplexFilter(graph => graph
+                    .From(0, StreamType.Video).Video(f => f.Fps(12).Scale(320, -1)).WithCustomFilter("split").As("a", "b")
+                    .From("a").WithCustomFilter("palettegen").As("palette")
+                    .From("b").From("palette").WithCustomFilter("paletteuse").As("gif"))
+                .WithMap("gif"))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("gif", FFProbe.Analyse(outputPath).PrimaryVideoStream!.CodecName);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_GifSnapshot_PersistSnapshot_SizeSupplied()
     {
         using var outputPath = new TemporaryFile("out.gif");
