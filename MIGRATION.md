@@ -528,6 +528,8 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
   `-c:a:0 copy -c:a:1 aac`. It counts within the stream type, as ffmpeg's specifier does.
 - `WithTag` for `-tag`, the codec tag a stream is written with — `WithTag("hvc1", StreamType.Video)` is what makes HEVC in an mp4 play
   in Apple's players.
+- `WithFpsMode` for `-fps_mode` (the replacement for `-vsync`), with `FpsMode.ConstantFrameRate` for the constant-frame-rate output
+  editing software expects.
 - Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`), `WithFrameRate(string)` for exact
   rates such as `30000/1001`, and `double` for `AudioGate`'s `ratio` and `makeup`. Existing integer calls compile unchanged.
   `FrameRateArgument.Framerate` (`double`) is `FrameRate` (`string`).

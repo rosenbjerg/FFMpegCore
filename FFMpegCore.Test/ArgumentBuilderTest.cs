@@ -504,6 +504,16 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_FpsMode()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false)
+            .OutputToFile("output.mp4", false, opt => opt.WithFpsMode(FpsMode.ConstantFrameRate).WithFrameRate(30))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -fps_mode cfr -r 30 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Speed()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

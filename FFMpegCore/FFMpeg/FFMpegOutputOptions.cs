@@ -128,6 +128,12 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new SpeedPresetArgument(preset));
     }
 
+    /// <summary>-fps_mode, which replaced -vsync</summary>
+    public FFMpegOutputOptions WithFpsMode(FpsMode mode)
+    {
+        return WithArgument(new FpsModeArgument(mode));
+    }
+
     /// <summary>-frames:v</summary>
     public FFMpegOutputOptions WithFrameCount(int frames)
     {
