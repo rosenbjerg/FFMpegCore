@@ -368,7 +368,8 @@ The captured stderr had four names across three types. It is now `ErrorOutput`, 
 | `FFProbeException(…, ffProbeErrorOutput)` | the parameter is gone |
 
 `OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
-input already threw `FileNotFoundException`; the two now match.
+input already threw `FileNotFoundException`; the two now match. This now applies to the targets of `OutputToTee` too, which were
+overwritten regardless whenever another target allowed it.
 
 ## Cancellation waits for ffmpeg to finalise the output
 

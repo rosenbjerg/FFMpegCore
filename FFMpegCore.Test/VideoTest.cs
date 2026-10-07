@@ -1893,6 +1893,43 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TeeOutput_WritesToAPipe()
+    {
+        using var file = new TemporaryFile("out.ts");
+        using var piped = new MemoryStream();
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                    .OutputToFile(file, options => options.ForceFormat(ContainerFormats.Ts))
+                    .OutputToPipe(new StreamPipeSink(piped), options => options.ForceFormat(ContainerFormats.Ts)),
+                options => options.WithMap(0).CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(new FileInfo(file).Length, piped.Length);
+    }
+
+    [TestMethod]
+    public void Video_TeeOutput_HonoursOverwriteFalseOnEachTarget()
+    {
+        using var overwritable = new TemporaryFile("first.mp4");
+        using var existing = new TemporaryFile("second.mp4");
+        File.WriteAllText(existing, "keep me");
+
+        var processor = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                .OutputToFile(overwritable, true, options => options.ForceFormat("mp4"))
+                .OutputToFile(existing, false, options => options.ForceFormat("mp4")));
+
+        Assert.ThrowsExactly<IOException>(() => processor.ProcessSynchronously());
+        Assert.AreEqual("keep me", File.ReadAllText(existing));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_AddMetadata_FollowedByAnotherInput()
     {
         using var outputFile = new TemporaryFile("out.mp4");

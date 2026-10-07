@@ -23,30 +23,50 @@ internal class OutputTeeArgument : IOutputArgument
         }
     }
 
+    private IEnumerable<IOutputArgument> Targets => _options.Outputs.Select(TargetOf);
+
     public Task During(CancellationToken cancellationToken = default)
     {
-        return Task.CompletedTask;
+        return Task.WhenAll(Targets.Select(target => target.During(cancellationToken)));
     }
 
     public void Post()
     {
+        foreach (var target in Targets)
+        {
+            target.Post();
+        }
     }
 
     public void Pre(FFOptions options)
     {
+        foreach (var target in Targets)
+        {
+            target.Pre(options);
+        }
+    }
+
+    private static IOutputArgument TargetOf(FFMpegOutputOptions option)
+    {
+        return option.Arguments.OfType<IOutputArgument>().Single();
     }
 
     private static string MapOptions(FFMpegOutputOptions option)
     {
-        var optionPrefix = string.Empty;
-        if (option.Arguments.Count > 1)
+        var output = TargetOf(option);
+        var options = option.Arguments.Where(argument => argument != output).Select(MapArgument).ToList();
+        if (output is OutputPipeArgument pipe && pipe.Reader.GetStreamArguments() is { Length: > 0 } streamArguments)
         {
-            var options = option.Arguments.Take(option.Arguments.Count - 1);
-            optionPrefix = $"[{string.Join(":", options.Select(MapArgument))}]";
+            options.Add(MapArgument(new CustomArgument(streamArguments)));
         }
 
-        var output = option.Arguments.OfType<IOutputArgument>().Single();
-        var target = output is OutputArgument file ? file.Path : output.Text.Trim('"');
+        var optionPrefix = options.Count > 0 ? $"[{string.Join(":", options)}]" : string.Empty;
+        var target = output switch
+        {
+            OutputArgument file => file.Path,
+            PipeArgument pipeTarget => pipeTarget.PipePath,
+            _ => output.Text.Trim('"')
+        };
         return $"{optionPrefix}{EscapeTarget(target)}";
     }
 
