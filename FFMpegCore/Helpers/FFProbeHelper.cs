@@ -4,7 +4,7 @@ using Instances.Exceptions;
 
 namespace FFMpegCore.Helpers;
 
-public static class FFProbeHelper
+internal static class FFProbeHelper
 {
     private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 

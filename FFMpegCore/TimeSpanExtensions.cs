@@ -1,6 +1,6 @@
 ﻿namespace FFMpegCore;
 
-public static class TimeSpanExtensions
+internal static class TimeSpanExtensions
 {
     public static string ToLongString(this TimeSpan timeSpan)
     {

@@ -219,6 +219,8 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `MediaFormat.BitRate` is `double` | `long`, matching `MediaStream.BitRate` |
 | `FromConcatInput` / `AddConcatInput` / `ConcatArgument` | `FromConcatProtocolInput` / `AddConcatProtocolInput` / `ConcatProtocolArgument` |
 | `FromDemuxConcatInput` / `AddDemuxConcatInput` / `DemuxConcatArgument` | `FromConcatDemuxerInput` / `AddConcatDemuxerInput` / `ConcatDemuxerArgument` |
+| namespace `FFMpegCore.Extend` | removed — its pipe types moved to `FFMpegCore.Pipes`; `TimeSpanExtensions` and `ProcessArgumentsExtensions` are internal |
+| `FFMpegHelper`, `FFProbeHelper` | internal — they were the library's own checks; `ExtensionExceptionCheck`, which nothing called, is gone |
 
 The two are different ffmpeg mechanisms and the old names did not say which was which. `concat:` is a *protocol* that joins the files
 byte-wise, and works only for formats that survive naive concatenation such as mpegts and mp3; the concat *demuxer* writes a list file and
@@ -240,7 +242,6 @@ so a later `GlobalFFOptions.Configure` never reached them.
 
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
-| namespace `FFMpegCore.Extend` | removed — its types moved to `FFMpegCore`, `FFMpegCore.Helpers` and `FFMpegCore.Pipes` |
 
 `FFMetadataBuilder` is constructed directly (`new FFMetadataBuilder()`) and produces its document with `Build()`.
 

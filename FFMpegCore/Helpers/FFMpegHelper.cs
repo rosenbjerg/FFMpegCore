@@ -4,7 +4,7 @@ using Instances.Exceptions;
 
 namespace FFMpegCore.Helpers;
 
-public static class FFMpegHelper
+internal static class FFMpegHelper
 {
     private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
@@ -18,15 +18,6 @@ public static class FFMpegHelper
         if (height % 2 != 0 || width % 2 != 0)
         {
             throw new ArgumentException("FFMpeg yuv420p encoding requires the width and height to be a multiple of 2!");
-        }
-    }
-
-    public static void ExtensionExceptionCheck(string filename, string extension)
-    {
-        if (!extension.Equals(Path.GetExtension(filename), StringComparison.OrdinalIgnoreCase))
-        {
-            throw new FFMpegException(FFMpegExceptionType.File,
-                $"Invalid output file. File extension should be '{extension}' required.");
         }
     }
 
