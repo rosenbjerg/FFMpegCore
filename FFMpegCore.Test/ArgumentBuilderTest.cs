@@ -1753,7 +1753,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_AddMetadata_FollowedByAnotherInput_MapsOnTheOutputSide()
     {
         var str = FFMpegArguments.FromFileInput("video.mp4")
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .AddFileInput("audio.mp3")
             .OutputToFile("output.mp4", false, opt => opt.CopyStreams())
             .Arguments;
@@ -1763,10 +1763,31 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_AddMetadataFile_IsMappedLikeGeneratedMetadata()
+    {
+        var str = FFMpegArguments.FromFileInput("video.mp4", false)
+            .AddMetadataFile("chapters.txt", false)
+            .OutputToFile("output.mp4", false, opt => opt.CopyStreams())
+            .Arguments;
+
+        Assert.AreEqual("-i \"video.mp4\" -i \"chapters.txt\" -map_metadata 1 -c copy \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void AddMetadataFile_RequiresTheFileByDefault()
+    {
+        var processor = FFMpegArguments.FromFileInput("video.mp4", false)
+            .AddMetadataFile("missing-chapters.txt")
+            .OutputToFile("output.mp4", false);
+
+        Assert.ThrowsExactly<FileNotFoundException>(() => processor.ProcessSynchronously());
+    }
+
+    [TestMethod]
     public void Builder_BuildString_AddMetadata_CountsEveryFileOfAMultiInput()
     {
         var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4", "c.mp4" }, false)
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false)
             .Arguments;
 
@@ -1778,7 +1799,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .AddConcatDemuxerInput(new[] { "a.mp4", "b.mp4" })
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false)
             .Arguments;
 
@@ -1789,11 +1810,11 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_AddMetadata_ExplicitMappingWins()
     {
         var mapped = FFMpegArguments.FromFileInput("input.mp4")
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false, opt => opt.WithMapMetadata(0))
             .Arguments;
         var removed = FFMpegArguments.FromFileInput("input.mp4")
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false, opt => opt.WithoutMetadata())
             .Arguments;
 
@@ -1805,7 +1826,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_AddMetadata_MapsOnEveryOutput()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .AddMetadata(";FFMETADATA1")
+            .AddMetadata(new FFMetadataBuilder())
             .OutputToMany(outputs => outputs
                 .OutputToFile("a.mp4", false)
                 .OutputToFile("b.mp4", false, opt => opt.WithoutMetadata()))

@@ -157,14 +157,19 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new ImageSequenceInputArgument(images), addArguments);
     }
 
-    public FFMpegArguments AddMetadata(string content, Action<FFMpegInputOptions>? addArguments = null)
-    {
-        return WithInput(new MetadataArgument(content), addArguments);
-    }
-
     public FFMpegArguments AddMetadata(FFMetadataBuilder metadataBuilder, Action<FFMpegInputOptions>? addArguments = null)
     {
         return WithInput(new MetadataArgument(metadataBuilder.Build()), addArguments);
+    }
+
+    public FFMpegArguments AddMetadataFile(string filePath, Action<FFMpegInputOptions> addArguments)
+    {
+        return AddMetadataFile(filePath, true, addArguments);
+    }
+
+    public FFMpegArguments AddMetadataFile(string filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
+    {
+        return WithInput(new MetadataFileArgument(filePath, verifyExists), addArguments);
     }
 
     private FFMpegArguments WithInput(IInputArgument inputArgument, Action<FFMpegInputOptions>? addArguments)
@@ -227,7 +232,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         int? metadataInputIndex = null;
         foreach (var input in Arguments.OfType<IInputArgument>())
         {
-            if (input is MetadataArgument)
+            if (input is MetadataArgument or MetadataFileArgument)
             {
                 metadataInputIndex = inputIndex;
             }

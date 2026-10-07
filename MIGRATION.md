@@ -178,7 +178,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `WithGlobalOptions(g => g.WithVerbosityLevel(v))` | `WithLogLevel(FFMpegLogLevel.…)` |
 | `FromFileInput(paths)` / `AddFileInput(paths)` with several paths | `FromFileInputs(paths)` / `AddFileInputs(paths)` — one `-i` per path; to join the files use `FromConcatDemuxerInput` or `FFMpeg.Concat` |
 | `MultiOutput(…)` | `OutputToMany(…)` |
-| `AddMetaData(…)` | `AddMetadata(…)` |
+| `AddMetaData(…)` | `AddMetadata(FFMetadataBuilder)`. The overload taking a `string` of ffmetadata *content* is gone — every other string on the input builder is a path, so `AddMetadata("chapters.txt")` wrote the text "chapters.txt" as the metadata. Pass an existing ffmetadata file to `AddMetadataFile(path)`, and generated metadata through `FFMetadataBuilder` |
 | `MapMetaData(i)` / `MapMetadata(i)` on `FFMpegArguments` | `WithMapMetadata(i)` on the output options — see [below](#-map_metadata-is-an-output-option) |
 | `ProcessSynchronously(…, ffMpegOptions: o)` | `ProcessSynchronously(…, ffOptions: o)` — named only |
 | `NotifyOnError(…)` | `NotifyOnStandardError(…)` — it receives every stderr line, which is all of ffmpeg's logging and progress, not just errors |

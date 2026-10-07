@@ -137,13 +137,13 @@ public class FFMetadataBuilderTests
     public void TestMapMetadata()
     {
         var text0 = FFMpegArguments.FromFileInput("whaterver0")
-            .AddMetadata("WhatEver3")
+            .AddMetadata(new FFMetadataBuilder().WithTitle("WhatEver3"))
             .OutputToFile("out.mp4")
             .Arguments;
 
         var text1 = FFMpegArguments.FromFileInput("whaterver0")
             .AddConcatDemuxerInput(new[] { "whaterver", "whaterver1" })
-            .AddMetadata("WhatEver3")
+            .AddMetadata(new FFMetadataBuilder().WithTitle("WhatEver3"))
             .OutputToFile("out.mp4")
             .Arguments;
 
