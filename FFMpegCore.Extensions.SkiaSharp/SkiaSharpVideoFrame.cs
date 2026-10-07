@@ -8,7 +8,7 @@ public class SkiaSharpVideoFrame : IVideoFrame, IDisposable
     public SkiaSharpVideoFrame(SKBitmap bitmap)
     {
         Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
-        Format = ConvertStreamFormat(bitmap.ColorType);
+        PixelFormat = ConvertStreamFormat(bitmap.ColorType);
     }
 
     public SKBitmap Source { get; }
@@ -22,7 +22,7 @@ public class SkiaSharpVideoFrame : IVideoFrame, IDisposable
 
     public int Height => Source.Height;
 
-    public string Format { get; }
+    public string PixelFormat { get; }
 
     public void Serialize(Stream stream)
     {

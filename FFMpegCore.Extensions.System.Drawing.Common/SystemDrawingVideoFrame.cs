@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using FFMpegCore.Pipes;
+using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace FFMpegCore.Extensions.System.Drawing.Common;
 
@@ -10,7 +11,7 @@ public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
     public SystemDrawingVideoFrame(Bitmap bitmap)
     {
         Source = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
-        Format = ConvertStreamFormat(bitmap.PixelFormat);
+        PixelFormat = ConvertStreamFormat(bitmap.PixelFormat);
     }
 
     public Bitmap Source { get; }
@@ -24,7 +25,7 @@ public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
 
     public int Height => Source.Height;
 
-    public string Format { get; }
+    public string PixelFormat { get; }
 
     public void Serialize(Stream stream)
     {
@@ -58,26 +59,26 @@ public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
         }
     }
 
-    private static string ConvertStreamFormat(PixelFormat fmt)
+    private static string ConvertStreamFormat(DrawingPixelFormat fmt)
     {
         switch (fmt)
         {
-            case PixelFormat.Format16bppGrayScale:
+            case DrawingPixelFormat.Format16bppGrayScale:
                 return "gray16le";
-            case PixelFormat.Format16bppRgb555:
+            case DrawingPixelFormat.Format16bppRgb555:
                 return "bgr555le";
-            case PixelFormat.Format16bppRgb565:
+            case DrawingPixelFormat.Format16bppRgb565:
                 return "bgr565le";
-            case PixelFormat.Format24bppRgb:
+            case DrawingPixelFormat.Format24bppRgb:
                 return "bgr24";
-            case PixelFormat.Format32bppArgb:
+            case DrawingPixelFormat.Format32bppArgb:
                 return "bgra";
-            case PixelFormat.Format32bppPArgb:
+            case DrawingPixelFormat.Format32bppPArgb:
                 //This is not really same as argb32
                 return "argb";
-            case PixelFormat.Format32bppRgb:
+            case DrawingPixelFormat.Format32bppRgb:
                 return "rgba";
-            case PixelFormat.Format48bppRgb:
+            case DrawingPixelFormat.Format48bppRgb:
                 return "rgb48le";
             default:
                 throw new NotSupportedException($"Not supported pixel format {fmt}");

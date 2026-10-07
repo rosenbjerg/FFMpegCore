@@ -34,7 +34,7 @@ public class RawVideoPipeSource : IPipeSource
                 }
             }
 
-            PixelFormat = _framesEnumerator.Current!.Format;
+            PixelFormat = _framesEnumerator.Current!.PixelFormat;
             Width = _framesEnumerator.Current!.Width;
             Height = _framesEnumerator.Current!.Height;
 
@@ -61,10 +61,10 @@ public class RawVideoPipeSource : IPipeSource
 
     private void CheckFrameAndThrow(IVideoFrame frame)
     {
-        if (frame.Width != Width || frame.Height != Height || frame.Format != PixelFormat)
+        if (frame.Width != Width || frame.Height != Height || frame.PixelFormat != PixelFormat)
         {
             throw new FFMpegStreamFormatException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
-                                                                                 $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.Format}\r\n" +
+                                                                                 $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.PixelFormat}\r\n" +
                                                                                  $"Stream format: {Width}x{Height} pix_fmt: {PixelFormat}");
         }
     }

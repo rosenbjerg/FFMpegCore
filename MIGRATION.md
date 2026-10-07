@@ -363,7 +363,9 @@ becomes settable as on the sink.
 .FromPipeInput(new StreamPipeSource(stream) { Format = "mpegts" })          // 6.0
 ```
 
-`RawVideoPipeSource.StreamFormat` is `PixelFormat`, since it holds the frames' `-pix_fmt`, not a container format.
+`RawVideoPipeSource.StreamFormat` is `PixelFormat`, since it holds the frames' `-pix_fmt`, not a container format. For the same reason
+`IVideoFrame.Format` is `IVideoFrame.PixelFormat`, on `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame` too; a custom frame type renames
+its property.
 
 ## Errors
 
