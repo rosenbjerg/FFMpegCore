@@ -1646,7 +1646,10 @@ public class VideoTest
         Assert.IsNotEmpty(analysis.AudioStreams);
         Assert.AreEqual("eng", analysis.PrimarySubtitleStream!.Language);
 
-        var pulled = FFMpeg.ExtractSubtitles(withSubtitles, extracted)
+        Assert.AreEqual(2, analysis.PrimarySubtitleStream.Index);
+        Assert.AreEqual(FFMpeg.ExtractSubtitles(analysis, extracted).Arguments, FFMpeg.ExtractSubtitles(analysis, extracted, 2).Arguments);
+
+        var pulled = FFMpeg.ExtractSubtitles(analysis, extracted, analysis.PrimarySubtitleStream.Index)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
         Assert.IsTrue(pulled.Success);

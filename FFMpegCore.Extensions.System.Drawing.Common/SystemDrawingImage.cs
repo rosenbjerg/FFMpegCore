@@ -12,7 +12,7 @@ public static class SystemDrawingImage
     /// <param name="input">Source video file.</param>
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <returns>Bitmap with the requested snapshot.</returns>
     public static Bitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
@@ -38,7 +38,7 @@ public static class SystemDrawingImage
     /// <param name="input">Source video file.</param>
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Bitmap with the requested snapshot.</returns>

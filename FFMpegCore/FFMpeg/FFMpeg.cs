@@ -15,7 +15,7 @@ public static class FFMpeg
     /// <param name="output">Output image file. Its extension decides the format: .png, .jpg, .bmp or .webp.</param>
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Snapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         FFOptions? ffOptions = null)
@@ -30,7 +30,7 @@ public static class FFMpeg
     /// <param name="output">Output image file. Its extension decides the format: .png, .jpg, .bmp or .webp.</param>
     /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
     /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Snapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null,
         int? streamIndex = null, FFOptions? ffOptions = null)
@@ -53,7 +53,7 @@ public static class FFMpeg
     /// <param name="size">Output size. If width or height is 0 or -1, it is computed from the other. Defaults to 480 wide.</param>
     /// <param name="captureTime">Seek position the section starts at. Defaults to a third of the way in.</param>
     /// <param name="duration">How much of the input to capture.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor GifSnapshot(string input, string output, Size? size = null, TimeSpan? captureTime = null, TimeSpan? duration = null,
         int? streamIndex = null, FFOptions? ffOptions = null)
@@ -69,7 +69,7 @@ public static class FFMpeg
     /// <param name="size">Output size. If width or height is 0 or -1, it is computed from the other. Defaults to 480 wide.</param>
     /// <param name="captureTime">Seek position the section starts at. Defaults to a third of the way in.</param>
     /// <param name="duration">How much of the input to capture.</param>
-    /// <param name="streamIndex">Selected video stream index.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor GifSnapshot(IMediaAnalysis source, string output, Size? size = null, TimeSpan? captureTime = null,
         TimeSpan? duration = null, int? streamIndex = null, FFOptions? ffOptions = null)
@@ -380,9 +380,9 @@ public static class FFMpeg
     /// </summary>
     /// <param name="input">Source media file.</param>
     /// <param name="output">Output subtitle file. Its extension decides the format.</param>
-    /// <param name="streamIndex">Which subtitle stream to take, counting from zero among the subtitle streams.</param>
+    /// <param name="streamIndex">Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor ExtractSubtitles(string input, string output, int streamIndex = 0, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor ExtractSubtitles(string input, string output, int? streamIndex = null, FFOptions? ffOptions = null)
     {
         return ExtractSubtitles(FFProbe.Analyse(input, ffOptions), output, streamIndex, ffOptions);
     }
@@ -392,16 +392,25 @@ public static class FFMpeg
     /// </summary>
     /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
     /// <param name="output">Output subtitle file. Its extension decides the format.</param>
-    /// <param name="streamIndex">Which subtitle stream to take, counting from zero among the subtitle streams.</param>
+    /// <param name="streamIndex">Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle stream.</param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
-    public static FFMpegArgumentProcessor ExtractSubtitles(IMediaAnalysis source, string output, int streamIndex = 0, FFOptions? ffOptions = null)
+    public static FFMpegArgumentProcessor ExtractSubtitles(IMediaAnalysis source, string output, int? streamIndex = null, FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
 
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, options => options
-                .WithMap(0, StreamType.Subtitle, streamIndex))
+            .OutputToFile(output, options =>
+            {
+                if ((streamIndex ?? source.PrimarySubtitleStream?.Index) is { } index)
+                {
+                    options.WithMap(0, StreamType.All, index);
+                }
+                else
+                {
+                    options.WithMap(0, StreamType.Subtitle, 0);
+                }
+            })
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
     }
