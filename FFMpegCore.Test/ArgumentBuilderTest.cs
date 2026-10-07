@@ -25,8 +25,8 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_MultipleFileInputs_ApplyTheirOptionsToEveryFile()
     {
         var str = FFMpegArguments
-            .FromFileInput(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop(1))
-            .AddFileInput(new[] { "c.mp3", "d.mp3" }, false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
+            .FromFileInputs(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop(1))
+            .AddFileInputs(new[] { "c.mp3", "d.mp3" }, false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
             .OutputToFile("output.mp4", false)
             .Arguments;
 
@@ -39,13 +39,13 @@ public class ArgumentBuilderTest
     {
         var withFlags = FFMpegArguments
             .FromFileInput("input.mp4", true, opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInput(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop(1))
+            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop(1))
             .AddFileInput(new FileInfo("c.mp3"), true, opt => opt.WithLoop(2))
             .OutputToFile("output.mp4", true, opt => opt.CopyStreams())
             .Arguments;
         var withoutFlags = FFMpegArguments
             .FromFileInput("input.mp4", opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInput(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop(1))
+            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop(1))
             .AddFileInput(new FileInfo("c.mp3"), opt => opt.WithLoop(2))
             .OutputToFile("output.mp4", opt => opt.CopyStreams())
             .Arguments;
@@ -808,7 +808,7 @@ public class ArgumentBuilderTest
         var mixFilter = $"{audioStreams}amix=inputs={_multiFiles.Length}:duration=longest:dropout_transition=1:normalize=0[final]";
         var ffmpegArgs = $"-filter_complex \"{mixFilter}\" -map \"[final]\"";
         var str = FFMpegArguments
-            .FromFileInput(_multiFiles)
+            .FromFileInputs(_multiFiles)
             .OutputToFile("output.mp3", true, options => options
                 .WithCustomArgument(ffmpegArgs)
                 .WithAudioCodec(AudioCodec.LibMp3Lame) // Set the audio codec to MP3
@@ -1443,7 +1443,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_ComplexFilter_ConcatWithAudio()
     {
-        var str = FFMpegArguments.FromFileInput(new[] { "a.mp4", "b.mp4" })
+        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4" })
             .OutputToFile("output.mp4", false, opt => opt
                 .WithComplexFilter(g => g
                     .From(0, StreamType.Video, 0)
@@ -1602,7 +1602,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_AddFileInputs()
     {
         var single = FFMpegArguments.FromFileInput("first.mp4").AddFileInput("second.mp4", false).OutputToFile("output.mp4", false).Arguments;
-        var multiple = FFMpegArguments.FromFileInput("first.mp4").AddFileInput(_multiFiles, false).OutputToFile("output.mp4", false).Arguments;
+        var multiple = FFMpegArguments.FromFileInput("first.mp4").AddFileInputs(_multiFiles, false).OutputToFile("output.mp4", false).Arguments;
 
         Assert.AreEqual("-i \"first.mp4\" -i \"second.mp4\" \"output.mp4\"", single);
         Assert.AreEqual("-i \"first.mp4\" -i \"1.mp3\" -i \"2.mp3\" -i \"3.mp3\" -i \"4.mp3\" \"output.mp4\"", multiple);
@@ -1746,7 +1746,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_AddMetadata_CountsEveryFileOfAMultiInput()
     {
-        var str = FFMpegArguments.FromFileInput(new[] { "a.mp4", "b.mp4", "c.mp4" }, false)
+        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4", "c.mp4" }, false)
             .AddMetadata(";FFMETADATA1")
             .OutputToFile("output.mp4", false)
             .Arguments;

@@ -174,6 +174,7 @@ Most code is unaffected, but an option used on the wrong side will no longer com
 | `Mirror(Mirroring.Horizontal)` | `WithVideoFilters(f => f.HorizontalFlip())` |
 | `HardBurnSubtitle(…)` | `BurnSubtitles(…)` — plural like `AddSubtitles`; `SubtitleHardBurnOptions` and `SubtitleHardBurnArgument` are `SubtitleBurnOptions` and `SubtitleBurnArgument` |
 | `WithGlobalOptions(g => g.WithVerbosityLevel(v))` | `WithLogLevel(FFMpegLogLevel.…)` |
+| `FromFileInput(paths)` / `AddFileInput(paths)` with several paths | `FromFileInputs(paths)` / `AddFileInputs(paths)` — one `-i` per path; to join the files use `FromConcatDemuxerInput` or `FFMpeg.Concat` |
 | `MultiOutput(…)` | `OutputToMany(…)` |
 | `AddMetaData(…)` | `AddMetadata(…)` |
 | `MapMetaData(i)` / `MapMetadata(i)` on `FFMpegArguments` | `WithMapMetadata(i)` on the output options — see [below](#-map_metadata-is-an-output-option) |
@@ -247,7 +248,7 @@ so a later `GlobalFFOptions.Configure` never reached them.
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
 
-`FromFileInput` and `AddFileInput` given several paths applied their options to the first file only: the options were written once, in
+`FromFileInput` and `AddFileInput` given several paths — now `FromFileInputs` and `AddFileInputs` — applied their options to the first file only: the options were written once, in
 front of the whole `-i a -i b` run, and ffmpeg reads an input option as belonging to the next `-i`. They are now repeated before every
 file, so `opt => opt.WithStartTime(…)` seeks in each of them.
 

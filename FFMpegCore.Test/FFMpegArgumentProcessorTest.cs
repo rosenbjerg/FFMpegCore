@@ -351,7 +351,7 @@ public class FFMpegArgumentProcessorTest
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
         Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(missing).OutputToFile(output).ProcessSynchronously());
-        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInputs(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
     }
 
     [TestMethod]

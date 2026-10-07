@@ -42,14 +42,14 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return new FFMpegArguments().WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
-    public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, Action<FFMpegInputOptions> addArguments)
+    public static FFMpegArguments FromFileInputs(IEnumerable<string> filePaths, Action<FFMpegInputOptions> addArguments)
     {
-        return FromFileInput(filePath, true, addArguments);
+        return FromFileInputs(filePaths, true, addArguments);
     }
 
-    public static FFMpegArguments FromFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
+    public static FFMpegArguments FromFileInputs(IEnumerable<string> filePaths, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().AddFileInput(filePath, verifyExists, addArguments);
+        return new FFMpegArguments().AddFileInputs(filePaths, verifyExists, addArguments);
     }
 
     public static FFMpegArguments FromFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)
@@ -112,14 +112,14 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return WithInput(new InputArgument(filePath, verifyExists), addArguments);
     }
 
-    public FFMpegArguments AddFileInput(IEnumerable<string> filePath, Action<FFMpegInputOptions> addArguments)
+    public FFMpegArguments AddFileInputs(IEnumerable<string> filePaths, Action<FFMpegInputOptions> addArguments)
     {
-        return AddFileInput(filePath, true, addArguments);
+        return AddFileInputs(filePaths, true, addArguments);
     }
 
-    public FFMpegArguments AddFileInput(IEnumerable<string> filePath, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
+    public FFMpegArguments AddFileInputs(IEnumerable<string> filePaths, bool verifyExists = true, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return filePath.Aggregate(this, (arguments, path) => arguments.WithInput(new InputArgument(path, verifyExists), addArguments));
+        return filePaths.Aggregate(this, (arguments, path) => arguments.WithInput(new InputArgument(path, verifyExists), addArguments));
     }
 
     public FFMpegArguments AddFileInput(FileInfo fileInfo, Action<FFMpegInputOptions> addArguments)

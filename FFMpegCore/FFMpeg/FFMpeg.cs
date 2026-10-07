@@ -605,7 +605,7 @@ public static class FFMpeg
         var withAudio = analyses.All(analysis => analysis.PrimaryAudioStream != null);
 
         return FFMpegArguments
-            .FromFileInput(paths)
+            .FromFileInputs(paths)
             .OutputToFile(output, options =>
             {
                 options.WithComplexFilter(graph =>
