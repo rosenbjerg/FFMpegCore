@@ -4,31 +4,31 @@ namespace FFMpegCore.Arguments;
 
 public class ComplexFilterArgument : IArgument
 {
-    public readonly FFMpegComplexFilterOptions Options;
+    public readonly ComplexFilterGraph Graph;
 
-    public ComplexFilterArgument(FFMpegComplexFilterOptions options)
+    public ComplexFilterArgument(ComplexFilterGraph graph)
     {
-        if (options.Chains.Count == 0)
+        if (graph.Chains.Count == 0)
         {
-            throw new ArgumentException("No complex-filter chains were added", nameof(options));
+            throw new ArgumentException("No complex-filter chains were added", nameof(graph));
         }
 
-        if (options.Chains.Any(chain => !chain.HasFilters))
+        if (graph.Chains.Any(chain => !chain.HasFilters))
         {
-            throw new ArgumentException("A complex-filter chain needs at least one filter", nameof(options));
+            throw new ArgumentException("A complex-filter chain needs at least one filter", nameof(graph));
         }
 
-        Options = options;
+        Graph = graph;
     }
 
-    public string Text => $"-filter_complex \"{Options.GetText()}\"";
+    public string Text => $"-filter_complex \"{Graph.GetText()}\"";
 }
 
 /// <summary>
 ///     A <c>-filter_complex</c> graph: one or more chains, each taking labelled inputs, applying filters in order and
 ///     labelling what it produces. Chains are joined with <c>;</c>, filters within a chain with <c>,</c>.
 /// </summary>
-public class FFMpegComplexFilterOptions
+public class ComplexFilterGraph
 {
     internal readonly List<ComplexFilterChain> Chains = new();
 
@@ -61,17 +61,17 @@ public class FFMpegComplexFilterOptions
 }
 
 /// <summary>
-///     One chain of a <see cref="FFMpegComplexFilterOptions" /> graph. Add inputs with <c>From</c>, then filters, then close
+///     One chain of a <see cref="ComplexFilterGraph" /> graph. Add inputs with <c>From</c>, then filters, then close
 ///     it with <see cref="As" />, which hands the graph back so another chain can be started.
 /// </summary>
 public class ComplexFilterChain
 {
     private readonly List<(string Key, string Value)> _filters = new();
-    private readonly FFMpegComplexFilterOptions _graph;
+    private readonly ComplexFilterGraph _graph;
     private readonly List<string> _inputs = new();
     private readonly List<string> _outputs = new();
 
-    internal ComplexFilterChain(FFMpegComplexFilterOptions graph)
+    internal ComplexFilterChain(ComplexFilterGraph graph)
     {
         _graph = graph;
     }
@@ -91,7 +91,7 @@ public class ComplexFilterChain
     }
 
     /// <summary>Closes the chain, labelling what it produces, and returns the graph.</summary>
-    public FFMpegComplexFilterOptions As(params string[] labels)
+    public ComplexFilterGraph As(params string[] labels)
     {
         _outputs.AddRange(labels.Select(label => label.Trim('[', ']')));
         return _graph;

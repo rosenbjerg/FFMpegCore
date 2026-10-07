@@ -231,11 +231,11 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-filter_complex</summary>
-    public FFMpegOutputOptions WithComplexFilter(Action<FFMpegComplexFilterOptions> complexFilterOptions)
+    public FFMpegOutputOptions WithComplexFilter(Action<ComplexFilterGraph> buildGraph)
     {
-        var options = new FFMpegComplexFilterOptions();
-        complexFilterOptions(options);
-        return WithArgument(new ComplexFilterArgument(options));
+        var graph = new ComplexFilterGraph();
+        buildGraph(graph);
+        return WithArgument(new ComplexFilterArgument(graph));
     }
 
     /// <summary>-vf</summary>

@@ -1465,13 +1465,13 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void ComplexFilter_RejectsAnEmptyGraph()
     {
-        Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(new FFMpegComplexFilterOptions()));
+        Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(new ComplexFilterGraph()));
     }
 
     [TestMethod]
     public void ComplexFilter_RejectsAChainWithoutFilters()
     {
-        var options = new FFMpegComplexFilterOptions();
+        var options = new ComplexFilterGraph();
         options.From(0, StreamType.Video).As("v");
 
         Assert.ThrowsExactly<ArgumentException>(() => new ComplexFilterArgument(options));
