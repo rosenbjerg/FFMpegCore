@@ -472,6 +472,25 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_EncoderOptionsForOneStream()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mkv", false)
+            .OutputToFile("output.mkv", false, opt => opt
+                .WithMap(0)
+                .CopyStreams(StreamType.Audio, 0)
+                .WithAudioCodec(AudioCodec.Aac, 1)
+                .WithAudioBitrate(128, 1)
+                .WithVideoCodec(VideoCodec.LibX264, 0)
+                .WithVideoBitrate(4000, 0)
+                .WithSubtitleCodec(SubtitleCodec.Srt, 0)
+                .CopyStreams(StreamType.All, 3))
+            .Arguments;
+
+        Assert.AreEqual(
+            "-i \"input.mkv\" -map 0 -c:a:0 copy -c:a:1 aac -b:a:1 128k -c:v:0 libx264 -b:v:0 4000k -c:s:0 srt -c:3 copy \"output.mkv\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Speed()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

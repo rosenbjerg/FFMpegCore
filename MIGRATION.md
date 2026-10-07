@@ -523,6 +523,9 @@ everywhere else. Without a `BinaryFolder` it throws before going online, with a 
 - Output options on the helpers that re-encode — `Watermark`, `PosterWithAudio`, `JoinImageSequence` (on a new overload taking an
   `IEnumerable`, as `Join` has) and the image extensions' `AddAudio`. They replace the helper's own encode choices (libx264 at CRF 21,
   yuv420p, copying the audio) and keep what the helper needs to work.
+- An optional `streamIndex` on `WithVideoCodec`, `WithAudioCodec`, `WithSubtitleCodec`, `WithVideoBitrate`, `WithAudioBitrate` and
+  `CopyStreams`, for settings that apply to one stream: `CopyStreams(StreamType.Audio, 0).WithAudioCodec(AudioCodec.Aac, 1)` renders
+  `-c:a:0 copy -c:a:1 aac`. It counts within the stream type, as ffmpeg's specifier does.
 - Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`), `WithFrameRate(string)` for exact
   rates such as `30000/1001`, and `double` for `AudioGate`'s `ratio` and `makeup`. Existing integer calls compile unchanged.
   `FrameRateArgument.Framerate` (`double`) is `FrameRate` (`string`).

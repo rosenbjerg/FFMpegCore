@@ -8,13 +8,15 @@ namespace FFMpegCore.Arguments;
 public class VideoCodecArgument : IArgument
 {
     public readonly string Codec;
+    public readonly int? StreamIndex;
 
-    public VideoCodecArgument(string codec)
+    public VideoCodecArgument(string codec, int? streamIndex = null)
     {
         Codec = codec;
+        StreamIndex = streamIndex;
     }
 
-    public VideoCodecArgument(Codec value)
+    public VideoCodecArgument(Codec value, int? streamIndex = null)
     {
         if (value.Type != CodecType.Video)
         {
@@ -22,7 +24,8 @@ public class VideoCodecArgument : IArgument
         }
 
         Codec = value.Name;
+        StreamIndex = streamIndex;
     }
 
-    public string Text => $"-c:v {Codec}";
+    public string Text => $"-c:v{(StreamIndex == null ? string.Empty : $":{StreamIndex}")} {Codec}";
 }

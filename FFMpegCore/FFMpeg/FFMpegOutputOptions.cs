@@ -8,64 +8,64 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
 {
     internal FFMpegOutputOptions() { }
 
-    /// <summary>-c:v</summary>
-    public FFMpegOutputOptions WithVideoCodec(Codec videoCodec)
+    /// <summary>-c:v, or -c:v:N for the Nth video stream</summary>
+    public FFMpegOutputOptions WithVideoCodec(Codec videoCodec, int? streamIndex = null)
     {
-        return WithArgument(new VideoCodecArgument(videoCodec));
+        return WithArgument(new VideoCodecArgument(videoCodec, streamIndex));
     }
 
-    /// <summary>-c:v</summary>
-    public FFMpegOutputOptions WithVideoCodec(string videoCodec)
+    /// <summary>-c:v, or -c:v:N for the Nth video stream</summary>
+    public FFMpegOutputOptions WithVideoCodec(string videoCodec, int? streamIndex = null)
     {
-        return WithArgument(new VideoCodecArgument(videoCodec));
+        return WithArgument(new VideoCodecArgument(videoCodec, streamIndex));
     }
 
-    /// <summary>-c:a</summary>
-    public FFMpegOutputOptions WithAudioCodec(Codec audioCodec)
+    /// <summary>-c:a, or -c:a:N for the Nth audio stream</summary>
+    public FFMpegOutputOptions WithAudioCodec(Codec audioCodec, int? streamIndex = null)
     {
-        return WithArgument(new AudioCodecArgument(audioCodec));
+        return WithArgument(new AudioCodecArgument(audioCodec, streamIndex));
     }
 
-    /// <summary>-c:a</summary>
-    public FFMpegOutputOptions WithAudioCodec(string audioCodec)
+    /// <summary>-c:a, or -c:a:N for the Nth audio stream</summary>
+    public FFMpegOutputOptions WithAudioCodec(string audioCodec, int? streamIndex = null)
     {
-        return WithArgument(new AudioCodecArgument(audioCodec));
+        return WithArgument(new AudioCodecArgument(audioCodec, streamIndex));
     }
 
-    /// <summary>-c:s</summary>
-    public FFMpegOutputOptions WithSubtitleCodec(Codec subtitleCodec)
+    /// <summary>-c:s, or -c:s:N for the Nth subtitle stream</summary>
+    public FFMpegOutputOptions WithSubtitleCodec(Codec subtitleCodec, int? streamIndex = null)
     {
-        return WithArgument(new SubtitleCodecArgument(subtitleCodec));
+        return WithArgument(new SubtitleCodecArgument(subtitleCodec, streamIndex));
     }
 
-    /// <summary>-c:s</summary>
-    public FFMpegOutputOptions WithSubtitleCodec(string subtitleCodec)
+    /// <summary>-c:s, or -c:s:N for the Nth subtitle stream</summary>
+    public FFMpegOutputOptions WithSubtitleCodec(string subtitleCodec, int? streamIndex = null)
     {
-        return WithArgument(new SubtitleCodecArgument(subtitleCodec));
+        return WithArgument(new SubtitleCodecArgument(subtitleCodec, streamIndex));
     }
 
-    /// <summary>-c copy, or -c:v / -c:a / -c:s copy for one stream type</summary>
-    public FFMpegOutputOptions CopyStreams(StreamType streamType = StreamType.All)
+    /// <summary>-c copy, -c:v / -c:a / -c:s copy for one stream type, or -c:a:N copy for one stream of it</summary>
+    public FFMpegOutputOptions CopyStreams(StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        return WithArgument(new CopyArgument(streamType));
+        return WithArgument(new CopyArgument(streamType, streamIndex));
     }
 
-    /// <summary>-b:v</summary>
-    public FFMpegOutputOptions WithVideoBitrate(int kilobitsPerSecond)
+    /// <summary>-b:v, or -b:v:N for the Nth video stream</summary>
+    public FFMpegOutputOptions WithVideoBitrate(int kilobitsPerSecond, int? streamIndex = null)
     {
-        return WithArgument(new VideoBitrateArgument(kilobitsPerSecond));
+        return WithArgument(new VideoBitrateArgument(kilobitsPerSecond, streamIndex));
     }
 
-    /// <summary>-b:a</summary>
-    public FFMpegOutputOptions WithAudioBitrate(AudioQuality audioQuality)
+    /// <summary>-b:a, or -b:a:N for the Nth audio stream</summary>
+    public FFMpegOutputOptions WithAudioBitrate(AudioQuality audioQuality, int? streamIndex = null)
     {
-        return WithArgument(new AudioBitrateArgument(audioQuality));
+        return WithArgument(new AudioBitrateArgument(audioQuality, streamIndex));
     }
 
-    /// <summary>-b:a</summary>
-    public FFMpegOutputOptions WithAudioBitrate(int kilobitsPerSecond)
+    /// <summary>-b:a, or -b:a:N for the Nth audio stream</summary>
+    public FFMpegOutputOptions WithAudioBitrate(int kilobitsPerSecond, int? streamIndex = null)
     {
-        return WithArgument(new AudioBitrateArgument(kilobitsPerSecond));
+        return WithArgument(new AudioBitrateArgument(kilobitsPerSecond, streamIndex));
     }
 
     /// <summary>-maxrate, which also needs -bufsize to take effect</summary>

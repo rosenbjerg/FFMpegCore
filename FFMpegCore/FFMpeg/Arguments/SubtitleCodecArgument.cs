@@ -8,8 +8,9 @@ namespace FFMpegCore.Arguments;
 public class SubtitleCodecArgument : IArgument
 {
     public readonly string SubtitleCodec;
+    public readonly int? StreamIndex;
 
-    public SubtitleCodecArgument(Codec subtitleCodec)
+    public SubtitleCodecArgument(Codec subtitleCodec, int? streamIndex = null)
     {
         if (subtitleCodec.Type != CodecType.Subtitle)
         {
@@ -17,12 +18,14 @@ public class SubtitleCodecArgument : IArgument
         }
 
         SubtitleCodec = subtitleCodec.Name;
+        StreamIndex = streamIndex;
     }
 
-    public SubtitleCodecArgument(string subtitleCodec)
+    public SubtitleCodecArgument(string subtitleCodec, int? streamIndex = null)
     {
         SubtitleCodec = subtitleCodec;
+        StreamIndex = streamIndex;
     }
 
-    public string Text => $"-c:s {SubtitleCodec.ToLowerInvariant()}";
+    public string Text => $"-c:s{(StreamIndex == null ? string.Empty : $":{StreamIndex}")} {SubtitleCodec.ToLowerInvariant()}";
 }
