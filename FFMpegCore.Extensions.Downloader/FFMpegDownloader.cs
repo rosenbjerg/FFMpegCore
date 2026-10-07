@@ -14,17 +14,25 @@ public static class FFMpegDownloader
     /// </summary>
     /// <param name="version">used to explicitly state the version of binary you want to download</param>
     /// <param name="binaries">used to explicitly state the binaries you want to download (ffmpeg, ffprobe, ffplay)</param>
-    /// <param name="options">used for specifying binary folder to download binaries into. If not provided, GlobalFFOptions are used</param>
+    /// <param name="ffOptions">Options whose BinaryFolder the binaries are downloaded into. If not provided, GlobalFFOptions are used</param>
     /// <param name="platformOverride">used to explicitly state the os and architecture you want to download</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>a list of the binaries that have been successfully downloaded</returns>
     public static async Task<List<string>> DownloadBinariesAsync(
         FFMpegVersions version = FFMpegVersions.LatestAvailable,
         FFMpegBinaries binaries = FFMpegBinaries.FFMpeg | FFMpegBinaries.FFProbe,
-        FFOptions? options = null,
+        FFOptions? ffOptions = null,
         SupportedPlatforms? platformOverride = null,
         CancellationToken cancellationToken = default)
     {
+        var relevantOptions = ffOptions ?? GlobalFFOptions.Current;
+        if (string.IsNullOrEmpty(relevantOptions.BinaryFolder))
+        {
+            throw new FFMpegDownloaderException(
+                "BinaryFolder is not set, so ffmpeg is looked up on PATH and downloaded binaries would never be used. " +
+                "Set BinaryFolder on the FFOptions you pass, or through GlobalFFOptions.Configure, before downloading.");
+        }
+
         using var httpClient = new HttpClient();
 
         var versionInfo = await httpClient.GetVersionInfo(version, cancellationToken).ConfigureAwait(false);
@@ -32,11 +40,6 @@ public static class FFMpegDownloader
                                  throw new FFMpegDownloaderException("Failed to get compatible download info");
 
         var successList = new List<string>();
-        var relevantOptions = options ?? GlobalFFOptions.Current;
-        if (string.IsNullOrEmpty(relevantOptions.BinaryFolder))
-        {
-            throw new FFMpegDownloaderException("Binary folder not specified");
-        }
 
         var binaryFlags = binaries.GetFlags();
         foreach (var binaryFlag in binaryFlags)

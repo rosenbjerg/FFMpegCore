@@ -477,7 +477,8 @@ await FFProbe.AnalyseAsync(path, ffOptions, cancellationToken: cancellationToken
 
 This applies to `AnalyseAsync`, `GetFramesAsync` and `GetPacketsAsync` alike.
 
-`FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`. `FFMpegDownloaderException` derives from
+`FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`; its `options` parameter is `ffOptions`, as
+everywhere else. Without a `BinaryFolder` it throws before going online, with a message saying how to set one. `FFMpegDownloaderException` derives from
 `FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
 
 ## New in 6.0

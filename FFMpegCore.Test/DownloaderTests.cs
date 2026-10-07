@@ -1,5 +1,6 @@
 ﻿using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.Downloader.Enums;
+using FFMpegCore.Extensions.Downloader.Exceptions;
 
 namespace FFMpegCore.Test;
 
@@ -25,9 +26,18 @@ public class DownloaderTests
     }
 
     [TestMethod]
+    public async Task DownloadBinaries_RequiresABinaryFolderBeforeGoingOnline()
+    {
+        var exception = await Assert.ThrowsExactlyAsync<FFMpegDownloaderException>(() =>
+            FFMpegDownloader.DownloadBinariesAsync(ffOptions: new FFOptions(), cancellationToken: TestContext.CancellationToken));
+
+        StringAssert.Contains(exception.Message, "BinaryFolder");
+    }
+
+    [TestMethod]
     public async Task GetSpecificVersionTest()
     {
-        var binaries = await FFMpegDownloader.DownloadBinariesAsync(FFMpegVersions.V6_1, options: _ffOptions,
+        var binaries = await FFMpegDownloader.DownloadBinariesAsync(FFMpegVersions.V6_1, ffOptions: _ffOptions,
             cancellationToken: TestContext.CancellationToken);
         try
         {
@@ -42,7 +52,7 @@ public class DownloaderTests
     [TestMethod]
     public async Task GetAllLatestSuiteTest()
     {
-        var binaries = await FFMpegDownloader.DownloadBinariesAsync(options: _ffOptions,
+        var binaries = await FFMpegDownloader.DownloadBinariesAsync(ffOptions: _ffOptions,
             cancellationToken: TestContext.CancellationToken);
         try
         {
