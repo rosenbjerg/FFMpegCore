@@ -1516,6 +1516,24 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_ExtractSubtitles_RejectsAnInputWithoutThatSubtitleStream()
+    {
+        using var subtitled = CreateVideoWithSubtitles();
+        var video = FFProbe.Analyse(subtitled).PrimaryVideoStream!.Index;
+
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpeg.ExtractSubtitles(TestResources.Mp4Video, "out.srt"));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => FFMpeg.ExtractSubtitles(subtitled, "out.srt", video));
+    }
+
+    private TemporaryFile CreateVideoWithSubtitles()
+    {
+        var video = new TemporaryFile("subtitled.mkv");
+        FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, video)
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+        return video;
+    }
+
+    [TestMethod]
     public void Video_AnalysisOverload_BuildsTheSameArgumentsAsThePathOverload()
     {
         using var output = new TemporaryFile("out.mkv");
@@ -1528,7 +1546,8 @@ public class VideoTest
         Assert.AreEqual(FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, output).Arguments,
             FFMpeg.Watermark(source, TestResources.PngImage, output).Arguments);
         Assert.AreEqual(FFMpeg.ExtractAudio(TestResources.Mp4Video, "out.m4a").Arguments, FFMpeg.ExtractAudio(source, "out.m4a").Arguments);
-        Assert.AreEqual(FFMpeg.ExtractSubtitles(TestResources.Mp4Video, "out.srt").Arguments, FFMpeg.ExtractSubtitles(source, "out.srt").Arguments);
+        using var subtitled = CreateVideoWithSubtitles();
+        Assert.AreEqual(FFMpeg.ExtractSubtitles(subtitled, "out.srt").Arguments, FFMpeg.ExtractSubtitles(FFProbe.Analyse(subtitled), "out.srt").Arguments);
         Assert.AreEqual(FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, output).Arguments,
             FFMpeg.PosterWithAudio(FFProbe.Analyse(TestResources.PngImage), FFProbe.Analyse(TestResources.Mp3Audio), output).Arguments);
     }
@@ -1536,6 +1555,7 @@ public class VideoTest
     [TestMethod]
     public void Video_EveryHelperButSaveStream_KnowsItsDurationForPercentageProgress()
     {
+        using var subtitled = CreateVideoWithSubtitles();
         var processors = new Dictionary<string, FFMpegArgumentProcessor>
         {
             ["Snapshot"] = FFMpeg.Snapshot(TestResources.Mp4Video, "out.png"),
@@ -1545,7 +1565,7 @@ public class VideoTest
             ["PosterWithAudio"] = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, "out.mp4"),
             ["Watermark"] = FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, "out.mp4"),
             ["AddSubtitles"] = FFMpeg.AddSubtitles(TestResources.Mp4Video, TestResources.SrtSubtitle, "out.mkv"),
-            ["ExtractSubtitles"] = FFMpeg.ExtractSubtitles(TestResources.MkvVideo, "out.srt"),
+            ["ExtractSubtitles"] = FFMpeg.ExtractSubtitles(subtitled, "out.srt"),
             ["Remux"] = FFMpeg.Remux(TestResources.Mp4Video, "out.mkv"),
             ["Concat"] = FFMpeg.Concat("out.mp4", TestResources.Mp4Video, TestResources.Mp4Video),
             ["Join"] = FFMpeg.Join("out.mp4", TestResources.Mp4Video, TestResources.Mp4Video),

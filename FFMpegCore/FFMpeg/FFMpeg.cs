@@ -395,20 +395,15 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor ExtractSubtitles(IMediaAnalysis source, string output, int? streamIndex = null, FFOptions? ffOptions = null)
     {
         var input = InputPathOf(source, nameof(source));
+        var subtitle = streamIndex == null
+            ? source.PrimarySubtitleStream ?? throw new ArgumentException("The input has no subtitle stream to extract", nameof(source))
+            : source.SubtitleStreams.FirstOrDefault(stream => stream.Index == streamIndex) ??
+              throw new ArgumentOutOfRangeException(nameof(streamIndex), streamIndex, "The input has no subtitle stream with this index");
 
         return FFMpegArguments
             .FromFileInput(input)
-            .OutputToFile(output, options =>
-            {
-                if ((streamIndex ?? source.PrimarySubtitleStream?.Index) is { } index)
-                {
-                    options.WithMap(0, StreamType.All, index);
-                }
-                else
-                {
-                    options.WithMap(0, StreamType.Subtitle, 0);
-                }
-            })
+            .OutputToFile(output, options => options
+                .WithMap(0, StreamType.All, subtitle.Index))
             .WithKnownDuration(source.Duration)
             .WithOptions(ffOptions);
     }
