@@ -20,7 +20,7 @@ public static class VideoCodec
 
         public static Codec GetByExtension(string path)
         {
-            var ext = Path.GetExtension(path);
+            var ext = Path.GetExtension(path).ToLowerInvariant();
             switch (ext)
             {
                 case FileExtension.Image.Png:

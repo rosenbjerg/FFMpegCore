@@ -97,7 +97,7 @@ public static class FFMpeg
 
     private static void CheckSnapshotOutputExtension(string output, IReadOnlyList<string> extensions)
     {
-        if (!extensions.Contains(Path.GetExtension(output).ToLower()))
+        if (!extensions.Contains(Path.GetExtension(output).ToLowerInvariant()))
         {
             throw new ArgumentException(
                 $"Invalid snapshot output extension: {output}, needed: {string.Join(",", extensions)}");

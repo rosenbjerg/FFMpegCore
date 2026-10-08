@@ -727,6 +727,14 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void Video_Snapshot_AcceptsAnUpperCaseExtension()
+    {
+        var arguments = FFMpeg.Snapshot(FFProbe.Analyse(TestResources.Mp4Video), "out.PNG").Arguments;
+
+        Assert.Contains("-c:v png", arguments);
+    }
+
+    [TestMethod]
     public void Video_GifSnapshot_KeepsARequestedSizeEqualToTheSource()
     {
         var source = FFProbe.Analyse(TestResources.Mp4Video);
