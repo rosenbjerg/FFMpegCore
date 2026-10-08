@@ -639,6 +639,10 @@ to input of ffmpeg. This feature also allows for converting video on-the-fly whi
 An object implementing the `IPipeSource` interface is used as the source of data. Currently, the `IPipeSource` interface has three
 implementations; `StreamPipeSource` for streams, `RawVideoPipeSource` for raw video frames, and `RawAudioPipeSource` for raw audio samples.
 
+On Linux and macOS the pipe is a Unix domain socket, which ffmpeg before 8.0 treats as seekable. Demuxers that seek when they can then
+lose data without an error — a piped WAV is missing its first 64 KiB of audio — so pipe input, and `FFProbe.Analyse(Stream)`, need ffmpeg
+8.0 or newer there. With an older ffmpeg, write the input to a file first. Windows uses a named pipe and is not affected.
+
 ### Working with raw video frames
 
 Method for generating bitmap frames:
