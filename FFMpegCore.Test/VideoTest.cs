@@ -606,6 +606,15 @@ public class VideoTest
     }
 
     [TestMethod]
+    public void RawVideoPipeSource_AcceptsAnArrayOfFrames()
+    {
+        using var bitmap = new SKBitmap(new SKImageInfo(16, 8, SKColorType.Bgra8888));
+        var source = new RawVideoPipeSource(new IVideoFrame[] { new SkiaSharpVideoFrame(bitmap) });
+
+        Assert.AreEqual("-f rawvideo -r 25 -pix_fmt bgra -s 16x8", source.GetStreamArguments());
+    }
+
+    [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_Snapshot_InMemory_SkiaSharp()
     {
