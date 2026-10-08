@@ -838,6 +838,29 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    [DoNotParallelize]
+    public void Builder_BuildString_GifPalette_IsCultureInvariant()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            var str = FFMpegArguments
+                .FromFileInput("input.mp4")
+                .OutputToFile("output.gif", false, opt => opt
+                    .WithGifPalette(0, null, 12.5))
+                .Arguments;
+
+            StringAssert.Contains(str, "fps=12.5,");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [TestMethod]
     public void Builder_BuildString_OutputToMany()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

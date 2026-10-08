@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -18,5 +19,5 @@ internal class GifPaletteArgument : IArgument
     private string ScaleText => _size.HasValue ? $"scale=w={_size.Value.Width}:h={_size.Value.Height}," : string.Empty;
 
     public string Text =>
-        $"-filter_complex \"[0:{_streamIndex}] fps={_fps},{ScaleText}split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer\"";
+        $"-filter_complex \"[0:{_streamIndex}] fps={_fps.ToInvariantString()},{ScaleText}split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer\"";
 }
