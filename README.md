@@ -9,7 +9,8 @@
 [![GitHub code contributors](https://img.shields.io/github/contributors/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/graphs/contributors)
 
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both
-synchronous and asynchronous calls.
+synchronous and asynchronous calls. It runs the `ffmpeg` and `ffprobe` binaries, so they need to be installed or downloaded at runtime; see
+[Binaries](#binaries).
 
 > **Upgrading from 5.x?** Version 6.0 renames most option methods after the ffmpeg options they emit, splits input from output options, and
 > renames or removes several `FFMpeg.*` helpers. [MIGRATION.md](MIGRATION.md) lists every breaking change and its replacement, and the new
@@ -29,7 +30,11 @@ or
 
 ```csharp
 var mediaInfo = FFProbe.Analyse(inputPath);
+Console.WriteLine($"{mediaInfo.Duration}, {mediaInfo.PrimaryVideoStream?.Width}x{mediaInfo.PrimaryVideoStream?.Height}");
 ```
+
+`Analyse` also takes a `Uri` or a `Stream`. The primary stream of each kind is the one marked `default`, or the first when none is.
+`FFProbe.GetFrames` and `GetPackets` return ffprobe's per-frame and per-packet data.
 
 `mediaInfo.Json` is ffprobe's own output, for keeping or sending elsewhere, and `FFProbe.FromJson(json)` turns it back into an analysis
 without running ffprobe again — so one machine can probe and another work from the result.
@@ -39,10 +44,8 @@ stderr lines in `StandardError`. Both derive from `FFMpegException`, so a single
 
 ## FFMpeg
 
-Use FFMpeg to convert your media files.
-Easily build your FFMpeg arguments using the fluent argument builder:
-
-Convert input file to h264/aac scaled to 720p w/ faststart, for web playback
+Build the ffmpeg command with the fluent argument builder. This converts a file to h264/aac at 720p, with the index at the front for web
+playback:
 
 ```csharp
 FFMpegArguments
@@ -61,7 +64,7 @@ FFMpegArguments
 Most video encoders reject odd dimensions for the usual `yuv420p` pixel format, so when you pass a size yourself, use `-2` rather than `-1`
 for the side ffmpeg should compute.
 
-Convert to and/or from streams
+Inputs and outputs can be streams as well as files (see [Input piping](#input-piping)):
 
 ```csharp
 await FFMpegArguments
@@ -102,7 +105,7 @@ FFMpegArguments
 ```
 
 `FromFileInputs(paths)` and `AddFileInputs(paths)` add one input per path, with the options repeated before each — to join files into one,
-see [`Concat`](#join-video-parts-into-one-single-file). `WithLoop()` repeats a still image for as long as the output runs, and
+see [`Concat`](#join-video-parts-into-one-file). `WithLoop()` repeats a still image for as long as the output runs, and
 `WithStreamLoop(n)` plays any input `n` more times (`-1` for ever).
 
 ### Looking up options
@@ -230,10 +233,11 @@ closes with `As`, naming what it produced. `As` returns the graph, so the next `
 ```
 
 The chain has methods only for the filters ffmpeg accepts nowhere else — `Concat`, `Overlay` and `AudioMix`, all of which need more than one
-input and are rejected in `-vf`; `Concat` and `AudioMix` count the chain's inputs unless you pass a count. Every other filter goes in through `Video` and `Audio`, which take the same builders as `WithVideoFilters`
-and `WithAudioFilters`, so `Scale`, `Fade` and the rest are spelled the same in both places. `WithFilter` takes a filter argument object
-directly, and `WithCustomFilter(key, value)` covers anything the library has no method for. Both are on the `-vf` and `-af` builders as
-well, so a filter without a method joins the built-in ones rather than replacing the whole chain:
+input and are rejected in `-vf`; `Concat` and `AudioMix` count the chain's inputs unless you pass a count. Every other filter goes in
+through `Video` and `Audio`, which take the same builders as `WithVideoFilters` and `WithAudioFilters`, so `Scale`, `Fade` and the rest are
+spelled the same in both places. `WithFilter` takes a filter argument object directly, and `WithCustomFilter(key, value)` covers anything
+the library has no method for. Both are on the `-vf` and `-af` builders as well, so a filter without a method joins the built-in ones rather
+than replacing the whole chain:
 
 ```csharp
 .WithVideoFilters(f => f.WithCustomFilter("yadif").Scale(VideoSize.Hd))
@@ -276,9 +280,9 @@ existing output when `overwrite: false`.
 
 ### Progress and cancellation
 
-`NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage from 0 to 100, which needs the output
-duration — pass it explicitly, or omit it after any `FFMpeg.*` helper except `SaveStream`, which reads a live stream with no known length.
-Both take an `Action<T>` or an `IProgress<T>`:
+`NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage from 0 to 100, which needs the
+output duration — pass it explicitly, or omit it after any `FFMpeg.*` helper except `SaveStream`, which reads a live stream with no known
+length. Both take an `Action<T>` or an `IProgress<T>`:
 
 ```csharp
 await FFMpegArguments
@@ -336,9 +340,9 @@ Encoder options go on the tee itself, since there is only one encode. A target t
 
 ### Analysing without writing an output
 
-Detection filters such as `SilenceDetect`, `VolumeDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`
-decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `StandardError`, or arrive line by
-line through `NotifyOnStandardError`:
+Detection filters such as `SilenceDetect`, `VolumeDetect` and `BlackDetect` report what they find on stderr rather than in an output file.
+`OutputToNull` decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `StandardError`, or
+arrive line by line through `NotifyOnStandardError`:
 
 ```csharp
 var result = FFMpegArguments
@@ -423,7 +427,7 @@ await FFMpeg.Concat("joined.mp4", sources)
 It is also worth using whenever you have already probed the input to decide what to do — passing the analysis in saves a second probe of the
 same file. An analysis made from a `Stream` has no path, so these overloads reject it; use the path overloads there.
 
-### Easily capture snapshots from a video file:
+### Capture a snapshot from a video
 
 ```csharp
 // persist the image on the drive
@@ -439,18 +443,18 @@ var bitmap = SystemDrawingImage.Snapshot(inputPath, new Size(200, 400), TimeSpan
 var skBitmap = SkiaSharpImage.Snapshot(inputPath, new Size(200, 400), TimeSpan.FromMinutes(1));   // FFMpegCore.Extensions.SkiaSharp
 ```
 
-### You can also capture GIF snapshots from a video file:
+### Capture a GIF from a video
 
 ```csharp
 FFMpeg.GifSnapshot(inputPath, outputPath, new Size(200, 400), TimeSpan.FromSeconds(10))
     .ProcessSynchronously();
 
-// you can also supply -1 to either one of Width/Height Size properties if you'd like FFMPEG to resize while maintaining the aspect ratio
+// pass -1 for the width or the height to have it follow the aspect ratio
 await FFMpeg.GifSnapshot(inputPath, outputPath, new Size(480, -1), TimeSpan.FromSeconds(10))
     .ProcessAsynchronously();
 ```
 
-### Join video parts into one single file:
+### Join video parts into one file
 
 When the parts already share a codec — segments of one recording, say — `Concat` joins them through ffmpeg's concat demuxer without
 re-encoding, which is both lossless and far faster:
@@ -478,7 +482,7 @@ FFMpeg.Join(@"..\joined_video.mp4", parts, options => options
 ).ProcessSynchronously();
 ```
 
-### Overlay a watermark:
+### Overlay a watermark
 
 ```csharp
 FFMpeg.Watermark(inputPath, "logo.png", outputPath,
@@ -492,7 +496,7 @@ changes, with ffmpeg's default encoder for the container. Pass output options to
 `CopyStreams(StreamType.Audio)` to them if the audio should still be copied. For anything more elaborate — scaling the logo first, fading it
 in — build the graph yourself with [`WithComplexFilter`](#complex-filters).
 
-### Add or extract subtitles:
+### Add or extract subtitles
 
 ```csharp
 // mux the subtitles in as their own stream, so the viewer can switch them off
@@ -519,7 +523,7 @@ FFMpegArguments
     .ProcessSynchronously();
 ```
 
-### Build a contact sheet of thumbnails:
+### Build a contact sheet of thumbnails
 
 ```csharp
 // 5x5 frames spread evenly across the whole video
@@ -536,7 +540,7 @@ FFMpeg.ThumbnailSheet(inputPath, "sheet.jpg",
 This is the sprite sheet a player loads to show previews while scrubbing. Leave `interval` out and the frames are spread across the input's
 duration instead.
 
-### Change container without re-encoding:
+### Change container without re-encoding
 
 ```csharp
 FFMpeg.Remux(@"..\input.mp4", @"..\output.mkv").ProcessSynchronously();
@@ -560,7 +564,7 @@ into a `.mkv` is fine, into a `.webm` is not, and ffmpeg says so. Without a re-e
 cut begins at the keyframe at or before `startTime` and may run a few seconds longer than asked. For a frame-exact cut, re-encode with
 `FFMpegArguments` and `WithStartTime`/`WithStopTime` on the input.
 
-### Join images into a video:
+### Join images into a video
 
 ```csharp
 FFMpeg.JoinImageSequence(@"..\joined_video.mp4", frameRate: 1,
@@ -577,13 +581,13 @@ FFMpeg.JoinImageSequence(@"..\joined_video.mp4", images, frameRate: 1, options =
 ).ProcessSynchronously();
 ```
 
-### Remove the audio track of a video file:
+### Remove the audio track of a video
 
 ```csharp
 FFMpeg.RemoveAudio(inputPath, outputPath).ProcessSynchronously();
 ```
 
-### Extract the audio track from a video file:
+### Extract the audio track from a video
 
 ```csharp
 // the output extension picks the container, and ffmpeg picks the encoder for it
@@ -597,7 +601,7 @@ FFMpeg.ExtractAudio(inputPath, "track.m4a", AudioCodec.Copy).ProcessSynchronousl
 FFMpeg.ExtractAudio(inputPath, "track.opus", "libopus").ProcessSynchronously();
 ```
 
-### Record a remote stream to a file:
+### Record a remote stream to a file
 
 ```csharp
 await FFMpeg.SaveStream(new Uri("https://example.com/live/stream.m3u8"), "recording.ts")
@@ -607,7 +611,7 @@ await FFMpeg.SaveStream(new Uri("https://example.com/live/stream.m3u8"), "record
 Any protocol ffmpeg can open works — http(s), rtmp, rtsp, srt. The streams are copied, not re-encoded. Prefer `.ts` or `.mkv` over `.mp4` for
 anything long-running: an mp4 is only finalised when the run ends, so a crash loses the recording, while cancelling finalises it properly.
 
-### Add or replace the audio track of a video file:
+### Add or replace the audio track of a video
 
 ```csharp
 FFMpeg.ReplaceAudio(inputPath, inputAudioPath, outputPath).ProcessSynchronously();
@@ -619,7 +623,7 @@ FFMpeg.ReplaceAudio(inputPath, "voiceover.wav", outputPath, AudioCodec.Aac).Proc
 The output takes the video of the first file and the audio of the second, whatever audio the video already had. Both are copied unless
 you pass a codec.
 
-### Combine an image with audio file, for youtube or similar platforms
+### Combine an image with an audio file, for YouTube and similar platforms
 
 ```csharp
 FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath).ProcessSynchronously();
@@ -647,11 +651,13 @@ FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath, addArguments:
 
 ## Input piping
 
-With input piping it is possible to write video frames directly from program memory without saving them to jpeg or png and then passing path
-to input of ffmpeg. This feature also allows for converting video on-the-fly while frames are being generated or received.
+Input piping feeds ffmpeg from memory instead of a file, so frames can be encoded while they are being generated or received, without
+writing them to disk first. The data comes from an `IPipeSource`: `StreamPipeSource` for a stream, `RawVideoPipeSource` for raw video
+frames, and `RawAudioPipeSource` for raw audio samples. Output piping works the same way in reverse, through an `IPipeSink` such as
+`StreamPipeSink`.
 
-An object implementing the `IPipeSource` interface is used as the source of data. Currently, the `IPipeSource` interface has three
-implementations; `StreamPipeSource` for streams, `RawVideoPipeSource` for raw video frames, and `RawAudioPipeSource` for raw audio samples.
+A pipe can't be seeked, so an input format that needs seeking — an mp4 with its index at the end, for one — fails through a pipe where it
+works from a file.
 
 On Linux and macOS the pipe is a Unix domain socket, which ffmpeg before 8.0 treats as seekable. Demuxers that seek when they can then
 lose data without an error — a piped WAV is missing its first 64 KiB of audio — so pipe input, and `FFProbe.Analyse(Stream)`, need ffmpeg
@@ -659,24 +665,24 @@ lose data without an error — a piped WAV is missing its first 64 KiB of audio 
 
 ### Working with raw video frames
 
-Method for generating bitmap frames:
+Generate the frames:
 
 ```csharp
 IEnumerable<IVideoFrame> CreateFrames(int count)
 {
     for(int i = 0; i < count; i++)
     {
-        yield return GetNextFrame(); //method that generates of receives the next frame
+        yield return GetNextFrame(); // generates or receives the next frame
     }
 }
 ```
 
-Then create a `RawVideoPipeSource` that uses your video frame source
+Then hand them to a `RawVideoPipeSource`:
 
 ```csharp
 var videoFramesSource = new RawVideoPipeSource(CreateFrames(64))
 {
-    FrameRate = 30 //set source frame rate
+    FrameRate = 30 // the frames' rate
 };
 await FFMpegArguments
     .FromPipeInput(videoFramesSource)
@@ -727,7 +733,7 @@ command: `choco install ffmpeg -y`
 
 location: `C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin`
 
-### Mac OSX
+### macOS
 
 command: `brew install ffmpeg`
 
@@ -739,11 +745,13 @@ command: `sudo apt-get install -y ffmpeg`
 
 location: `/usr/bin`
 
+Distribution packages are often older than ffmpeg 8.0 (Ubuntu 24.04 ships 6.1), which matters for [piped input](#input-piping) on Linux.
+
 ## Path Configuration
 
-### Option 1
+### In code
 
-The default value of an empty string (expecting ffmpeg to be found through PATH) can be overwritten via the `FFOptions` class:
+By default `BinaryFolder` is empty and ffmpeg is found through `PATH`. Set it, globally or per run, through `FFOptions`:
 
 ```csharp
 // setting global options
@@ -751,9 +759,6 @@ GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFiles
 
 // or
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");
-
-// on some systems the absolute path may be required, in which case
-GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Server.MapPath("./bin"), TemporaryFilesFolder = Server.MapPath("/tmp") });
 
 // or individual, per-run options
 await FFMpegArguments
@@ -776,10 +781,9 @@ await FFMpegArguments
     .ProcessAsynchronously();
 ```
 
-### Option 2
+### In ffmpeg.config.json
 
-The root and temp directory for the ffmpeg binaries can be configured via the `ffmpeg.config.json` file, which will be read on first use
-only.
+An `ffmpeg.config.json` in the working directory sets the global options instead. It is read once, on first use:
 
 ```json
 {
@@ -790,20 +794,14 @@ only.
 
 ### Supporting both 32 and 64 bit processes
 
-If you wish to support multiple client processor architectures, you can do so by creating two folders, `x64` and `x86`, in the
-`BinaryFolder` directory.
-Both folders should contain the binaries (`ffmpeg.exe` and `ffprobe.exe`) built for the respective architectures.
-
-By doing so, the library will attempt to use either `/{BinaryFolder}/{ARCH}/(ffmpeg|ffprobe).exe`.
-
-If these folders are not defined, it will try to find the binaries in `/{BinaryFolder}/(ffmpeg|ffprobe.exe)`.
-
-(`.exe` is only appended on Windows)
+To ship binaries for both architectures, put each set in an `x64` or `x86` folder inside `BinaryFolder`. The library tries
+`{BinaryFolder}/{x64|x86}/ffmpeg` for the architecture of the running process first, then `{BinaryFolder}/ffmpeg`, and the same for
+ffprobe (`.exe` is appended on Windows).
 
 # Compatibility
 
-Older versions of ffmpeg might not support all ffmpeg arguments available through this library. CI runs the test suite against
-ffmpeg `8.1`.
+CI runs the test suite against ffmpeg 8.1. Older versions might not support every option the library offers, and piped input on Linux and
+macOS needs 8.0 or newer.
 
 ## Code contributors
 
@@ -811,6 +809,6 @@ ffmpeg `8.1`.
   <img src="https://contrib.rocks/image?repo=rosenbjerg/ffmpegcore" />
 </a>
 
-### License
+## License
 
 Released under the [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/main/LICENSE), which carries the copyright notice.
