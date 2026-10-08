@@ -1880,6 +1880,28 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_OutputToUrl_KeepsTheUriEscaped()
+    {
+        var uri = new Uri("rtmp://example.com/live?key=a%20b%26c");
+
+        var single = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl(uri).Arguments;
+        var many = FFMpegArguments.FromFileInput("input.mp4").OutputToMany(outputs => outputs.OutputToUrl(uri)).Arguments;
+        var tee = FFMpegArguments.FromFileInput("input.mp4").OutputToTee(outputs => outputs.OutputToUrl(uri)).Arguments;
+
+        Assert.EndsWith("rtmp://example.com/live?key=a%20b%26c", single);
+        Assert.EndsWith("rtmp://example.com/live?key=a%20b%26c", many);
+        Assert.Contains("rtmp://example.com/live?key=a%20b%26c", tee);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_OutputArgument_FromAFileUri_UsesTheLocalPath()
+    {
+        var path = Path.GetFullPath(Path.Combine("My Videos", "out.mp4"));
+
+        Assert.AreEqual($"\"{path}\" -y", new OutputArgument(new Uri(path)).Text);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_AddMetadata_FromBuilder()
     {
         var metadata = new FFMetadataBuilder().WithTitle("Title");

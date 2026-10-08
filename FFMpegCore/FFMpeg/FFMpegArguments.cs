@@ -198,7 +198,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        return ToProcessor(new OutputUrlArgument(uri.ToString()), addArguments);
+        return ToProcessor(new OutputUrlArgument(uri.AbsoluteUri), addArguments);
     }
 
     public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)

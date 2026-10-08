@@ -26,7 +26,7 @@ public class FFMpegMultiOutputOptions
 
     public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        return AddOutput(new OutputUrlArgument(uri.ToString()), addArguments);
+        return AddOutput(new OutputUrlArgument(uri.AbsoluteUri), addArguments);
     }
 
     public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)

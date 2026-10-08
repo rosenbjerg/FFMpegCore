@@ -16,7 +16,7 @@ public class OutputArgument : IOutputArgument
 
     public OutputArgument(FileInfo value) : this(value.FullName) { }
 
-    public OutputArgument(Uri value) : this(value.AbsolutePath) { }
+    public OutputArgument(Uri value) : this(value.LocalPath) { }
 
     public void Pre(FFOptions options)
     {

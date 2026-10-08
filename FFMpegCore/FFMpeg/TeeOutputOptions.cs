@@ -26,7 +26,7 @@ public class TeeOutputOptions
 
     public TeeOutputOptions OutputToUrl(Uri uri, Action<TeeTargetOptions>? addArguments = null)
     {
-        return AddTarget(new OutputUrlArgument(uri.ToString()), addArguments);
+        return AddTarget(new OutputUrlArgument(uri.AbsoluteUri), addArguments);
     }
 
     public TeeOutputOptions OutputToPipe(IPipeSink reader, Action<TeeTargetOptions>? addArguments = null)
