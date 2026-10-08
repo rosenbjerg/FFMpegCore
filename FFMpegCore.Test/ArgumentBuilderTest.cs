@@ -573,7 +573,7 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual(
-            "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile=/path/to/font.ttf:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"",
+            "-i \"input.mp4\" -vf \"drawtext=text='Stack Overflow':fontfile='/path/to/font.ttf':fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2\" \"output.mp4\"",
             str);
     }
 
@@ -587,7 +587,23 @@ public class ArgumentBuilderTest
                     .DrawText("Hello")))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -vf \"drawtext=text=Hello\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -vf \"drawtext=text='Hello'\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_DrawtextFilter_EscapesLiteralText()
+    {
+        var str = FFMpegArguments
+            .FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions
+                    .DrawText("it's 12:30", text => text
+                        .WithFontFile(@"C:\Windows\Fonts\arial.ttf"))))
+            .Arguments;
+
+        Assert.AreEqual(
+            @"-i ""input.mp4"" -vf ""drawtext=text='it\'\''s 12\:30':fontfile='C\:\\Windows\\Fonts\\arial.ttf'"" ""output.mp4""",
+            str);
     }
 
     [TestMethod]

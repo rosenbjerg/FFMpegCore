@@ -1,4 +1,6 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Helpers;
+
+namespace FFMpegCore.Arguments;
 
 public class DrawTextArgument : IVideoFilterArgument
 {
@@ -24,26 +26,18 @@ public class DrawTextOptions
         Text = text;
     }
 
-    internal string TextInternal => string.Join(":", new[] { ("text", Text) }.Concat(Parameters).Select(FormatArgumentPair));
+    internal string TextInternal => string.Join(":", new[] { (key: "text", value: StringExtensions.ToQuotedFilterValue(Text)) }.Concat(Parameters)
+        .Select(pair => $"{pair.key}={pair.value}"));
 
     public DrawTextOptions WithFontFile(string fontFile)
     {
-        return WithParameter("fontfile", fontFile);
+        Parameters.Add(("fontfile", StringExtensions.ToQuotedFilterValue(fontFile)));
+        return this;
     }
 
     public DrawTextOptions WithParameter(string key, string value)
     {
-        Parameters.Add((key, value));
+        Parameters.Add((key, StringExtensions.EncloseIfContainsSpace(value)));
         return this;
-    }
-
-    private static string FormatArgumentPair((string key, string value) pair)
-    {
-        return $"{pair.key}={EncloseIfContainsSpace(pair.value)}";
-    }
-
-    private static string EncloseIfContainsSpace(string input)
-    {
-        return input.Contains(" ") ? $"'{input}'" : input;
     }
 }

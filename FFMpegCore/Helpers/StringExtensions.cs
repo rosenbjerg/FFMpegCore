@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FFMpegCore.Helpers;
 
@@ -21,6 +22,13 @@ internal static class StringExtensions
     public static string EncloseIfContainsSpace(string input)
     {
         return input.Contains(" ") ? $"'{input}'" : input;
+    }
+
+    // ffmpeg unescapes a filter value twice, graph then options; drop either level and ':' or '\'' break it
+    public static string ToQuotedFilterValue(string value)
+    {
+        var optionLevel = Regex.Replace(value, @"[\\':]", @"\$0");
+        return $"'{optionLevel.Replace("'", @"'\''")}'";
     }
 
     /// <summary>

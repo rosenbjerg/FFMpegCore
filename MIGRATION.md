@@ -314,6 +314,11 @@ and `SetCharacterEncoding` are `WithOriginalSize`, `WithSubtitleIndex` and `With
 `new PadArgument(…)` and `new SubtitleBurnArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
 or aspect ratio throws `ArgumentException` instead of a bare `Exception`.
 
+`DrawText`'s text and `WithFontFile`'s path are escaped for ffmpeg, which reads a filter value twice — once as part of the filtergraph, once
+as the filter's own options — so a `:` or `'` in them used to cut the value short: `DrawText("12:30")` drew `30`, and a Windows font path
+lost everything after `C`. Text and font paths are now passed through as written. `WithParameter` values are still passed as given (quoted
+only when they contain a space), so expressions like `x=(w-text_w)/2` keep working; escape a literal `:` in one yourself.
+
 ### Filter parameters with a fixed set of values are typed
 
 `SilenceDetect`'s `noiseType`, `HighPass`/`LowPass`'s `widthType`, `transform` and `precision`, and `AudioGate`'s `mode`, `detection` and
