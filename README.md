@@ -713,7 +713,8 @@ await FFMpegArguments
 ## Runtime Auto Installation
 
 The `FFMpegCore.Extensions.Downloader` package can install ffmpeg and ffprobe at runtime into the configured `BinaryFolder`. Set one first —
-with none, ffmpeg is looked up on `PATH`, so the download would never be used, and `DownloadBinariesAsync` throws:
+with none, ffmpeg is looked up on `PATH`, so the download would never be used, and `DownloadBinariesAsync` throws. The folder is
+created if it does not exist yet:
 
 ```csharp
 GlobalFFOptions.Configure(options => options.BinaryFolder = "./bin");

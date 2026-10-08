@@ -79,6 +79,7 @@ public static class FFMpegDownloader
 
     private static IEnumerable<string> ExtractZipAndSave(Stream zipStream, string binaryFolder, CancellationToken cancellationToken)
     {
+        Directory.CreateDirectory(binaryFolder);
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
         foreach (var entry in archive.Entries)
         {

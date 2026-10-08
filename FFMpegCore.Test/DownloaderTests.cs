@@ -35,6 +35,22 @@ public class DownloaderTests
     }
 
     [TestMethod]
+    public async Task DownloadBinaries_CreatesAMissingBinaryFolder()
+    {
+        var binaryFolder = Path.Combine(_ffOptions.BinaryFolder, "not-yet-created");
+
+        var binaries = await FFMpegDownloader.DownloadBinariesAsync(FFMpegVersions.V6_1, FFMpegBinaries.FFProbe,
+            new FFOptions { BinaryFolder = binaryFolder }, cancellationToken: TestContext.CancellationToken);
+
+        Assert.HasCount(1, binaries);
+        Assert.IsTrue(File.Exists(binaries[0]));
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.IsTrue(File.GetUnixFileMode(binaries[0]).HasFlag(UnixFileMode.UserExecute));
+        }
+    }
+
+    [TestMethod]
     public async Task GetSpecificVersionTest()
     {
         var binaries = await FFMpegDownloader.DownloadBinariesAsync(FFMpegVersions.V6_1, ffOptions: _ffOptions,

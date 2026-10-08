@@ -547,7 +547,8 @@ await bitmap.AddAudio(audio, output).ProcessAsynchronously(cancellationToken: to
 ```
 
 `FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`; its `options` parameter is `ffOptions`, as
-everywhere else. Without a `BinaryFolder` it throws before going online, with a message saying how to set one. `FFMpegDownloaderException`
+everywhere else. Without a `BinaryFolder` it throws before going online, with a message saying how to set one. A `BinaryFolder` that does not exist yet
+is created, where it failed with `DirectoryNotFoundException`. `FFMpegDownloaderException`
 derives from `FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
 
 ## New in 6.0
