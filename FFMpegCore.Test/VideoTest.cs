@@ -1945,6 +1945,45 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_AddMetadata_KeepsSpecialCharactersInValues()
+    {
+        using var outputFile = new TemporaryFile("out.mkv");
+        const string title = @"AC\DC = best; #1";
+        const string chapterTitle = @"Part=1\2; #a";
+
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .AddMetadata(new FFMetadataBuilder().WithTitle(title).WithChapter(chapterTitle, TimeSpan.FromSeconds(1)))
+            .OutputToFile(outputFile, true, o => o.CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        var analysis = FFProbe.Analyse(outputFile);
+        Assert.AreEqual(title, analysis.Format.Tags!["title"]);
+        Assert.AreEqual(chapterTitle, analysis.Chapters[0].Title);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_ProbedChapterWithoutTitle_HasAnEmptyTitle()
+    {
+        using var metadataFile = new TemporaryFile("chapters.txt");
+        using var outputFile = new TemporaryFile("out.mkv");
+        File.WriteAllText(metadataFile, ";FFMETADATA1\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000\n");
+
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .AddMetadataFile(metadataFile)
+            .OutputToFile(outputFile, true, o => o.CopyStreams())
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        var chapter = FFProbe.Analyse(outputFile).Chapters.Single();
+        Assert.AreEqual(string.Empty, chapter.Title);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TempFileArguments_UsePerRunTemporaryFolder()
     {
         using var outputFile = new TemporaryFile("out.mp4");

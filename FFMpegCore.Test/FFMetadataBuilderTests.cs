@@ -36,13 +36,13 @@ public class FFMetadataBuilderTests
             "compatible_brands=M4A isomiso2",
             "copyright=(c) 2024",
             "title=Title",
-            "artist=Artist A; Artist B",
+            @"artist=Artist A\; Artist B",
             "composer=Composer",
             "album_artist=Album Artist",
             "album=Album",
             "date=2024",
             "genre=Genre",
-            "comment=Comment A; Comment B",
+            @"comment=Comment A\; Comment B",
             "encoder=Lavf"
         }, lines);
     }
@@ -60,11 +60,11 @@ public class FFMetadataBuilderTests
         CollectionAssert.AreEqual(new[]
         {
             ";FFMETADATA1",
-            "artist=Artist A; Artist B",
+            @"artist=Artist A\; Artist B",
             "composer=Composer",
             "album_artist=Album Artist",
             "genre=Genre",
-            "comment=Comment A; Comment B"
+            @"comment=Comment A\; Comment B"
         }, lines);
     }
 
@@ -85,7 +85,7 @@ public class FFMetadataBuilderTests
             .WithTag("artist", "A", "B")
             .WithTag("genre", new List<string> { "C", "D" }));
 
-        CollectionAssert.AreEqual(new[] { ";FFMETADATA1", "artist=A; B", "genre=C; D" }, lines);
+        CollectionAssert.AreEqual(new[] { ";FFMETADATA1", @"artist=A\; B", @"genre=C\; D" }, lines);
     }
 
     [TestMethod]

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FFMpegCore;
 
@@ -148,7 +149,7 @@ public class FFMetadataBuilder
 
         foreach (var tag in _tags)
         {
-            sb.AppendLine($"{tag.Key}={tag.Value}");
+            sb.AppendLine($"{Escape(tag.Key)}={Escape(tag.Value)}");
         }
 
         for (var i = 0; i < _chapters.Count; i++)
@@ -160,9 +161,14 @@ public class FFMetadataBuilder
             sb.AppendLine("TIMEBASE=1/1000");
             sb.AppendLine($"START={(long)chapter.Start.TotalMilliseconds}");
             sb.AppendLine($"END={(long)chapter.End.TotalMilliseconds}");
-            sb.AppendLine($"title={title}");
+            sb.AppendLine($"title={Escape(title)}");
         }
 
         return sb.ToString();
+    }
+
+    private static string Escape(string value)
+    {
+        return Regex.Replace(value, @"[=;#\\\n]", @"\$0");
     }
 }

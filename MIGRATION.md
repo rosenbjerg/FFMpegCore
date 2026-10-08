@@ -286,6 +286,10 @@ builder.WithChapter("Intro", TimeSpan.FromSeconds(90));    // 6.0
 meaning. Pass generated metadata as an `FFMetadataBuilder`, and an ffmetadata file you already have to `AddMetadataFile(path)`, which is
 mapped onto the outputs the same way.
 
+`Build()` now escapes `=`, `;`, `#`, `\` and line breaks in tag keys, values and chapter titles, as the ffmetadata format requires. A value
+such as `AC\DC` used to lose its backslash; values joined from several (`WithArtists("A", "B")`) are written `A\; B`, which ffmpeg reads
+back as `A; B`.
+
 ### `DrawText`, `Pad` and `BurnSubtitles` take a lambda
 
 They took an options object built with a static `Create`, unlike every other part of the builder. They now take their required values
@@ -507,6 +511,8 @@ input already threw `FileNotFoundException`; the two now match.
   one — and the `FFMpeg.*` helpers, which take the primary stream unless given a `streamIndex`, use it too.
 - `Duration` is the longest of the container's duration and every stream's, where it took only the primary video and audio streams
   alongside the container's.
+- A chapter with no title has an empty `Title`, where it reported the placeholder `"TitleValueNotSet"` — which then became the chapter's
+  title when the chapters were passed back to `FFMetadataBuilder`.
 
 ## FFProbe's async overloads take the token last
 

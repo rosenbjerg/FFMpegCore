@@ -67,7 +67,7 @@ internal class MediaAnalysis : IMediaAnalysis
 
     private ChapterData ParseChapter(Chapter analysisChapter)
     {
-        var title = GetValue("title", analysisChapter.Tags, "TitleValueNotSet");
+        var title = GetValue("title", analysisChapter.Tags, string.Empty);
         var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);
         var end = MediaAnalysisUtils.ParseDuration(analysisChapter.EndTime);
 
