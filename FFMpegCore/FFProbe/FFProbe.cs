@@ -157,25 +157,8 @@ public static class FFProbe
 
     private static T FromStream<T>(Stream stream, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
     {
-        var options = ffOptions ?? GlobalFFOptions.Current;
-        var pipeArgument = new InputPipeArgument(new StreamPipeSource(stream));
-        var processArguments = prepare(pipeArgument.PipePath, options, customArguments);
-        pipeArgument.Pre(options);
-
-        var task = processArguments.StartAndWaitForExitAsync();
-        try
-        {
-            pipeArgument.During().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-        catch (IOException) { }
-        finally
-        {
-            pipeArgument.Post();
-        }
-
-        var result = task.ConfigureAwait(false).GetAwaiter().GetResult();
-        ThrowIfExitCodeNotZero(result);
-        return parse(result);
+        return FromStreamAsync(stream, ffOptions, customArguments, prepare, parse, CancellationToken.None).ConfigureAwait(false).GetAwaiter()
+            .GetResult();
     }
 
     private static async Task<T> FromStreamAsync<T>(Stream stream, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
@@ -186,15 +169,19 @@ public static class FFProbe
         var processArguments = prepare(pipeArgument.PipePath, options, customArguments);
         pipeArgument.Pre(options);
 
+        var exitedOrCancelled = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var task = processArguments.StartAndWaitForExitAsync(cancellationToken);
+        var exit = task.ContinueWith(_ => exitedOrCancelled.Cancel(), TaskScheduler.Default);
         try
         {
-            await pipeArgument.During(cancellationToken).ConfigureAwait(false);
+            await pipeArgument.During(exitedOrCancelled.Token).ConfigureAwait(false);
         }
         catch (IOException) { }
         finally
         {
             pipeArgument.Post();
+            await exit.ConfigureAwait(false);
+            exitedOrCancelled.Dispose();
         }
 
         var result = await task.ConfigureAwait(false);

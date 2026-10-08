@@ -208,6 +208,16 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_FromStream_ThrowsWhenFFProbeExitsBeforeReading()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+
+        await Assert.ThrowsExactlyAsync<FFProbeProcessException>(() =>
+            FFProbe.AnalyseAsync(stream, customArguments: "-no_such_option 1", cancellationToken: TestContext.CancellationToken));
+    }
+
+    [TestMethod]
     public void Probe_StreamDuration_FromTag()
     {
         var info = FFProbe.Analyse(TestResources.WebmVideo);
