@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using FFMpegCore.Test.Resources;
-using Instances.Exceptions;
 
 namespace FFMpegCore.Test;
 
@@ -61,9 +60,12 @@ public class FFMpegOptionsTests
     [TestMethod]
     public void Helpers_ProbeWithTheOptionsTheyWereGiven()
     {
-        var ffOptions = new FFOptions { WorkingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()) };
+        var ffOptions = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+        var input = Path.GetFileName(TestResources.Mp4Video);
 
-        Assert.Throws<InstanceFileNotFoundException>(() => FFMpeg.Snapshot(Path.GetFullPath(TestResources.Mp4Video), "out.png", ffOptions: ffOptions));
+        var arguments = FFMpeg.Snapshot(input, "out.png", ffOptions: ffOptions).Arguments;
+
+        Assert.Contains($"-i \"{input}\"", arguments);
     }
 
     [TestMethod]
