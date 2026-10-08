@@ -1235,6 +1235,16 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_VolumeDetect()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToNull(opt => opt.WithAudioFilters(filterOptions => filterOptions.VolumeDetect()))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -af \"volumedetect\" -f null -", str);
+    }
+
+    [TestMethod]
     public void Builder_SilenceDetect_Rejects_UnknownNoiseType()
     {
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SilenceDetectArgument("lufs"));

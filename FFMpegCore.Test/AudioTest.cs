@@ -199,6 +199,21 @@ public class AudioTest
     }
 
     [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Audio_VolumeDetect_ThroughANullOutput()
+    {
+        var result = FFMpegArguments
+            .FromFileInput("sine=d=1", false, options => options.ForceFormat("lavfi"))
+            .OutputToNull(options => options
+                .WithAudioFilters(filters => filters.VolumeDetect()))
+            .ProcessSynchronously(cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsTrue(result.Success);
+        Assert.IsTrue(result.StandardError.Any(line => line.Contains("mean_volume:")));
+        Assert.IsTrue(result.StandardError.Any(line => line.Contains("max_volume:")));
+    }
+
+    [TestMethod]
     public void Image_AddAudio_IntoAnyContainer()
     {
         using var outputFile = new TemporaryFile("out.mkv");

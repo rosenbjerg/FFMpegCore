@@ -317,7 +317,7 @@ Encoder options go on the tee itself, since there is only one encode. A target t
 
 ### Analysing without writing an output
 
-Detection filters such as `SilenceDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`
+Detection filters such as `SilenceDetect`, `VolumeDetect` and `BlackDetect` report what they find on stderr rather than in an output file. `OutputToNull`
 decodes the input through them and throws the result away (`-f null -`); the findings are in the result's `StandardError`, or arrive line by
 line through `NotifyOnStandardError`:
 

@@ -114,6 +114,12 @@ public class AudioFilterOptions
         return WithFilter(new SilenceDetectArgument(noiseType, noise, duration, mono));
     }
 
+    /// <summary>volumedetect</summary>
+    public AudioFilterOptions VolumeDetect()
+    {
+        return WithFilter(new VolumeDetectArgument());
+    }
+
     public AudioFilterOptions WithFilter(IAudioFilterArgument filter)
     {
         _arguments.Add(filter);

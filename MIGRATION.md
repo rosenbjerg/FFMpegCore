@@ -598,8 +598,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
   count the chain's inputs themselves unless told otherwise.
 - `WithFilter` and `WithCustomFilter(key, value)` on the `-vf` and `-af` builders, so a filter the library has no method for joins the
   chain instead of forcing the whole chain into `WithCustomArgument`.
-- Filters that had no method: `Fps`, `Tile`, `Speed` and `Fade` for video, and `LoudnessNormalizer` (`loudnorm`), `Speed` and `Fade` for
-  audio.
+- Filters that had no method: `Fps`, `Tile`, `Speed` and `Fade` for video, and `LoudnessNormalizer` (`loudnorm`), `VolumeDetect`, `Speed`
+  and `Fade` for audio.
 
 ### Codecs and formats
 
