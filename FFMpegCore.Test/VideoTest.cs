@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using System.Runtime.Versioning;
 using System.Text;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Extensions.SkiaSharp;
@@ -1913,6 +1914,36 @@ public class VideoTest
             Assert.IsTrue(stderr.Any(line => line.Contains("concat_") && line.Contains(tempFolder)), string.Join("\n", stderr));
             Assert.IsTrue(stderr.Any(line => line.Contains("metadata_") && line.Contains(tempFolder)), string.Join("\n", stderr));
             Assert.IsEmpty(Directory.GetFileSystemEntries(tempFolder));
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, true);
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_TempFileArguments_AreRemovedWhenALaterInputIsMissing()
+    {
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempFolder);
+        var pipeInput = new InputPipeArgument(new StreamPipeSource(new MemoryStream()));
+        try
+        {
+            Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments
+                .FromImageSequenceInput(Directory.GetFiles(TestResources.ImageCollection))
+                .AddConcatDemuxerInput(new[] { TestResources.Mp4Video })
+                .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
+                .AddInput(pipeInput)
+                .AddFileInput("missing.mp4")
+                .OutputToNull()
+                .ProcessSynchronously(true, new FFOptions { TemporaryFilesFolder = tempFolder }, TestContext.CancellationToken));
+
+            Assert.IsEmpty(Directory.GetFileSystemEntries(tempFolder));
+            if (!OperatingSystem.IsWindows())
+            {
+                Assert.IsFalse(File.Exists(pipeInput.PipePath.Substring("unix:".Length)));
+            }
         }
         finally
         {

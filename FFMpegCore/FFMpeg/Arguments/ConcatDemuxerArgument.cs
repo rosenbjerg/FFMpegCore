@@ -9,6 +9,7 @@ public class ConcatDemuxerArgument : IInputArgument
     private readonly string[] _values;
     private FFOptions? _options;
     private string? _tempFileName;
+    private bool _written;
 
     public ConcatDemuxerArgument(IEnumerable<string> values)
     {
@@ -26,6 +27,7 @@ public class ConcatDemuxerArgument : IInputArgument
         _options = options;
         _tempFileName = TempFileNameIn(options);
         File.WriteAllLines(_tempFileName, Values);
+        _written = true;
     }
 
     public Task During(CancellationToken cancellationToken = default)
@@ -35,7 +37,11 @@ public class ConcatDemuxerArgument : IInputArgument
 
     public void Post()
     {
-        File.Delete(TempFileName);
+        if (_written)
+        {
+            File.Delete(TempFileName);
+            _written = false;
+        }
     }
 
     private static string TempFileNameIn(FFOptions options)

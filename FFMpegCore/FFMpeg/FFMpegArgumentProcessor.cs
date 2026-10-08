@@ -203,21 +203,22 @@ public class FFMpegArgumentProcessor
 
         FFMpegHelper.VerifyFFMpegExists(options);
         var registrations = tokens.Select(registered => registered.Token.Register(() => Cancel(registered.GracePeriod))).ToList();
-        _ffMpegArguments.Pre(options);
         try
         {
+            _ffMpegArguments.Pre(options);
             return await Run().ConfigureAwait(false);
         }
         finally
         {
-            // Post() disposes what During() is still using; it runs once the run, and therefore During(), is over
-            _ffMpegArguments.Post();
             foreach (var registration in registrations)
             {
                 registration.Dispose();
             }
 
             _cancelled = false;
+
+            // Post() disposes what During() is still using; it runs once the run, and therefore During(), is over
+            _ffMpegArguments.Post();
         }
 
         async Task<IProcessResult> Run()

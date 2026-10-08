@@ -7,6 +7,7 @@ internal class SystemDrawingPosterInputArgument : IInputArgument
 {
     private readonly Image _poster;
     private string? _path;
+    private bool _written;
 
     public SystemDrawingPosterInputArgument(Image poster)
     {
@@ -21,6 +22,7 @@ internal class SystemDrawingPosterInputArgument : IInputArgument
     {
         _path = PathIn(options);
         _poster.Save(_path);
+        _written = true;
     }
 
     public Task During(CancellationToken cancellationToken = default)
@@ -30,7 +32,11 @@ internal class SystemDrawingPosterInputArgument : IInputArgument
 
     public void Post()
     {
-        File.Delete(PosterPath);
+        if (_written)
+        {
+            File.Delete(PosterPath);
+            _written = false;
+        }
     }
 
     private static string PathIn(FFOptions options)

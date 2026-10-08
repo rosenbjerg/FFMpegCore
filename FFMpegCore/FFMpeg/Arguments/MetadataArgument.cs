@@ -3,6 +3,7 @@
 public class MetadataArgument : IInputArgument
 {
     private readonly string _metadataContent;
+    private bool _written;
     private string? _tempFileName;
 
     public MetadataArgument(string metadataContent)
@@ -23,11 +24,16 @@ public class MetadataArgument : IInputArgument
     {
         _tempFileName = TempFileNameIn(options);
         File.WriteAllText(_tempFileName, _metadataContent);
+        _written = true;
     }
 
     public void Post()
     {
-        File.Delete(TempFileName);
+        if (_written)
+        {
+            File.Delete(TempFileName);
+            _written = false;
+        }
     }
 
     private static string TempFileNameIn(FFOptions options)

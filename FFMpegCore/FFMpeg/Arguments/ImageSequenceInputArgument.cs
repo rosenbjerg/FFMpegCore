@@ -4,6 +4,7 @@ public class ImageSequenceInputArgument : IInputArgument
 {
     private readonly string _extension;
     private readonly string[] _images;
+    private bool _created;
     private string? _tempFolder;
 
     public ImageSequenceInputArgument(IEnumerable<string> images)
@@ -26,6 +27,7 @@ public class ImageSequenceInputArgument : IInputArgument
     {
         _tempFolder = TempFolderIn(options);
         Directory.CreateDirectory(_tempFolder);
+        _created = true;
         for (var index = 0; index < _images.Length; index++)
         {
             File.Copy(_images[index], Path.Combine(_tempFolder, $"{index:D9}{_extension}"));
@@ -39,7 +41,11 @@ public class ImageSequenceInputArgument : IInputArgument
 
     public void Post()
     {
-        Directory.Delete(TempFolder, true);
+        if (_created)
+        {
+            Directory.Delete(TempFolder, true);
+            _created = false;
+        }
     }
 
     private static string TempFolderIn(FFOptions options)
