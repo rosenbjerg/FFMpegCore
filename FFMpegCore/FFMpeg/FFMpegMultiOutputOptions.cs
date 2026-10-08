@@ -1,4 +1,5 @@
 ﻿using FFMpegCore.Arguments;
+using FFMpegCore.Helpers;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore;
@@ -26,7 +27,7 @@ public class FFMpegMultiOutputOptions
 
     public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        return AddOutput(new OutputUrlArgument(uri.AbsoluteUri), addArguments);
+        return AddOutput(new OutputUrlArgument(uri.ToFFmpegUrl()), addArguments);
     }
 
     public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)

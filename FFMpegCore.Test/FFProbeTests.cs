@@ -323,12 +323,12 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task Probe_Path_IsTheAbsoluteUriForAUriInput()
+    public async Task Probe_Path_IsTheLocalPathForAFileUri()
     {
-        var uri = new Uri(System.IO.Path.GetFullPath(TestResources.Mp4Video));
-        var info = await FFProbe.AnalyseAsync(uri, cancellationToken: TestContext.CancellationToken);
+        var path = System.IO.Path.GetFullPath(TestResources.Mp4Video);
+        var info = await FFProbe.AnalyseAsync(new Uri(path), cancellationToken: TestContext.CancellationToken);
 
-        Assert.AreEqual(uri.AbsoluteUri, info.Path);
+        Assert.AreEqual(path, info.Path);
     }
 
     [TestMethod]

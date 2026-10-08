@@ -893,7 +893,7 @@ public class ArgumentBuilderTest
                 .OutputToFile("output.ts", false, args => args.CopyStreams().ForceFormat("mpegts"))
                 .OutputToUrl("http://server/path", options => options.ForceFormat("webm")))
             .Arguments;
-        Assert.AreEqual("""-i "input.mp4" -c copy "output.mp4" -y -c copy -f mpegts "output.ts" -f webm http://server/path""", str);
+        Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\" -y -c copy -f mpegts \"output.ts\" -f webm \"http://server/path\"", str);
     }
 
     [TestMethod]
@@ -1875,8 +1875,19 @@ public class ArgumentBuilderTest
         var byString = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl("rtmp://example.com/live/key").Arguments;
         var byUri = FFMpegArguments.FromFileInput("input.mp4").OutputToUrl(new Uri("rtmp://example.com/live/key")).Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" rtmp://example.com/live/key", byString);
+        Assert.AreEqual("-i \"input.mp4\" \"rtmp://example.com/live/key\"", byString);
         Assert.AreEqual(byString, byUri);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_FileUris_ReachFFMpegAsLocalPaths()
+    {
+        var input = Path.GetFullPath("in put.mp4");
+        var output = Path.GetFullPath("out put.mp4");
+
+        var str = FFMpegArguments.FromUrlInput(new Uri(input)).OutputToUrl(new Uri(output)).Arguments;
+
+        Assert.AreEqual($"-i \"{input}\" \"{output}\"", str);
     }
 
     [TestMethod]
@@ -1888,8 +1899,8 @@ public class ArgumentBuilderTest
         var many = FFMpegArguments.FromFileInput("input.mp4").OutputToMany(outputs => outputs.OutputToUrl(uri)).Arguments;
         var tee = FFMpegArguments.FromFileInput("input.mp4").OutputToTee(outputs => outputs.OutputToUrl(uri)).Arguments;
 
-        Assert.EndsWith("rtmp://example.com/live?key=a%20b%26c", single);
-        Assert.EndsWith("rtmp://example.com/live?key=a%20b%26c", many);
+        Assert.EndsWith("\"rtmp://example.com/live?key=a%20b%26c\"", single);
+        Assert.EndsWith("\"rtmp://example.com/live?key=a%20b%26c\"", many);
         Assert.Contains("rtmp://example.com/live?key=a%20b%26c", tee);
     }
 
@@ -2090,7 +2101,7 @@ public class ArgumentBuilderTest
                 .OutputToPipe(sink, options => options.ForceFormat("mpegts")))
             .Arguments;
 
-        StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -f flv rtmp://example.com/live -f mpegts \".+\" -y$"));
+        StringAssert.Matches(str, new Regex("^-i \"input.mp4\" -f flv \"rtmp://example.com/live\" -f mpegts \".+\" -y$"));
     }
 
     [TestMethod]

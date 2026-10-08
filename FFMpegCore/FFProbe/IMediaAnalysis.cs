@@ -3,8 +3,8 @@
 public interface IMediaAnalysis
 {
     /// <summary>
-    ///     The input this analysis describes, exactly as it was given to <see cref="FFProbe" /> — a file path, or the absolute
-    ///     uri for a uri input. Null when the analysis came from a stream, which leaves nothing an ffmpeg run could reopen.
+    ///     The input this analysis describes, as it was handed to ffprobe — a file path, the absolute uri for a uri input, or the
+    ///     local path for a file uri. Null when the analysis came from a stream, which leaves nothing an ffmpeg run could reopen.
     /// </summary>
     string? Path { get; }
 

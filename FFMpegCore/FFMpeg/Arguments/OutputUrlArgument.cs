@@ -22,5 +22,5 @@ public class OutputUrlArgument : IOutputArgument
 
     public void Pre(FFOptions options) { }
 
-    public string Text => Url;
+    public string Text => $"\"{Url}\"";
 }

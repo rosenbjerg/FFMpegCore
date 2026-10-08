@@ -1,4 +1,5 @@
 ﻿using FFMpegCore.Arguments;
+using FFMpegCore.Helpers;
 using FFMpegCore.Pipes;
 
 namespace FFMpegCore;
@@ -26,7 +27,7 @@ public class TeeOutputOptions
 
     public TeeOutputOptions OutputToUrl(Uri uri, Action<TeeTargetOptions>? addArguments = null)
     {
-        return AddTarget(new OutputUrlArgument(uri.AbsoluteUri), addArguments);
+        return AddTarget(new OutputUrlArgument(uri.ToFFmpegUrl()), addArguments);
     }
 
     public TeeOutputOptions OutputToPipe(IPipeSink reader, Action<TeeTargetOptions>? addArguments = null)
