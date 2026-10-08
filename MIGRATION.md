@@ -483,6 +483,12 @@ types. `FFMpegArgumentException` is gone — it derived from neither `FFMpegExce
 `OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
 input already threw `FileNotFoundException`; the two now match.
 
+## What an analysis reports
+
+- `PrimaryVideoStream`, `PrimaryAudioStream` and `PrimarySubtitleStream` are the stream of their kind marked `default`, and the lowest
+  index only when none is. They used to be the lowest index regardless, so a file whose default audio track is its second now reports that
+  one — and the `FFMpeg.*` helpers, which take the primary stream unless given a `streamIndex`, use it too.
+
 ## FFProbe's async overloads take the token last
 
 `CancellationToken` sat before `customArguments`; it is now the final parameter, so a positionally-passed token has to be named:

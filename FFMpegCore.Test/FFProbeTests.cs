@@ -218,6 +218,38 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void MediaAnalysis_PrimaryStream_IsTheOneMarkedDefault()
+    {
+        var analysis = Analysis(Stream(1, "audio", isDefault: false), Stream(2, "audio", isDefault: true));
+
+        Assert.AreEqual(2, analysis.PrimaryAudioStream!.Index);
+    }
+
+    [TestMethod]
+    public void MediaAnalysis_PrimaryStream_IsTheLowestIndexWithoutADefault()
+    {
+        var analysis = Analysis(Stream(2, "audio", isDefault: false), Stream(1, "audio", isDefault: false));
+
+        Assert.AreEqual(1, analysis.PrimaryAudioStream!.Index);
+    }
+
+    private static MediaAnalysis Analysis(params FFProbeStream[] streams)
+    {
+        return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null);
+    }
+
+    private static FFProbeStream Stream(int index, string codecType, bool isDefault = false, string duration = null)
+    {
+        return new FFProbeStream
+        {
+            Index = index,
+            CodecType = codecType,
+            Duration = duration,
+            Disposition = new Dictionary<string, int> { ["default"] = isDefault ? 1 : 0 }
+        };
+    }
+
+    [TestMethod]
     public void Probe_StreamDuration_FromTag()
     {
         var info = FFProbe.Analyse(TestResources.WebmVideo);

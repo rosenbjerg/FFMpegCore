@@ -21,14 +21,22 @@ internal class MediaAnalysis : IMediaAnalysis
 
     public IReadOnlyList<ChapterData> Chapters { get; }
 
-    public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-    public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-    public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
+    public AudioStream? PrimaryAudioStream => Primary(AudioStreams);
+    public VideoStream? PrimaryVideoStream => Primary(VideoStreams);
+    public SubtitleStream? PrimarySubtitleStream => Primary(SubtitleStreams);
 
     public IReadOnlyList<VideoStream> VideoStreams { get; }
     public IReadOnlyList<AudioStream> AudioStreams { get; }
     public IReadOnlyList<SubtitleStream> SubtitleStreams { get; }
     public IReadOnlyList<string> StandardError { get; }
+
+    private static T? Primary<T>(IEnumerable<T> streams) where T : MediaStream
+    {
+        return streams
+            .OrderByDescending(stream => stream.Disposition != null && stream.Disposition.TryGetValue("default", out var isDefault) && isDefault)
+            .ThenBy(stream => stream.Index)
+            .FirstOrDefault();
+    }
 
     private MediaFormat ParseFormat(Format analysisFormat)
     {
