@@ -91,8 +91,6 @@ FFMpegArguments
     .ProcessSynchronously();
 ```
 
-Each option method's summary names the ffmpeg option it emits, so searching your IDE for `-ss` finds `WithStartTime`.
-
 The options lambda goes straight after the path. File inputs check that the file exists before ffmpeg starts, and file outputs overwrite
 an existing file; to change either, use the overload with the flag before the lambda, and name it so the call says what it does:
 
@@ -106,6 +104,24 @@ FFMpegArguments
 `FromFileInputs(paths)` and `AddFileInputs(paths)` add one input per path, with the options repeated before each — to join files into one,
 see [`Concat`](#join-video-parts-into-one-single-file). `WithLoop()` repeats a still image for as long as the output runs, and
 `WithStreamLoop(n)` plays any input `n` more times (`-1` for ever).
+
+### Looking up options
+
+Each option method's summary names the ffmpeg option it emits, so searching your IDE for `-ss` finds `WithStartTime`, and each filter
+method's summary names its ffmpeg filter (`LoudnessNormalizer` is `loudnorm`). That name is also what to look up in ffmpeg's own
+documentation:
+
+- [ffmpeg](https://ffmpeg.org/ffmpeg.html): the command-line options, stream specifiers and `-map`
+- [Filters](https://ffmpeg.org/ffmpeg-filters.html): everything `WithVideoFilters`, `WithAudioFilters` and `WithComplexFilter` build
+- [Codecs](https://ffmpeg.org/ffmpeg-codecs.html): encoder and decoder options, such as libx264's `-preset` and `-tune`
+- [Formats](https://ffmpeg.org/ffmpeg-formats.html): muxer and demuxer options, such as `-movflags` or the hls muxer's `-hls_time`
+- [Protocols](https://ffmpeg.org/ffmpeg-protocols.html): the URLs `FromUrlInput` and `OutputToUrl` accept
+
+ffmpeg.org documents the current development version. Your own build lists what it accepts: `ffmpeg -h filter=scale`,
+`ffmpeg -h encoder=libx264`, `ffmpeg -h muxer=hls`.
+
+When the builder has no method for an option, `WithCustomArgument("-flag value")` on the input or output options passes it straight through,
+and `WithArgument` takes your own `IArgument`. On the filter builders, `WithCustomFilter(key, value)` does the same for a filter.
 
 ### Selecting streams
 
@@ -628,11 +644,6 @@ FFMpeg.PosterWithAudio(inputImagePath, inputAudioPath, outputPath, addArguments:
     .WithPixelFormat("yuv420p")
 ).ProcessSynchronously();
 ```
-
-## Options the builder has no method for
-
-`WithCustomArgument("-flag value")` on either the input or the output options passes text straight through, and `WithArgument` takes your
-own `IArgument`. On the filter builders, `WithCustomFilter(key, value)` does the same for a filter.
 
 ## Input piping
 
