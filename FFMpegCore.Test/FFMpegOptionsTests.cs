@@ -63,7 +63,7 @@ public class FFMpegOptionsTests
     {
         var ffOptions = new FFOptions { WorkingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()) };
 
-        Assert.Throws<InstanceFileNotFoundException>(() => FFMpeg.Snapshot(TestResources.Mp4Video, "out.png", ffOptions: ffOptions));
+        Assert.Throws<InstanceFileNotFoundException>(() => FFMpeg.Snapshot(Path.GetFullPath(TestResources.Mp4Video), "out.png", ffOptions: ffOptions));
     }
 
     [TestMethod]

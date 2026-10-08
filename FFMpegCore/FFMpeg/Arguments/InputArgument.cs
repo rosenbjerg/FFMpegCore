@@ -16,7 +16,7 @@ public class InputArgument : IInputArgument
 
     public void Pre(FFOptions options)
     {
-        if (VerifyExists && !File.Exists(FilePath))
+        if (VerifyExists && !File.Exists(options.ResolvePath(FilePath)))
         {
             throw new FileNotFoundException("Input file not found", FilePath);
         }

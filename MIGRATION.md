@@ -1,4 +1,4 @@
-# Migrating from 5.x to 6.0
+﻿# Migrating from 5.x to 6.0
 
 FFMpegCore 6.0 renames most option methods after the ffmpeg options they emit, splits input options from output options, and returns a
 result object instead of a `bool`. The `FFMpeg.*` helpers no longer run on their own, and several were renamed or removed because their
@@ -254,6 +254,14 @@ each of them.
 
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
+
+### Relative paths follow `WorkingDirectory`
+
+ffmpeg and ffprobe run in `FFOptions.WorkingDirectory`, so that is where they resolve a relative path. The checks the library makes before
+starting them — `verifyExists`, `overwrite: false`, `FFProbe.Analyse`'s missing-file check — and the copies it makes of an image sequence
+resolved the same path against the process's current directory instead, so with a `WorkingDirectory` set a relative input either failed a
+check ffmpeg would have passed or passed one it would have failed. They now resolve against `WorkingDirectory` too; a path relative to the
+current directory needs `Path.GetFullPath` when a `WorkingDirectory` is set.
 
 ### Metadata
 

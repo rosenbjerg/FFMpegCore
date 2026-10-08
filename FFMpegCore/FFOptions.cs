@@ -78,4 +78,9 @@ public class FFOptions : ICloneable
         clone.ExtensionOverrides = new Dictionary<string, string>(ExtensionOverrides);
         return clone;
     }
+
+    internal string ResolvePath(string path)
+    {
+        return string.IsNullOrEmpty(WorkingDirectory) ? path : Path.Combine(WorkingDirectory, path);
+    }
 }

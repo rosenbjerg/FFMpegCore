@@ -21,7 +21,7 @@ public class MultiInputArgument : IInputArgument
             var missingFiles = new List<string>();
             foreach (var filePath in FilePaths)
             {
-                if (!File.Exists(filePath))
+                if (!File.Exists(options.ResolvePath(filePath)))
                 {
                     missingFiles.Add(filePath);
                 }

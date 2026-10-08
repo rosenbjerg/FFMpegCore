@@ -21,6 +21,26 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void Probe_ResolvesRelativePaths_AgainstWorkingDirectory()
+    {
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+
+        var analysis = FFProbe.Analyse(Path.GetFileName(TestResources.Mp4Video), options);
+
+        Assert.AreEqual(3, analysis.Duration.Seconds);
+    }
+
+    [TestMethod]
+    public async Task ProbeAsync_ResolvesRelativePaths_AgainstWorkingDirectory()
+    {
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+
+        var analysis = await FFProbe.AnalyseAsync(Path.GetFileName(TestResources.Mp4Video), options, cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(3, analysis.Duration.Seconds);
+    }
+
+    [TestMethod]
     public void FrameAnalysis_Sync()
     {
         var frameAnalysis = FFProbe.GetFrames(TestResources.WebmVideo);

@@ -71,6 +71,10 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
 ### Options and binary lookup
 
 - `FFOptions` is per-run; `GlobalFFOptions.Current` is the process-wide default, lazily loaded from `ffmpeg.config.json` in the working directory if present. `FFMpegArgumentProcessor.GetConfiguredOptions` resolves them in precedence order — the `FFOptions` passed to `ProcessSynchronously`/`ProcessAsynchronously`, else the ones an `FFMpeg.*` helper seeded through the internal `WithOptions`, else a clone of the global — then applies `.Configure(...)` lambdas. The seeded copy is cloned per run, so `.Configure(...)` never writes back into the caller's object.
+- Relative paths resolve against `FFOptions.WorkingDirectory`, the directory ffmpeg and ffprobe run in. Anything the library does with a
+  path itself — existence and overwrite checks, FFProbe's missing-file check, copying an image sequence — goes through the internal
+  `FFOptions.ResolvePath` so it agrees with what ffmpeg will open; the concat demuxer's list entries are made absolute against it because
+  ffmpeg would otherwise resolve them against the list file in `TemporaryFilesFolder`.
 - `BinaryFolder` empty ⇒ rely on `PATH`. Otherwise `{BinaryFolder}/{x64|x86}/ffmpeg[.exe]` is tried first, then `{BinaryFolder}/ffmpeg[.exe]`.
 - `FFMpegHelper.VerifyFFMpegExists` and `FFProbeHelper.VerifyFFProbeExists` run `-version` once per resolved binary path and remember the
   successes, so switching `BinaryFolder` between runs verifies the new binary instead of riding on the old one's result. Keep the cache

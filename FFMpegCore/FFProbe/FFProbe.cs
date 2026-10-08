@@ -122,8 +122,9 @@ public static class FFProbe
 
     private static T FromFile<T>(string filePath, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
     {
-        ThrowIfInputFileDoesNotExist(filePath);
-        return Run(prepare(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments), parse);
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        ThrowIfInputFileDoesNotExist(filePath, options);
+        return Run(prepare(filePath, options, customArguments), parse);
     }
 
     private static T FromUri<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
@@ -141,8 +142,9 @@ public static class FFProbe
     private static async Task<T> FromFileAsync<T>(string filePath, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
         Func<IProcessResult, T> parse, CancellationToken cancellationToken)
     {
-        ThrowIfInputFileDoesNotExist(filePath);
-        return await RunAsync(prepare(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments), parse, cancellationToken).ConfigureAwait(false);
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        ThrowIfInputFileDoesNotExist(filePath, options);
+        return await RunAsync(prepare(filePath, options, customArguments), parse, cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task<T> FromUriAsync<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
@@ -239,9 +241,9 @@ public static class FFProbe
         return ffprobeAnalysis!;
     }
 
-    private static void ThrowIfInputFileDoesNotExist(string filePath)
+    private static void ThrowIfInputFileDoesNotExist(string filePath, FFOptions ffOptions)
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(ffOptions.ResolvePath(filePath)))
         {
             throw new FFProbeException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
         }

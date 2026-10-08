@@ -30,7 +30,7 @@ public class ImageSequenceInputArgument : IInputArgument
         _created = true;
         for (var index = 0; index < _images.Length; index++)
         {
-            File.Copy(_images[index], Path.Combine(_tempFolder, $"{index:D9}{_extension}"));
+            File.Copy(options.ResolvePath(_images[index]), Path.Combine(_tempFolder, $"{index:D9}{_extension}"));
         }
     }
 

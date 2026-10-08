@@ -20,7 +20,7 @@ public class OutputArgument : IOutputArgument
 
     public void Pre(FFOptions options)
     {
-        if (!Overwrite && File.Exists(Path))
+        if (!Overwrite && File.Exists(options.ResolvePath(Path)))
         {
             throw new IOException($"Output file '{Path}' already exists and overwrite is disabled");
         }

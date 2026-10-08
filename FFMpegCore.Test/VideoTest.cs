@@ -1895,6 +1895,37 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_FileInputs_ResolveRelativePaths_AgainstPerRunWorkingDirectory()
+    {
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.ImageCollection + "/..") };
+        var images = Directory.GetFiles(TestResources.ImageCollection).Select(image => Path.Combine("images", Path.GetFileName(image)));
+
+        var result = FFMpegArguments
+            .FromFileInput(Path.GetFileName(TestResources.Mp4Video))
+            .AddImageSequenceInput(images)
+            .OutputToNull(o => o.WithMap(0))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously(true, options);
+
+        Assert.IsTrue(result.Success);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_OutputWithoutOverwrite_ChecksThePerRunWorkingDirectory()
+    {
+        using var existing = new TemporaryFile("out.mp4");
+        File.WriteAllText(existing, string.Empty);
+        var options = new FFOptions { WorkingDirectory = Path.GetDirectoryName(existing)! };
+
+        Assert.ThrowsExactly<IOException>(() => FFMpegArguments
+            .FromFileInput(Path.GetFullPath(TestResources.Mp4Video))
+            .OutputToFile(Path.GetFileName(existing), false)
+            .ProcessSynchronously(true, options, TestContext.CancellationToken));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TempFileArguments_UsePerRunTemporaryFolder()
     {
         using var outputFile = new TemporaryFile("out.mp4");
