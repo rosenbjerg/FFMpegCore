@@ -208,6 +208,14 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void Probe_StreamDuration_FromTag()
+    {
+        var info = FFProbe.Analyse(TestResources.WebmVideo);
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual(TimeSpan.FromSeconds(3), info.PrimaryVideoStream.Duration);
+    }
+
+    [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_FromStream_Async()
     {

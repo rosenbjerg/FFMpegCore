@@ -59,6 +59,12 @@ internal class MediaAnalysis : IMediaAnalysis
         return new ChapterData(title, start, end);
     }
 
+    private static TimeSpan ParseStreamDuration(FFProbeStream stream)
+    {
+        var duration = string.IsNullOrEmpty(stream.Duration) ? stream.GetDuration() : stream.Duration;
+        return MediaAnalysisUtils.ParseDuration(duration ?? string.Empty);
+    }
+
     private int? GetBitDepth(FFProbeStream stream)
     {
         var bitDepth = int.TryParse(stream.BitsPerRawSample, out var bprs) ? bprs : stream.BitsPerSample;
@@ -79,7 +85,7 @@ internal class MediaAnalysis : IMediaAnalysis
             CodecTagString = stream.CodecTagString,
             DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
             SampleAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.SampleAspectRatio, ':'),
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             RealFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
             Height = stream.Height ?? 0,
@@ -113,7 +119,7 @@ internal class MediaAnalysis : IMediaAnalysis
             CodecTagString = stream.CodecTagString,
             Channels = stream.Channels ?? default,
             ChannelLayout = stream.ChannelLayout,
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
             Profile = stream.Profile,
@@ -135,7 +141,7 @@ internal class MediaAnalysis : IMediaAnalysis
             CodecLongName = stream.CodecLongName,
             CodecTag = stream.CodecTag,
             CodecTagString = stream.CodecTagString,
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),

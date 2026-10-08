@@ -621,6 +621,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. `GetPackets` took only a path,
   and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
+- A stream's `Duration` falls back to its `DURATION` tag, which is where Matroska and WebM keep it; such streams reported zero. The
+  `TagExtensions` accessors (`GetLanguage`, `GetDuration`, …) match a tag's name in any case, as `MediaStream.Tags` already did.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
 - A missing ffmpeg or ffprobe raises `FFMpegException` or `FFProbeException` naming the path that was tried, where `Instances`'
   `InstanceFileNotFoundException` used to escape.
