@@ -915,14 +915,15 @@ public static class FFMpeg
 
     public static bool TryGetPixelFormat(string name, out PixelFormat format, FFOptions? ffOptions = null)
     {
+        var key = name.ToLowerInvariant().Trim();
         var options = ffOptions ?? GlobalFFOptions.Current;
         if (!options.UseCache)
         {
-            format = GetPixelFormatsInternal(options).FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            format = GetPixelFormatsInternal(options).FirstOrDefault(x => x.Name == key);
             return format != null;
         }
 
-        return FFMpegCache.PixelFormats(options).TryGetValue(name, out format);
+        return FFMpegCache.PixelFormats(options).TryGetValue(key, out format);
     }
 
     public static PixelFormat GetPixelFormat(string name, FFOptions? ffOptions = null)
@@ -1046,14 +1047,15 @@ public static class FFMpeg
 
     public static bool TryGetCodec(string name, out Codec codec, FFOptions? ffOptions = null)
     {
+        var key = name.ToLowerInvariant().Trim();
         var options = ffOptions ?? GlobalFFOptions.Current;
         if (!options.UseCache)
         {
-            codec = GetCodecsInternal(options).Values.FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            codec = GetCodecsInternal(options).Values.FirstOrDefault(x => x.Name == key);
             return codec != null;
         }
 
-        return FFMpegCache.Codecs(options).TryGetValue(name, out codec);
+        return FFMpegCache.Codecs(options).TryGetValue(key, out codec);
     }
 
     public static Codec GetCodec(string name, FFOptions? ffOptions = null)
@@ -1105,14 +1107,15 @@ public static class FFMpeg
 
     public static bool TryGetContainerFormat(string name, out ContainerFormat fmt, FFOptions? ffOptions = null)
     {
+        var key = name.ToLowerInvariant().Trim();
         var options = ffOptions ?? GlobalFFOptions.Current;
         if (!options.UseCache)
         {
-            fmt = GetContainersFormatsInternal(options).FirstOrDefault(x => x.Name == name.ToLowerInvariant().Trim());
+            fmt = GetContainersFormatsInternal(options).FirstOrDefault(x => x.Name == key);
             return fmt != null;
         }
 
-        return FFMpegCache.ContainerFormats(options).TryGetValue(name, out fmt);
+        return FFMpegCache.ContainerFormats(options).TryGetValue(key, out fmt);
     }
 
     public static ContainerFormat GetContainerFormat(string name, FFOptions? ffOptions = null)

@@ -124,6 +124,19 @@ public class CodecTests
     }
 
     [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void Lookups_IgnoreCaseAndSurroundingSpace_WhetherCachedOrNot(bool useCache)
+    {
+        var options = new FFOptions { UseCache = useCache };
+
+        Assert.IsTrue(FFMpeg.TryGetCodec(" PNG ", out var codec, options));
+        Assert.AreEqual("png", codec.Name);
+        Assert.IsTrue(FFMpeg.TryGetPixelFormat(" YUV420P ", out _, options));
+        Assert.IsTrue(FFMpeg.TryGetContainerFormat(" MP4 ", out _, options));
+    }
+
+    [TestMethod]
     [DoNotParallelize]
     public void Lookups_BypassCache_WhenDisabled()
     {
