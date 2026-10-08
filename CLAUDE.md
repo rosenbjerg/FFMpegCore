@@ -103,6 +103,10 @@ ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessExce
 - `DownloaderTests` hit the network (ffbinaries).
 - `FFMpegCore` exposes internals to the test project (`InternalsVisibleTo`).
 
+## Issues
+
+The tracker is for FFMpegCore's own bugs, not ffmpeg usage help: a report whose `.Arguments` fail the same way when run directly is closed, not answered. A feature request is taken only when the library is in the way — the pass-throughs (`WithCustomArgument`, `WithCustomFilter`, FFProbe's `customArguments`) can't express it, or a type it needs is internal — not to add a typed method for one more ffmpeg option. The issue forms in `.github/ISSUE_TEMPLATE/` ask for exactly that; keep them in step with this.
+
 ## Style
 
 `.editorconfig` rules are enforced by `dotnet format` in CI: 4-space indent, UTF-8 BOM on `.cs`, `_camelCase` private/static fields, PascalCase constants, `var` everywhere (error severity). By convention the code also uses file-scoped namespaces, and argument classes expose their values as `public readonly` fields, not properties.
