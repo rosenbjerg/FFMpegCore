@@ -65,7 +65,7 @@ public static class SnapshotArgumentBuilder
         var defaultGifOutputSize = new Size(480, -1);
 
         captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
-        size = PrepareSnapshotSize(source, size) ?? defaultGifOutputSize;
+        size = size is { Width: > 0 } or { Height: > 0 } ? PrepareSnapshotSize(source, size) : defaultGifOutputSize;
         streamIndex ??= source.PrimaryVideoStream?.Index
                         ?? source.VideoStreams.FirstOrDefault()?.Index
                         ?? 0;
