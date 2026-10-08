@@ -606,6 +606,32 @@ public class VideoTest
     }
 
     [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    [DataRow(SKColorType.Rgb888x)]
+    [DataRow(SKColorType.Rgba8888)]
+    [DataRow(SKColorType.Bgra8888)]
+    [DataRow(SKColorType.Rgb565)]
+    [DataRow(SKColorType.Gray8)]
+    public void Video_SkiaSharpFrames_KeepTheirColours(SKColorType colorType)
+    {
+        using var outputFile = new TemporaryFile("out.png");
+        using var bitmap = new SKBitmap(new SKImageInfo(16, 16, colorType, SKAlphaType.Opaque));
+        bitmap.Erase(new SKColor(200, 40, 90));
+        var expected = bitmap.GetPixel(0, 0);
+
+        FFMpegArguments
+            .FromPipeInput(new RawVideoPipeSource(new[] { new SkiaSharpVideoFrame(bitmap) }))
+            .OutputToFile(outputFile, true, o => o.WithFrameCount(1))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        using var output = SKBitmap.Decode((string)outputFile);
+        var actual = output.GetPixel(8, 8);
+        Assert.IsTrue(Math.Abs(expected.Red - actual.Red) <= 8 && Math.Abs(expected.Green - actual.Green) <= 8 &&
+                      Math.Abs(expected.Blue - actual.Blue) <= 8, $"expected {expected}, got {actual}");
+    }
+
+    [TestMethod]
     public void RawVideoPipeSource_AcceptsAnArrayOfFrames()
     {
         using var bitmap = new SKBitmap(new SKImageInfo(16, 8, SKColorType.Bgra8888));

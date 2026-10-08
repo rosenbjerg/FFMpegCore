@@ -46,7 +46,7 @@ public class SkiaSharpVideoFrame : IVideoFrame, IDisposable
             case SKColorType.Bgra8888:
                 return "bgra";
             case SKColorType.Rgb888x:
-                return "rgb";
+                return "rgb0";
             case SKColorType.Rgba8888:
                 return "rgba";
             case SKColorType.Rgb565:
