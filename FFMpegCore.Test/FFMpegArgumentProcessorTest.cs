@@ -344,6 +344,43 @@ public class FFMpegArgumentProcessorTest
     }
 
     [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_CancelledMidPipeInput_ReportsCancellation()
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+
+        var result = await EndlessPipeInput(cts).ProcessAsynchronously(false, cancellationToken: cts.Token);
+
+        Assert.IsTrue(result.Cancelled);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_CancelledMidPipeInput_ThrowsOperationCanceled()
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => EndlessPipeInput(cts).ProcessAsynchronously(cancellationToken: cts.Token));
+    }
+
+    private static FFMpegArgumentProcessor EndlessPipeInput(CancellationTokenSource cancelOnProgress)
+    {
+        return FFMpegArguments
+            .FromPipeInput(new RawAudioPipeSource(Silence(), 48000, 2))
+            .OutputToNull()
+            .NotifyOnProgress(_ => cancelOnProgress.Cancel());
+
+        static IEnumerable<IAudioSample> Silence()
+        {
+            var block = new byte[48000 * 2 * 2 / 10];
+            while (true)
+            {
+                yield return new PcmAudioSampleWrapper(block);
+            }
+        }
+    }
+
+    [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
     public void Processor_MissingInput_ThrowsBeforeStartingFFMpeg()
     {

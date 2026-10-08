@@ -276,9 +276,9 @@ public class FFMpegArgumentProcessor
                 {
                     await Task.WhenAll(exit, during).ConfigureAwait(false);
                 }
-                catch (Exception) when (exit.Status == TaskStatus.RanToCompletion && processResult.ExitCode != 0)
+                catch (Exception) when (_cancelled || (exit.Status == TaskStatus.RanToCompletion && processResult.ExitCode != 0))
                 {
-                    // ffmpeg failed; its exit code and stderr are the error, not the pipe it left broken
+                    // ffmpeg was cancelled or failed; that is the error, not the pipe it left broken
                 }
 
                 if (_cancelled)
