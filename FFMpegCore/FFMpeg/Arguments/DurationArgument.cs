@@ -12,5 +12,5 @@ public class DurationArgument : IArgument
         Duration = duration;
     }
 
-    public string Text => !Duration.HasValue ? string.Empty : $"-t {Duration.Value}";
+    public string Text => !Duration.HasValue ? string.Empty : $"-t {Duration.Value.ToLongString()}";
 }

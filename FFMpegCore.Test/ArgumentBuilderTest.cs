@@ -670,7 +670,15 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt.WithDuration(TimeSpan.FromSeconds(20))).Arguments;
-        Assert.AreEqual("-i \"input.mp4\" -t 00:00:20 \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -t 00:00:20.000 \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_Duration_LongerThanADay()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithDuration(TimeSpan.FromHours(25.5))).Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -t 25:30:00.000 \"output.mp4\"", str);
     }
 
     [TestMethod]
