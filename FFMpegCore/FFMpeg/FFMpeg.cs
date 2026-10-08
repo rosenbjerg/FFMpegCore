@@ -1083,11 +1083,17 @@ public static class FFMpeg
         }
 
         var list = new List<ContainerFormat>();
-        foreach (var line in result.OutputData)
+        var byName = new Dictionary<string, ContainerFormat>();
+        foreach (var format in result.OutputData.SelectMany(ContainerFormat.Parse))
         {
-            if (ContainerFormat.TryParse(line, out var fmt))
+            if (byName.TryGetValue(format.Name, out var listed))
             {
-                list.Add(fmt);
+                listed.Merge(format);
+            }
+            else
+            {
+                byName.Add(format.Name, format);
+                list.Add(format);
             }
         }
 

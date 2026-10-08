@@ -4,7 +4,7 @@ namespace FFMpegCore.Enums;
 
 public class ContainerFormat
 {
-    private static readonly Regex FormatRegex = new(@"([D ])([E ])\s+([a-z0-9_]+)\s+(.+)");
+    private static readonly Regex FormatRegex = new(@"([D ])([E ])\s+([a-z0-9_,]+)\s+(.+)");
 
     internal ContainerFormat(string name)
     {
@@ -26,21 +26,25 @@ public class ContainerFormat
         return overrides.TryGetValue(Name, out var overridden) ? overridden : "." + Name;
     }
 
-    internal static bool TryParse(string line, out ContainerFormat fmt)
+    internal static IEnumerable<ContainerFormat> Parse(string line)
     {
         var match = FormatRegex.Match(line);
         if (!match.Success)
         {
-            fmt = null!;
-            return false;
+            return Enumerable.Empty<ContainerFormat>();
         }
 
-        fmt = new ContainerFormat(match.Groups[3].Value)
+        return match.Groups[3].Value.Split(',').Select(name => new ContainerFormat(name)
         {
             DemuxingSupported = match.Groups[1].Value != " ",
             MuxingSupported = match.Groups[2].Value != " ",
             Description = match.Groups[4].Value
-        };
-        return true;
+        });
+    }
+
+    internal void Merge(ContainerFormat other)
+    {
+        DemuxingSupported |= other.DemuxingSupported;
+        MuxingSupported |= other.MuxingSupported;
     }
 }

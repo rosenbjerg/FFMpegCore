@@ -83,6 +83,21 @@ public class CodecTests
     }
 
     [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void ContainerFormats_DemuxersListedUnderSeveralNames_AreFoundUnderEach(bool useCache)
+    {
+        var options = new FFOptions { UseCache = useCache };
+
+        var mov = FFMpeg.GetContainerFormat("mov", options);
+        Assert.IsTrue(mov.DemuxingSupported);
+        Assert.IsTrue(mov.MuxingSupported);
+        Assert.IsTrue(FFMpeg.GetContainerFormat("m4a", options).DemuxingSupported);
+        Assert.IsTrue(FFMpeg.GetContainerFormat("matroska", options).DemuxingSupported);
+        Assert.AreEqual(1, FFMpeg.GetContainerFormats(options).Count(format => format.Name == "mov"));
+    }
+
+    [TestMethod]
     public void ContainerFormats_TryGetNotExisting()
     {
         Assert.IsFalse(FFMpeg.TryGetContainerFormat("not-a-container", out _));
