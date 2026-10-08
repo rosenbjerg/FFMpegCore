@@ -29,29 +29,29 @@ public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
 
     public void Serialize(Stream stream)
     {
-        var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
-
-        try
-        {
-            var buffer = new byte[data.Stride * data.Height];
-            Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-            stream.Write(buffer, 0, buffer.Length);
-        }
-        finally
-        {
-            Source.UnlockBits(data);
-        }
+        var pixels = ReadPixels();
+        stream.Write(pixels, 0, pixels.Length);
     }
 
     public async Task SerializeAsync(Stream stream, CancellationToken token)
     {
-        var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
+        var pixels = ReadPixels();
+        await stream.WriteAsync(pixels, 0, pixels.Length, token).ConfigureAwait(false);
+    }
 
+    private byte[] ReadPixels()
+    {
+        var data = Source.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, Source.PixelFormat);
         try
         {
-            var buffer = new byte[data.Stride * data.Height];
-            Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
-            await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
+            var rowLength = Width * Image.GetPixelFormatSize(Source.PixelFormat) / 8;
+            var pixels = new byte[rowLength * Height];
+            for (var row = 0; row < Height; row++)
+            {
+                Marshal.Copy(data.Scan0 + row * data.Stride, pixels, row * rowLength, rowLength);
+            }
+
+            return pixels;
         }
         finally
         {
@@ -66,18 +66,17 @@ public class SystemDrawingVideoFrame : IVideoFrame, IDisposable
             case DrawingPixelFormat.Format16bppGrayScale:
                 return "gray16le";
             case DrawingPixelFormat.Format16bppRgb555:
-                return "bgr555le";
+                return "rgb555le";
             case DrawingPixelFormat.Format16bppRgb565:
-                return "bgr565le";
+                return "rgb565le";
             case DrawingPixelFormat.Format24bppRgb:
                 return "bgr24";
             case DrawingPixelFormat.Format32bppArgb:
                 return "bgra";
             case DrawingPixelFormat.Format32bppPArgb:
-                //This is not really same as argb32
-                return "argb";
+                return "bgra";
             case DrawingPixelFormat.Format32bppRgb:
-                return "rgba";
+                return "bgr0";
             case DrawingPixelFormat.Format48bppRgb:
                 return "rgb48le";
             default:

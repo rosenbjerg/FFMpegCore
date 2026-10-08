@@ -605,6 +605,41 @@ public class VideoTest
         Assert.AreEqual(255, bitmap.GetPixel(bitmap.Width / 2, bitmap.Height / 2).A);
     }
 
+    [SupportedOSPlatform("windows")]
+    [OsSpecificTestMethod(OsPlatforms.Windows)]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    [DataRow(PixelFormat.Format24bppRgb)]
+    [DataRow(PixelFormat.Format32bppArgb)]
+    [DataRow(PixelFormat.Format32bppPArgb)]
+    [DataRow(PixelFormat.Format32bppRgb)]
+    [DataRow(PixelFormat.Format16bppRgb565)]
+    [DataRow(PixelFormat.Format16bppRgb555)]
+    public void Video_SystemDrawingFrames_KeepTheirColours(PixelFormat pixelFormat)
+    {
+        using var outputFile = new TemporaryFile("out.png");
+        using var bitmap = new Bitmap(15, 8, pixelFormat);
+        for (var x = 0; x < bitmap.Width; x++)
+        {
+            for (var y = 0; y < bitmap.Height; y++)
+            {
+                bitmap.SetPixel(x, y, Color.FromArgb(200, 40, 90));
+            }
+        }
+
+        var expected = bitmap.GetPixel(0, 0);
+
+        FFMpegArguments
+            .FromPipeInput(new RawVideoPipeSource(new[] { new SystemDrawingVideoFrame(bitmap) }))
+            .OutputToFile(outputFile, true, o => o.WithFrameCount(1))
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        using var output = new Bitmap(outputFile);
+        var actual = output.GetPixel(output.Width - 1, output.Height - 1);
+        Assert.IsTrue(Math.Abs(expected.R - actual.R) <= 8 && Math.Abs(expected.G - actual.G) <= 8 && Math.Abs(expected.B - actual.B) <= 8,
+            $"expected {expected}, got {actual}");
+    }
+
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     [DataRow(SKColorType.Rgb888x)]
