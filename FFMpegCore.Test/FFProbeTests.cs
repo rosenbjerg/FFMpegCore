@@ -233,6 +233,14 @@ public class FFProbeTests
         Assert.AreEqual(1, analysis.PrimaryAudioStream!.Index);
     }
 
+    [TestMethod]
+    public void MediaAnalysis_Duration_IsTheLongestOfAnyStream()
+    {
+        var analysis = Analysis(Stream(0, "audio", isDefault: true, duration: "0:00:03.000"), Stream(1, "audio", duration: "0:00:05.000"));
+
+        Assert.AreEqual(TimeSpan.FromSeconds(5), analysis.Duration);
+    }
+
     private static MediaAnalysis Analysis(params FFProbeStream[] streams)
     {
         return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null);

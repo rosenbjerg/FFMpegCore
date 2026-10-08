@@ -488,6 +488,8 @@ input already threw `FileNotFoundException`; the two now match.
 - `PrimaryVideoStream`, `PrimaryAudioStream` and `PrimarySubtitleStream` are the stream of their kind marked `default`, and the lowest
   index only when none is. They used to be the lowest index regardless, so a file whose default audio track is its second now reports that
   one — and the `FFMpeg.*` helpers, which take the primary stream unless given a `streamIndex`, use it too.
+- `Duration` is the longest of the container's duration and every stream's, where it took only the primary video and audio streams
+  alongside the container's.
 
 ## FFProbe's async overloads take the token last
 

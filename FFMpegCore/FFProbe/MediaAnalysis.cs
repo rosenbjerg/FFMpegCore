@@ -15,7 +15,11 @@ internal class MediaAnalysis : IMediaAnalysis
 
     public string? Path { get; }
 
-    public TimeSpan Duration => new[] { Format.Duration, PrimaryVideoStream?.Duration ?? TimeSpan.Zero, PrimaryAudioStream?.Duration ?? TimeSpan.Zero }.Max();
+    public TimeSpan Duration => VideoStreams.Select(stream => stream.Duration)
+        .Concat(AudioStreams.Select(stream => stream.Duration))
+        .Concat(SubtitleStreams.Select(stream => stream.Duration))
+        .Append(Format.Duration)
+        .Max();
 
     public MediaFormat Format { get; }
 
