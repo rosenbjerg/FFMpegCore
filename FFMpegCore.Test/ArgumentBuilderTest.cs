@@ -734,7 +734,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicAudioNormalizer()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=500:g=31:p=0.95:m=10.0:r=0.0:n=1:c=0:b=0:s=0.0\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=500:g=31:p=0.95:m=10:r=0:n=1:c=0:b=0:s=0\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -745,7 +745,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.DynamicAudioNormalizer(125, 13, 0.9215, 5.124, 0.5458, false, true, true, 0.3333333)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=125:g=13:p=0.92:m=5.1:r=0.5:n=0:c=1:b=1:s=0.3\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"dynaudnorm=f=125:g=13:p=0.9215:m=5.124:r=0.5458:n=0:c=1:b=1:s=0.3333333\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1035,7 +1035,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.LowPass()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=3000:p=2:t=q:w=0.707:m=1:n=0:r=auto\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1047,7 +1047,7 @@ public class ArgumentBuilderTest
                     .LowPass(5000, 1, "h", 2, 0.5, "FL", true, "svf", "f32", 256)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=5000.00:p=1:t=h:w=2.00:m=0.50:c=FL:n=1:a=svf:r=f32:b=256\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"lowpass=f=5000:p=1:t=h:w=2:m=0.5:c=FL:n=1:a=svf:r=f32:b=256\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1058,7 +1058,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.HighPass()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=3000.00:p=2:t=q:w=0.71:m=1.00:n=0:r=auto\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=3000:p=2:t=q:w=0.707:m=1:n=0:r=auto\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1070,7 +1070,7 @@ public class ArgumentBuilderTest
                     .HighPass(200, 1, "o", 1.5, 0.25, "FR", true, "tdii", "s16", 128)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=200.00:p=1:t=o:w=1.50:m=0.25:c=FR:n=1:a=tdii:r=s16:b=128\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"highpass=f=200:p=1:t=o:w=1.5:m=0.25:c=FR:n=1:a=tdii:r=s16:b=128\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1126,7 +1126,7 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual(
-            "-i \"input.mp4\" -af \"agate=level_in=1.00:mode=downward:range=0.06:threshold=0.13:ratio=2:attack=20.00:release=250.00:makeup=1:knee=2.83:detection=rms:link=average\" \"output.mp4\"",
+            "-i \"input.mp4\" -af \"agate=level_in=1:mode=downward:range=0.06125:threshold=0.125:ratio=2:attack=20:release=250:makeup=1:knee=2.828427125:detection=rms:link=average\" \"output.mp4\"",
             str);
     }
 
@@ -1140,13 +1140,12 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual(
-            "-i \"input.mp4\" -af \"agate=level_in=0.50:mode=upward:range=0.50:threshold=0.25:ratio=4:attack=10.00:release=100.00:makeup=2:knee=4.00:detection=peak:link=maximum\" \"output.mp4\"",
+            "-i \"input.mp4\" -af \"agate=level_in=0.5:mode=upward:range=0.5:threshold=0.25:ratio=4:attack=10:release=100:makeup=2:knee=4:detection=peak:link=maximum\" \"output.mp4\"",
             str);
     }
 
     [TestMethod]
     [DataRow(0.001, "downward", 0.5, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
-    [DataRow(1.0, "downward", 0.0, 0.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 1.5, 2, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 0, 20.0, 250.0, 1, 2.0, "rms", "average")]
     [DataRow(1.0, "downward", 0.5, 0.5, 2, 0.001, 250.0, 1, 2.0, "rms", "average")]
@@ -1220,7 +1219,7 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60.0dB:d=2.00:m=0\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60dB:d=2:m=0\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1231,7 +1230,26 @@ public class ArgumentBuilderTest
                 opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect("ar", 0.05, 1.5, true)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=0.05:d=1.50:m=1\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=0.05:d=1.5:m=1\" \"output.mp4\"", str);
+    }
+
+    [TestMethod]
+    public void Builder_BuildString_AudioFilters_KeepThePrecisionTheyWereGiven()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(filterOptions => filterOptions
+                .SilenceDetect(SilenceDetectNoiseUnit.AmplitudeRatio, 0.001, 0.125)
+                .DynamicAudioNormalizer(targetRms: 0.05, gainFactor: 1.25)
+                .AudioGate(0.015625, range: 0, threshold: 0.0125)
+                .HighPass(3000.125, width: 0.707)
+                .LoudnessNormalizer(-23.25)))
+            .Arguments;
+
+        StringAssert.Contains(str, "silencedetect=n=0.001:d=0.125:");
+        StringAssert.Contains(str, ":m=1.25:r=0.05:");
+        StringAssert.Contains(str, "agate=level_in=0.015625:mode=downward:range=0:threshold=0.0125:");
+        StringAssert.Contains(str, "highpass=f=3000.125:p=2:t=q:w=0.707:");
+        StringAssert.Contains(str, "loudnorm=I=-23.25:");
     }
 
     [TestMethod]
@@ -1449,7 +1467,7 @@ public class ArgumentBuilderTest
             .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f => f.LoudnessNormalizer(-16, 11, -1.5, true)))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"loudnorm=I=-16.0:LRA=11.0:TP=-1.5:dual_mono=true\" \"output.mp4\"", str);
+        Assert.AreEqual("-i \"input.mp4\" -af \"loudnorm=I=-16:LRA=11:TP=-1.5:dual_mono=true\" \"output.mp4\"", str);
     }
 
     [TestMethod]
@@ -1558,7 +1576,7 @@ public class ArgumentBuilderTest
             .Arguments;
 
         Assert.AreEqual("""
-                        -i "input.mp4" -filter_complex "[0:v]scale=640:-2,hflip[v];[0:a]loudnorm=I=-24.0:LRA=7.0:TP=-2.0[a]" -map "[v]" -map "[a]" "output.mp4"
+                        -i "input.mp4" -filter_complex "[0:v]scale=640:-2,hflip[v];[0:a]loudnorm=I=-24:LRA=7:TP=-2[a]" -map "[v]" -map "[a]" "output.mp4"
                         """, str);
     }
 
@@ -1844,7 +1862,7 @@ public class ArgumentBuilderTest
                 .OutputToNull(opt => opt.DisableVideo()))
             .Arguments;
 
-        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60.0dB:d=2.00:m=0\" -f null -", single);
+        Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=-60dB:d=2:m=0\" -f null -", single);
         Assert.AreEqual("-i \"input.mp4\" -c copy \"output.mp4\" -y -vn -f null -", many);
     }
 

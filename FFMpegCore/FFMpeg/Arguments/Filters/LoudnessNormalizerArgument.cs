@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -28,9 +28,9 @@ public class LoudnessNormalizerArgument : IAudioFilterArgument
             throw new ArgumentOutOfRangeException(nameof(truePeak), "True peak must be between -9 and 0 dBTP");
         }
 
-        _arguments.Add("I", integratedLoudness.ToString("0.0", CultureInfo.InvariantCulture));
-        _arguments.Add("LRA", loudnessRange.ToString("0.0", CultureInfo.InvariantCulture));
-        _arguments.Add("TP", truePeak.ToString("0.0", CultureInfo.InvariantCulture));
+        _arguments.Add("I", integratedLoudness.ToInvariantString());
+        _arguments.Add("LRA", loudnessRange.ToInvariantString());
+        _arguments.Add("TP", truePeak.ToInvariantString());
         if (dualMono)
         {
             _arguments.Add("dual_mono", "true");

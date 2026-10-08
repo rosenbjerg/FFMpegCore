@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -25,18 +25,18 @@ public class SilenceDetectArgument : IAudioFilterArgument
         var unit = (noiseType ?? SilenceDetectNoiseUnit.Decibels).Value;
         if (unit == SilenceDetectNoiseUnit.Decibels.Value)
         {
-            _arguments.Add("n", $"{noise.ToString("0.0", CultureInfo.InvariantCulture)}dB");
+            _arguments.Add("n", $"{noise.ToInvariantString()}dB");
         }
         else if (unit == SilenceDetectNoiseUnit.AmplitudeRatio.Value)
         {
-            _arguments.Add("n", noise.ToString("0.00", CultureInfo.InvariantCulture));
+            _arguments.Add("n", noise.ToInvariantString());
         }
         else
         {
             throw new ArgumentOutOfRangeException(nameof(noiseType), "Noise type must be either db or ar");
         }
 
-        _arguments.Add("d", duration.ToString("0.00", CultureInfo.InvariantCulture));
+        _arguments.Add("d", duration.ToInvariantString());
         _arguments.Add("m", (mono ? 1 : 0).ToString());
     }
 

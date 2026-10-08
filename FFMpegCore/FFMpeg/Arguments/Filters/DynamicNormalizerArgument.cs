@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -58,13 +58,13 @@ public class DynamicNormalizerArgument : IAudioFilterArgument
 
         _arguments.Add("f", frameLength.ToString());
         _arguments.Add("g", filterWindow.ToString());
-        _arguments.Add("p", targetPeak.ToString("0.00", CultureInfo.InvariantCulture));
-        _arguments.Add("m", gainFactor.ToString("0.0", CultureInfo.InvariantCulture));
-        _arguments.Add("r", targetRms.ToString("0.0", CultureInfo.InvariantCulture));
+        _arguments.Add("p", targetPeak.ToInvariantString());
+        _arguments.Add("m", gainFactor.ToInvariantString());
+        _arguments.Add("r", targetRms.ToInvariantString());
         _arguments.Add("n", (channelCoupling ? 1 : 0).ToString());
         _arguments.Add("c", (enableDcBiasCorrection ? 1 : 0).ToString());
         _arguments.Add("b", (enableAlternativeBoundary ? 1 : 0).ToString());
-        _arguments.Add("s", compressorFactor.ToString("0.0", CultureInfo.InvariantCulture));
+        _arguments.Add("s", compressorFactor.ToInvariantString());
     }
 
     public string Key { get; } = "dynaudnorm";

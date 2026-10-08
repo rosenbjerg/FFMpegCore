@@ -342,6 +342,10 @@ still throws.
 - `VideoFilterOptions.Arguments` and `AudioFilterOptions.Arguments` are read-only. `f.Arguments.Add(filter)` becomes `f.WithFilter(filter)`,
   and `f.WithCustomFilter(key, value)` adds a filter the library has no method for.
 - `WithAudioFilters(f => f.AudioGate(…))` takes `ratio` and `makeup` as `double`, as ffmpeg does; integer calls compile unchanged.
+- The audio filters wrote their numbers with a fixed one or two decimals, so `SilenceDetect(AmplitudeRatio, 0.001)` rendered `n=0.00` —
+  detecting only digital silence — and defaults such as `HighPass`'s width of 0.707 and `AudioGate`'s range of 0.06125 reached ffmpeg as
+  0.71 and 0.06. They now render the value given (`0.001`, `0.707`), dropping trailing zeros. `AudioGate` also accepts a `range` of 0, which
+  ffmpeg allows and which turns the gate into an expander.
 
 ### A GIF palette is a graph
 

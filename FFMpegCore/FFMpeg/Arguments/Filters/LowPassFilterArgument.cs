@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -45,11 +45,11 @@ public class LowPassFilterArgument : IAudioFilterArgument
             throw new ArgumentOutOfRangeException(nameof(mix), "Mix must be between 0 and 1");
         }
 
-        _arguments.Add("f", frequency.ToString("0.00", CultureInfo.InvariantCulture));
+        _arguments.Add("f", frequency.ToInvariantString());
         _arguments.Add("p", poles.ToString());
         _arguments.Add("t", (widthType ?? FilterWidthType.QFactor).Value);
-        _arguments.Add("w", width.ToString("0.00", CultureInfo.InvariantCulture));
-        _arguments.Add("m", mix.ToString("0.00", CultureInfo.InvariantCulture));
+        _arguments.Add("w", width.ToInvariantString());
+        _arguments.Add("m", mix.ToInvariantString());
         if (channels != "")
         {
             _arguments.Add("c", channels);
