@@ -2,9 +2,10 @@
 
 internal class MediaAnalysis : IMediaAnalysis
 {
-    internal MediaAnalysis(FFProbeAnalysis analysis, string? path)
+    internal MediaAnalysis(FFProbeAnalysis analysis, string? path, string json)
     {
         Path = path;
+        Json = json;
         Format = ParseFormat(analysis.Format);
         Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
         VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
@@ -14,6 +15,8 @@ internal class MediaAnalysis : IMediaAnalysis
     }
 
     public string? Path { get; }
+
+    public string Json { get; }
 
     public TimeSpan Duration => VideoStreams.Select(stream => stream.Duration)
         .Concat(AudioStreams.Select(stream => stream.Duration))

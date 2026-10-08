@@ -31,6 +31,9 @@ or
 var mediaInfo = FFProbe.Analyse(inputPath);
 ```
 
+`mediaInfo.Json` is ffprobe's own output, for keeping or sending elsewhere, and `FFProbe.FromJson(json)` turns it back into an analysis
+without running ffprobe again — so one machine can probe and another work from the result.
+
 A missing input throws `FFProbeException`, and a non-zero exit throws `FFProbeProcessException`, which carries `ExitCode` and the captured
 stderr lines in `StandardError`. Both derive from `FFMpegException`, so a single `catch (FFMpegException)` covers ffprobe and ffmpeg alike.
 

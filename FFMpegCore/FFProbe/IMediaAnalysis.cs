@@ -8,6 +8,8 @@ public interface IMediaAnalysis
     /// </summary>
     string? Path { get; }
 
+    string Json { get; }
+
     TimeSpan Duration { get; }
     MediaFormat Format { get; }
     IReadOnlyList<ChapterData> Chapters { get; }

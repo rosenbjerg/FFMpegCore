@@ -47,6 +47,11 @@ public static class FFProbe
             cancellationToken);
     }
 
+    public static IMediaAnalysis FromJson(string json)
+    {
+        return ParseAnalysis(json, null, Array.Empty<string>());
+    }
+
     public static FFProbeFrames GetFrames(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
     {
         return FromFile(filePath, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput);
@@ -192,7 +197,11 @@ public static class FFProbe
 
     private static IMediaAnalysis ParseOutput(IProcessResult instance, string? path)
     {
-        var json = string.Join(string.Empty, instance.OutputData);
+        return ParseAnalysis(string.Join("\n", instance.OutputData), path, instance.ErrorData);
+    }
+
+    private static IMediaAnalysis ParseAnalysis(string json, string? path, IReadOnlyList<string> standardError)
+    {
         var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (ffprobeAnalysis?.Format == null)
@@ -200,8 +209,8 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
-        ffprobeAnalysis.StandardError = instance.ErrorData;
-        return new MediaAnalysis(ffprobeAnalysis, path);
+        ffprobeAnalysis.StandardError = standardError;
+        return new MediaAnalysis(ffprobeAnalysis, path, json);
     }
 
     private static FFProbeFrames ParseFramesOutput(IProcessResult instance)

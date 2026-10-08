@@ -218,6 +218,26 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void FromJson_RebuildsTheAnalysisFromItsJson()
+    {
+        var original = FFProbe.Analyse(TestResources.Mp4Video);
+
+        var rebuilt = FFProbe.FromJson(original.Json);
+
+        Assert.IsNull(rebuilt.Path);
+        Assert.AreEqual(original.Json, rebuilt.Json);
+        Assert.AreEqual(original.Duration, rebuilt.Duration);
+        Assert.AreEqual(original.PrimaryVideoStream!.Width, rebuilt.PrimaryVideoStream!.Width);
+        Assert.AreEqual(original.PrimaryAudioStream!.CodecName, rebuilt.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    public void FromJson_RejectsJsonWithoutAFormat()
+    {
+        Assert.ThrowsExactly<FormatNullException>(() => FFProbe.FromJson("{}"));
+    }
+
+    [TestMethod]
     public void MediaAnalysis_PrimaryStream_IsTheOneMarkedDefault()
     {
         var analysis = Analysis(Stream(1, "audio", isDefault: false), Stream(2, "audio", isDefault: true));
@@ -243,7 +263,7 @@ public class FFProbeTests
 
     private static MediaAnalysis Analysis(params FFProbeStream[] streams)
     {
-        return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null);
+        return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null, string.Empty);
     }
 
     private static FFProbeStream Stream(int index, string codecType, bool isDefault = false, string duration = null)

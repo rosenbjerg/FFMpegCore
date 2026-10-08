@@ -399,7 +399,7 @@ A target's `OutputToFile(path, overwrite: false)` was overwritten anyway wheneve
 | `ID3V2VersionArgument` | `Id3v2VersionArgument` |
 | `FrameRateArgument.Framerate` (`double`) | `FrameRateArgument.FrameRate` (`string`), so it can hold `30000/1001` |
 | `ConstantRateFactorArgument.Crf` (`int`) | `double`, so it can hold x264's `18.5` |
-| `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream |
+| `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream — and `string Json`, ffprobe's output |
 | `IMediaAnalysis.VideoStreams`, `AudioStreams`, `SubtitleStreams`, `Chapters` (`List<T>`) | `IReadOnlyList<T>` — an analysis describes a file, and adding to it changed nothing but the helpers' view of that file |
 | `VideoStream.AvgFrameRate` | `AverageFrameRate`, ffprobe's `avg_frame_rate` |
 | `VideoStream.AverageFrameRate` | now populated — it was never filled in and always read `0`; it now holds what `AvgFrameRate` held |
@@ -629,6 +629,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 
 - `FFProbe.Analyse`, `GetFrames` and `GetPackets` each accept a path, a `Uri` and a `Stream`, sync and async. `GetPackets` took only a path,
   and neither `GetFrames` nor `GetPackets` accepted a `Stream`.
+- `IMediaAnalysis.Json` holds ffprobe's output, and `FFProbe.FromJson` builds an analysis from it, so a probe result can be stored or sent
+  and read back without ffprobe.
 - A stream's `Duration` falls back to its `DURATION` tag, which is where Matroska and WebM keep it; such streams reported zero. The
   `TagExtensions` accessors (`GetLanguage`, `GetDuration`, …) match a tag's name in any case, as `MediaStream.Tags` already did.
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
