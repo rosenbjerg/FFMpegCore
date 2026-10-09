@@ -2054,6 +2054,22 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Video_Tee_ClosesAnOpenedPipeTarget_WhenALaterTargetFailsBeforeTheRun()
+    {
+        using var existing = new TemporaryFile("out.mp4");
+        File.WriteAllText(existing, string.Empty);
+        var processor = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToTee(outputs => outputs
+                .OutputToPipe(new StreamPipeSink(Stream.Null), target => target.ForceFormat("mpegts"))
+                .OutputToFile(existing, false));
+
+        Assert.ThrowsExactly<IOException>(() => processor.ProcessSynchronously(true, null, TestContext.CancellationToken));
+        Assert.ThrowsExactly<IOException>(() => processor.ProcessSynchronously(true, null, TestContext.CancellationToken));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public void Video_TempFileArguments_UsePerRunTemporaryFolder()
     {
         using var outputFile = new TemporaryFile("out.mp4");
