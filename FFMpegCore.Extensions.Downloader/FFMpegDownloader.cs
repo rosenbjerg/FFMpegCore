@@ -51,7 +51,11 @@ public static class FFMpegDownloader
                     .ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                using var zipStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var download = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var zipStream = new MemoryStream();
+                // ZipArchive copies a non-seekable stream synchronously, ignoring the token; buffer it here instead
+                await download.CopyToAsync(zipStream, 81920, cancellationToken).ConfigureAwait(false);
+                zipStream.Position = 0;
                 var extracted = ExtractZipAndSave(zipStream, relevantOptions.BinaryFolder, cancellationToken);
                 successList.AddRange(extracted);
             }
