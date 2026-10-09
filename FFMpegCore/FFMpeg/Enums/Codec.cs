@@ -30,7 +30,7 @@ public class Codec
     public bool IsIntraFrameOnly { get; private set; }
     public bool IsLossy { get; private set; }
     public bool IsLossless { get; private set; }
-    public string Description { get; private set; } = null!;
+    public string Description { get; private set; } = string.Empty;
 
     public FeatureLevel EncoderFeatureLevel { get; }
     public FeatureLevel DecoderFeatureLevel { get; }

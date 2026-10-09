@@ -8,19 +8,21 @@ public class RawAudioPipeSource : IPipeSource
 {
     private readonly IEnumerator<IAudioSample> _sampleEnumerator;
 
-    public RawAudioPipeSource(IEnumerator<IAudioSample> sampleEnumerator)
+    public RawAudioPipeSource(IEnumerator<IAudioSample> sampleEnumerator, int sampleRate, int channels)
     {
         _sampleEnumerator = sampleEnumerator;
+        SampleRate = sampleRate;
+        Channels = channels;
     }
 
-    public RawAudioPipeSource(IEnumerable<IAudioSample> sampleEnumerator)
-        : this(sampleEnumerator.GetEnumerator())
+    public RawAudioPipeSource(IEnumerable<IAudioSample> samples, int sampleRate, int channels)
+        : this(samples.GetEnumerator(), sampleRate, channels)
     {
     }
 
     public string Format { get; set; } = "s16le";
-    public uint SampleRate { get; set; } = 8000;
-    public uint Channels { get; set; } = 1;
+    public int SampleRate { get; }
+    public int Channels { get; }
 
     public string GetStreamArguments()
     {

@@ -2,22 +2,16 @@
 
 namespace FFMpegCore.Arguments;
 
-/// <summary>
-///     Represents parameter of copy parameter
-///     Defines if channel (audio, video or both) should be copied to output file
-/// </summary>
 public class CopyArgument : IArgument
 {
-    public readonly Channel Channel;
+    public readonly StreamType StreamType;
+    public readonly int? StreamIndex;
 
-    public CopyArgument(Channel channel = Channel.Both)
+    public CopyArgument(StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        Channel = channel;
+        StreamType = streamType;
+        StreamIndex = streamIndex;
     }
 
-    public string Text => Channel switch
-    {
-        Channel.Both => "-c:a copy -c:v copy",
-        _ => $"-c{Channel.StreamType()} copy"
-    };
+    public string Text => $"-c{StreamType.Specifier()}{(StreamIndex == null ? string.Empty : $":{StreamIndex}")} copy";
 }

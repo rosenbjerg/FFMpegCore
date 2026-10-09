@@ -64,8 +64,9 @@ internal class BinaryInfo
             };
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.X64)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
+            // ffbinaries publishes no osx-arm64 build; the x64 one runs under Rosetta.
             return Osx64;
         }
 

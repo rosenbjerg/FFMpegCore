@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Exceptions;
+﻿using System.Runtime.Versioning;
+using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
 using FFMpegCore.Test.Utilities;
@@ -17,6 +18,26 @@ public class FFProbeTests
         await using var inputStream = File.OpenRead(TestResources.WebmVideo);
         var streamAnalysis = await FFProbe.AnalyseAsync(inputStream, cancellationToken: TestContext.CancellationToken);
         Assert.IsTrue(fileAnalysis.Duration == streamAnalysis.Duration);
+    }
+
+    [TestMethod]
+    public void Probe_ResolvesRelativePaths_AgainstWorkingDirectory()
+    {
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+
+        var analysis = FFProbe.Analyse(Path.GetFileName(TestResources.Mp4Video), options);
+
+        Assert.AreEqual(3, analysis.Duration.Seconds);
+    }
+
+    [TestMethod]
+    public async Task ProbeAsync_ResolvesRelativePaths_AgainstWorkingDirectory()
+    {
+        var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+
+        var analysis = await FFProbe.AnalyseAsync(Path.GetFileName(TestResources.Mp4Video), options, cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(3, analysis.Duration.Seconds);
     }
 
     [TestMethod]
@@ -134,14 +155,32 @@ public class FFProbeTests
         Assert.AreEqual("progressive", info.PrimaryVideoStream.FieldOrder);
         Assert.AreEqual(1280, info.PrimaryVideoStream.Width);
         Assert.AreEqual(720, info.PrimaryVideoStream.Height);
-        Assert.AreEqual(25, info.PrimaryVideoStream.AvgFrameRate);
-        Assert.AreEqual(25, info.PrimaryVideoStream.FrameRate);
+        Assert.AreEqual(25, info.PrimaryVideoStream.AverageFrameRate);
+        Assert.AreEqual(25, info.PrimaryVideoStream.RealFrameRate);
         Assert.AreEqual("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10", info.PrimaryVideoStream.CodecLongName);
         Assert.AreEqual("h264", info.PrimaryVideoStream.CodecName);
         Assert.AreEqual(8, info.PrimaryVideoStream.BitsPerRawSample);
         Assert.AreEqual("Main", info.PrimaryVideoStream.Profile);
         Assert.AreEqual("avc1", info.PrimaryVideoStream.CodecTagString);
         Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
+
+        Assert.IsGreaterThan(info.PrimaryVideoStream.BitRate, info.Format.BitRate);
+    }
+
+    [TestMethod]
+    public void Probe_SubtitleStream_CarriesItsCodecTags()
+    {
+        using var outputFile = new TemporaryFile("out.mkv");
+        FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .AddFileInput(TestResources.SrtSubtitle)
+            .OutputToFile(outputFile, true, options => options.CopyStreams())
+            .ProcessSynchronously();
+
+        var subtitle = FFProbe.Analyse(outputFile).PrimarySubtitleStream!;
+
+        Assert.IsNotNull(subtitle.CodecTagString);
+        Assert.IsNotNull(subtitle.CodecTag);
     }
 
     [TestMethod]
@@ -190,11 +229,115 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_FromStream_ThrowsWhenFFProbeExitsBeforeReading()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+
+        await Assert.ThrowsExactlyAsync<FFProbeProcessException>(() =>
+            FFProbe.AnalyseAsync(stream, customArguments: "-no_such_option 1", cancellationToken: TestContext.CancellationToken));
+    }
+
+    [TestMethod]
+    public void FromJson_RebuildsTheAnalysisFromItsJson()
+    {
+        var original = FFProbe.Analyse(TestResources.Mp4Video);
+
+        var rebuilt = FFProbe.FromJson(original.Json);
+
+        Assert.IsNull(rebuilt.Path);
+        Assert.AreEqual(original.Json, rebuilt.Json);
+        Assert.AreEqual(original.Duration, rebuilt.Duration);
+        Assert.AreEqual(original.PrimaryVideoStream!.Width, rebuilt.PrimaryVideoStream!.Width);
+        Assert.AreEqual(original.PrimaryAudioStream!.CodecName, rebuilt.PrimaryAudioStream!.CodecName);
+    }
+
+    [TestMethod]
+    public void FromJson_RejectsJsonWithoutAFormat()
+    {
+        Assert.ThrowsExactly<FormatNullException>(() => FFProbe.FromJson("{}"));
+    }
+
+    [TestMethod]
+    public void MediaAnalysis_PrimaryStream_IsTheOneMarkedDefault()
+    {
+        var analysis = Analysis(Stream(1, "audio", isDefault: false), Stream(2, "audio", isDefault: true));
+
+        Assert.AreEqual(2, analysis.PrimaryAudioStream!.Index);
+    }
+
+    [TestMethod]
+    public void MediaAnalysis_PrimaryStream_IsTheLowestIndexWithoutADefault()
+    {
+        var analysis = Analysis(Stream(2, "audio", isDefault: false), Stream(1, "audio", isDefault: false));
+
+        Assert.AreEqual(1, analysis.PrimaryAudioStream!.Index);
+    }
+
+    [TestMethod]
+    public void MediaAnalysis_Duration_IsTheLongestOfAnyStream()
+    {
+        var analysis = Analysis(Stream(0, "audio", isDefault: true, duration: "0:00:03.000"), Stream(1, "audio", duration: "0:00:05.000"));
+
+        Assert.AreEqual(TimeSpan.FromSeconds(5), analysis.Duration);
+    }
+
+    private static MediaAnalysis Analysis(params FFProbeStream[] streams)
+    {
+        return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null, string.Empty);
+    }
+
+    private static FFProbeStream Stream(int index, string codecType, bool isDefault = false, string duration = null)
+    {
+        return new FFProbeStream
+        {
+            Index = index,
+            CodecType = codecType,
+            Duration = duration,
+            Disposition = new Dictionary<string, int> { ["default"] = isDefault ? 1 : 0 }
+        };
+    }
+
+    [TestMethod]
+    public void Probe_StreamDuration_FromTag()
+    {
+        var info = FFProbe.Analyse(TestResources.WebmVideo);
+        Assert.IsNotNull(info.PrimaryVideoStream);
+        Assert.AreEqual(TimeSpan.FromSeconds(3), info.PrimaryVideoStream.Duration);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
     public async Task Probe_Success_FromStream_Async()
     {
         await using var stream = File.OpenRead(TestResources.WebmVideo);
         var info = await FFProbe.AnalyseAsync(stream, cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(3, info.Duration.Seconds);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Path_IsTheInputItWasGiven()
+    {
+        Assert.AreEqual(TestResources.Mp4Video, FFProbe.Analyse(TestResources.Mp4Video).Path);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Path_IsTheLocalPathForAFileUri()
+    {
+        var path = System.IO.Path.GetFullPath(TestResources.Mp4Video);
+        var info = await FFProbe.AnalyseAsync(new Uri(path), cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(path, info.Path);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Probe_Path_IsNullForAStream_BecauseTheNamedPipeIsGone()
+    {
+        using var stream = File.OpenRead(TestResources.WebmVideo);
+
+        Assert.IsNull(FFProbe.Analyse(stream).Path);
     }
 
     [TestMethod]
@@ -384,29 +527,32 @@ public class FFProbeTests
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.AnalyseAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.AnalyseAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_GetFramesAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_GetFramesAsync_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetFramesAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetFramesAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFMpegException_When_Exits_With_Non_Zero_Code()
+    public async Task FFProbe_GetPacketsAsync_Should_Throw_FFProbeProcessException_When_Exits_With_Non_Zero_Code()
     {
         var input = TestResources.SrtSubtitle; //non media file
-        await Assert.ThrowsAsync<FFMpegException>(async () => await FFProbe.GetPacketsAsync(input,
+        var exception = await Assert.ThrowsExactlyAsync<FFProbeProcessException>(async () => await FFProbe.GetPacketsAsync(input,
             cancellationToken: TestContext.CancellationToken, customArguments: "--some-invalid-argument"));
+        Assert.IsNotEmpty(exception.StandardError);
     }
 
     // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
@@ -435,14 +581,101 @@ public class FFProbeTests
         Assert.IsNotEmpty(frames.Frames);
     }
 
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Uri_GetPackets_Async()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var sync = FFProbe.GetPackets(uri);
+        var async = await FFProbe.GetPacketsAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(sync.Packets);
+        Assert.IsNotEmpty(async.Packets);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetFrames()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frames = FFProbe.GetFrames(stream);
+
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetFrames_Async()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var frames = await FFProbe.GetFramesAsync(stream, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(frames.Frames);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetPackets()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var packets = FFProbe.GetPackets(stream);
+
+        Assert.IsNotEmpty(packets.Packets);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Stream_GetPackets_Async()
+    {
+        await using var stream = File.OpenRead(TestResources.WebmVideo);
+        var packets = await FFProbe.GetPacketsAsync(stream, cancellationToken: TestContext.CancellationToken);
+
+        Assert.IsNotEmpty(packets.Packets);
+    }
+
+    // ffmpeg's file: protocol only strips the prefix, so file:///D:/... is not openable on Windows
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public async Task Probe_Uri_Async()
+    {
+        var uri = new Uri(Path.GetFullPath(TestResources.Mp4Video));
+
+        var info = await FFProbe.AnalyseAsync(uri, cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual(3, info.Duration.Seconds);
+    }
+
     [TestMethod]
     public void Probe_MissingFile_Throws()
     {
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
-        var exception = Assert.ThrowsExactly<FFMpegException>(() => FFProbe.Analyse(missing));
+        var exception = Assert.ThrowsExactly<FFProbeException>(() => FFProbe.Analyse(missing));
         Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
-        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetFrames(missing));
-        Assert.ThrowsExactly<FFMpegException>(() => FFProbe.GetPackets(missing));
+        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetFrames(missing));
+        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetPackets(missing));
+    }
+
+    [TestMethod]
+    public void Probe_Stream_ResolvesItsCodecAndPixelFormat()
+    {
+        var video = FFProbe.Analyse(TestResources.Mp4Video).PrimaryVideoStream!;
+
+        Assert.AreEqual(video.CodecName, video.GetCodecInfo().Name);
+        Assert.AreEqual(video.PixelFormat, video.GetPixelFormatInfo().Name);
+    }
+
+    [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]
+    [UnsupportedOSPlatform("windows")]
+    public void Probe_Stream_ResolvesAgainstTheBinaryItIsGiven()
+    {
+        var video = FFProbe.Analyse(TestResources.Mp4Video).PrimaryVideoStream!;
+
+        using var binaryFolder = new TemporaryBinaryFolder("ffmpeg");
+
+        Assert.ThrowsExactly<FFMpegException>(() => video.GetCodecInfo(binaryFolder.Options));
+        Assert.ThrowsExactly<FFMpegException>(() => video.GetPixelFormatInfo(binaryFolder.Options));
     }
 }

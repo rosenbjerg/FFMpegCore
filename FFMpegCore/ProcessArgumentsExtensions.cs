@@ -2,7 +2,7 @@
 
 namespace FFMpegCore;
 
-public static class ProcessArgumentsExtensions
+internal static class ProcessArgumentsExtensions
 {
     public static IProcessResult StartAndWaitForExit(this ProcessArguments processArguments)
     {

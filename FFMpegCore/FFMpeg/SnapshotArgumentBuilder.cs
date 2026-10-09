@@ -5,37 +5,31 @@ namespace FFMpegCore;
 
 public static class SnapshotArgumentBuilder
 {
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
-        string input,
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
+        IMediaAnalysis source,
         string output,
+        Size? size = null,
+        TimeSpan? captureTime = null,
+        int? streamIndex = null)
+    {
+        return BuildSnapshotArguments(source, VideoCodec.Image.GetByExtension(output), size, captureTime, streamIndex);
+    }
+
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
+        int? streamIndex = null)
     {
-        return BuildSnapshotArguments(input, VideoCodec.Image.GetByExtension(output), source, size, captureTime, streamIndex, inputFileIndex);
+        return BuildSnapshotArguments(source, VideoCodec.Image.Png, size, captureTime, streamIndex);
     }
 
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
-        string input,
+    private static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildSnapshotArguments(
         IMediaAnalysis source,
-        Size? size = null,
-        TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
-    {
-        return BuildSnapshotArguments(input, VideoCodec.Image.Png, source, size, captureTime, streamIndex, inputFileIndex);
-    }
-
-    private static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildSnapshotArguments(
-        string input,
         Codec codec,
-        IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
-        int? streamIndex = null,
-        int inputFileIndex = 0)
+        int? streamIndex = null)
     {
         captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
         size = PrepareSnapshotSize(source, size);
@@ -44,17 +38,23 @@ public static class SnapshotArgumentBuilder
                         ?? 0;
 
         return (FFMpegArguments
-                .FromFileInput(input, false, options => options
-                    .Seek(captureTime)),
-            options => options
-                .SelectStream((int)streamIndex, inputFileIndex)
-                .WithVideoCodec(codec)
-                .WithFrameOutputCount(1)
-                .Resize(size));
+                .FromFileInput(FFMpeg.InputPathOf(source, nameof(source)), false, options => options
+                    .WithStartTime(captureTime)),
+            options =>
+            {
+                options
+                    .WithMap(0, StreamType.All, streamIndex)
+                    .WithVideoCodec(codec)
+                    .WithFrameCount(1);
+                if (size.HasValue)
+                {
+                    options.WithVideoFilters(filters => filters.Scale(size.Value));
+                }
+            }
+        );
     }
 
-    public static (FFMpegArguments, Action<FFMpegArgumentOptions> outputOptions) BuildGifSnapshotArguments(
-        string input,
+    public static (FFMpegArguments, Action<FFMpegOutputOptions> outputOptions) BuildGifSnapshotArguments(
         IMediaAnalysis source,
         Size? size = null,
         TimeSpan? captureTime = null,
@@ -65,17 +65,17 @@ public static class SnapshotArgumentBuilder
         var defaultGifOutputSize = new Size(480, -1);
 
         captureTime ??= TimeSpan.FromSeconds(source.Duration.TotalSeconds / 3);
-        size = PrepareSnapshotSize(source, size) ?? defaultGifOutputSize;
+        size = size is { Width: > 0 } or { Height: > 0 } ? PrepareSnapshotSize(source, size) : defaultGifOutputSize;
         streamIndex ??= source.PrimaryVideoStream?.Index
                         ?? source.VideoStreams.FirstOrDefault()?.Index
                         ?? 0;
 
         return (FFMpegArguments
-                .FromFileInput(input, false, options => options
-                    .Seek(captureTime)
+                .FromFileInput(FFMpeg.InputPathOf(source, nameof(source)), false, options => options
+                    .WithStartTime(captureTime)
                     .WithDuration(duration)),
             options => options
-                .WithGifPaletteArgument((int)streamIndex, size, fps));
+                .WithGifPalette((int)streamIndex, size, fps));
     }
 
     private static Size? PrepareSnapshotSize(IMediaAnalysis source, Size? wantedSize)
@@ -113,7 +113,6 @@ public static class SnapshotArgumentBuilder
 
     private static bool IsRotated(int rotation)
     {
-        var absRotation = Math.Abs(rotation);
-        return absRotation == 90 || absRotation == 180;
+        return Math.Abs(rotation) == 90;
     }
 }

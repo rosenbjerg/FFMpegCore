@@ -7,7 +7,7 @@ public interface IVideoFrame
 {
     int Width { get; }
     int Height { get; }
-    string Format { get; }
+    string PixelFormat { get; }
 
     void Serialize(Stream pipe);
     Task SerializeAsync(Stream pipe, CancellationToken token);

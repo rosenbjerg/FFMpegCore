@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How do I do something with ffmpeg?
+    url: https://stackoverflow.com/questions/tagged/ffmpeg
+    about: This tracker is for bugs in FFMpegCore itself. Questions about which ffmpeg options or filters achieve a result belong on Stack Overflow.
+  - name: ffmpeg documentation
+    url: https://ffmpeg.org/ffmpeg-all.html
+    about: Every option and filter, including the ones FFMpegCore passes through with WithCustomArgument and WithCustomFilter.

@@ -6,18 +6,16 @@ namespace FFMpegCore.Test;
 public class ExceptionTests
 {
     [TestMethod]
-    public void FFMpegException_CarriesTypeAndErrorOutput()
+    public void FFMpegException_CarriesType()
     {
         var inner = new InvalidOperationException("inner");
 
-        var withInner = new FFMpegException(FFMpegExceptionType.Process, "message", inner, "stderr");
-        var withOutput = new FFMpegException(FFMpegExceptionType.Conversion, "message", "stderr");
+        var withInner = new FFMpegException(FFMpegExceptionType.Process, "message", inner);
         var minimal = new FFMpegException(FFMpegExceptionType.File, "message");
 
-        Assert.AreEqual((FFMpegExceptionType.Process, "message", inner, "stderr"), (withInner.Type, withInner.Message, withInner.InnerException, withInner.FFMpegErrorOutput));
-        Assert.AreEqual((FFMpegExceptionType.Conversion, "message", "stderr"), (withOutput.Type, withOutput.Message, withOutput.FFMpegErrorOutput));
-        Assert.IsNull(withOutput.InnerException);
-        Assert.AreEqual((FFMpegExceptionType.File, "message", string.Empty), (minimal.Type, minimal.Message, minimal.FFMpegErrorOutput));
+        Assert.AreEqual((FFMpegExceptionType.Process, "message", inner), (withInner.Type, withInner.Message, withInner.InnerException));
+        Assert.AreEqual((FFMpegExceptionType.File, "message"), (minimal.Type, minimal.Message));
+        Assert.IsNull(minimal.InnerException);
     }
 
     [TestMethod]
@@ -31,31 +29,19 @@ public class ExceptionTests
     }
 
     [TestMethod]
-    public void FFOptionsException_And_FFMpegArgumentException_WrapMessageAndInner()
+    public void FFProbeExceptions_AreFFMpegExceptions()
     {
         var inner = new Exception("inner");
-
-        var options = new FFOptionsException("options", inner);
-        var argument = new FFMpegArgumentException("argument", inner);
-        var argumentDefault = new FFMpegArgumentException();
-
-        Assert.AreEqual(("options", inner), (options.Message, options.InnerException));
-        Assert.AreEqual(("argument", inner), (argument.Message, argument.InnerException));
-        Assert.IsNull(argumentDefault.InnerException);
-    }
-
-    [TestMethod]
-    public void FFProbeExceptions_FormAHierarchy()
-    {
-        var inner = new Exception("inner");
-        var probe = new FFProbeException("probe", inner);
-        var process = new FFProbeProcessException("process", new[] { "line1", "line2" }, inner);
+        var probe = new FFProbeException(FFMpegExceptionType.File, "probe", inner);
+        var process = new FFProbeProcessException(1, new[] { "line1", "line2" }, inner);
         var formatNull = new FormatNullException();
 
-        Assert.AreEqual(("probe", inner), (probe.Message, probe.InnerException));
+        Assert.IsInstanceOfType<FFMpegException>(probe);
+        Assert.AreEqual((FFMpegExceptionType.File, "probe", inner), (probe.Type, probe.Message, probe.InnerException));
         Assert.IsInstanceOfType<FFProbeException>(process);
+        Assert.AreEqual((FFMpegExceptionType.Process, 1), (process.Type, process.ExitCode));
+        CollectionAssert.AreEqual(new[] { "line1", "line2" }, process.StandardError.ToArray());
         Assert.IsInstanceOfType<FFProbeException>(formatNull);
-        CollectionAssert.AreEqual(new[] { "line1", "line2" }, process.ProcessErrors.ToArray());
         Assert.AreEqual("Format not specified", formatNull.Message);
     }
 }

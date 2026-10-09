@@ -11,7 +11,7 @@ public class FFProbeAnalysis
 
     [JsonPropertyName("chapters")] public List<Chapter> Chapters { get; set; } = null!;
 
-    [JsonIgnore] public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
+    [JsonIgnore] public IReadOnlyList<string> StandardError { get; set; } = new List<string>();
 }
 
 public class FFProbeStream : ITagsContainer, IDispositionContainer
@@ -138,12 +138,9 @@ public static class TagExtensions
 {
     private static string? TryGetTagValue(ITagsContainer tagsContainer, string key)
     {
-        if (tagsContainer.Tags != null && tagsContainer.Tags.TryGetValue(key, out var tagValue))
-        {
-            return tagValue;
-        }
-
-        return null;
+        return tagsContainer.Tags?
+            .FirstOrDefault(tag => string.Equals(tag.Key, key, StringComparison.OrdinalIgnoreCase))
+            .Value;
     }
 
     public static string? GetLanguage(this ITagsContainer tagsContainer)

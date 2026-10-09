@@ -13,171 +13,197 @@ public static class FFProbe
 {
     public static IMediaAnalysis Analyse(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
     {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var processArguments = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = processArguments.StartAndWaitForExit();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
-    }
-
-    public static FFProbeFrames GetFrames(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
-    {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var instance = PrepareFrameAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = instance.StartAndWaitForExit();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseFramesOutput(result);
-    }
-
-    public static FFProbePackets GetPackets(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
-    {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var instance = PreparePacketAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = instance.StartAndWaitForExit();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParsePacketsOutput(result);
+        return FromFile(filePath, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, filePath));
     }
 
     public static IMediaAnalysis Analyse(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
     {
-        var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = instance.StartAndWaitForExit();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
+        return FromUri(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFmpegUrl()));
     }
 
     public static IMediaAnalysis Analyse(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
     {
-        var streamPipeSource = new StreamPipeSource(stream);
-        var pipeArgument = new InputPipeArgument(streamPipeSource);
-        var instance = PrepareStreamAnalysisInstance(pipeArgument.PipePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        pipeArgument.Pre();
+        return FromStream(stream, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, null));
+    }
 
-        var task = instance.StartAndWaitForExitAsync();
+    public static Task<IMediaAnalysis> AnalyseAsync(string filePath, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromFileAsync(filePath, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, filePath),
+            cancellationToken);
+    }
+
+    public static Task<IMediaAnalysis> AnalyseAsync(Uri uri, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromUriAsync(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFmpegUrl()),
+            cancellationToken);
+    }
+
+    public static Task<IMediaAnalysis> AnalyseAsync(Stream stream, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromStreamAsync(stream, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, null),
+            cancellationToken);
+    }
+
+    public static IMediaAnalysis FromJson(string json)
+    {
+        return ParseAnalysis(json, null, Array.Empty<string>());
+    }
+
+    public static FFProbeFrames GetFrames(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromFile(filePath, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput);
+    }
+
+    public static FFProbeFrames GetFrames(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromUri(uri, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput);
+    }
+
+    public static FFProbeFrames GetFrames(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromStream(stream, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput);
+    }
+
+    public static Task<FFProbeFrames> GetFramesAsync(string filePath, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromFileAsync(filePath, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput, cancellationToken);
+    }
+
+    public static Task<FFProbeFrames> GetFramesAsync(Uri uri, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromUriAsync(uri, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput, cancellationToken);
+    }
+
+    public static Task<FFProbeFrames> GetFramesAsync(Stream stream, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromStreamAsync(stream, ffOptions, customArguments, PrepareFrameAnalysisInstance, ParseFramesOutput, cancellationToken);
+    }
+
+    public static FFProbePackets GetPackets(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromFile(filePath, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput);
+    }
+
+    public static FFProbePackets GetPackets(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromUri(uri, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput);
+    }
+
+    public static FFProbePackets GetPackets(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
+    {
+        return FromStream(stream, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput);
+    }
+
+    public static Task<FFProbePackets> GetPacketsAsync(string filePath, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromFileAsync(filePath, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput, cancellationToken);
+    }
+
+    public static Task<FFProbePackets> GetPacketsAsync(Uri uri, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromUriAsync(uri, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput, cancellationToken);
+    }
+
+    public static Task<FFProbePackets> GetPacketsAsync(Stream stream, FFOptions? ffOptions = null, string? customArguments = null,
+        CancellationToken cancellationToken = default)
+    {
+        return FromStreamAsync(stream, ffOptions, customArguments, PreparePacketAnalysisInstance, ParsePacketsOutput, cancellationToken);
+    }
+
+    private delegate ProcessArguments PrepareProbe(string source, FFOptions ffOptions, string? customArguments);
+
+    private static T FromFile<T>(string filePath, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
+    {
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        ThrowIfInputFileDoesNotExist(filePath, options);
+        return Run(prepare(filePath, options, customArguments), parse);
+    }
+
+    private static T FromUri<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
+    {
+        return Run(prepare(uri.ToFFmpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse);
+    }
+
+    private static T Run<T>(ProcessArguments processArguments, Func<IProcessResult, T> parse)
+    {
+        var result = processArguments.StartAndWaitForExit();
+        ThrowIfExitCodeNotZero(result);
+        return parse(result);
+    }
+
+    private static async Task<T> FromFileAsync<T>(string filePath, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
+        Func<IProcessResult, T> parse, CancellationToken cancellationToken)
+    {
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        ThrowIfInputFileDoesNotExist(filePath, options);
+        return await RunAsync(prepare(filePath, options, customArguments), parse, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<T> FromUriAsync<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
+        Func<IProcessResult, T> parse, CancellationToken cancellationToken)
+    {
+        return await RunAsync(prepare(uri.ToFFmpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static async Task<T> RunAsync<T>(ProcessArguments processArguments, Func<IProcessResult, T> parse, CancellationToken cancellationToken)
+    {
+        var result = await processArguments.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfExitCodeNotZero(result);
+        return parse(result);
+    }
+
+    private static T FromStream<T>(Stream stream, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
+    {
+        return FromStreamAsync(stream, ffOptions, customArguments, prepare, parse, CancellationToken.None).ConfigureAwait(false).GetAwaiter()
+            .GetResult();
+    }
+
+    private static async Task<T> FromStreamAsync<T>(Stream stream, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
+        Func<IProcessResult, T> parse, CancellationToken cancellationToken)
+    {
+        var options = ffOptions ?? GlobalFFOptions.Current;
+        var pipeArgument = new InputPipeArgument(new StreamPipeSource(stream));
+        var processArguments = prepare(pipeArgument.PipePath, options, customArguments);
+        pipeArgument.Pre(options);
+
+        var exitedOrCancelled = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var task = processArguments.StartAndWaitForExitAsync(cancellationToken);
+        var exit = task.ContinueWith(_ => exitedOrCancelled.Cancel(), TaskScheduler.Default);
         try
         {
-            pipeArgument.During().ConfigureAwait(false).GetAwaiter().GetResult();
+            await pipeArgument.During(exitedOrCancelled.Token).ConfigureAwait(false);
         }
         catch (IOException) { }
         finally
         {
             pipeArgument.Post();
-        }
-
-        var result = task.ConfigureAwait(false).GetAwaiter().GetResult();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
-    }
-
-    public static async Task<IMediaAnalysis> AnalyseAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
-    {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var instance = PrepareStreamAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
-    }
-
-    public static FFProbeFrames GetFrames(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
-    {
-        var instance = PrepareFrameAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = instance.StartAndWaitForExit();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseFramesOutput(result);
-    }
-
-    public static async Task<FFProbeFrames> GetFramesAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
-    {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var instance = PrepareFrameAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseFramesOutput(result);
-    }
-
-    public static async Task<FFProbePackets> GetPacketsAsync(string filePath, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
-    {
-        ThrowIfInputFileDoesNotExist(filePath);
-
-        var instance = PreparePacketAnalysisInstance(filePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParsePacketsOutput(result);
-    }
-
-    public static async Task<IMediaAnalysis> AnalyseAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
-    {
-        var instance = PrepareStreamAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
-    }
-
-    public static async Task<IMediaAnalysis> AnalyseAsync(Stream stream, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
-    {
-        var streamPipeSource = new StreamPipeSource(stream);
-        var pipeArgument = new InputPipeArgument(streamPipeSource);
-        var instance = PrepareStreamAnalysisInstance(pipeArgument.PipePath, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        pipeArgument.Pre();
-
-        var task = instance.StartAndWaitForExitAsync(cancellationToken);
-        try
-        {
-            await pipeArgument.During(cancellationToken).ConfigureAwait(false);
-        }
-        catch (IOException)
-        {
-        }
-        finally
-        {
-            pipeArgument.Post();
+            await exit.ConfigureAwait(false);
+            exitedOrCancelled.Dispose();
         }
 
         var result = await task.ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfExitCodeNotZero(result);
-
-        return ParseOutput(result);
+        return parse(result);
     }
 
-    public static async Task<FFProbeFrames> GetFramesAsync(Uri uri, FFOptions? ffOptions = null, CancellationToken cancellationToken = default,
-        string? customArguments = null)
+    private static IMediaAnalysis ParseOutput(IProcessResult instance, string? path)
     {
-        var instance = PrepareFrameAnalysisInstance(uri.AbsoluteUri, ffOptions ?? GlobalFFOptions.Current, customArguments);
-        var result = await instance.StartAndWaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfExitCodeNotZero(result);
-
-        return ParseFramesOutput(result);
+        return ParseAnalysis(string.Join("\n", instance.OutputData), path, instance.ErrorData);
     }
 
-    private static IMediaAnalysis ParseOutput(IProcessResult instance)
+    private static IMediaAnalysis ParseAnalysis(string json, string? path, IReadOnlyList<string> standardError)
     {
-        var json = string.Join(string.Empty, instance.OutputData);
         var ffprobeAnalysis = JsonSerializer.Deserialize<FFProbeAnalysis>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (ffprobeAnalysis?.Format == null)
@@ -185,8 +211,8 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
-        ffprobeAnalysis.ErrorData = instance.ErrorData;
-        return new MediaAnalysis(ffprobeAnalysis);
+        ffprobeAnalysis.StandardError = standardError;
+        return new MediaAnalysis(ffprobeAnalysis, path, json);
     }
 
     private static FFProbeFrames ParseFramesOutput(IProcessResult instance)
@@ -215,11 +241,11 @@ public static class FFProbe
         return ffprobeAnalysis!;
     }
 
-    private static void ThrowIfInputFileDoesNotExist(string filePath)
+    private static void ThrowIfInputFileDoesNotExist(string filePath, FFOptions ffOptions)
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(ffOptions.ResolvePath(filePath)))
         {
-            throw new FFMpegException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
+            throw new FFProbeException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
         }
     }
 
@@ -227,8 +253,7 @@ public static class FFProbe
     {
         if (result.ExitCode != 0)
         {
-            var message = $"ffprobe exited with non-zero exit-code ({result.ExitCode} - {string.Join("\n", result.ErrorData)})";
-            throw new FFMpegException(FFMpegExceptionType.Process, message, null, string.Join("\n", result.ErrorData));
+            throw new FFProbeProcessException(result.ExitCode, result.ErrorData);
         }
     }
 
@@ -240,17 +265,16 @@ public static class FFProbe
 
     private static ProcessArguments PrepareFrameAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
     {
-        return PrepareInstance($"-loglevel error -print_format json -show_frames -v quiet -sexagesimal \"{filePath}\"", ffOptions, customArguments);
+        return PrepareInstance($"-loglevel error -print_format json -show_frames -sexagesimal \"{filePath}\"", ffOptions, customArguments);
     }
 
     private static ProcessArguments PreparePacketAnalysisInstance(string filePath, FFOptions ffOptions, string? customArguments)
     {
-        return PrepareInstance($"-loglevel error -print_format json -show_packets -v quiet -sexagesimal \"{filePath}\"", ffOptions, customArguments);
+        return PrepareInstance($"-loglevel error -print_format json -show_packets -sexagesimal \"{filePath}\"", ffOptions, customArguments);
     }
 
     private static ProcessArguments PrepareInstance(string arguments, FFOptions ffOptions, string? customArguments)
     {
-        FFProbeHelper.RootExceptionCheck();
         FFProbeHelper.VerifyFFProbeExists(ffOptions);
         var startInfo = new ProcessStartInfo(GlobalFFOptions.GetFFProbeBinaryPath(ffOptions), $"{arguments} {customArguments}")
         {

@@ -1,5 +1,6 @@
 ﻿using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
+using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
 
 namespace FFMpegCore.Test;
@@ -7,11 +8,48 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class FFMpegArgumentProcessorTest
 {
+    private const int BaseTimeoutMilliseconds = 60_000;
+
     private static FFMpegArgumentProcessor CreateArgumentProcessor()
     {
         return FFMpegArguments
             .FromFileInput("")
             .OutputToFile("");
+    }
+
+    [TestMethod]
+    public void Processor_SeededOptions_ApplyWhenTheRunIsGivenNone()
+    {
+        var seeded = new FFOptions { WorkingDirectory = "seeded", BinaryFolder = "seeded" };
+        var processor = CreateArgumentProcessor().WithOptions(seeded);
+
+        var options = processor.GetConfiguredOptions(null);
+
+        Assert.AreEqual("seeded", options.WorkingDirectory);
+        Assert.AreEqual("seeded", options.BinaryFolder);
+    }
+
+    [TestMethod]
+    public void Processor_SeededOptions_LoseToOptionsPassedToTheRun()
+    {
+        var processor = CreateArgumentProcessor().WithOptions(new FFOptions { WorkingDirectory = "seeded" });
+
+        var options = processor.GetConfiguredOptions(new FFOptions { WorkingDirectory = "override" });
+
+        Assert.AreEqual("override", options.WorkingDirectory);
+    }
+
+    [TestMethod]
+    public void Processor_SeededOptions_SurviveConfigurationOfAnEarlierRun()
+    {
+        var seeded = new FFOptions { WorkingDirectory = "seeded" };
+        var processor = CreateArgumentProcessor()
+            .WithOptions(seeded)
+            .Configure(options => options.WorkingDirectory = "configured");
+
+        processor.GetConfiguredOptions(null);
+
+        Assert.AreEqual("seeded", seeded.WorkingDirectory);
     }
 
     [TestMethod]
@@ -107,7 +145,7 @@ public class FFMpegArgumentProcessorTest
     {
         return FFMpegArguments
             .FromFileInput(TestResources.Mp4Video)
-            .OutputToFile(output, true, options => options.CopyChannel());
+            .OutputToFile(output, true, options => options.CopyStreams());
     }
 
     [TestMethod]
@@ -118,8 +156,8 @@ public class FFMpegArgumentProcessorTest
         var quietLines = new List<string>();
         var infoLines = new List<string>();
 
-        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Quiet).NotifyOnError(quietLines.Add).ProcessSynchronously();
-        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).NotifyOnError(infoLines.Add).ProcessSynchronously();
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Quiet).NotifyOnStandardError(quietLines.Add).ProcessSynchronously();
+        CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).NotifyOnStandardError(infoLines.Add).ProcessSynchronously();
 
         Assert.IsEmpty(quietLines);
         Assert.IsNotEmpty(infoLines);
@@ -131,7 +169,7 @@ public class FFMpegArgumentProcessorTest
     {
         using var output = new TemporaryFile("out.mp4");
         var lines = new List<string>();
-        var processor = CreateCopyProcessor(output).NotifyOnError(lines.Add);
+        var processor = CreateCopyProcessor(output).NotifyOnStandardError(lines.Add);
 
         processor.ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Quiet });
         Assert.IsEmpty(lines);
@@ -149,7 +187,7 @@ public class FFMpegArgumentProcessorTest
 
         CreateCopyProcessor(output)
             .WithLogLevel(FFMpegLogLevel.Quiet)
-            .NotifyOnError(lines.Add)
+            .NotifyOnStandardError(lines.Add)
             .ProcessSynchronously(true, new FFOptions { LogLevel = FFMpegLogLevel.Info });
 
         Assert.IsEmpty(lines);
@@ -172,20 +210,174 @@ public class FFMpegArgumentProcessorTest
 
     [TestMethod]
     [Timeout(10000, CooperativeCancellation = true)]
-    public async Task Processor_NotifyOnOutput_ReceivesStdout()
+    public async Task Processor_NotifyOnStandardOutput_ReceivesStdout()
     {
         using var output = new TemporaryFile("out.mp4");
         var lines = new List<string>();
 
         var success = await FFMpegArguments
             .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("-progress pipe:1"))
-            .OutputToFile(output, true, options => options.CopyChannel())
-            .NotifyOnOutput(lines.Add)
+            .OutputToFile(output, true, options => options.CopyStreams())
+            .NotifyOnStandardOutput(lines.Add)
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessAsynchronously();
 
-        Assert.IsTrue(success);
+        Assert.IsTrue(success.Success);
         Assert.Contains("progress=end", lines);
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_Result_CarriesExitCodeAndStderr_WhenNotThrowing()
+    {
+        using var output = new TemporaryFile("out.mp4");
+
+        var result = FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video, true, options => options.WithCustomArgument("--not-an-option"))
+            .OutputToFile(output)
+            .ProcessSynchronously(false);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsFalse(result.Cancelled);
+        Assert.AreNotEqual(0, result.ExitCode);
+        Assert.IsTrue(result.StandardError.Any(line => line.Contains("Unrecognized option")));
+    }
+
+    [TestMethod]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_Result_IsSuccessful_OnZeroExit()
+    {
+        using var output = new TemporaryFile("out.mp4");
+
+        var result = CreateCopyProcessor(output).ProcessSynchronously();
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.IsFalse(result.Cancelled);
+    }
+
+    private sealed class CollectingProgress<T> : IProgress<T>
+    {
+        public List<T> Reports { get; } = new();
+
+        public void Report(T value)
+        {
+            lock (Reports)
+            {
+                Reports.Add(value);
+            }
+        }
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_Progress_FromHelper_NeedsNoDuration()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var percentages = new List<double>();
+
+        FFMpeg.RemoveAudio(TestResources.Mp4Video, output)
+            .NotifyOnPercentageProgress(percentages.Add)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessSynchronously();
+
+        Assert.IsNotEmpty(percentages);
+        Assert.AreEqual(100.0, percentages.Last());
+        Assert.IsTrue(percentages.All(percentage => percentage is >= 0 and <= 100));
+    }
+
+    [TestMethod]
+    public void Processor_Progress_WithoutKnownDuration_Throws()
+    {
+        var processor = FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile("out.mp4");
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => processor.NotifyOnPercentageProgress(_ => { }));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_Progress_ReportsThroughIProgress()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var percentages = new CollectingProgress<double>();
+        var times = new CollectingProgress<TimeSpan>();
+        var duration = FFProbe.Analyse(TestResources.Mp4Video).Duration;
+
+        await FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToFile(output, true, options => options.WithVideoCodec(VideoCodec.LibX264).WithSpeedPreset(EncoderPreset.UltraFast))
+            .NotifyOnPercentageProgress(percentages, duration)
+            .NotifyOnProgress(times)
+            .CancellableThrough(TestContext.CancellationToken)
+            .ProcessAsynchronously();
+
+        Assert.AreEqual(100.0, percentages.Reports.Last());
+        Assert.AreEqual(duration, times.Reports.Last());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_CanRunAgain_AfterCancelThroughAction()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var processor = CreateCopyProcessor(output).CancellableThrough(out var cancel);
+
+        cancel();
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
+
+        Assert.IsTrue(processor.ProcessSynchronously().Success);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_CancelledToken_CancelsEveryLaterRun()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        using var cts = new CancellationTokenSource();
+        var processor = CreateCopyProcessor(output).CancellableThrough(cts.Token);
+
+        Assert.IsTrue(processor.ProcessSynchronously().Success);
+        cts.Cancel();
+
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
+        Assert.ThrowsExactly<OperationCanceledException>(() => processor.ProcessSynchronously());
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_CancelledMidPipeInput_ReportsCancellation()
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+
+        var result = await EndlessPipeInput(cts).ProcessAsynchronously(false, cancellationToken: cts.Token);
+
+        Assert.IsTrue(result.Cancelled);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_CancelledMidPipeInput_ThrowsOperationCanceled()
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => EndlessPipeInput(cts).ProcessAsynchronously(cancellationToken: cts.Token));
+    }
+
+    private static FFMpegArgumentProcessor EndlessPipeInput(CancellationTokenSource cancelOnProgress)
+    {
+        return FFMpegArguments
+            .FromPipeInput(new RawAudioPipeSource(Silence(), 48000, 2))
+            .OutputToNull()
+            .NotifyOnProgress(_ => cancelOnProgress.Cancel());
+
+        static IEnumerable<IAudioSample> Silence()
+        {
+            var block = new byte[48000 * 2 * 2 / 10];
+            while (true)
+            {
+                yield return new PcmAudioSampleWrapper(block);
+            }
+        }
     }
 
     [TestMethod]
@@ -196,7 +388,7 @@ public class FFMpegArgumentProcessorTest
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
         Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(missing).OutputToFile(output).ProcessSynchronously());
-        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInputs(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
     }
 
     [TestMethod]
@@ -206,10 +398,49 @@ public class FFMpegArgumentProcessorTest
         using var output = new TemporaryFile("out.mp4");
         File.WriteAllText(output, string.Empty);
 
-        var exception = Assert.ThrowsExactly<FFMpegException>(() =>
+        var exception = Assert.ThrowsExactly<IOException>(() =>
             FFMpegArguments.FromFileInput(TestResources.Mp4Video).OutputToFile(output, false).ProcessSynchronously());
 
-        Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
+        StringAssert.Contains(exception.Message, output);
+    }
+
+    // Don't shrink the output format - ffmpeg must still be writing when the sink throws, or the pipe never breaks
+    private static FFMpegArgumentProcessor CreateProcessorWithFailingSink()
+    {
+        var sink = new StreamPipeSink(async (stream, token) =>
+        {
+            var buffer = new byte[1024];
+            await stream.ReadAsync(buffer, 0, buffer.Length, token);
+            throw new IOException("sink gave up");
+        });
+
+        return FFMpegArguments
+            .FromFileInput(TestResources.Mp4Video)
+            .OutputToPipe(sink, options => options.ForceFormat("rawvideo"));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public void Processor_BrokenOutputPipe_ReportsFFMpegsFailure_NotThePipeException()
+    {
+        var result = CreateProcessorWithFailingSink().ProcessSynchronously(false);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsFalse(result.Cancelled);
+        Assert.AreNotEqual(0, result.ExitCode);
+        Assert.IsNotEmpty(result.StandardError);
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Processor_BrokenOutputPipe_ThrowsFFMpegProcessException_NotThePipeException()
+    {
+        var exception = await Assert.ThrowsExactlyAsync<FFMpegProcessException>(() => CreateProcessorWithFailingSink().ProcessAsynchronously());
+
+        Assert.AreEqual(FFMpegExceptionType.Process, exception.Type);
+        Assert.AreNotEqual(0, exception.Result.ExitCode);
+        Assert.IsFalse(exception.Result.Success);
+        Assert.IsNotEmpty(exception.Result.StandardError);
     }
 
     public TestContext TestContext { get; set; }

@@ -4,7 +4,7 @@ public class BlackDetectArgument : IVideoFilterArgument
 {
     public BlackDetectArgument(double minimumDuration = 2.0, double pictureBlackRatioThreshold = 0.98, double pixelBlackThreshold = 0.1)
     {
-        Value = $"d={minimumDuration}:pic_th={pictureBlackRatioThreshold}:pix_th={pixelBlackThreshold}";
+        Value = FormattableString.Invariant($"d={minimumDuration}:pic_th={pictureBlackRatioThreshold}:pix_th={pixelBlackThreshold}");
     }
 
     public string Key => "blackdetect";

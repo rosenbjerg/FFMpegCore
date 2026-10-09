@@ -8,17 +8,15 @@ public class InputArgument : IInputArgument
     public readonly string FilePath;
     public readonly bool VerifyExists;
 
-    public InputArgument(bool verifyExists, string filePaths)
+    public InputArgument(string filePath, bool verifyExists)
     {
         VerifyExists = verifyExists;
-        FilePath = filePaths;
+        FilePath = filePath;
     }
 
-    public InputArgument(string path, bool verifyExists) : this(verifyExists, path) { }
-
-    public void Pre()
+    public void Pre(FFOptions options)
     {
-        if (VerifyExists && !File.Exists(FilePath))
+        if (VerifyExists && !File.Exists(options.ResolvePath(FilePath)))
         {
             throw new FileNotFoundException("Input file not found", FilePath);
         }

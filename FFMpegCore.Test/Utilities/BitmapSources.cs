@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using System.Numerics;
 using System.Runtime.Versioning;
+using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Extensions.System.Drawing.Common;
 using FFMpegCore.Pipes;
 using SkiaSharp;
@@ -34,7 +35,7 @@ internal static class BitmapSource
     }
 
     [SupportedOSPlatform("windows")]
-    public static BitmapVideoFrameWrapper CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
+    public static SystemDrawingVideoFrame CreateVideoFrame(int index, PixelFormat fmt, int w, int h, float scaleNoise, float offset)
     {
         var bitmap = new Bitmap(w, h, fmt);
 
@@ -44,10 +45,10 @@ internal static class BitmapSource
             bitmap.SetPixel(x, y, color);
         }
 
-        return new BitmapVideoFrameWrapper(bitmap);
+        return new SystemDrawingVideoFrame(bitmap);
     }
 
-    public static Extensions.SkiaSharp.BitmapVideoFrameWrapper CreateVideoFrame(int index, SKColorType fmt, int w, int h, float scaleNoise, float offset)
+    public static SkiaSharpVideoFrame CreateVideoFrame(int index, SKColorType fmt, int w, int h, float scaleNoise, float offset)
     {
         var bitmap = new SKBitmap(w, h, fmt, SKAlphaType.Opaque);
 
@@ -55,7 +56,7 @@ internal static class BitmapSource
             .Select(args => new SKColor(args.red, args.blue, args.green))
             .ToArray();
 
-        return new Extensions.SkiaSharp.BitmapVideoFrameWrapper(bitmap);
+        return new SkiaSharpVideoFrame(bitmap);
     }
 
     private static IEnumerable<(int x, int y, byte red, byte green, byte blue)> GenerateVideoFramePixels(int index, int w, int h, float scaleNoise,

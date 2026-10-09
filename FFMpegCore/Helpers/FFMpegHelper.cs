@@ -1,10 +1,12 @@
-﻿using FFMpegCore.Exceptions;
+﻿using System.Collections.Concurrent;
+using FFMpegCore.Exceptions;
+using Instances.Exceptions;
 
 namespace FFMpegCore.Helpers;
 
-public static class FFMpegHelper
+internal static class FFMpegHelper
 {
-    private static bool _ffmpegVerified;
+    private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
     public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
     {
@@ -19,35 +21,31 @@ public static class FFMpegHelper
         }
     }
 
-    public static void ExtensionExceptionCheck(string filename, string extension)
+    public static void VerifyFFMpegExists(FFOptions ffOptions)
     {
-        if (!extension.Equals(Path.GetExtension(filename), StringComparison.OrdinalIgnoreCase))
-        {
-            throw new FFMpegException(FFMpegExceptionType.File,
-                $"Invalid output file. File extension should be '{extension}' required.");
-        }
-    }
-
-    public static void RootExceptionCheck()
-    {
-        if (GlobalFFOptions.Current.BinaryFolder == null)
-        {
-            throw new FFOptionsException("FFMpeg root is not configured in app config. Missing key 'BinaryFolder'.");
-        }
-    }
-
-    public static void VerifyFFMpegExists(FFOptions ffMpegOptions)
-    {
-        if (_ffmpegVerified)
+        var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions);
+        if (_verifiedBinaries.ContainsKey(binaryPath))
         {
             return;
         }
 
-        var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffMpegOptions), "-version");
-        _ffmpegVerified = result.ExitCode == 0;
-        if (!_ffmpegVerified)
+        try
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, "ffmpeg was not found on your system");
+            if (ProcessHelper.Run(binaryPath, "-version").ExitCode != 0)
+            {
+                throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath));
+            }
         }
+        catch (InstanceFileNotFoundException exception)
+        {
+            throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
+        }
+
+        _verifiedBinaries[binaryPath] = true;
+    }
+
+    private static string NotFoundMessage(string binaryPath)
+    {
+        return $"ffmpeg was not found on your system (tried \"{binaryPath}\")";
     }
 }

@@ -1,18 +1,18 @@
-﻿namespace FFMpegCore.Extensions.Downloader.Exceptions;
+﻿using FFMpegCore.Exceptions;
 
-/// <summary>
-///     Custom exception for FFMpegDownloader
-/// </summary>
-public class FFMpegDownloaderException : Exception
+namespace FFMpegCore.Extensions.Downloader.Exceptions;
+
+public class FFMpegDownloaderException : FFMpegException
 {
-    public readonly string Detail = "";
-
-    public FFMpegDownloaderException(string message) : base(message)
+    public FFMpegDownloaderException(string message) : base(FFMpegExceptionType.Operation, message)
     {
+        Detail = string.Empty;
     }
 
-    public FFMpegDownloaderException(string message, string detail) : base(message)
+    public FFMpegDownloaderException(string message, string detail) : base(FFMpegExceptionType.Operation, message)
     {
         Detail = detail;
     }
+
+    public string Detail { get; }
 }

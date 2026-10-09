@@ -2,7 +2,7 @@
 
 public class FormatNullException : FFProbeException
 {
-    public FormatNullException() : base("Format not specified")
+    public FormatNullException() : base(FFMpegExceptionType.Process, "Format not specified")
     {
     }
 }

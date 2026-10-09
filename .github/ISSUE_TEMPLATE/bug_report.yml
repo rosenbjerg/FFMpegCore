@@ -1,0 +1,61 @@
+name: Bug report
+description: FFMpegCore builds the wrong command, or misbehaves around a command that works on its own.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FFMpegCore runs the `ffmpeg` and `ffprobe` binaries. If the command it builds fails the same way when you run it yourself, the
+        problem is with the command or the input file, not the library — please ask about it on Stack Overflow instead.
+
+        On Linux and macOS, piped input (`FromPipeInput`, `FFProbe.Analyse(Stream)`) needs ffmpeg 8.0 or newer.
+  - type: input
+    id: version
+    attributes:
+      label: FFMpegCore version
+    validations:
+      required: true
+  - type: input
+    id: ffmpeg
+    attributes:
+      label: ffmpeg version
+      description: The first line of `ffmpeg -version`.
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, Linux, macOS, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Code
+      description: The smallest code that shows the problem.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: arguments
+    attributes:
+      label: Command line
+      description: The processor's `.Arguments`, which is what FFMpegCore passes to ffmpeg. For an FFProbe problem, the input you analysed.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: What happened, and what you expected
+      description: Include the exception, or the `StandardError` of the result.
+    validations:
+      required: true
+  - type: checkboxes
+    id: triage
+    attributes:
+      label: Checked
+      options:
+        - label: Running `ffmpeg` with the command line above directly does what I expect, so the problem is in FFMpegCore.
+          required: true
