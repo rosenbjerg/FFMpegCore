@@ -1300,6 +1300,20 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_SpeedAndFps_KeepSmallValues()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputToFile("output.mp4", false, opt => opt
+                .WithVideoFilters(filterOptions => filterOptions.Speed(100000).Fps(1 / 20000.0))
+                .WithAudioFilters(filterOptions => filterOptions.Speed(0.500001)))
+            .Arguments;
+
+        StringAssert.Contains(str, "setpts=0.00001*PTS");
+        StringAssert.Contains(str, "fps=fps=0.00005");
+        StringAssert.Contains(str, "atempo=0.500001");
+    }
+
+    [TestMethod]
     public void Builder_BuildString_VolumeDetect()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

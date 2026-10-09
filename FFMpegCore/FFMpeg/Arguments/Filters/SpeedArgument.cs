@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -19,7 +19,7 @@ public class VideoSpeedArgument : IVideoFilterArgument
     }
 
     public string Key { get; } = "setpts";
-    public string Value => $"{(1 / _multiplier).ToString("0.####", CultureInfo.InvariantCulture)}*PTS";
+    public string Value => $"{(1 / _multiplier).ToInvariantString()}*PTS";
 }
 
 /// <summary>
@@ -41,7 +41,7 @@ public class AudioSpeedArgument : IAudioFilterArgument
     }
 
     public string Key { get; } = "atempo";
-    public string Value => _factor.ToString("0.####", CultureInfo.InvariantCulture);
+    public string Value => _factor.ToInvariantString();
 
     internal static IEnumerable<double> StepsFor(double multiplier)
     {

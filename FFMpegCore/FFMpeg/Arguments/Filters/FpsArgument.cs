@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
@@ -17,7 +17,7 @@ public class FpsArgument : IVideoFilterArgument
             throw new ArgumentOutOfRangeException(nameof(frameRate), "Frame rate must be a positive number");
         }
 
-        _arguments.Add("fps", frameRate.ToString("0.####", CultureInfo.InvariantCulture));
+        _arguments.Add("fps", frameRate.ToInvariantString());
         if (round != null)
         {
             _arguments.Add("round", round.Value.Value);
