@@ -31,7 +31,7 @@ public class ContainerFormat
         var match = FormatRegex.Match(line);
         if (!match.Success)
         {
-            return Enumerable.Empty<ContainerFormat>();
+            return [];
         }
 
         return match.Groups[3].Value.Split(',').Select(name => new ContainerFormat(name)

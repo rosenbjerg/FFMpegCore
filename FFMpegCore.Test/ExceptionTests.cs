@@ -33,7 +33,7 @@ public class ExceptionTests
     {
         var inner = new Exception("inner");
         var probe = new FFProbeException(FFMpegExceptionType.File, "probe", inner);
-        var process = new FFProbeProcessException(1, new[] { "line1", "line2" }, inner);
+        var process = new FFProbeProcessException(1, ["line1", "line2"], inner);
         var formatNull = new FormatNullException();
 
         Assert.IsInstanceOfType<FFMpegException>(probe);

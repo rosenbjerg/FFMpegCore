@@ -38,7 +38,7 @@ public interface IVideoFilterArgument
 
 public class VideoFilterOptions
 {
-    private readonly List<IVideoFilterArgument> _arguments = new();
+    private readonly List<IVideoFilterArgument> _arguments = [];
 
     public IReadOnlyList<IVideoFilterArgument> Arguments => _arguments;
 

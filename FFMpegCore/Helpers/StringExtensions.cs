@@ -42,28 +42,28 @@ internal static class StringExtensions
     }
 
     /// <summary>
-    ///     Scape several characters in subtitle path used by FFmpeg
+    ///     Scape several characters in subtitle path used by FFMpeg
     /// </summary>
     /// <remarks>
-    ///     This is needed because internally FFmpeg use Libav Filters
+    ///     This is needed because internally FFMpeg use Libav Filters
     ///     and the info send to it must be in an specific format
     /// </remarks>
     /// <param name="source"></param>
     /// <returns>Scaped path</returns>
-    public static string ToFFmpegLibavfilterPath(string source)
+    public static string ToFFMpegLibavfilterPath(string source)
     {
         return source.Replace(CharactersSubstitution);
     }
 
-    public static string Replace(this string str, Dictionary<char, string> replaceList)
+    private static string Replace(this string str, Dictionary<char, string> replaceList)
     {
         var parsedString = new StringBuilder();
 
         foreach (var l in str)
         {
-            if (replaceList.ContainsKey(l))
+            if (replaceList.TryGetValue(l, out var value))
             {
-                parsedString.Append(replaceList[l]);
+                parsedString.Append(value);
             }
             else
             {

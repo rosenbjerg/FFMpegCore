@@ -30,7 +30,7 @@ public class ComplexFilterArgument : IArgument
 /// </summary>
 public class ComplexFilterGraph
 {
-    internal readonly List<ComplexFilterChain> Chains = new();
+    internal readonly List<ComplexFilterChain> Chains = [];
 
     /// <summary>Starts a chain reading a stream of an input file.</summary>
     /// <param name="inputFileIndex">Index of the input, in the order the inputs were added.</param>
@@ -66,10 +66,10 @@ public class ComplexFilterGraph
 /// </summary>
 public class ComplexFilterChain
 {
-    private readonly List<(string Key, string Value)> _filters = new();
+    private readonly List<(string Key, string Value)> _filters = [];
     private readonly ComplexFilterGraph _graph;
-    private readonly List<string> _inputs = new();
-    private readonly List<string> _outputs = new();
+    private readonly List<string> _inputs = [];
+    private readonly List<string> _outputs = [];
 
     internal ComplexFilterChain(ComplexFilterGraph graph)
     {

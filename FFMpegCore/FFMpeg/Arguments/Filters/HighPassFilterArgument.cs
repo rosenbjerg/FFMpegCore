@@ -62,7 +62,7 @@ public class HighPassFilterArgument : IAudioFilterArgument
         }
 
         _arguments.Add("r", (precision ?? FilterPrecision.Auto).Value);
-        if (blockSize != null && blockSize >= 0)
+        if (blockSize is >= 0)
         {
             _arguments.Add("b", blockSize.ToString());
         }

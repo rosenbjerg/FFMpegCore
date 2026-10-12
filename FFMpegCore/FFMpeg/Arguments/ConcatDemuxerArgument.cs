@@ -13,7 +13,7 @@ public class ConcatDemuxerArgument : IInputArgument
 
     public ConcatDemuxerArgument(IEnumerable<string> values)
     {
-        _values = values.ToArray();
+        _values = [.. values];
     }
 
     public IEnumerable<string> Values => _values.Select(value => $"file '{Escape(Resolve(value, (_options ?? GlobalFFOptions.Current).WorkingDirectory))}'");

@@ -18,7 +18,7 @@ public static class FFProbe
 
     public static IMediaAnalysis Analyse(Uri uri, FFOptions? ffOptions = null, string? customArguments = null)
     {
-        return FromUri(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFmpegUrl()));
+        return FromUri(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFMpegUrl()));
     }
 
     public static IMediaAnalysis Analyse(Stream stream, FFOptions? ffOptions = null, string? customArguments = null)
@@ -36,7 +36,7 @@ public static class FFProbe
     public static Task<IMediaAnalysis> AnalyseAsync(Uri uri, FFOptions? ffOptions = null, string? customArguments = null,
         CancellationToken cancellationToken = default)
     {
-        return FromUriAsync(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFmpegUrl()),
+        return FromUriAsync(uri, ffOptions, customArguments, PrepareStreamAnalysisInstance, result => ParseOutput(result, uri.ToFFMpegUrl()),
             cancellationToken);
     }
 
@@ -49,7 +49,7 @@ public static class FFProbe
 
     public static IMediaAnalysis FromJson(string json)
     {
-        return ParseAnalysis(json, null, Array.Empty<string>());
+        return ParseAnalysis(json, null, []);
     }
 
     public static FFProbeFrames GetFrames(string filePath, FFOptions? ffOptions = null, string? customArguments = null)
@@ -129,7 +129,7 @@ public static class FFProbe
 
     private static T FromUri<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare, Func<IProcessResult, T> parse)
     {
-        return Run(prepare(uri.ToFFmpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse);
+        return Run(prepare(uri.ToFFMpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse);
     }
 
     private static T Run<T>(ProcessArguments processArguments, Func<IProcessResult, T> parse)
@@ -150,7 +150,7 @@ public static class FFProbe
     private static async Task<T> FromUriAsync<T>(Uri uri, FFOptions? ffOptions, string? customArguments, PrepareProbe prepare,
         Func<IProcessResult, T> parse, CancellationToken cancellationToken)
     {
-        return await RunAsync(prepare(uri.ToFFmpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse, cancellationToken)
+        return await RunAsync(prepare(uri.ToFFMpegUrl(), ffOptions ?? GlobalFFOptions.Current, customArguments), parse, cancellationToken)
             .ConfigureAwait(false);
     }
 

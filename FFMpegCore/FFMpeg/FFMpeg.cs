@@ -138,7 +138,7 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor JoinImageSequence(string output, IEnumerable<string> images, double frameRate = 30,
         Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
-        return JoinImageSequence(output, images.Select(image => FFProbe.Analyse(image, ffOptions)).ToArray(), frameRate, addArguments, ffOptions);
+        return JoinImageSequence(output, [.. images.Select(image => FFProbe.Analyse(image, ffOptions))], frameRate, addArguments, ffOptions);
     }
 
     /// <inheritdoc cref="JoinImageSequence(string,IEnumerable{IMediaAnalysis},double,Action{FFMpegOutputOptions},FFOptions)" />
@@ -296,7 +296,10 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="position">Corner to place it in.</param>
     /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
-    /// <param name="addArguments">Output options such as the video encoder and its quality. Passing them drops the default of copying the audio; add <c>CopyStreams(StreamType.Audio)</c> to keep it.</param>
+    /// <param name="addArguments">
+    ///     Output options such as the video encoder and its quality. Passing them drops the default of copying the audio;
+    ///     add <c>CopyStreams(StreamType.Audio)</c> to keep it.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Watermark(string input, string watermark, string output,
         WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, Action<FFMpegOutputOptions>? addArguments = null,
@@ -314,7 +317,10 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="position">Corner to place it in.</param>
     /// <param name="margin">Distance in pixels from the edges, ignored when centred.</param>
-    /// <param name="addArguments">Output options such as the video encoder and its quality. Passing them drops the default of copying the audio; add <c>CopyStreams(StreamType.Audio)</c> to keep it.</param>
+    /// <param name="addArguments">
+    ///     Output options such as the video encoder and its quality. Passing them drops the default of copying the audio;
+    ///     add <c>CopyStreams(StreamType.Audio)</c> to keep it.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Watermark(IMediaAnalysis source, string watermark, string output,
         WatermarkPosition position = WatermarkPosition.BottomRight, int margin = 10, Action<FFMpegOutputOptions>? addArguments = null,
@@ -437,7 +443,10 @@ public static class FFMpeg
     /// </summary>
     /// <param name="input">Source media file.</param>
     /// <param name="output">Output subtitle file. Its extension decides the format.</param>
-    /// <param name="streamIndex">Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle stream.</param>
+    /// <param name="streamIndex">
+    ///     Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle
+    ///     stream.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor ExtractSubtitles(string input, string output, int? streamIndex = null, FFOptions? ffOptions = null)
     {
@@ -449,7 +458,10 @@ public static class FFMpeg
     /// </summary>
     /// <param name="source">Analysis of the input, which supplies the input path as well as what the helper needs to know about it.</param>
     /// <param name="output">Output subtitle file. Its extension decides the format.</param>
-    /// <param name="streamIndex">Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle stream.</param>
+    /// <param name="streamIndex">
+    ///     Index of the subtitle stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first subtitle
+    ///     stream.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor ExtractSubtitles(IMediaAnalysis source, string output, int? streamIndex = null, FFOptions? ffOptions = null)
     {
@@ -566,7 +578,7 @@ public static class FFMpeg
     /// <param name="inputs">Files to join, in order.</param>
     public static FFMpegArgumentProcessor Concat(FFOptions? ffOptions, string output, params string[] inputs)
     {
-        return Concat(ffOptions, output, inputs.Select(input => FFProbe.Analyse(input, ffOptions)).ToArray());
+        return Concat(ffOptions, output, [.. inputs.Select(input => FFProbe.Analyse(input, ffOptions))]);
     }
 
     /// <inheritdoc cref="Concat(FFOptions,string,IMediaAnalysis[])" />
@@ -618,12 +630,15 @@ public static class FFMpeg
     /// <inheritdoc cref="Join(string, string[])" />
     /// <param name="output">Output video file.</param>
     /// <param name="videos">Videos to join, in order.</param>
-    /// <param name="addArguments">Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default encoder.</param>
+    /// <param name="addArguments">
+    ///     Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default
+    ///     encoder.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Join(string output, IEnumerable<string> videos, Action<FFMpegOutputOptions>? addArguments = null,
         FFOptions? ffOptions = null)
     {
-        return Join(output, videos.Select(video => FFProbe.Analyse(video, ffOptions)).ToArray(), addArguments, ffOptions);
+        return Join(output, [.. videos.Select(video => FFProbe.Analyse(video, ffOptions))], addArguments, ffOptions);
     }
 
     /// <inheritdoc cref="Join(string,IEnumerable{IMediaAnalysis},Action{FFMpegOutputOptions},FFOptions)" />
@@ -644,7 +659,10 @@ public static class FFMpeg
     /// </summary>
     /// <param name="output">Output video file.</param>
     /// <param name="sources">Analyses of the videos to join, in order.</param>
-    /// <param name="addArguments">Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default encoder.</param>
+    /// <param name="addArguments">
+    ///     Output options such as the encoder and its quality. Without them ffmpeg uses the output container's default
+    ///     encoder.
+    /// </param>
     /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
     public static FFMpegArgumentProcessor Join(string output, IEnumerable<IMediaAnalysis> sources, Action<FFMpegOutputOptions>? addArguments = null,
         FFOptions? ffOptions = null)

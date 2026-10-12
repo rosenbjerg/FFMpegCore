@@ -95,7 +95,7 @@ public class FFMetadataBuilderTests
             .WithChapter("One", TimeSpan.FromSeconds(10))
             .WithChapter("Two", TimeSpan.FromSeconds(5))
             .WithChapter("Three", TimeSpan.FromSeconds(1.5))
-            .WithChapters(new[] { 2, 3 }, seconds => (TimeSpan.FromSeconds(seconds), $"Chapter of {seconds}s")));
+            .WithChapters([2, 3], seconds => (TimeSpan.FromSeconds(seconds), $"Chapter of {seconds}s")));
 
         CollectionAssert.AreEqual(new[]
         {
@@ -142,7 +142,7 @@ public class FFMetadataBuilderTests
             .Arguments;
 
         var text1 = FFMpegArguments.FromFileInput("whaterver0")
-            .AddConcatDemuxerInput(new[] { "whaterver", "whaterver1" })
+            .AddConcatDemuxerInput(["whaterver", "whaterver1"])
             .AddMetadata(new FFMetadataBuilder().WithTitle("WhatEver3"))
             .OutputToFile("out.mp4")
             .Arguments;

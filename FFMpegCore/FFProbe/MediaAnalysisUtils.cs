@@ -75,8 +75,6 @@ public static class MediaAnalysisUtils
                 var milliseconds = int.Parse(millisecondsPart);
                 return new TimeSpan(0, hours, minutes, seconds, milliseconds);
             }
-
-            return TimeSpan.Zero;
         }
 
         return TimeSpan.Zero;

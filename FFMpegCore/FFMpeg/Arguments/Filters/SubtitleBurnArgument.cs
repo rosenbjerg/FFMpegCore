@@ -20,17 +20,15 @@ public class SubtitleBurnArgument : IVideoFilterArgument
 
 public class SubtitleBurnOptions
 {
-    private readonly string _subtitle;
-
     public readonly Dictionary<string, string> Parameters = new();
 
     internal SubtitleBurnOptions(string subtitle)
     {
-        _subtitle = subtitle;
+        TextInternal = subtitle;
     }
 
     internal string TextInternal => string
-        .Join(":", new[] { StringExtensions.EncloseInQuotes(StringExtensions.ToFFmpegLibavfilterPath(_subtitle)) }
+        .Join(":", new[] { StringExtensions.EncloseInQuotes(StringExtensions.ToFFMpegLibavfilterPath(field)) }
             .Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(true))));
 
     public SubtitleBurnOptions WithOriginalSize(int width, int height)

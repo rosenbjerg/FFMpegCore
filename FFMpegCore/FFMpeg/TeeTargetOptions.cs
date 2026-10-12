@@ -5,7 +5,7 @@ namespace FFMpegCore;
 
 public class TeeTargetOptions
 {
-    internal readonly List<(string Key, string Value)> Options = new();
+    internal readonly List<(string Key, string Value)> Options = [];
 
     internal TeeTargetOptions(IOutputArgument target)
     {

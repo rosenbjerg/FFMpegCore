@@ -5,14 +5,13 @@
 /// </summary>
 public class MapLabelArgument : IArgument
 {
-    private readonly string _label;
     private readonly bool _negativeMap;
 
     public MapLabelArgument(string label, bool negativeMap = false)
     {
-        _label = label.Trim('[', ']');
+        Text = label.Trim('[', ']');
         _negativeMap = negativeMap;
     }
 
-    public string Text => $"-map {(_negativeMap ? "-" : "")}\"[{_label}]\"";
+    public string Text => $"-map {(_negativeMap ? "-" : "")}\"[{field}]\"";
 }

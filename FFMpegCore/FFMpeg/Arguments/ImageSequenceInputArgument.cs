@@ -9,7 +9,7 @@ public class ImageSequenceInputArgument : IInputArgument
 
     public ImageSequenceInputArgument(IEnumerable<string> images)
     {
-        _images = images.ToArray();
+        _images = [.. images];
         var extensions = _images.Select(image => Path.GetExtension(image).ToLowerInvariant()).Distinct().ToArray();
         if (extensions.Length != 1)
         {

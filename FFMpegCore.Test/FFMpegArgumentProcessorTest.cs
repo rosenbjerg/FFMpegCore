@@ -258,7 +258,7 @@ public class FFMpegArgumentProcessorTest
 
     private sealed class CollectingProgress<T> : IProgress<T>
     {
-        public List<T> Reports { get; } = new();
+        public List<T> Reports { get; } = [];
 
         public void Report(T value)
         {
@@ -388,7 +388,7 @@ public class FFMpegArgumentProcessorTest
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
         Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInput(missing).OutputToFile(output).ProcessSynchronously());
-        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInputs(new[] { TestResources.Mp4Video, missing }).OutputToFile(output).ProcessSynchronously());
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments.FromFileInputs([TestResources.Mp4Video, missing]).OutputToFile(output).ProcessSynchronously());
     }
 
     [TestMethod]

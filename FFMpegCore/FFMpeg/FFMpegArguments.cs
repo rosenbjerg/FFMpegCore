@@ -65,7 +65,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public static FFMpegArguments FromUrlInput(Uri uri, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return new FFMpegArguments().WithInput(new InputArgument(uri.ToFFmpegUrl(), false), addArguments);
+        return new FFMpegArguments().WithInput(new InputArgument(uri.ToFFMpegUrl(), false), addArguments);
     }
 
     public static FFMpegArguments FromUrlInput(string uri, Action<FFMpegInputOptions>? addArguments = null)
@@ -135,7 +135,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArguments AddUrlInput(Uri uri, Action<FFMpegInputOptions>? addArguments = null)
     {
-        return WithInput(new InputArgument(uri.ToFFmpegUrl(), false), addArguments);
+        return WithInput(new InputArgument(uri.ToFFMpegUrl(), false), addArguments);
     }
 
     public FFMpegArguments AddUrlInput(string uri, Action<FFMpegInputOptions>? addArguments = null)
@@ -199,7 +199,7 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 
     public FFMpegArgumentProcessor OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        return ToProcessor(new OutputUrlArgument(uri.ToFFmpegUrl()), addArguments);
+        return ToProcessor(new OutputUrlArgument(uri.ToFFMpegUrl()), addArguments);
     }
 
     public FFMpegArgumentProcessor OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)

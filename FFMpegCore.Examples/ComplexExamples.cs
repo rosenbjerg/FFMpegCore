@@ -163,8 +163,7 @@ public static class ComplexExamples
                 .WithShortest()
                 .WithFastStart())
             .NotifyOnPercentageProgress(percent => Console.WriteLine($"{percent:0.#}%"), source.Duration)
-            .CancellableThrough(cancellationToken)
-            .ProcessAsynchronously();
+            .ProcessAsynchronously(cancellationToken: cancellationToken);
     }
 
     // A QC pass: decode once, write nothing, and read what the detection filters report on stderr.

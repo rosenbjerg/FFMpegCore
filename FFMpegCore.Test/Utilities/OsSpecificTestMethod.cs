@@ -18,10 +18,12 @@ internal class OsSpecificTestMethod : TestMethodAttribute
     public OsSpecificTestMethod(OsPlatforms supportedOsPlatforms, [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = -1) : base(callerFilePath, callerLineNumber)
     {
-        _supportedOsPlatforms = Enum.GetValues<OsPlatforms>()
-            .Where(platform => supportedOsPlatforms.HasFlag(platform))
-            .Select(platform => OSPlatform.Create(platform.ToString().ToUpperInvariant()))
-            .ToArray();
+        _supportedOsPlatforms =
+        [
+            .. Enum.GetValues<OsPlatforms>()
+                .Where(platform => supportedOsPlatforms.HasFlag(platform))
+                .Select(platform => OSPlatform.Create(platform.ToString().ToUpperInvariant()))
+        ];
     }
 
     public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)

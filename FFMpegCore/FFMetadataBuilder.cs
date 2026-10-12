@@ -5,7 +5,7 @@ namespace FFMpegCore;
 
 public class FFMetadataBuilder
 {
-    private readonly List<ChapterData> _chapters = new();
+    private readonly List<ChapterData> _chapters = [];
     private readonly Dictionary<string, string> _tags = new();
 
     public FFMetadataBuilder WithTag(string key, string value)

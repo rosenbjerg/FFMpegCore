@@ -5,11 +5,9 @@
 /// </summary>
 public class InputDeviceArgument : IInputArgument
 {
-    private readonly string Device;
-
     public InputDeviceArgument(string device)
     {
-        Device = device;
+        Text = device;
     }
 
     public Task During(CancellationToken cancellationToken = default)
@@ -21,5 +19,5 @@ public class InputDeviceArgument : IInputArgument
 
     public void Post() { }
 
-    public string Text => $"-i {Device}";
+    public string Text => $"-i {field}";
 }

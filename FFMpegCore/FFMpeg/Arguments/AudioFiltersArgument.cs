@@ -37,7 +37,7 @@ public interface IAudioFilterArgument
 
 public class AudioFilterOptions
 {
-    private readonly List<IAudioFilterArgument> _arguments = new();
+    private readonly List<IAudioFilterArgument> _arguments = [];
 
     public IReadOnlyList<IAudioFilterArgument> Arguments => _arguments;
 

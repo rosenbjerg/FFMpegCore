@@ -4,30 +4,31 @@ using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using Instances;
+using Instances.Exceptions;
 
 namespace FFMpegCore;
 
 public class FFMpegArgumentProcessor
 {
     private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+    private static readonly TimeSpan DefaultCancellationGracePeriod = TimeSpan.FromSeconds(5);
+    private readonly List<(CancellationToken Token, TimeSpan GracePeriod)> _cancellationTokens = [];
     private readonly List<Action<FFOptions>> _configurations;
     private readonly FFMpegArguments _ffMpegArguments;
-    private static readonly TimeSpan DefaultCancellationGracePeriod = TimeSpan.FromSeconds(5);
-    private readonly List<(CancellationToken Token, TimeSpan GracePeriod)> _cancellationTokens = new();
-    private bool _cancelled;
     private TimeSpan _cancellationGracePeriod;
+    private bool _cancelled;
     private FFOptions? _ffOptions;
     private TimeSpan? _knownDuration;
     private FFMpegLogLevel? _logLevel;
+    private Action<double>? _onPercentageProgress;
     private Action<string>? _onStandardError;
     private Action<string>? _onStandardOutput;
-    private Action<double>? _onPercentageProgress;
     private Action<TimeSpan>? _onTimeProgress;
     private TimeSpan? _totalTimespan;
 
     internal FFMpegArgumentProcessor(FFMpegArguments ffMpegArguments)
     {
-        _configurations = new List<Action<FFOptions>>();
+        _configurations = [];
         _ffMpegArguments = ffMpegArguments;
     }
 
@@ -193,7 +194,7 @@ public class FFMpegArgumentProcessor
     {
         IProcessResult processResult = null!;
         var tokens = runToken.CanBeCanceled
-            ? _cancellationTokens.Append((Token: runToken, GracePeriod: DefaultCancellationGracePeriod)).ToList()
+            ? [.. _cancellationTokens, (Token: runToken, GracePeriod: DefaultCancellationGracePeriod)]
             : _cancellationTokens;
         if (_cancelled || tokens.Any(registered => registered.Token.IsCancellationRequested))
         {
@@ -247,7 +248,7 @@ public class FFMpegArgumentProcessor
                     {
                         action();
                     }
-                    catch (Instances.Exceptions.InstanceProcessAlreadyExitedException)
+                    catch (InstanceProcessAlreadyExitedException)
                     {
                         //ignore
                     }
@@ -298,7 +299,7 @@ public class FFMpegArgumentProcessor
 
     private FFMpegResult HandleCompletion(bool throwOnError, IProcessResult? processResult, bool cancelled)
     {
-        var result = new FFMpegResult(processResult?.ExitCode ?? -1, processResult?.ErrorData ?? Array.Empty<string>(), cancelled);
+        var result = new FFMpegResult(processResult?.ExitCode ?? -1, processResult?.ErrorData ?? [], cancelled);
         if (throwOnError && result.ExitCode != 0)
         {
             throw new FFMpegProcessException(result);

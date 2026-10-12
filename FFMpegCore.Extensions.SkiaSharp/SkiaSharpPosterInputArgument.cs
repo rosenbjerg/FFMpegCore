@@ -23,7 +23,7 @@ internal class SkiaSharpPosterInputArgument : IInputArgument
         _path = PathIn(options);
         using var fileStream = File.OpenWrite(_path);
         _written = true;
-        _poster.Encode(fileStream, SKEncodedImageFormat.Png, default);
+        _poster.Encode(fileStream, SKEncodedImageFormat.Png, 0);
     }
 
     public Task During(CancellationToken cancellationToken = default)

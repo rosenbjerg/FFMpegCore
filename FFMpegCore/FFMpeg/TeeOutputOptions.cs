@@ -6,7 +6,7 @@ namespace FFMpegCore;
 
 public class TeeOutputOptions
 {
-    internal readonly List<TeeTargetOptions> Targets = new();
+    internal readonly List<TeeTargetOptions> Targets = [];
 
     internal TeeOutputOptions() { }
 
@@ -27,7 +27,7 @@ public class TeeOutputOptions
 
     public TeeOutputOptions OutputToUrl(Uri uri, Action<TeeTargetOptions>? addArguments = null)
     {
-        return AddTarget(new OutputUrlArgument(uri.ToFFmpegUrl()), addArguments);
+        return AddTarget(new OutputUrlArgument(uri.ToFFMpegUrl()), addArguments);
     }
 
     public TeeOutputOptions OutputToPipe(IPipeSink reader, Action<TeeTargetOptions>? addArguments = null)

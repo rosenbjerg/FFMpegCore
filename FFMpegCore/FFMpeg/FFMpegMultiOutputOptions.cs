@@ -6,7 +6,7 @@ namespace FFMpegCore;
 
 public class FFMpegMultiOutputOptions
 {
-    internal readonly List<FFMpegOutputOptions> Outputs = new();
+    internal readonly List<FFMpegOutputOptions> Outputs = [];
 
     public IEnumerable<IArgument> Arguments => Outputs.SelectMany(o => o.Arguments);
 
@@ -27,7 +27,7 @@ public class FFMpegMultiOutputOptions
 
     public FFMpegMultiOutputOptions OutputToUrl(Uri uri, Action<FFMpegOutputOptions>? addArguments = null)
     {
-        return AddOutput(new OutputUrlArgument(uri.ToFFmpegUrl()), addArguments);
+        return AddOutput(new OutputUrlArgument(uri.ToFFMpegUrl()), addArguments);
     }
 
     public FFMpegMultiOutputOptions OutputToPipe(IPipeSink reader, Action<FFMpegOutputOptions>? addArguments = null)

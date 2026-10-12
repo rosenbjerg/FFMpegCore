@@ -10,9 +10,9 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class ArgumentBuilderTest
 {
-    private readonly string[] _concatFiles = { "1.mp4", "2.mp4", "3.mp4", "4.mp4" };
+    private readonly string[] _concatFiles = ["1.mp4", "2.mp4", "3.mp4", "4.mp4"];
     private readonly int _macOsMaxPipePathLength = 104;
-    private readonly string[] _multiFiles = { "1.mp3", "2.mp3", "3.mp3", "4.mp3" };
+    private readonly string[] _multiFiles = ["1.mp3", "2.mp3", "3.mp3", "4.mp3"];
 
     [TestMethod]
     public void Builder_BuildString_IO_1()
@@ -25,8 +25,8 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_MultipleFileInputs_ApplyTheirOptionsToEveryFile()
     {
         var str = FFMpegArguments
-            .FromFileInputs(new[] { "a.png", "b.png" }, false, opt => opt.WithLoop())
-            .AddFileInputs(new[] { "c.mp3", "d.mp3" }, false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
+            .FromFileInputs(["a.png", "b.png"], false, opt => opt.WithLoop())
+            .AddFileInputs(["c.mp3", "d.mp3"], false, opt => opt.WithStartTime(TimeSpan.FromSeconds(2)))
             .OutputToFile("output.mp4", false)
             .Arguments;
 
@@ -39,13 +39,13 @@ public class ArgumentBuilderTest
     {
         var withFlags = FFMpegArguments
             .FromFileInput("input.mp4", true, opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, true, opt => opt.WithLoop())
+            .AddFileInputs(["a.mp3", "b.mp3"], true, opt => opt.WithLoop())
             .AddFileInput(new FileInfo("c.mp3"), true, opt => opt.WithStreamLoop(2))
             .OutputToFile("output.mp4", true, opt => opt.CopyStreams())
             .Arguments;
         var withoutFlags = FFMpegArguments
             .FromFileInput("input.mp4", opt => opt.WithStartTime(TimeSpan.FromSeconds(1)))
-            .AddFileInputs(new[] { "a.mp3", "b.mp3" }, opt => opt.WithLoop())
+            .AddFileInputs(["a.mp3", "b.mp3"], opt => opt.WithLoop())
             .AddFileInput(new FileInfo("c.mp3"), opt => opt.WithStreamLoop(2))
             .OutputToFile("output.mp4", opt => opt.CopyStreams())
             .Arguments;
@@ -200,17 +200,17 @@ public class ArgumentBuilderTest
 
     public static IEnumerable<object[]> InputSideOptions()
     {
-        yield return new object[] { "-s 1920x1080", (Action<FFMpegInputOptions>)(opt => opt.WithFrameSize(new Size(1920, 1080))) };
-        yield return new object[] { "-pix_fmt yuv420p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat("yuv420p")) };
-        yield return new object[] { "-pix_fmt yuv444p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat(new PixelFormat("yuv444p"))) };
-        yield return new object[] { "-ar 48000", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate()) };
-        yield return new object[] { "-ar 44100", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate(44100)) };
-        yield return new object[] { "-start_number 7", (Action<FFMpegInputOptions>)(opt => opt.WithStartNumber(7)) };
-        yield return new object[] { "-threads 4", (Action<FFMpegInputOptions>)(opt => opt.WithThreads(4)) };
-        yield return new object[] { "-vn", (Action<FFMpegInputOptions>)(opt => opt.DisableVideo()) };
-        yield return new object[] { "-an", (Action<FFMpegInputOptions>)(opt => opt.DisableAudio()) };
-        yield return new object[] { "-sn", (Action<FFMpegInputOptions>)(opt => opt.DisableSubtitles()) };
-        yield return new object[] { "-dn", (Action<FFMpegInputOptions>)(opt => opt.DisableData()) };
+        yield return ["-s 1920x1080", (Action<FFMpegInputOptions>)(opt => opt.WithFrameSize(new Size(1920, 1080)))];
+        yield return ["-pix_fmt yuv420p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat("yuv420p"))];
+        yield return ["-pix_fmt yuv444p", (Action<FFMpegInputOptions>)(opt => opt.WithPixelFormat(new PixelFormat("yuv444p")))];
+        yield return ["-ar 48000", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate())];
+        yield return ["-ar 44100", (Action<FFMpegInputOptions>)(opt => opt.WithAudioSamplingRate(44100))];
+        yield return ["-start_number 7", (Action<FFMpegInputOptions>)(opt => opt.WithStartNumber(7))];
+        yield return ["-threads 4", (Action<FFMpegInputOptions>)(opt => opt.WithThreads(4))];
+        yield return ["-vn", (Action<FFMpegInputOptions>)(opt => opt.DisableVideo())];
+        yield return ["-an", (Action<FFMpegInputOptions>)(opt => opt.DisableAudio())];
+        yield return ["-sn", (Action<FFMpegInputOptions>)(opt => opt.DisableSubtitles())];
+        yield return ["-dn", (Action<FFMpegInputOptions>)(opt => opt.DisableData())];
     }
 
     [TestMethod]
@@ -1385,7 +1385,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_SelectStreams()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithMap(1, StreamType.Video, new[] { 0, 2 }))
+            .OutputToFile("output.mp4", false, opt => opt.WithMap(1, StreamType.Video, [0, 2]))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map 1:v:0 -map 1:v:2 \"output.mp4\"", str);
@@ -1432,7 +1432,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_DeselectStreams()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(0, StreamType.Audio, new[] { 1, 2 }))
+            .OutputToFile("output.mp4", false, opt => opt.WithNegativeMap(0, StreamType.Audio, [1, 2]))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -map -0:a:1 -map -0:a:2 \"output.mp4\"", str);
@@ -1644,7 +1644,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_ComplexFilter_ConcatWithAudio()
     {
-        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4" })
+        var str = FFMpegArguments.FromFileInputs(["a.mp4", "b.mp4"])
             .OutputToFile("output.mp4", false, opt => opt
                 .WithComplexFilter(g => g
                     .From(0, StreamType.Video, 0)
@@ -1679,7 +1679,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void ComplexFilter_ConcatAndAudioMixCountTheChainsInputs()
     {
-        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4" }, false)
+        var str = FFMpegArguments.FromFileInputs(["a.mp4", "b.mp4"], false)
             .OutputToFile("output.mp4", false, opt => opt
                 .WithComplexFilter(graph => graph
                     .From(0, StreamType.Video, 0).From(0, StreamType.Audio, 0)
@@ -2026,7 +2026,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void Builder_BuildString_AddMetadata_CountsEveryFileOfAMultiInput()
     {
-        var str = FFMpegArguments.FromFileInputs(new[] { "a.mp4", "b.mp4", "c.mp4" }, false)
+        var str = FFMpegArguments.FromFileInputs(["a.mp4", "b.mp4", "c.mp4"], false)
             .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false)
             .Arguments;
@@ -2038,7 +2038,7 @@ public class ArgumentBuilderTest
     public void Builder_BuildString_AddMetadata_CountsTheConcatDemuxerAsOneInput()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
-            .AddConcatDemuxerInput(new[] { "a.mp4", "b.mp4" })
+            .AddConcatDemuxerInput(["a.mp4", "b.mp4"])
             .AddMetadata(new FFMetadataBuilder())
             .OutputToFile("output.mp4", false)
             .Arguments;
@@ -2183,7 +2183,7 @@ public class ArgumentBuilderTest
     [TestMethod]
     public void ImageSequenceInput_RejectsMixedExtensions()
     {
-        Assert.ThrowsExactly<ArgumentException>(() => new ImageSequenceInputArgument(new[] { "a.png", "b.jpg" }));
+        Assert.ThrowsExactly<ArgumentException>(() => new ImageSequenceInputArgument(["a.png", "b.jpg"]));
     }
 
     private class BareNameVideoFilter : IVideoFilterArgument

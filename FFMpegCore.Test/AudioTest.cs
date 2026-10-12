@@ -537,7 +537,7 @@ public class AudioTest
     [TestMethod]
     public void PcmAudioSampleWrapper_WritesBytes_SyncAndAsync()
     {
-        var sample = new PcmAudioSampleWrapper(new byte[] { 1, 2, 3, 4 });
+        var sample = new PcmAudioSampleWrapper([1, 2, 3, 4]);
         using var sync = new MemoryStream();
         using var async = new MemoryStream();
 

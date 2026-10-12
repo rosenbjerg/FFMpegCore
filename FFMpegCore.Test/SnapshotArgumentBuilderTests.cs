@@ -5,28 +5,6 @@ namespace FFMpegCore.Test;
 [TestClass]
 public class SnapshotArgumentBuilderTests
 {
-    private sealed class VideoOnlyAnalysis : IMediaAnalysis
-    {
-        public VideoOnlyAnalysis(int width, int height, int rotation)
-        {
-            PrimaryVideoStream = new VideoStream { Index = 0, Width = width, Height = height, Rotation = rotation };
-            VideoStreams = new List<VideoStream> { PrimaryVideoStream };
-        }
-
-        public string Path => "input.mp4";
-        public string Json => string.Empty;
-        public TimeSpan Duration => TimeSpan.FromSeconds(3);
-        public MediaFormat Format => new();
-        public IReadOnlyList<ChapterData> Chapters => [];
-        public AudioStream PrimaryAudioStream => null;
-        public VideoStream PrimaryVideoStream { get; }
-        public SubtitleStream PrimarySubtitleStream => null;
-        public IReadOnlyList<VideoStream> VideoStreams { get; }
-        public IReadOnlyList<AudioStream> AudioStreams => [];
-        public IReadOnlyList<SubtitleStream> SubtitleStreams => [];
-        public IReadOnlyList<string> StandardError => Array.Empty<string>();
-    }
-
     private static string SnapshotArguments(IMediaAnalysis source, Size? size)
     {
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, "output.png", size);
@@ -63,5 +41,27 @@ public class SnapshotArgumentBuilderTests
     public void Snapshot_WithoutASize_AddsNoScaleFilter()
     {
         Assert.DoesNotContain("scale", SnapshotArguments(new VideoOnlyAnalysis(1280, 720, 0), null));
+    }
+
+    private sealed class VideoOnlyAnalysis : IMediaAnalysis
+    {
+        public VideoOnlyAnalysis(int width, int height, int rotation)
+        {
+            PrimaryVideoStream = new VideoStream { Index = 0, Width = width, Height = height, Rotation = rotation };
+            VideoStreams = new List<VideoStream> { PrimaryVideoStream };
+        }
+
+        public string Path => "input.mp4";
+        public string Json => string.Empty;
+        public TimeSpan Duration => TimeSpan.FromSeconds(3);
+        public MediaFormat Format => new();
+        public IReadOnlyList<ChapterData> Chapters => [];
+        public AudioStream PrimaryAudioStream => null;
+        public VideoStream PrimaryVideoStream { get; }
+        public SubtitleStream PrimarySubtitleStream => null;
+        public IReadOnlyList<VideoStream> VideoStreams { get; }
+        public IReadOnlyList<AudioStream> AudioStreams => [];
+        public IReadOnlyList<SubtitleStream> SubtitleStreams => [];
+        public IReadOnlyList<string> StandardError => [];
     }
 }

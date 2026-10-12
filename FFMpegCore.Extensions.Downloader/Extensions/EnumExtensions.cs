@@ -22,10 +22,12 @@ internal static class EnumExtensions
 
     internal static TEnum[] GetFlags<TEnum>(this TEnum input) where TEnum : Enum
     {
-        return Enum.GetValues(input.GetType())
-            .Cast<Enum>()
-            .Where(input.HasFlag)
-            .Cast<TEnum>()
-            .ToArray();
+        return
+        [
+            .. Enum.GetValues(input.GetType())
+                .Cast<Enum>()
+                .Where(input.HasFlag)
+                .Cast<TEnum>()
+        ];
     }
 }

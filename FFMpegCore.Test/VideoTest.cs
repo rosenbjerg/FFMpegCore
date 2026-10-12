@@ -629,7 +629,7 @@ public class VideoTest
         var expected = bitmap.GetPixel(0, 0);
 
         FFMpegArguments
-            .FromPipeInput(new RawVideoPipeSource(new[] { new SystemDrawingVideoFrame(bitmap) }))
+            .FromPipeInput(new RawVideoPipeSource([new SystemDrawingVideoFrame(bitmap)]))
             .OutputToFile(outputFile, true, o => o.WithFrameCount(1))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -655,7 +655,7 @@ public class VideoTest
         var expected = bitmap.GetPixel(0, 0);
 
         FFMpegArguments
-            .FromPipeInput(new RawVideoPipeSource(new[] { new SkiaSharpVideoFrame(bitmap) }))
+            .FromPipeInput(new RawVideoPipeSource([new SkiaSharpVideoFrame(bitmap)]))
             .OutputToFile(outputFile, true, o => o.WithFrameCount(1))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -670,7 +670,7 @@ public class VideoTest
     public void RawVideoPipeSource_AcceptsAnArrayOfFrames()
     {
         using var bitmap = new SKBitmap(new SKImageInfo(16, 8, SKColorType.Bgra8888));
-        var source = new RawVideoPipeSource(new IVideoFrame[] { new SkiaSharpVideoFrame(bitmap) });
+        var source = new RawVideoPipeSource([new SkiaSharpVideoFrame(bitmap)]);
 
         Assert.AreEqual("-f rawvideo -r 25 -pix_fmt bgra -s 16x8", source.GetStreamArguments());
     }
@@ -1010,7 +1010,7 @@ public class VideoTest
         var imageAnalysis = FFProbe.Analyse(imageSet.First());
 
         using var outputFile = new TemporaryFile("out.mp4");
-        var success = FFMpeg.JoinImageSequence(outputFile, 10, imageSet.ToArray()).ProcessSynchronously();
+        var success = FFMpeg.JoinImageSequence(outputFile, 10, [.. imageSet]).ProcessSynchronously();
         Assert.IsTrue(success.Success);
         var result = FFProbe.Analyse(outputFile);
 
@@ -1908,7 +1908,7 @@ public class VideoTest
 
         var watermark = FFMpeg.Watermark(TestResources.Mp4Video, TestResources.PngImage, "out.mp4", addArguments: x265).Arguments;
         var poster = FFMpeg.PosterWithAudio(TestResources.PngImage, TestResources.Mp3Audio, "out.mp4", addArguments: x265).Arguments;
-        var sequence = FFMpeg.JoinImageSequence("out.mp4", new[] { TestResources.PngImage }, 1, x265).Arguments;
+        var sequence = FFMpeg.JoinImageSequence("out.mp4", [TestResources.PngImage], 1, x265).Arguments;
 
         foreach (var arguments in new[] { watermark, poster, sequence })
         {
@@ -1938,7 +1938,7 @@ public class VideoTest
     {
         using var outputFile = new TemporaryFile("out.mp4");
 
-        var success = FFMpeg.Join(outputFile, new[] { TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio },
+        var success = FFMpeg.Join(outputFile, [TestResources.Mp4WithoutAudio, TestResources.Mp4WithoutAudio],
                 options => options.WithVideoCodec(VideoCodec.LibX264).WithConstantRateFactor(30).WithSpeedPreset(EncoderPreset.UltraFast))
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -1954,7 +1954,7 @@ public class VideoTest
         using var outputFile = new TemporaryFile("out.mp4");
 
         var success = FFMpegArguments
-            .FromConcatDemuxerInput(new[] { TestResources.Mp4Video, TestResources.Mp4Video })
+            .FromConcatDemuxerInput([TestResources.Mp4Video, TestResources.Mp4Video])
             .OutputToFile(outputFile, true, options => options.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously();
@@ -1973,7 +1973,7 @@ public class VideoTest
         var options = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.ImageCollection + "/..") };
 
         var result = FFMpegArguments
-            .FromConcatDemuxerInput(new[] { Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video) })
+            .FromConcatDemuxerInput([Path.GetFileName(TestResources.Mp4Video), Path.GetFileName(TestResources.Mp4Video)])
             .OutputToFile(outputFile, true, o => o.CopyStreams())
             .CancellableThrough(TestContext.CancellationToken)
             .ProcessSynchronously(true, options);
@@ -2079,7 +2079,7 @@ public class VideoTest
         try
         {
             FFMpegArguments
-                .FromConcatDemuxerInput(new[] { TestResources.Mp4Video })
+                .FromConcatDemuxerInput([TestResources.Mp4Video])
                 .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
                 .OutputToFile(outputFile, true, o => o.CopyStreams())
                 .NotifyOnStandardError(stderr.Add)
@@ -2107,7 +2107,7 @@ public class VideoTest
         {
             Assert.ThrowsExactly<FileNotFoundException>(() => FFMpegArguments
                 .FromImageSequenceInput(Directory.GetFiles(TestResources.ImageCollection))
-                .AddConcatDemuxerInput(new[] { TestResources.Mp4Video })
+                .AddConcatDemuxerInput([TestResources.Mp4Video])
                 .AddMetadata(new FFMetadataBuilder().WithTitle("title"))
                 .AddInput(pipeInput)
                 .AddFileInput("missing.mp4")

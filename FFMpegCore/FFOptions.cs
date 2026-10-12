@@ -16,11 +16,9 @@ public class FFOptions : ICloneable
     /// </summary>
     public string BinaryFolder
     {
-        get => _binaryFolder;
-        set => _binaryFolder = value ?? string.Empty;
-    }
-
-    private string _binaryFolder = string.Empty;
+        get;
+        set => field = value ?? string.Empty;
+    } = string.Empty;
 
     /// <summary>
     ///     Folder used for temporary files necessary for static methods on FFMpeg class

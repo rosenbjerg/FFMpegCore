@@ -7,17 +7,15 @@ namespace FFMpegCore.Arguments;
 /// </summary>
 public class ForceFormatArgument : IArgument
 {
-    private readonly string _format;
-
     public ForceFormatArgument(string format)
     {
-        _format = format;
+        Text = format;
     }
 
     public ForceFormatArgument(ContainerFormat format)
     {
-        _format = format.Name;
+        Text = format.Name;
     }
 
-    public string Text => $"-f {_format}";
+    public string Text => $"-f {field}";
 }

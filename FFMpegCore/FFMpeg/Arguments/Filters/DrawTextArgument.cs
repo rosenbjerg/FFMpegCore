@@ -18,7 +18,7 @@ public class DrawTextArgument : IVideoFilterArgument
 
 public class DrawTextOptions
 {
-    public readonly List<(string key, string value)> Parameters = new();
+    public readonly List<(string key, string value)> Parameters = [];
     public readonly string Text;
 
     internal DrawTextOptions(string text)
