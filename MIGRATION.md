@@ -432,6 +432,7 @@ A target's `OutputToFile(path, overwrite: false)` was overwritten anyway wheneve
 | `TagExtensions.GetLanguage`/`GetRotate`/`GetDuration` | internal — use `MediaStream.Language`, `VideoStream.Rotation` and `Duration`, which parse them. `GetCreationTime` stays |
 | `MediaAnalysisUtils` | internal — it was the analysis' own parsing |
 | `ITagsContainer.Tags`, `MediaStream.Tags`, `MediaFormat.Tags` (`Dictionary<string, string>`) | `IReadOnlyDictionary<string, string>`; `MediaStream.SideData` likewise holds read-only lists and dictionaries |
+| `MediaStream`, `VideoStream`, `AudioStream`, `SubtitleStream`, `MediaFormat` (settable, constructible) | read-only — their setters and constructors are internal, and `Disposition` is an `IReadOnlyDictionary<string, bool>`. A probe result describes a file, so changing it only misled whatever read it next. To fake an analysis in a test, build one with `FFProbe.FromJson` |
 | `FFMpegImage` in both image extension packages | `SystemDrawingImage` and `SkiaSharpImage`, so both can be referenced at once |
 | `BitmapVideoFrameWrapper` in both image extension packages | `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame` |
 | `BitmapExtensions` in both image extension packages | `SystemDrawingImageExtensions` and `SkiaSharpBitmapExtensions` |

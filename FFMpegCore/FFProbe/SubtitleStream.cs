@@ -2,4 +2,5 @@
 
 public class SubtitleStream : MediaStream
 {
+    internal SubtitleStream() { }
 }
