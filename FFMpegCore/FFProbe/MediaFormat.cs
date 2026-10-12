@@ -9,5 +9,5 @@ public class MediaFormat : ITagsContainer
     public int StreamCount { get; set; }
     public double ProbeScore { get; set; }
     public long BitRate { get; set; }
-    public Dictionary<string, string>? Tags { get; set; }
+    public IReadOnlyDictionary<string, string>? Tags { get; set; }
 }

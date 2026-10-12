@@ -211,8 +211,7 @@ public static class FFProbe
             throw new FormatNullException();
         }
 
-        ffprobeAnalysis.StandardError = standardError;
-        return new MediaAnalysis(ffprobeAnalysis, path, json);
+        return new MediaAnalysis(ffprobeAnalysis, path, json, standardError);
     }
 
     private static FFProbeFrames ParseFramesOutput(IProcessResult instance)

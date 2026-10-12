@@ -252,6 +252,24 @@ public class FFProbeTests
     }
 
     [TestMethod]
+    public void Raw_KeepsWhatTheTypedModelDoesNotMap()
+    {
+        var analysis = FFProbe.FromJson("""
+            {
+              "format": { "format_name": "mov", "probe_score": 100, "future_key": "x" },
+              "streams": [ { "index": 0, "codec_type": "video", "codec_name": "h264", "new_stream_key": 7 } ],
+              "chapters": [ { "id": 3, "time_base": "1/1000", "start_time": "0:00:00.000", "end_time": "0:00:01.000" } ]
+            }
+            """);
+
+        Assert.AreEqual(100, analysis.Raw.Format.ProbeScore);
+        Assert.AreEqual("x", analysis.Raw.Format.ExtensionData["future_key"].GetString());
+        Assert.AreEqual(7, analysis.Raw.Streams[0].ExtensionData["new_stream_key"].GetInt32());
+        Assert.IsEmpty(analysis.Raw.Streams[0].ExtensionData.Where(pair => pair.Key == "codec_name"));
+        Assert.AreEqual("1/1000", analysis.Raw.Chapters[0].TimeBase);
+    }
+
+    [TestMethod]
     public void FromJson_RejectsJsonWithoutAFormat()
     {
         Assert.ThrowsExactly<FormatNullException>(() => FFProbe.FromJson("{}"));
@@ -283,7 +301,7 @@ public class FFProbeTests
 
     private static MediaAnalysis Analysis(params FFProbeStream[] streams)
     {
-        return new MediaAnalysis(new FFProbeAnalysis { Format = new Format(), Chapters = [], Streams = [.. streams] }, null, string.Empty);
+        return new MediaAnalysis(new FFProbeAnalysis { Format = new FFProbeFormat(), Chapters = [], Streams = [.. streams] }, null, string.Empty, []);
     }
 
     private static FFProbeStream Stream(int index, string codecType, bool isDefault = false, string duration = null)

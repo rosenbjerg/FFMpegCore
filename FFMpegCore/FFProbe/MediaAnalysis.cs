@@ -2,21 +2,24 @@
 
 internal class MediaAnalysis : IMediaAnalysis
 {
-    internal MediaAnalysis(FFProbeAnalysis analysis, string? path, string json)
+    internal MediaAnalysis(FFProbeAnalysis analysis, string? path, string json, IReadOnlyList<string> standardError)
     {
         Path = path;
         Json = json;
+        Raw = analysis;
         Format = ParseFormat(analysis.Format);
         Chapters = [.. analysis.Chapters.Select(ParseChapter)];
         VideoStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream)];
         AudioStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream)];
         SubtitleStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream)];
-        StandardError = analysis.StandardError;
+        StandardError = standardError;
     }
 
     public string? Path { get; }
 
     public string Json { get; }
+
+    public FFProbeAnalysis Raw { get; }
 
     public TimeSpan Duration => VideoStreams.Select(stream => stream.Duration)
         .Concat(AudioStreams.Select(stream => stream.Duration))
@@ -45,7 +48,7 @@ internal class MediaAnalysis : IMediaAnalysis
             .FirstOrDefault();
     }
 
-    private MediaFormat ParseFormat(Format analysisFormat)
+    private MediaFormat ParseFormat(FFProbeFormat analysisFormat)
     {
         return new MediaFormat
         {
@@ -60,12 +63,12 @@ internal class MediaAnalysis : IMediaAnalysis
         };
     }
 
-    private string GetValue(string tagName, Dictionary<string, string>? tags, string defaultValue)
+    private string GetValue(string tagName, IReadOnlyDictionary<string, string>? tags, string defaultValue)
     {
         return tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;
     }
 
-    private ChapterData ParseChapter(Chapter analysisChapter)
+    private ChapterData ParseChapter(FFProbeChapter analysisChapter)
     {
         var title = GetValue("title", analysisChapter.Tags, string.Empty);
         var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);

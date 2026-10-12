@@ -16,8 +16,8 @@ public abstract class MediaStream : ITagsContainer
     public string? Language { get; set; }
     public Dictionary<string, bool>? Disposition { get; set; }
     public int? BitDepth { get; set; }
-    public Dictionary<string, string>? Tags { get; set; }
-    public List<Dictionary<string, JsonValue>>? SideData { get; set; }
+    public IReadOnlyDictionary<string, string>? Tags { get; set; }
+    public IReadOnlyList<IReadOnlyDictionary<string, JsonValue>>? SideData { get; set; }
 
     public Codec GetCodecInfo(FFOptions? ffOptions = null)
     {

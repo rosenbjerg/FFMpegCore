@@ -53,6 +53,7 @@ public class SnapshotArgumentBuilderTests
 
         public string Path => "input.mp4";
         public string Json => string.Empty;
+        public FFProbeAnalysis Raw => new();
         public TimeSpan Duration => TimeSpan.FromSeconds(3);
         public MediaFormat Format => new();
         public IReadOnlyList<ChapterData> Chapters => [];

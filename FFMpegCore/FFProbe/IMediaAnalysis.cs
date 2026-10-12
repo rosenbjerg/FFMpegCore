@@ -10,6 +10,8 @@ public interface IMediaAnalysis
 
     string Json { get; }
 
+    FFProbeAnalysis Raw { get; }
+
     TimeSpan Duration { get; }
     MediaFormat Format { get; }
     IReadOnlyList<ChapterData> Chapters { get; }

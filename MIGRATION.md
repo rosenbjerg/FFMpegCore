@@ -420,12 +420,18 @@ A target's `OutputToFile(path, overwrite: false)` was overwritten anyway wheneve
 | `ID3V2VersionArgument` | `Id3v2VersionArgument` |
 | `FrameRateArgument.Framerate` (`double`) | `FrameRateArgument.FrameRate` (`string`), so it can hold `30000/1001` |
 | `ConstantRateFactorArgument.Crf` (`int`) | `double`, so it can hold x264's `18.5` |
-| `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream — and `string Json`, ffprobe's output |
+| `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream — `string Json`, ffprobe's output, and `FFProbeAnalysis Raw`, that output deserialised |
 | `IMediaAnalysis.VideoStreams`, `AudioStreams`, `SubtitleStreams`, `Chapters` (`List<T>`) | `IReadOnlyList<T>` — an analysis describes a file, and adding to it changed nothing but the helpers' view of that file |
 | `VideoStream.AvgFrameRate` | `AverageFrameRate`, ffprobe's `avg_frame_rate` |
 | `VideoStream.AverageFrameRate` | now populated — it was never filled in and always read `0`; it now holds what `AvgFrameRate` held |
 | `VideoStream.FrameRate` | `RealFrameRate` — it holds ffprobe's `r_frame_rate`, the lowest rate that represents every timestamp, which for variable-frame-rate video (most phone recordings) can be far above the rate the video plays at. `AverageFrameRate` is usually the one you want |
 | `MediaFormat.BitRate` (`double`) | `long`, matching `MediaStream.BitRate` |
+| `Format`, `Chapter` (ffprobe's raw JSON shape) | `FFProbeFormat`, `FFProbeChapter`, so they no longer read as the parsed `MediaFormat` and `ChapterData` — see [the raw layer](#ffprobes-raw-output) |
+| `FFProbeFrameAnalysis`, `FFProbePacketAnalysis` | `FFProbeFrame`, `FFProbePacket`; `FFProbeFrames.Frames` and `FFProbePackets.Packets` are `IReadOnlyList<T>` |
+| `IDispositionContainer`, `DispositionExtensions.GetDefault`/`GetForced` | removed — only the raw stream implemented it, so they could not be called on a `MediaStream`. Use `MediaStream.Disposition["default"]` |
+| `TagExtensions.GetLanguage`/`GetRotate`/`GetDuration` | internal — use `MediaStream.Language`, `VideoStream.Rotation` and `Duration`, which parse them. `GetCreationTime` stays |
+| `MediaAnalysisUtils` | internal — it was the analysis' own parsing |
+| `ITagsContainer.Tags`, `MediaStream.Tags`, `MediaFormat.Tags` (`Dictionary<string, string>`) | `IReadOnlyDictionary<string, string>`; `MediaStream.SideData` likewise holds read-only lists and dictionaries |
 | `FFMpegImage` in both image extension packages | `SystemDrawingImage` and `SkiaSharpImage`, so both can be referenced at once |
 | `BitmapVideoFrameWrapper` in both image extension packages | `SystemDrawingVideoFrame` and `SkiaSharpVideoFrame` |
 | `BitmapExtensions` in both image extension packages | `SystemDrawingImageExtensions` and `SkiaSharpBitmapExtensions` |
@@ -513,6 +519,21 @@ input already threw `FileNotFoundException`; the two now match.
   alongside the container's.
 - A chapter with no title has an empty `Title`, where it reported the placeholder `"TitleValueNotSet"` — which then became the chapter's
   title when the chapters were passed back to `FFMetadataBuilder`.
+
+## FFProbe's raw output
+
+The types ffprobe's JSON is read into were public in 5.x but nothing returned them. They are now reachable as `IMediaAnalysis.Raw`, for
+fields the typed model does not map, and they are read-only: their setters and constructors are internal and their collections are
+`IReadOnlyList`/`IReadOnlyDictionary`. Each raw type, `FFProbeFrame` and `FFProbePacket` included, has an `ExtensionData` dictionary holding
+any key it has no property for, so a field a newer ffprobe adds is readable before the library knows about it:
+
+```csharp
+var analysis = FFProbe.Analyse(path);
+var programs = analysis.Raw.Format.NbPrograms;
+var score = analysis.Raw.Streams[0].ExtensionData["some_new_key"].GetInt32();
+```
+
+`FFProbeAnalysis.StandardError` is gone; `IMediaAnalysis.StandardError` carries it.
 
 ## FFProbe's async overloads take the token last
 

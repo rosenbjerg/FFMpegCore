@@ -66,6 +66,8 @@ FFMpegArguments.From*Input(...)      // adds input(s); each is an IInputArgument
 
 `FFProbe.Analyse*` runs `ffprobe -print_format json -sexagesimal -show_format -show_streams -show_chapters`, deserialises to `FFProbeAnalysis` (raw JSON shape), then wraps it in `MediaAnalysis : IMediaAnalysis` which parses durations, rotation, frame rates, tags, etc. The JSON is kept as `IMediaAnalysis.Json`, and `FFProbe.FromJson` rebuilds an analysis from it with a null `Path`. `GetFrames`/`GetPackets` follow the same pattern. Stream input is analysed by piping through the same `InputPipeArgument` machinery.
 
+The raw types (`FFProbeAnalysis`, `FFProbeStream`, `FFProbeFormat`, `FFProbeChapter`, `FFProbeFrame`, `FFProbePacket`) are a deliberate public layer, reached through `IMediaAnalysis.Raw` and the `GetFrames`/`GetPackets` results, for the fields the typed model doesn't map. They mirror ffprobe's JSON field for field and are read-only to callers: `[JsonInclude]` on internal setters, internal `[JsonConstructor]`s, `IReadOnlyList`/`IReadOnlyDictionary` collections. Each carries an `ExtensionData` view over an internal `[JsonExtensionData]` dictionary, so keys a newer ffprobe adds reach callers without a library release — don't map a key just because it showed up there. Parsing helpers (`MediaAnalysisUtils`) and the tag accessors the typed model already covers stay internal; only `TagExtensions.GetCreationTime` is public.
+
 ffprobe failures throw `FFProbeException` (missing input) or `FFProbeProcessException` (non-zero exit, with `ExitCode` and `StandardError`, the same names `FFMpegResult` uses); both derive from `FFMpegException`, so a `catch (FFMpegException)` still covers them.
 
 ### Options and binary lookup
