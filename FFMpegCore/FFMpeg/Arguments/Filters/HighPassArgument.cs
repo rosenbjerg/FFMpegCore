@@ -3,12 +3,12 @@ using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
-public class LowPassFilterArgument : IAudioFilterArgument
+public class HighPassArgument : IAudioFilterArgument
 {
     private readonly Dictionary<string, string> _arguments = new();
 
     /// <summary>
-    ///     LowPass Filter. <see href="https://ffmpeg.org/ffmpeg-filters.html#lowpass" />
+    ///     HighPass Filter. <see href="https://ffmpeg.org/ffmpeg-filters.html#highpass" />
     /// </summary>
     /// <param name="frequency">Set frequency in Hz. Default is 3000.</param>
     /// <param name="poles">Set number of poles. Default is 2.</param>
@@ -27,7 +27,7 @@ public class LowPassFilterArgument : IAudioFilterArgument
     ///     response length truncated when reaches near zero values) filtering will become linear phase otherwise if not big enough it will just
     ///     produce nasty artifacts.
     /// </param>
-    public LowPassFilterArgument(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707, double mix = 1,
+    public HighPassArgument(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707, double mix = 1,
         string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null, int? blockSize = null)
     {
         if (frequency < 0)
@@ -68,7 +68,7 @@ public class LowPassFilterArgument : IAudioFilterArgument
         }
     }
 
-    public string Key { get; } = "lowpass";
+    public string Key { get; } = "highpass";
 
     public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
 }

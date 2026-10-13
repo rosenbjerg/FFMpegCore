@@ -1136,9 +1136,9 @@ public class ArgumentBuilderTest
     public void Builder_LowPassFilter_Rejects_InvalidArguments(double frequency, int poles, string widthType, double mix, string precision)
     {
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            new LowPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+            new LowPassArgument(frequency, poles, widthType, mix: mix, precision: precision));
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            new HighPassFilterArgument(frequency, poles, widthType, mix: mix, precision: precision));
+            new HighPassArgument(frequency, poles, widthType, mix: mix, precision: precision));
     }
 
     [TestMethod]

@@ -305,8 +305,8 @@ back as `A; B`.
 
 They took an options object built with a static `Create`, unlike every other part of the builder. They now take their required values
 directly and everything else through a lambda, and the options classes only offer `With*` methods. `HardBurnSubtitle` is also
-`BurnSubtitles`, plural like `AddSubtitles`, with `SubtitleBurnOptions` and `SubtitleBurnArgument` in place of `SubtitleHardBurnOptions` and
-`SubtitleHardBurnArgument`:
+`BurnSubtitles`, plural like `AddSubtitles`, with `BurnSubtitlesOptions` and `BurnSubtitlesArgument` in place of `SubtitleHardBurnOptions`
+and `SubtitleHardBurnArgument`:
 
 ```csharp
 // 5.x
@@ -326,7 +326,7 @@ directly and everything else through a lambda, and the options classes only offe
 
 `DrawText` no longer requires a font file: ffmpeg falls back to its default font through fontconfig. `SetOriginalSize`, `SetSubtitleIndex`
 and `SetCharacterEncoding` are `WithOriginalSize`, `WithSubtitleIndex` and `WithCharacterEncoding`. `new DrawTextArgument(…)`,
-`new PadArgument(…)` and `new SubtitleBurnArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
+`new PadArgument(…)` and `new BurnSubtitlesArgument(…)` take the same arguments as the filter methods, and a `Pad` with no width, height
 or aspect ratio throws `ArgumentException` instead of a bare `Exception`.
 
 `DrawText`'s text and `WithFontFile`'s path are escaped for ffmpeg, which reads a filter value twice — once as part of the filtergraph, once
@@ -429,6 +429,7 @@ A target's `OutputToFile(path, overwrite: false)` was overwritten anyway wheneve
 | `FaststartArgument` | `MovFlagsArgument(MovFlags.FastStart)`; `WithFastStart()` is unchanged |
 | `VariableBitRateArgument` | `VariableBitrateArgument` |
 | `ID3V2VersionArgument` | `Id3v2VersionArgument` |
+| `DynamicNormalizerArgument`, `HighPassFilterArgument`, `LowPassFilterArgument` | `DynamicAudioNormalizerArgument`, `HighPassArgument`, `LowPassArgument` — each filter argument is named after its builder method |
 | `FrameRateArgument.Framerate` (`double`) | `FrameRateArgument.FrameRate` (`string`), so it can hold `30000/1001` |
 | `ConstantRateFactorArgument.Crf` (`int`) | `double`, so it can hold x264's `18.5` |
 | `IMediaAnalysis` implementations | must add `string? Path` — the input the analysis describes, or null when it came from a stream — `string Json`, ffprobe's output, and `FFProbeAnalysis Raw`, that output deserialised |

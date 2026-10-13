@@ -59,7 +59,7 @@ public class AudioFilterOptions
         bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false,
         double compressorFactor = 0.0)
     {
-        return WithFilter(new DynamicNormalizerArgument(frameLength, filterWindow,
+        return WithFilter(new DynamicAudioNormalizerArgument(frameLength, filterWindow,
             targetPeak, gainFactor, targetRms, channelCoupling, enableDcBiasCorrection, enableAlternativeBoundary,
             compressorFactor));
     }
@@ -69,7 +69,7 @@ public class AudioFilterOptions
         double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
-        return WithFilter(new HighPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
+        return WithFilter(new HighPassArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
     }
 
     /// <summary>lowpass</summary>
@@ -77,7 +77,7 @@ public class AudioFilterOptions
         double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
-        return WithFilter(new LowPassFilterArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
+        return WithFilter(new LowPassArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
     }
 
     /// <summary>agate</summary>

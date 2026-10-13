@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Arguments;
 
-public class DynamicNormalizerArgument : IAudioFilterArgument
+public class DynamicAudioNormalizerArgument : IAudioFilterArgument
 {
     private readonly Dictionary<string, string> _arguments = new();
 
@@ -18,7 +18,7 @@ public class DynamicNormalizerArgument : IAudioFilterArgument
     /// <param name="enableDcBiasCorrection">Enable DC bias correction. By default is disabled.</param>
     /// <param name="enableAlternativeBoundary">Enable alternative boundary mode. By default is disabled.</param>
     /// <param name="compressorFactor">Set the compress factor. In range from 0.0 to 30.0. Default is 0.0 (disabled).</param>
-    public DynamicNormalizerArgument(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95, double gainFactor = 10.0, double targetRms = 0.0,
+    public DynamicAudioNormalizerArgument(int frameLength = 500, int filterWindow = 31, double targetPeak = 0.95, double gainFactor = 10.0, double targetRms = 0.0,
         bool channelCoupling = true, bool enableDcBiasCorrection = false, bool enableAlternativeBoundary = false, double compressorFactor = 0.0)
     {
         if (frameLength < 10 || frameLength > 8000)

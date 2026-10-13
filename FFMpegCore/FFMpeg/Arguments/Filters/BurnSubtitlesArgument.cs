@@ -3,13 +3,13 @@ using FFMpegCore.Helpers;
 
 namespace FFMpegCore.Arguments;
 
-public class SubtitleBurnArgument : IVideoFilterArgument
+public class BurnSubtitlesArgument : IVideoFilterArgument
 {
-    private readonly SubtitleBurnOptions _options;
+    private readonly BurnSubtitlesOptions _options;
 
-    public SubtitleBurnArgument(string subtitlePath, Action<SubtitleBurnOptions>? configure = null)
+    public BurnSubtitlesArgument(string subtitlePath, Action<BurnSubtitlesOptions>? configure = null)
     {
-        _options = new SubtitleBurnOptions(subtitlePath);
+        _options = new BurnSubtitlesOptions(subtitlePath);
         configure?.Invoke(_options);
     }
 
@@ -18,11 +18,11 @@ public class SubtitleBurnArgument : IVideoFilterArgument
     public string Value => _options.TextInternal;
 }
 
-public class SubtitleBurnOptions
+public class BurnSubtitlesOptions
 {
     public readonly Dictionary<string, string> Parameters = new();
 
-    internal SubtitleBurnOptions(string subtitle)
+    internal BurnSubtitlesOptions(string subtitle)
     {
         TextInternal = subtitle;
     }
@@ -31,34 +31,34 @@ public class SubtitleBurnOptions
         .Join(":", new[] { StringExtensions.EncloseInQuotes(StringExtensions.ToFFMpegLibavfilterPath(field)) }
             .Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(true))));
 
-    public SubtitleBurnOptions WithOriginalSize(int width, int height)
+    public BurnSubtitlesOptions WithOriginalSize(int width, int height)
     {
         return WithParameter("original_size", $"{width}x{height}");
     }
 
-    public SubtitleBurnOptions WithOriginalSize(Size size)
+    public BurnSubtitlesOptions WithOriginalSize(Size size)
     {
         return WithOriginalSize(size.Width, size.Height);
     }
 
-    public SubtitleBurnOptions WithSubtitleIndex(int index)
+    public BurnSubtitlesOptions WithSubtitleIndex(int index)
     {
         return WithParameter("stream_index", index.ToString());
     }
 
-    public SubtitleBurnOptions WithCharacterEncoding(string encoding)
+    public BurnSubtitlesOptions WithCharacterEncoding(string encoding)
     {
         return WithParameter("charenc", encoding);
     }
 
-    public SubtitleBurnOptions WithStyle(Action<StyleOptions> configure)
+    public BurnSubtitlesOptions WithStyle(Action<StyleOptions> configure)
     {
         var styleOptions = new StyleOptions();
         configure(styleOptions);
         return WithParameter("force_style", styleOptions.TextInternal);
     }
 
-    public SubtitleBurnOptions WithParameter(string key, string value)
+    public BurnSubtitlesOptions WithParameter(string key, string value)
     {
         Parameters.Add(key, value);
         return this;
