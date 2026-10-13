@@ -2042,6 +2042,17 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_MetadataFileArgument_MapsLikeAddMetadataFile()
+    {
+        var str = FFMpegArguments.FromFileInput("video.mp4", false)
+            .AddInput(new MetadataFileArgument("chapters.txt", false))
+            .OutputToFile("output.mp4", false, opt => opt.CopyStreams())
+            .Arguments;
+
+        Assert.AreEqual("-i \"video.mp4\" -i \"chapters.txt\" -map_metadata 1 -c copy \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void AddMetadataFile_RequiresTheFileByDefault()
     {
         var processor = FFMpegArguments.FromFileInput("video.mp4", false)
