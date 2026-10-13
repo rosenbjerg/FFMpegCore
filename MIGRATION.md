@@ -597,9 +597,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 - The helpers that re-encode — `Join`, `Watermark`, `PosterWithAudio`, `JoinImageSequence` (on an overload taking an `IEnumerable`) and the
   image extensions' `AddAudio` — take output options. They replace the helper's own encode choices (libx264 at CRF 21, yuv420p, copying the
   audio) and keep what the helper needs to work.
-- `AddSubtitles`, `ExtractAudio`, `PosterWithAudio` and `ReplaceAudio` take an encoder name as a `string` as well as a `Codec`, for the
-  encoders that have no constant. The `Codec` overload stays the one to prefer, since it checks the codec is of the right kind at the call.
-  A bare `null` for the codec is ambiguous between the two; omit it, or name the parameters after it.
+- `AddSubtitles`, `ExtractAudio`, `PosterWithAudio` and `ReplaceAudio` accept an encoder name for the encoders that have no constant,
+  through `Codec`'s conversion from `string` (see [Codecs and formats](#codecs-and-formats)).
 - `PosterWithAudio` has an overload taking the image as an `IInputArgument`, as the image extensions' `AddAudio` uses.
 
 ### Running and progress
@@ -657,6 +656,11 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 
 ### Codecs and formats
 
+- `Codec`, `ContainerFormat` and `PixelFormat` convert implicitly from a `string`, so every parameter of those types takes a name as well,
+  and the separate `string` overloads are gone — `WithVideoCodec`, `WithAudioCodec`, `WithSubtitleCodec`, `ForceFormat`, `WithPixelFormat`
+  and the argument classes behind them, as well as the decoders `WithVideoDecoder`/`WithAudioDecoder`, which took only a string. Code that
+  passed a string keeps compiling. A codec given by name skips the check that it is of the right kind; a `VideoCodec.*`-style constant
+  still gets it.
 - `VideoCodec.Copy`, pairing with the `AudioCodec.Copy` that already existed.
 - `VideoCodec.LibVpxVp9` and `AudioCodec.LibOpus` (the WebM pair), `VideoCodec.LibSvtAv1`, and `AudioCodec.Flac`, `Alac` and `PcmS16Le`.
 - A `SubtitleCodec` constants class — `MovText`, `Srt`, `Ass`, `WebVtt`, `Copy` — alongside the `VideoCodec` and `AudioCodec` ones, so

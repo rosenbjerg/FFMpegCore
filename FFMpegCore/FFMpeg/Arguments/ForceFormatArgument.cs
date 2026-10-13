@@ -7,11 +7,6 @@ namespace FFMpegCore.Arguments;
 /// </summary>
 public class ForceFormatArgument : IArgument
 {
-    public ForceFormatArgument(string format)
-    {
-        Text = format;
-    }
-
     public ForceFormatArgument(ContainerFormat format)
     {
         Text = format.Name;

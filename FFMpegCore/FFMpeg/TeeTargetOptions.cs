@@ -20,12 +20,6 @@ public class TeeTargetOptions
         return WithMuxerOption("f", format.Name);
     }
 
-    /// <summary>f</summary>
-    public TeeTargetOptions ForceFormat(string format)
-    {
-        return WithMuxerOption("f", format);
-    }
-
     /// <summary>select, choosing which of the encoded streams this target receives</summary>
     public TeeTargetOptions WithSelect(StreamType streamType, int? streamIndex = null)
     {

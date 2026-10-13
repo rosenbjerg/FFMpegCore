@@ -1740,6 +1740,16 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Codecs_GivenByName_SkipTheTypeCheck()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4", false)
+            .OutputToFile("output.mp4", false, opt => opt.WithVideoCodec("h264_nvenc").WithAudioCodec("libopus").WithSubtitleCodec("mov_text"))
+            .Arguments;
+
+        Assert.AreEqual("-i \"input.mp4\" -c:v h264_nvenc -c:a libopus -c:s mov_text \"output.mp4\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_Copy_All()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

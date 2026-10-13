@@ -4,12 +4,11 @@ namespace FFMpegCore.Arguments;
 
 public class ForcePixelFormatArgument : IArgument
 {
-    public ForcePixelFormatArgument(string format)
+    public ForcePixelFormatArgument(PixelFormat format)
     {
-        PixelFormat = format;
+        PixelFormat = format.Name;
     }
 
-    public ForcePixelFormatArgument(PixelFormat format) : this(format.Name) { }
     public string PixelFormat { get; }
     public string Text => $"-pix_fmt {PixelFormat}";
 }

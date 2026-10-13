@@ -14,32 +14,14 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
         return WithArgument(new VideoCodecArgument(videoCodec, streamIndex));
     }
 
-    /// <summary>-c:v, or -c:v:N for the Nth video stream</summary>
-    public FFMpegOutputOptions WithVideoCodec(string videoCodec, int? streamIndex = null)
-    {
-        return WithArgument(new VideoCodecArgument(videoCodec, streamIndex));
-    }
-
     /// <summary>-c:a, or -c:a:N for the Nth audio stream</summary>
     public FFMpegOutputOptions WithAudioCodec(Codec audioCodec, int? streamIndex = null)
     {
         return WithArgument(new AudioCodecArgument(audioCodec, streamIndex));
     }
 
-    /// <summary>-c:a, or -c:a:N for the Nth audio stream</summary>
-    public FFMpegOutputOptions WithAudioCodec(string audioCodec, int? streamIndex = null)
-    {
-        return WithArgument(new AudioCodecArgument(audioCodec, streamIndex));
-    }
-
     /// <summary>-c:s, or -c:s:N for the Nth subtitle stream</summary>
     public FFMpegOutputOptions WithSubtitleCodec(Codec subtitleCodec, int? streamIndex = null)
-    {
-        return WithArgument(new SubtitleCodecArgument(subtitleCodec, streamIndex));
-    }
-
-    /// <summary>-c:s, or -c:s:N for the Nth subtitle stream</summary>
-    public FFMpegOutputOptions WithSubtitleCodec(string subtitleCodec, int? streamIndex = null)
     {
         return WithArgument(new SubtitleCodecArgument(subtitleCodec, streamIndex));
     }
@@ -325,18 +307,6 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     public FFMpegOutputOptions ForceFormat(ContainerFormat format)
     {
         return WithArgument(new ForceFormatArgument(format));
-    }
-
-    /// <summary>-f</summary>
-    public FFMpegOutputOptions ForceFormat(string format)
-    {
-        return WithArgument(new ForceFormatArgument(format));
-    }
-
-    /// <summary>-pix_fmt</summary>
-    public FFMpegOutputOptions WithPixelFormat(string pixelFormat)
-    {
-        return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
     /// <summary>-pix_fmt</summary>

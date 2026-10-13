@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace FFMpegCore.Enums;
 
@@ -15,6 +16,12 @@ public class ContainerFormat
     public bool DemuxingSupported { get; private set; }
     public bool MuxingSupported { get; private set; }
     public string Description { get; private set; } = string.Empty;
+
+    [return: NotNullIfNotNull(nameof(name))]
+    public static implicit operator ContainerFormat?(string? name)
+    {
+        return name == null ? null : new ContainerFormat(name);
+    }
 
     /// <summary>
     ///     The file extension this container is normally written with, honouring <see cref="FFOptions.ExtensionOverrides" />.

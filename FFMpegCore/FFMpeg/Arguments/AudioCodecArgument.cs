@@ -12,18 +12,12 @@ public class AudioCodecArgument : IArgument
 
     public AudioCodecArgument(Codec audioCodec, int? streamIndex = null)
     {
-        if (audioCodec.Type != CodecType.Audio)
+        if (audioCodec.Type is not (CodecType.Audio or CodecType.Unknown))
         {
             throw new ArgumentException($"Codec \"{audioCodec.Name}\" is not an audio codec", nameof(audioCodec));
         }
 
         AudioCodec = audioCodec.Name;
-        StreamIndex = streamIndex;
-    }
-
-    public AudioCodecArgument(string audioCodec, int? streamIndex = null)
-    {
-        AudioCodec = audioCodec;
         StreamIndex = streamIndex;
     }
 

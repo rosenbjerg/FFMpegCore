@@ -9,13 +9,13 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
     internal FFMpegInputOptions() { }
 
     /// <summary>-c:v, selecting the decoder</summary>
-    public FFMpegInputOptions WithVideoDecoder(string decoder)
+    public FFMpegInputOptions WithVideoDecoder(Codec decoder)
     {
         return WithArgument(new VideoCodecArgument(decoder));
     }
 
     /// <summary>-c:a, selecting the decoder</summary>
-    public FFMpegInputOptions WithAudioDecoder(string decoder)
+    public FFMpegInputOptions WithAudioDecoder(Codec decoder)
     {
         return WithArgument(new AudioCodecArgument(decoder));
     }
@@ -96,18 +96,6 @@ public class FFMpegInputOptions : FFMpegArgumentsBase
     public FFMpegInputOptions ForceFormat(ContainerFormat format)
     {
         return WithArgument(new ForceFormatArgument(format));
-    }
-
-    /// <summary>-f</summary>
-    public FFMpegInputOptions ForceFormat(string format)
-    {
-        return WithArgument(new ForceFormatArgument(format));
-    }
-
-    /// <summary>-pix_fmt</summary>
-    public FFMpegInputOptions WithPixelFormat(string pixelFormat)
-    {
-        return WithArgument(new ForcePixelFormatArgument(pixelFormat));
     }
 
     /// <summary>-pix_fmt</summary>

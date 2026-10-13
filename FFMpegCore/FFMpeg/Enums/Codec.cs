@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Enums;
@@ -34,6 +35,12 @@ public class Codec
 
     public FeatureLevel EncoderFeatureLevel { get; }
     public FeatureLevel DecoderFeatureLevel { get; }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    public static implicit operator Codec?(string? name)
+    {
+        return name == null ? null : new Codec(name, CodecType.Unknown);
+    }
 
     internal static bool TryParseFromCodecs(string line, out Codec codec)
     {

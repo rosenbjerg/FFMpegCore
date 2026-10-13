@@ -10,15 +10,9 @@ public class VideoCodecArgument : IArgument
     public readonly string Codec;
     public readonly int? StreamIndex;
 
-    public VideoCodecArgument(string codec, int? streamIndex = null)
-    {
-        Codec = codec;
-        StreamIndex = streamIndex;
-    }
-
     public VideoCodecArgument(Codec value, int? streamIndex = null)
     {
-        if (value.Type != CodecType.Video)
+        if (value.Type is not (CodecType.Video or CodecType.Unknown))
         {
             throw new ArgumentException($"Codec \"{value.Name}\" is not a video codec", nameof(value));
         }

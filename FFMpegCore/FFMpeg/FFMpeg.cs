@@ -196,14 +196,6 @@ public static class FFMpeg
             .WithOptions(ffOptions);
     }
 
-    /// <inheritdoc cref="PosterWithAudio(string,string,string,Codec,Action{FFMpegOutputOptions},FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(string image, string audio, string output, string audioCodec,
-        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
-    {
-        return PosterWithAudio(image, audio, output, new Codec(audioCodec, CodecType.Audio), addArguments, ffOptions);
-    }
-
     /// <summary>
     ///     Adds a poster image to an audio file.
     /// </summary>
@@ -217,14 +209,6 @@ public static class FFMpeg
         Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
         return PosterWithAudio(FFProbe.Analyse(image, ffOptions), FFProbe.Analyse(audio, ffOptions), output, audioCodec, addArguments, ffOptions);
-    }
-
-    /// <inheritdoc cref="PosterWithAudio(IMediaAnalysis,IMediaAnalysis,string,Codec,Action{FFMpegOutputOptions},FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor PosterWithAudio(IMediaAnalysis imageSource, IMediaAnalysis audioSource, string output, string audioCodec,
-        Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
-    {
-        return PosterWithAudio(imageSource, audioSource, output, new Codec(audioCodec, CodecType.Audio), addArguments, ffOptions);
     }
 
     /// <summary>
@@ -369,14 +353,6 @@ public static class FFMpeg
         };
     }
 
-    /// <inheritdoc cref="AddSubtitles(string,string,string,string,Codec,FFOptions)" />
-    /// <param name="subtitleCodec">Name of the encoder for the subtitles, such as "mov_text".</param>
-    public static FFMpegArgumentProcessor AddSubtitles(string input, string subtitle, string output, string? language,
-        string subtitleCodec, FFOptions? ffOptions = null)
-    {
-        return AddSubtitles(input, subtitle, output, language, new Codec(subtitleCodec, CodecType.Subtitle), ffOptions);
-    }
-
     /// <summary>
     ///     Muxes a subtitle file in as its own stream, leaving the picture untouched. The player can then turn the subtitles
     ///     on and off; to burn them into the picture instead, use <c>WithVideoFilters(f => f.BurnSubtitles(…))</c>.
@@ -391,14 +367,6 @@ public static class FFMpeg
         Codec? subtitleCodec = null, FFOptions? ffOptions = null)
     {
         return AddSubtitles(FFProbe.Analyse(input, ffOptions), subtitle, output, language, subtitleCodec, ffOptions);
-    }
-
-    /// <inheritdoc cref="AddSubtitles(IMediaAnalysis,string,string,string,Codec,FFOptions)" />
-    /// <param name="subtitleCodec">Name of the encoder for the subtitles, such as "mov_text".</param>
-    public static FFMpegArgumentProcessor AddSubtitles(IMediaAnalysis source, string subtitle, string output, string? language,
-        string subtitleCodec, FFOptions? ffOptions = null)
-    {
-        return AddSubtitles(source, subtitle, output, language, new Codec(subtitleCodec, CodecType.Subtitle), ffOptions);
     }
 
     /// <summary>
@@ -780,13 +748,6 @@ public static class FFMpeg
             .WithOptions(ffOptions);
     }
 
-    /// <inheritdoc cref="ExtractAudio(string,string,Codec,FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "copy" or "libopus".</param>
-    public static FFMpegArgumentProcessor ExtractAudio(string input, string output, string audioCodec, FFOptions? ffOptions = null)
-    {
-        return ExtractAudio(input, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
-    }
-
     /// <summary>
     ///     Saves audio from a specific video file to disk.
     /// </summary>
@@ -797,13 +758,6 @@ public static class FFMpeg
     public static FFMpegArgumentProcessor ExtractAudio(string input, string output, Codec? audioCodec = null, FFOptions? ffOptions = null)
     {
         return ExtractAudio(FFProbe.Analyse(input, ffOptions), output, audioCodec, ffOptions);
-    }
-
-    /// <inheritdoc cref="ExtractAudio(IMediaAnalysis,string,Codec,FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "copy" or "libopus".</param>
-    public static FFMpegArgumentProcessor ExtractAudio(IMediaAnalysis source, string output, string audioCodec, FFOptions? ffOptions = null)
-    {
-        return ExtractAudio(source, output, new Codec(audioCodec, CodecType.Audio), ffOptions);
     }
 
     /// <summary>
@@ -831,14 +785,6 @@ public static class FFMpeg
             .WithOptions(ffOptions);
     }
 
-    /// <inheritdoc cref="ReplaceAudio(string,string,string,Codec,bool,FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(string input, string audio, string output, string audioCodec,
-        bool stopAtShortest = false, FFOptions? ffOptions = null)
-    {
-        return ReplaceAudio(input, audio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
-    }
-
     /// <summary>
     ///     Replaces the audio of a video file with the audio of another file, or adds it if the video has none.
     /// </summary>
@@ -852,14 +798,6 @@ public static class FFMpeg
         bool stopAtShortest = false, FFOptions? ffOptions = null)
     {
         return ReplaceAudio(FFProbe.Analyse(input, ffOptions), audio, output, audioCodec, stopAtShortest, ffOptions);
-    }
-
-    /// <inheritdoc cref="ReplaceAudio(IMediaAnalysis,string,string,Codec,bool,FFOptions)" />
-    /// <param name="audioCodec">Name of the encoder for the audio, such as "aac".</param>
-    public static FFMpegArgumentProcessor ReplaceAudio(IMediaAnalysis source, string audio, string output, string audioCodec,
-        bool stopAtShortest = false, FFOptions? ffOptions = null)
-    {
-        return ReplaceAudio(source, audio, output, new Codec(audioCodec, CodecType.Audio), stopAtShortest, ffOptions);
     }
 
     /// <summary>
