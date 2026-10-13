@@ -8,7 +8,9 @@ public class FFMpegMultiOutputOptions
 {
     internal readonly List<FFMpegOutputOptions> Outputs = [];
 
-    public IEnumerable<IArgument> Arguments => Outputs.SelectMany(o => o.Arguments);
+    internal FFMpegMultiOutputOptions() { }
+
+    internal IEnumerable<IArgument> Arguments => Outputs.SelectMany(o => o.Arguments);
 
     public FFMpegMultiOutputOptions OutputToFile(string file, Action<FFMpegOutputOptions> addArguments)
     {

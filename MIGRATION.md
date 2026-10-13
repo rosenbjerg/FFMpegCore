@@ -449,6 +449,7 @@ A target's `OutputToFile(path, overwrite: false)` was overwritten anyway wheneve
 | `BitmapExtensions` in both image extension packages | `SystemDrawingImageExtensions` and `SkiaSharpBitmapExtensions` |
 | namespace `FFMpegCore.Extend` | removed — `PcmAudioSampleWrapper` moved to `FFMpegCore.Pipes`, `TimeSpanExtensions` is internal, and `UriExtensions` is gone |
 | `FFMpegHelper`, `FFProbeHelper` | internal — they were the library's own checks |
+| `new FFMpegMultiOutputOptions()`, `FFMpegMultiOutputOptions.Arguments` | internal, as on `TeeOutputOptions` — `OutputToMany(o => …)` hands one out, and the arguments it collects end up in `FFMpegArgumentProcessor.Arguments`, the rendered command line |
 
 ### Concat inputs
 
