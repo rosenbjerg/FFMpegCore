@@ -110,7 +110,7 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="frameRate">FPS</param>
     /// <param name="images">Image sequence collection</param>
-    public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params string[] images)
+    public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate, params string[] images)
     {
         return JoinImageSequence(null, output, frameRate, images);
     }
@@ -122,7 +122,7 @@ public static class FFMpeg
     /// <param name="output">Output video file.</param>
     /// <param name="frameRate">FPS</param>
     /// <param name="images">Image sequence collection</param>
-    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30, params string[] images)
+    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate, params string[] images)
     {
         return JoinImageSequence(output, images, frameRate, null, ffOptions);
     }
@@ -142,13 +142,13 @@ public static class FFMpeg
     }
 
     /// <inheritdoc cref="JoinImageSequence(string,IEnumerable{IMediaAnalysis},double,Action{FFMpegOutputOptions},FFOptions)" />
-    public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate = 30, params IMediaAnalysis[] images)
+    public static FFMpegArgumentProcessor JoinImageSequence(string output, double frameRate, params IMediaAnalysis[] images)
     {
         return JoinImageSequence(null, output, frameRate, images);
     }
 
     /// <inheritdoc cref="JoinImageSequence(string,IEnumerable{IMediaAnalysis},double,Action{FFMpegOutputOptions},FFOptions)" />
-    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate = 30,
+    public static FFMpegArgumentProcessor JoinImageSequence(FFOptions? ffOptions, string output, double frameRate,
         params IMediaAnalysis[] images)
     {
         return JoinImageSequence(output, images, frameRate, null, ffOptions);

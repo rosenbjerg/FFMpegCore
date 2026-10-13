@@ -183,6 +183,17 @@ SnapshotArgumentBuilder.BuildSnapshotArguments(input, output, analysis, size);  
 SnapshotArgumentBuilder.BuildSnapshotArguments(analysis, output, size);         // 6.0
 ```
 
+### `JoinImageSequence` needs its frame rate when given the images directly
+
+The overloads ending in `params` defaulted `frameRate` to 30, but a default before a `params` list can never be used:
+`JoinImageSequence("out.mp4", "a.png", "b.png")` did not compile, because `"a.png"` bound to `frameRate`. Those overloads now require it;
+the `IEnumerable` overloads keep the default.
+
+```csharp
+FFMpeg.JoinImageSequence("out.mp4", 30, "a.png", "b.png");  // params: frame rate first
+FFMpeg.JoinImageSequence("out.mp4", images);                // IEnumerable: 30 fps
+```
+
 ## Input and output options were split
 
 `FFMpegArgumentOptions` is now `FFMpegInputOptions` and `FFMpegOutputOptions`, each carrying only the options ffmpeg accepts on that side.
