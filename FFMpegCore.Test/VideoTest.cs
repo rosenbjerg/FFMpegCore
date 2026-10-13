@@ -691,6 +691,17 @@ public class VideoTest
 
     [TestMethod]
     [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
+    public async Task Video_SnapshotAsync_InMemory_SkiaSharp_FromAnalysis()
+    {
+        var input = await FFProbe.AnalyseAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);
+
+        using var bitmap = await SkiaSharpImage.SnapshotAsync(input, new Size(160, 90), cancellationToken: TestContext.CancellationToken);
+
+        Assert.AreEqual((160, 90), (bitmap.Width, bitmap.Height));
+    }
+
+    [TestMethod]
+    [Timeout(BaseTimeoutMilliseconds, CooperativeCancellation = true)]
     public async Task Video_SnapshotAsync_InMemory_SkiaSharp()
     {
         using var bitmap = await SkiaSharpImage.SnapshotAsync(TestResources.Mp4Video, cancellationToken: TestContext.CancellationToken);

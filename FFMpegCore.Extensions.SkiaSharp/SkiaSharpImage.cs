@@ -19,7 +19,21 @@ public static class SkiaSharpImage
     public static SKBitmap Snapshot(string input, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
         FFOptions? ffOptions = null)
     {
-        var source = FFProbe.Analyse(input, ffOptions);
+        return Snapshot(FFProbe.Analyse(input, ffOptions), size, captureTime, streamIndex, ffOptions);
+    }
+
+    /// <summary>
+    ///     Decodes a single frame of the input into an in-memory bitmap.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the snapshot needs to know about it.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <returns>Bitmap with the requested snapshot.</returns>
+    public static SKBitmap Snapshot(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
+        FFOptions? ffOptions = null)
+    {
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 
@@ -46,6 +60,22 @@ public static class SkiaSharpImage
         FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
     {
         var source = await FFProbe.AnalyseAsync(input, ffOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
+        return await SnapshotAsync(source, size, captureTime, streamIndex, ffOptions, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Decodes a single frame of the input into an in-memory bitmap.
+    /// </summary>
+    /// <param name="source">Analysis of the input, which supplies the input path as well as what the snapshot needs to know about it.</param>
+    /// <param name="size">Thumbnail size. If width or height is 0 or -1, it is computed from the other.</param>
+    /// <param name="captureTime">Seek position the frame is taken from. Defaults to a third of the way in.</param>
+    /// <param name="streamIndex">Index of the video stream to take, as in <see cref="MediaStream.Index" />. Defaults to the first video stream.</param>
+    /// <param name="ffOptions">Options for this run, defaulting to the global options.</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Bitmap with the requested snapshot.</returns>
+    public static async Task<SKBitmap> SnapshotAsync(IMediaAnalysis source, Size? size = null, TimeSpan? captureTime = null, int? streamIndex = null,
+        FFOptions? ffOptions = null, CancellationToken cancellationToken = default)
+    {
         var (arguments, outputOptions) = SnapshotArgumentBuilder.BuildSnapshotArguments(source, size, captureTime, streamIndex);
         using var ms = new MemoryStream();
 

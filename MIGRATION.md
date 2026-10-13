@@ -719,6 +719,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 - `FFProbeException` and `FFProbeProcessException` derive from `FFMpegException`, so one `catch` covers both tools.
 - A missing ffmpeg or ffprobe raises `FFMpegException` or `FFProbeException` naming the path that was tried, where `Instances`'
   `InstanceFileNotFoundException` used to escape.
+- `SkiaSharpImage.Snapshot`/`SnapshotAsync` and `SystemDrawingImage.Snapshot`/`SnapshotAsync` take an `IMediaAnalysis` in place of the
+  path, like the core helpers, so an async caller probes with `FFProbe.AnalyseAsync` and reuses the result.
 - The image extension packages honour a per-run `FFOptions`, so `BinaryFolder` and `TemporaryFilesFolder` apply to snapshots and to the
   poster `AddAudio` writes.
 - `FFMpegDownloader` works on Apple Silicon, where it previously threw `PlatformNotSupportedException`.
