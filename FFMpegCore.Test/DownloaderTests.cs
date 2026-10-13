@@ -61,7 +61,10 @@ public class DownloaderTests
         }
         finally
         {
-            binaries.ForEach(File.Delete);
+            foreach (var binary in binaries)
+            {
+                File.Delete(binary);
+            }
         }
     }
 
@@ -76,7 +79,10 @@ public class DownloaderTests
         }
         finally
         {
-            binaries.ForEach(File.Delete);
+            foreach (var binary in binaries)
+            {
+                File.Delete(binary);
+            }
         }
     }
 }

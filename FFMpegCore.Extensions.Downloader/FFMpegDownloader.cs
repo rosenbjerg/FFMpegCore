@@ -18,7 +18,7 @@ public static class FFMpegDownloader
     /// <param name="platformOverride">used to explicitly state the os and architecture you want to download</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>a list of the binaries that have been successfully downloaded</returns>
-    public static async Task<List<string>> DownloadBinariesAsync(
+    public static async Task<IReadOnlyList<string>> DownloadBinariesAsync(
         FFMpegVersions version = FFMpegVersions.LatestAvailable,
         FFMpegBinaries binaries = FFMpegBinaries.FFMpeg | FFMpegBinaries.FFProbe,
         FFOptions? ffOptions = null,

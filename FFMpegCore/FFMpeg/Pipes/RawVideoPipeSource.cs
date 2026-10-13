@@ -4,16 +4,16 @@ using FFMpegCore.Exceptions;
 namespace FFMpegCore.Pipes;
 
 /// <summary>
-///     Implementation of <see cref="IPipeSource" /> for a raw video stream that is gathered from <see cref="IEnumerator{IVideoFrame}" />
+///     Implementation of <see cref="IPipeSource" /> for a raw video stream that is gathered from <see cref="IEnumerable{IVideoFrame}" />
 /// </summary>
 public class RawVideoPipeSource : IPipeSource
 {
     private readonly IEnumerator<IVideoFrame> _framesEnumerator;
     private IVideoFrame? _firstFrame;
 
-    public RawVideoPipeSource(IEnumerable<IVideoFrame> framesEnumerator)
+    public RawVideoPipeSource(IEnumerable<IVideoFrame> frames)
     {
-        _framesEnumerator = framesEnumerator.GetEnumerator();
+        _framesEnumerator = frames.GetEnumerator();
     }
 
     public string PixelFormat { get; private set; } = null!;

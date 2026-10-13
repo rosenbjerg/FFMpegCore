@@ -495,6 +495,9 @@ becomes settable as on the sink.
 .FromPipeInput(new StreamPipeSource(stream) { Format = "mpegts" })          // 6.0
 ```
 
+`RawAudioPipeSource` takes only an `IEnumerable<IAudioSample>`, like `RawVideoPipeSource`; its `IEnumerator` constructor is gone — pass
+the sequence itself rather than its enumerator. `RawVideoPipeSource`'s parameter is `frames`, not `framesEnumerator`.
+
 `RawAudioPipeSource` takes the sample rate and channel count in its constructor. They defaulted to 8000 Hz mono, so a source of 48 kHz
 stereo samples that forgot to say so played at the wrong speed and pitch without any error. Both are `int` now, like
 `WithAudioSamplingRate` and `WithAudioChannels`, and read-only:
@@ -599,7 +602,7 @@ bitmap.AddAudio(audio, output).ProcessSynchronously();                          
 await bitmap.AddAudio(audio, output).ProcessAsynchronously(cancellationToken: token);    // 6.0
 ```
 
-`FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync` and takes a `CancellationToken`; its `options` parameter is `ffOptions`, as
+`FFMpegDownloader.DownloadBinaries` is `DownloadBinariesAsync`, returns an `IReadOnlyList<string>` and takes a `CancellationToken`; its `options` parameter is `ffOptions`, as
 everywhere else. Without a `BinaryFolder` it throws before going online, with a message saying how to set one. A `BinaryFolder` that does not exist yet
 is created, where it failed with `DirectoryNotFoundException`. `FFMpegDownloaderException`
 derives from `FFMpegException`, and `EnumExtensions` is no longer part of the package's public surface.
@@ -636,6 +639,7 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 
 - `IProgress<TimeSpan>` and `IProgress<double>` overloads alongside the existing callbacks. Percentages run from 0 to 100.
 - `NotifyOnPercentageProgress` without a duration after any `FFMpeg.*` helper except `SaveStream`.
+- `NotifyOnPercentageProgress`'s duration parameter is `totalDuration`, where it was `totalTimeSpan`; only a call naming it changes.
 - `CancellableThrough(CancellationToken)` registers per run, so a processor can be run more than once.
 - Per-run `FFOptions` reach every argument, so `TemporaryFilesFolder` applies to the temp files that concat, metadata and image-sequence
   inputs create.

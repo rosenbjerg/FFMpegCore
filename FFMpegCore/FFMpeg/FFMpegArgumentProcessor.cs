@@ -42,10 +42,10 @@ public class FFMpegArgumentProcessor
     ///     Total time is needed to calculate the percentage that has been processed of the full file.
     /// </summary>
     /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated, with a value from 0 to 100</param>
-    /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
-    public FFMpegArgumentProcessor NotifyOnPercentageProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
+    /// <param name="totalDuration">The duration of the output being produced</param>
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(Action<double> onPercentageProgress, TimeSpan totalDuration)
     {
-        _totalTimespan = totalTimeSpan;
+        _totalTimespan = totalDuration;
         _onPercentageProgress = onPercentageProgress;
         return this;
     }
@@ -60,9 +60,9 @@ public class FFMpegArgumentProcessor
         return NotifyOnPercentageProgress(onPercentageProgress, _knownDuration.Value);
     }
 
-    public FFMpegArgumentProcessor NotifyOnPercentageProgress(IProgress<double> percentageProgress, TimeSpan totalTimeSpan)
+    public FFMpegArgumentProcessor NotifyOnPercentageProgress(IProgress<double> percentageProgress, TimeSpan totalDuration)
     {
-        return NotifyOnPercentageProgress(percentageProgress.Report, totalTimeSpan);
+        return NotifyOnPercentageProgress(percentageProgress.Report, totalDuration);
     }
 
     public FFMpegArgumentProcessor NotifyOnPercentageProgress(IProgress<double> percentageProgress)
