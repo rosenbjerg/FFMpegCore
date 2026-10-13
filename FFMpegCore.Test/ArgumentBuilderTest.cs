@@ -491,13 +491,13 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_BuildString_Tag()
+    public void Builder_BuildString_CodecTag()
     {
         var str = FFMpegArguments.FromFileInput("input.mkv", false)
             .OutputToFile("output.mp4", false, opt => opt
                 .WithVideoCodec(VideoCodec.LibX265)
-                .WithTag("hvc1", StreamType.Video)
-                .WithTag("mp4a", StreamType.Audio, 1))
+                .WithCodecTag("hvc1", StreamType.Video)
+                .WithCodecTag("mp4a", StreamType.Audio, 1))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mkv\" -c:v libx265 -tag:v hvc1 -tag:a:1 mp4a \"output.mp4\"", str);

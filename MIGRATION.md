@@ -646,8 +646,9 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 - Fractional values where ffmpeg takes them: `WithConstantRateFactor(double)` (x264's `-crf 18.5`) and `WithFrameRate(string)` for exact
   rates such as `30000/1001`. Existing calls compile unchanged.
 - `WithStreamLoop(count)` for `-stream_loop`.
-- `WithTag` for `-tag`, the codec tag a stream is written with — `WithTag("hvc1", StreamType.Video)` is what makes HEVC in an mp4 play in
-  Apple's players.
+- `WithCodecTag` for `-tag`, the codec tag a stream is written with — `WithCodecTag("hvc1", StreamType.Video)` is what makes HEVC in an
+  mp4 play in Apple's players. It is named for what it sets rather than after `-tag`, since "tag" elsewhere in the library means a
+  metadata tag (`FFMetadataBuilder.WithTag`, `MediaStream.Tags`).
 - `WithFpsMode` for `-fps_mode` (the replacement for `-vsync`), with `FpsMode.ConstantFrameRate` for the constant-frame-rate output editing
   software expects.
 - `WithMovFlags` for any `-movflags`, such as fragmented MP4 (`MovFlags.FragmentKeyframe + MovFlags.EmptyMoov`). Calls combine into one

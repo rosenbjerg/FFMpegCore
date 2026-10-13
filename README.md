@@ -174,7 +174,7 @@ FFMpegArguments
         .WithVideoCodec(VideoCodec.LibX265)
         .WithConstantRateFactor(26)
         .WithSpeedPreset(EncoderPreset.Slow)    // or "p5" for NVENC, "8" for SVT-AV1
-        .WithTag("hvc1", StreamType.Video)      // -tag:v hvc1 — so Apple's players open HEVC in mp4
+        .WithCodecTag("hvc1", StreamType.Video) // -tag:v hvc1 — so Apple's players open HEVC in mp4
         .WithFpsMode(FpsMode.ConstantFrameRate)
         .WithFrameRate("30000/1001")            // exact NTSC, where 29.97 is an approximation
         .WithFastStart())                       // -movflags faststart

@@ -208,9 +208,9 @@ public class FFMpegOutputOptions : FFMpegArgumentsBase
     }
 
     /// <summary>-tag, the codec tag (fourcc) the stream is written with</summary>
-    public FFMpegOutputOptions WithTag(string tag, StreamType streamType = StreamType.All, int? streamIndex = null)
+    public FFMpegOutputOptions WithCodecTag(string codecTag, StreamType streamType = StreamType.All, int? streamIndex = null)
     {
-        return WithArgument(new TagArgument(tag, streamType, streamIndex));
+        return WithArgument(new CodecTagArgument(codecTag, streamType, streamIndex));
     }
 
     /// <summary>-map_metadata</summary>
