@@ -18,7 +18,7 @@ public class DrawTextArgument : IVideoFilterArgument
 
 public class DrawTextOptions
 {
-    public readonly List<(string key, string value)> Parameters = [];
+    private readonly Dictionary<string, string> _parameters = new();
     public readonly string Text;
 
     internal DrawTextOptions(string text)
@@ -26,18 +26,21 @@ public class DrawTextOptions
         Text = text;
     }
 
-    internal string TextInternal => string.Join(":", new[] { (key: "text", value: StringExtensions.ToQuotedFilterValue(Text)) }.Concat(Parameters)
-        .Select(pair => $"{pair.key}={pair.value}"));
+    public IReadOnlyDictionary<string, string> Parameters => _parameters;
+
+    internal string TextInternal => string.Join(":", new[] { new KeyValuePair<string, string>("text", StringExtensions.ToQuotedFilterValue(Text)) }
+        .Concat(_parameters)
+        .Select(pair => $"{pair.Key}={pair.Value}"));
 
     public DrawTextOptions WithFontFile(string fontFile)
     {
-        Parameters.Add(("fontfile", StringExtensions.ToQuotedFilterValue(fontFile)));
+        _parameters.Add("fontfile", StringExtensions.ToQuotedFilterValue(fontFile));
         return this;
     }
 
     public DrawTextOptions WithParameter(string key, string value)
     {
-        Parameters.Add((key, StringExtensions.EncloseIfContainsSpace(value)));
+        _parameters.Add(key, StringExtensions.EncloseIfContainsSpace(value));
         return this;
     }
 }

@@ -22,22 +22,24 @@ public class PadArgument : IVideoFilterArgument
 
 public class PadOptions
 {
-    public readonly Dictionary<string, string> Parameters = new();
+    private readonly Dictionary<string, string> _parameters = new();
 
     internal PadOptions(string? width, string? height)
     {
         if (width != null)
         {
-            Parameters.Add("width", width);
+            _parameters.Add("width", width);
         }
 
         if (height != null)
         {
-            Parameters.Add("height", height);
+            _parameters.Add("height", height);
         }
     }
 
-    internal string TextInternal => string.Join(":", Parameters.Select(parameter => parameter.FormatArgumentPair(true)));
+    public IReadOnlyDictionary<string, string> Parameters => _parameters;
+
+    internal string TextInternal => string.Join(":", _parameters.Select(parameter => parameter.FormatArgumentPair(true)));
 
     public PadOptions WithAspectRatio(string aspectRatio)
     {
@@ -46,7 +48,7 @@ public class PadOptions
 
     public PadOptions WithParameter(string key, string value)
     {
-        Parameters.Add(key, value);
+        _parameters.Add(key, value);
         return this;
     }
 }

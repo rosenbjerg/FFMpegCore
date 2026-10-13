@@ -20,16 +20,18 @@ public class BurnSubtitlesArgument : IVideoFilterArgument
 
 public class BurnSubtitlesOptions
 {
-    public readonly Dictionary<string, string> Parameters = new();
+    private readonly Dictionary<string, string> _parameters = new();
 
     internal BurnSubtitlesOptions(string subtitle)
     {
         TextInternal = subtitle;
     }
 
+    public IReadOnlyDictionary<string, string> Parameters => _parameters;
+
     internal string TextInternal => string
         .Join(":", new[] { StringExtensions.EncloseInQuotes(StringExtensions.ToFFMpegLibavfilterPath(field)) }
-            .Concat(Parameters.Select(parameter => parameter.FormatArgumentPair(true))));
+            .Concat(_parameters.Select(parameter => parameter.FormatArgumentPair(true))));
 
     public BurnSubtitlesOptions WithOriginalSize(int width, int height)
     {
@@ -60,22 +62,24 @@ public class BurnSubtitlesOptions
 
     public BurnSubtitlesOptions WithParameter(string key, string value)
     {
-        Parameters.Add(key, value);
+        _parameters.Add(key, value);
         return this;
     }
 }
 
 public class StyleOptions
 {
-    public readonly Dictionary<string, string> Parameters = new();
+    private readonly Dictionary<string, string> _parameters = new();
 
     internal StyleOptions() { }
 
-    internal string TextInternal => string.Join(",", Parameters.Select(parameter => parameter.FormatArgumentPair(false)));
+    public IReadOnlyDictionary<string, string> Parameters => _parameters;
+
+    internal string TextInternal => string.Join(",", _parameters.Select(parameter => parameter.FormatArgumentPair(false)));
 
     public StyleOptions WithParameter(string key, string value)
     {
-        Parameters.Add(key, value);
+        _parameters.Add(key, value);
         return this;
     }
 }

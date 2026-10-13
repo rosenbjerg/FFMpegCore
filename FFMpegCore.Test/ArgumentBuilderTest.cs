@@ -578,6 +578,15 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void DrawTextOptions_ExposeTheirParameters()
+    {
+        var argument = new DrawTextArgument("Hello", text => text.WithParameter("fontsize", "24").WithParameter("fontcolor", "white"));
+
+        CollectionAssert.AreEqual(new[] { "fontsize", "fontcolor" }, argument.Options.Parameters.Keys.ToArray());
+        Assert.AreEqual("24", argument.Options.Parameters["fontsize"]);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_DrawtextFilter_TextOnly()
     {
         var str = FFMpegArguments
