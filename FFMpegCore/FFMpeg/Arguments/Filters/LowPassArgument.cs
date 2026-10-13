@@ -28,7 +28,7 @@ public class LowPassArgument : IAudioFilterArgument
     ///     produce nasty artifacts.
     /// </param>
     public LowPassArgument(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707, double mix = 1,
-        string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null, int? blockSize = null)
+        string? channels = null, bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null, int? blockSize = null)
     {
         if (frequency < 0)
         {
@@ -50,7 +50,7 @@ public class LowPassArgument : IAudioFilterArgument
         _arguments.Add("t", (widthType ?? FilterWidthType.QFactor).Value);
         _arguments.Add("w", width.ToInvariantString());
         _arguments.Add("m", mix.ToInvariantString());
-        if (channels != "")
+        if (channels != null)
         {
             _arguments.Add("c", channels);
         }

@@ -35,15 +35,15 @@ public class AudioFadeArgument : IAudioFilterArgument
     /// <param name="direction">Whether the sound fades in or out.</param>
     /// <param name="start">Where the fade begins.</param>
     /// <param name="duration">How long the fade lasts.</param>
-    /// <param name="curve">Fade curve, such as tri, qsin, log or exp.</param>
-    public AudioFadeArgument(FadeDirection direction, TimeSpan start, TimeSpan duration, string? curve = null)
+    /// <param name="curve">Shape of the fade; ffmpeg's default is <see cref="FadeCurve.Triangular" />.</param>
+    public AudioFadeArgument(FadeDirection direction, TimeSpan start, TimeSpan duration, FadeCurve? curve = null)
     {
         _arguments.Add("t", direction == FadeDirection.In ? "in" : "out");
         _arguments.Add("st", start.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture));
         _arguments.Add("d", duration.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture));
         if (curve != null)
         {
-            _arguments.Add("curve", curve);
+            _arguments.Add("curve", curve.Value.Value);
         }
     }
 

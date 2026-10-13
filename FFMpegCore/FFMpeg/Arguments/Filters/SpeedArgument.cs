@@ -27,21 +27,21 @@ public class VideoSpeedArgument : IVideoFilterArgument
 /// </summary>
 public class AudioSpeedArgument : IAudioFilterArgument
 {
-    private readonly double _factor;
+    private readonly double _multiplier;
 
-    /// <param name="factor">Resampling factor, which ffmpeg accepts between 0.5 and 100.</param>
-    public AudioSpeedArgument(double factor)
+    /// <param name="multiplier">Playback speed, which a single atempo accepts between 0.5 and 100.</param>
+    public AudioSpeedArgument(double multiplier)
     {
-        if (factor < 0.5 || factor > 100)
+        if (multiplier < 0.5 || multiplier > 100)
         {
-            throw new ArgumentOutOfRangeException(nameof(factor), "A single atempo factor must be between 0.5 and 100");
+            throw new ArgumentOutOfRangeException(nameof(multiplier), "A single atempo multiplier must be between 0.5 and 100");
         }
 
-        _factor = factor;
+        _multiplier = multiplier;
     }
 
     public string Key { get; } = "atempo";
-    public string Value => _factor.ToInvariantString();
+    public string Value => _multiplier.ToInvariantString();
 
     internal static IEnumerable<double> StepsFor(double multiplier)
     {

@@ -336,9 +336,10 @@ only when they contain a space), so expressions like `x=(w-text_w)/2` keep worki
 
 ### Filter parameters with a fixed set of values are typed
 
-`SilenceDetect`'s `noiseType`, `HighPass`/`LowPass`'s `widthType`, `transform` and `precision`, and `AudioGate`'s `mode`, `detection` and
-`link` take a small type per parameter — `SilenceDetectNoiseUnit`, `FilterWidthType`, `FilterTransform`, `FilterPrecision`,
-`AudioGateMode`, `AudioGateDetection`, `AudioGateLink`, all in `FFMpegCore.Enums` — whose members list the values ffmpeg accepts. A plain
+`SilenceDetect`'s `noiseUnit`, `HighPass`/`LowPass`'s `widthType`, `transform` and `precision`, `AudioGate`'s `mode`, `detection` and
+`link`, and the audio `Fade`'s `curve` take a small type per parameter — `SilenceDetectNoiseUnit`, `FilterWidthType`, `FilterTransform`,
+`FilterPrecision`, `AudioGateMode`, `AudioGateDetection`, `AudioGateLink`, `FadeCurve`, all in `FFMpegCore.Enums` — whose members list the
+values ffmpeg accepts. A plain
 string still converts to each of them, so existing calls compile unchanged:
 
 ```csharp
@@ -348,8 +349,13 @@ string still converts to each of them, so existing calls compile unchanged:
 
 Values the library does not know are passed on to ffmpeg as they are rather than rejected, so a newer ffmpeg's options stay reachable.
 In particular `HighPass`/`LowPass` silently dropped a `transform` they did not recognise; it is now emitted. The exception is
-`SilenceDetect`'s `noiseType`, which decides how the library formats the threshold and is not an ffmpeg value: anything but `db` and `ar`
+`SilenceDetect`'s `noiseUnit`, which decides how the library formats the threshold and is not an ffmpeg value: anything but `db` and `ar`
 still throws.
+
+`SilenceDetect`'s unit was called `noiseType` and came before the value it describes; it is `noiseUnit` and follows `noise`, so a positional
+call swaps its first two arguments — `SilenceDetect(SilenceDetectNoiseUnit.AmplitudeRatio, 0.01)` becomes `SilenceDetect(0.01,
+SilenceDetectNoiseUnit.AmplitudeRatio)`. `HighPass`/`LowPass` default `channels` to `null` rather than `""`, and `AudioSpeedArgument`
+takes a `multiplier`, as `Speed` does.
 
 ### Other filter changes
 

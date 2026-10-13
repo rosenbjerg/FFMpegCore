@@ -1148,13 +1148,13 @@ public class ArgumentBuilderTest
             .OutputToFile("output.mp4", opt => opt.WithAudioFilters(f => f
                 .HighPass(200, 2, FilterWidthType.Octave, transform: FilterTransform.StateVariable, precision: FilterPrecision.F32)
                 .AudioGate(mode: AudioGateMode.Upward, detection: AudioGateDetection.Peak, link: AudioGateLink.Maximum)
-                .SilenceDetect(SilenceDetectNoiseUnit.AmplitudeRatio, 0.01)))
+                .SilenceDetect(0.01, SilenceDetectNoiseUnit.AmplitudeRatio)))
             .Arguments;
         var plain = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", opt => opt.WithAudioFilters(f => f
                 .HighPass(200, 2, "o", transform: "svf", precision: "f32")
                 .AudioGate(mode: "upward", detection: "peak", link: "maximum")
-                .SilenceDetect("ar", 0.01)))
+                .SilenceDetect(0.01, "ar")))
             .Arguments;
 
         Assert.AreEqual(typed, plain);
@@ -1283,7 +1283,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false,
-                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect("ar", 0.05, 1.5, true)))
+                opt => opt.WithAudioFilters(filterOptions => filterOptions.SilenceDetect(0.05, "ar", 1.5, true)))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -af \"silencedetect=n=0.05:d=1.5:m=1\" \"output.mp4\"", str);
@@ -1294,7 +1294,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(filterOptions => filterOptions
-                .SilenceDetect(SilenceDetectNoiseUnit.AmplitudeRatio, 0.001, 0.125)
+                .SilenceDetect(0.001, SilenceDetectNoiseUnit.AmplitudeRatio, 0.125)
                 .DynamicAudioNormalizer(targetRms: 0.05, gainFactor: 1.25)
                 .AudioGate(0.015625, range: 0, threshold: 0.0125)
                 .HighPass(3000.125, width: 0.707)
@@ -1333,9 +1333,9 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
-    public void Builder_SilenceDetect_Rejects_UnknownNoiseType()
+    public void Builder_SilenceDetect_Rejects_UnknownNoiseUnit()
     {
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SilenceDetectArgument("lufs"));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SilenceDetectArgument(noiseUnit: "lufs"));
     }
 
     [TestMethod]
@@ -1545,7 +1545,7 @@ public class ArgumentBuilderTest
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
             .OutputToFile("output.mp4", false, opt => opt.WithAudioFilters(f =>
-                f.Fade(FadeDirection.In, TimeSpan.Zero, TimeSpan.FromSeconds(2), "qsin")))
+                f.Fade(FadeDirection.In, TimeSpan.Zero, TimeSpan.FromSeconds(2), FadeCurve.QuarterSine)))
             .Arguments;
 
         Assert.AreEqual("-i \"input.mp4\" -af \"afade=t=in:st=0:d=2:curve=qsin\" \"output.mp4\"", str);
@@ -1577,9 +1577,9 @@ public class ArgumentBuilderTest
     [TestMethod]
     [DataRow(0.4)]
     [DataRow(101.0)]
-    public void AudioSpeedArgument_RejectsFactorsOneAtempoCannotSpan(double factor)
+    public void AudioSpeedArgument_RejectsMultipliersOneAtempoCannotSpan(double multiplier)
     {
-        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new AudioSpeedArgument(factor));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new AudioSpeedArgument(multiplier));
     }
 
     [TestMethod]

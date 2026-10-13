@@ -66,7 +66,7 @@ public class AudioFilterOptions
 
     /// <summary>highpass</summary>
     public AudioFilterOptions HighPass(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707,
-        double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
+        double mix = 1, string? channels = null, bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
         return WithFilter(new HighPassArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
@@ -74,7 +74,7 @@ public class AudioFilterOptions
 
     /// <summary>lowpass</summary>
     public AudioFilterOptions LowPass(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707,
-        double mix = 1, string channels = "", bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
+        double mix = 1, string? channels = null, bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null,
         int? blockSize = null)
     {
         return WithFilter(new LowPassArgument(frequency, poles, widthType, width, mix, channels, normalize, transform, precision, blockSize));
@@ -102,16 +102,16 @@ public class AudioFilterOptions
     }
 
     /// <summary>afade</summary>
-    public AudioFilterOptions Fade(FadeDirection direction, TimeSpan start, TimeSpan duration, string? curve = null)
+    public AudioFilterOptions Fade(FadeDirection direction, TimeSpan start, TimeSpan duration, FadeCurve? curve = null)
     {
         return WithFilter(new AudioFadeArgument(direction, start, duration, curve));
     }
 
     /// <summary>silencedetect</summary>
-    public AudioFilterOptions SilenceDetect(SilenceDetectNoiseUnit? noiseType = null, double noise = -60, double duration = 2,
+    public AudioFilterOptions SilenceDetect(double noise = -60, SilenceDetectNoiseUnit? noiseUnit = null, double duration = 2,
         bool mono = false)
     {
-        return WithFilter(new SilenceDetectArgument(noiseType, noise, duration, mono));
+        return WithFilter(new SilenceDetectArgument(noise, noiseUnit, duration, mono));
     }
 
     /// <summary>volumedetect</summary>
