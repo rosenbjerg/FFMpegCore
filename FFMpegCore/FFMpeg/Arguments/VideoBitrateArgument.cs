@@ -6,11 +6,13 @@
 public class VideoBitrateArgument : IArgument
 {
     public readonly int Bitrate;
+    public readonly int? StreamIndex;
 
-    public VideoBitrateArgument(int bitrate)
+    public VideoBitrateArgument(int kilobitsPerSecond, int? streamIndex = null)
     {
-        Bitrate = bitrate;
+        Bitrate = kilobitsPerSecond;
+        StreamIndex = streamIndex;
     }
 
-    public string Text => $"-b:v {Bitrate}k";
+    public string Text => $"-b:v{(StreamIndex == null ? string.Empty : $":{StreamIndex}")} {Bitrate}k";
 }

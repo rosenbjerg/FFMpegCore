@@ -1,0 +1,74 @@
+﻿using FFMpegCore.Enums;
+using FFMpegCore.Helpers;
+
+namespace FFMpegCore.Arguments;
+
+public class LowPassArgument : IAudioFilterArgument
+{
+    private readonly Dictionary<string, string> _arguments = new();
+
+    /// <summary>
+    ///     LowPass Filter. <see href="https://ffmpeg.org/ffmpeg-filters.html#lowpass" />
+    /// </summary>
+    /// <param name="frequency">Set frequency in Hz. Default is 3000.</param>
+    /// <param name="poles">Set number of poles. Default is 2.</param>
+    /// <param name="widthType">Set method to specify band-width of filter, possible values are: h, q, o, s, k</param>
+    /// <param name="width">
+    ///     Specify the band-width of a filter in widthType units. Applies only to double-pole filter. The default is 0.707q and
+    ///     gives a Butterworth response.
+    /// </param>
+    /// <param name="mix">How much to use filtered signal in output. Default is 1. Range is between 0 and 1.</param>
+    /// <param name="channels">Specify which channels to filter, by default all available are filtered.</param>
+    /// <param name="normalize">Normalize biquad coefficients, by default is disabled. Enabling it will normalize magnitude response at DC to 0dB.</param>
+    /// <param name="transform">Set transform type of IIR filter, possible values are: di, dii, tdi, tdii, latt, svf, zdf</param>
+    /// <param name="precision">Set precison of filtering, possible values are: auto, s16, s32, f32, f64.</param>
+    /// <param name="blockSize">
+    ///     Set block size used for reverse IIR processing. If this value is set to high enough value (higher than impulse
+    ///     response length truncated when reaches near zero values) filtering will become linear phase otherwise if not big enough it will just
+    ///     produce nasty artifacts.
+    /// </param>
+    public LowPassArgument(double frequency = 3000, int poles = 2, FilterWidthType? widthType = null, double width = 0.707, double mix = 1,
+        string? channels = null, bool normalize = false, FilterTransform? transform = null, FilterPrecision? precision = null, int? blockSize = null)
+    {
+        if (frequency < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(frequency), "Frequency must be a positive number");
+        }
+
+        if (poles < 1 || poles > 2)
+        {
+            throw new ArgumentOutOfRangeException(nameof(poles), "Poles must be either 1 or 2");
+        }
+
+        if (mix < 0 || mix > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(mix), "Mix must be between 0 and 1");
+        }
+
+        _arguments.Add("f", frequency.ToInvariantString());
+        _arguments.Add("p", poles.ToString());
+        _arguments.Add("t", (widthType ?? FilterWidthType.QFactor).Value);
+        _arguments.Add("w", width.ToInvariantString());
+        _arguments.Add("m", mix.ToInvariantString());
+        if (channels != null)
+        {
+            _arguments.Add("c", channels);
+        }
+
+        _arguments.Add("n", (normalize ? 1 : 0).ToString());
+        if (transform != null)
+        {
+            _arguments.Add("a", transform.Value.Value);
+        }
+
+        _arguments.Add("r", (precision ?? FilterPrecision.Auto).Value);
+        if (blockSize is >= 0)
+        {
+            _arguments.Add("b", blockSize.ToString());
+        }
+    }
+
+    public string Key { get; } = "lowpass";
+
+    public string Value => string.Join(":", _arguments.Select(pair => $"{pair.Key}={pair.Value}"));
+}

@@ -35,24 +35,4 @@ public class TagExtensionsTests
         Assert.IsNull(withOtherTags.GetRotate());
         Assert.IsNull(withOtherTags.GetDuration());
     }
-
-    [TestMethod]
-    public void DispositionGetters_ReadDefaultAndForced()
-    {
-        var stream = new FFProbeStream { Disposition = new Dictionary<string, int> { { "default", 1 }, { "forced", 0 } } };
-
-        Assert.AreEqual(1, stream.GetDefault());
-        Assert.AreEqual(0, stream.GetForced());
-    }
-
-    [TestMethod]
-    public void DispositionGetters_ReturnNull_WhenMissingOrNoDisposition()
-    {
-        var withoutDisposition = new FFProbeStream { Disposition = null };
-        var withOtherKeys = new FFProbeStream { Disposition = new Dictionary<string, int> { { "comment", 1 } } };
-
-        Assert.IsNull(withoutDisposition.GetDefault());
-        Assert.IsNull(withOtherKeys.GetDefault());
-        Assert.IsNull(withOtherKeys.GetForced());
-    }
 }

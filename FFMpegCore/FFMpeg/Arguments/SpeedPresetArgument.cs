@@ -2,17 +2,14 @@
 
 namespace FFMpegCore.Arguments;
 
-/// <summary>
-///     Represents speed parameter
-/// </summary>
 public class SpeedPresetArgument : IArgument
 {
-    public readonly Speed Speed;
+    public readonly EncoderPreset Preset;
 
-    public SpeedPresetArgument(Speed speed)
+    public SpeedPresetArgument(EncoderPreset preset)
     {
-        Speed = speed;
+        Preset = preset;
     }
 
-    public string Text => $"-preset {Speed.ToString().ToLowerInvariant()}";
+    public string Text => $"-preset {Preset}";
 }

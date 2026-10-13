@@ -2,7 +2,7 @@
 
 namespace FFMpegCore.Extensions.Downloader.Extensions;
 
-public static class EnumExtensions
+internal static class EnumExtensions
 {
     internal static string GetDescription(this Enum enumValue)
     {
@@ -20,12 +20,14 @@ public static class EnumExtensions
         return enumValue.ToString();
     }
 
-    public static TEnum[] GetFlags<TEnum>(this TEnum input) where TEnum : Enum
+    internal static TEnum[] GetFlags<TEnum>(this TEnum input) where TEnum : Enum
     {
-        return Enum.GetValues(input.GetType())
-            .Cast<Enum>()
-            .Where(input.HasFlag)
-            .Cast<TEnum>()
-            .ToArray();
+        return
+        [
+            .. Enum.GetValues(input.GetType())
+                .Cast<Enum>()
+                .Where(input.HasFlag)
+                .Cast<TEnum>()
+        ];
     }
 }

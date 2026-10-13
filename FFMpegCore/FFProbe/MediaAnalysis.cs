@@ -1,35 +1,54 @@
-﻿using FFMpegCore.Builders.MetaData;
-
-namespace FFMpegCore;
+﻿namespace FFMpegCore;
 
 internal class MediaAnalysis : IMediaAnalysis
 {
-    internal MediaAnalysis(FFProbeAnalysis analysis)
+    internal MediaAnalysis(FFProbeAnalysis analysis, string? path, string json, IReadOnlyList<string> standardError)
     {
+        Path = path;
+        Json = json;
+        Raw = analysis;
         Format = ParseFormat(analysis.Format);
-        Chapters = analysis.Chapters.Select(c => ParseChapter(c)).ToList();
-        VideoStreams = analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream).ToList();
-        AudioStreams = analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream).ToList();
-        SubtitleStreams = analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream).ToList();
-        ErrorData = analysis.ErrorData;
+        Chapters = [.. analysis.Chapters.Select(ParseChapter)];
+        VideoStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "video").Select(ParseVideoStream)];
+        AudioStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "audio").Select(ParseAudioStream)];
+        SubtitleStreams = [.. analysis.Streams.Where(stream => stream.CodecType == "subtitle").Select(ParseSubtitleStream)];
+        StandardError = standardError;
     }
 
-    public TimeSpan Duration => new[] { Format.Duration, PrimaryVideoStream?.Duration ?? TimeSpan.Zero, PrimaryAudioStream?.Duration ?? TimeSpan.Zero }.Max();
+    public string? Path { get; }
+
+    public string Json { get; }
+
+    public FFProbeAnalysis Raw { get; }
+
+    public TimeSpan Duration => VideoStreams.Select(stream => stream.Duration)
+        .Concat(AudioStreams.Select(stream => stream.Duration))
+        .Concat(SubtitleStreams.Select(stream => stream.Duration))
+        .Append(Format.Duration)
+        .Max();
 
     public MediaFormat Format { get; }
 
-    public List<ChapterData> Chapters { get; }
+    public IReadOnlyList<ChapterData> Chapters { get; }
 
-    public AudioStream? PrimaryAudioStream => AudioStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-    public VideoStream? PrimaryVideoStream => VideoStreams.OrderBy(stream => stream.Index).FirstOrDefault();
-    public SubtitleStream? PrimarySubtitleStream => SubtitleStreams.OrderBy(stream => stream.Index).FirstOrDefault();
+    public AudioStream? PrimaryAudioStream => Primary(AudioStreams);
+    public VideoStream? PrimaryVideoStream => Primary(VideoStreams);
+    public SubtitleStream? PrimarySubtitleStream => Primary(SubtitleStreams);
 
-    public List<VideoStream> VideoStreams { get; }
-    public List<AudioStream> AudioStreams { get; }
-    public List<SubtitleStream> SubtitleStreams { get; }
-    public IReadOnlyList<string> ErrorData { get; }
+    public IReadOnlyList<VideoStream> VideoStreams { get; }
+    public IReadOnlyList<AudioStream> AudioStreams { get; }
+    public IReadOnlyList<SubtitleStream> SubtitleStreams { get; }
+    public IReadOnlyList<string> StandardError { get; }
 
-    private MediaFormat ParseFormat(Format analysisFormat)
+    private static T? Primary<T>(IEnumerable<T> streams) where T : MediaStream
+    {
+        return streams
+            .OrderByDescending(stream => stream.Disposition != null && stream.Disposition.TryGetValue("default", out var isDefault) && isDefault)
+            .ThenBy(stream => stream.Index)
+            .FirstOrDefault();
+    }
+
+    private MediaFormat ParseFormat(FFProbeFormat analysisFormat)
     {
         return new MediaFormat
         {
@@ -39,23 +58,29 @@ internal class MediaAnalysis : IMediaAnalysis
             FormatLongName = analysisFormat.FormatLongName,
             StreamCount = analysisFormat.NbStreams,
             ProbeScore = analysisFormat.ProbeScore,
-            BitRate = long.Parse(analysisFormat.BitRate ?? "0"),
+            BitRate = !string.IsNullOrEmpty(analysisFormat.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(analysisFormat.BitRate!) : 0,
             Tags = analysisFormat.Tags.ToCaseInsensitive()
         };
     }
 
-    private string GetValue(string tagName, Dictionary<string, string>? tags, string defaultValue)
+    private string GetValue(string tagName, IReadOnlyDictionary<string, string>? tags, string defaultValue)
     {
         return tags == null ? defaultValue : tags.TryGetValue(tagName, out var value) ? value : defaultValue;
     }
 
-    private ChapterData ParseChapter(Chapter analysisChapter)
+    private ChapterData ParseChapter(FFProbeChapter analysisChapter)
     {
-        var title = GetValue("title", analysisChapter.Tags, "TitleValueNotSet");
+        var title = GetValue("title", analysisChapter.Tags, string.Empty);
         var start = MediaAnalysisUtils.ParseDuration(analysisChapter.StartTime);
         var end = MediaAnalysisUtils.ParseDuration(analysisChapter.EndTime);
 
         return new ChapterData(title, start, end);
+    }
+
+    private static TimeSpan ParseStreamDuration(FFProbeStream stream)
+    {
+        var duration = string.IsNullOrEmpty(stream.Duration) ? stream.GetDuration() : stream.Duration;
+        return MediaAnalysisUtils.ParseDuration(duration ?? string.Empty);
     }
 
     private int? GetBitDepth(FFProbeStream stream)
@@ -69,18 +94,18 @@ internal class MediaAnalysis : IMediaAnalysis
         return new VideoStream
         {
             Index = stream.Index,
-            AvgFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.AvgFrameRate, '/')),
-            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
-            BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitsPerRawSample) : default,
+            AverageFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.AvgFrameRate, '/')),
+            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : 0,
+            BitsPerRawSample = !string.IsNullOrEmpty(stream.BitsPerRawSample) ? MediaAnalysisUtils.ParseIntInvariant(stream.BitsPerRawSample) : 0,
             CodecName = stream.CodecName,
             CodecLongName = stream.CodecLongName,
             CodecTag = stream.CodecTag,
             CodecTagString = stream.CodecTagString,
             DisplayAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.DisplayAspectRatio, ':'),
             SampleAspectRatio = MediaAnalysisUtils.ParseRatioInt(stream.SampleAspectRatio, ':'),
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
-            FrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
+            RealFrameRate = MediaAnalysisUtils.DivideRatio(MediaAnalysisUtils.ParseRatioDouble(stream.FrameRate, '/')),
             Height = stream.Height ?? 0,
             Width = stream.Width ?? 0,
             Profile = stream.Profile,
@@ -105,16 +130,16 @@ internal class MediaAnalysis : IMediaAnalysis
         return new AudioStream
         {
             Index = stream.Index,
-            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
+            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : 0,
             CodecName = stream.CodecName,
             CodecLongName = stream.CodecLongName,
             CodecTag = stream.CodecTag,
             CodecTagString = stream.CodecTagString,
-            Channels = stream.Channels ?? default,
+            Channels = stream.Channels ?? 0,
             ChannelLayout = stream.ChannelLayout,
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
-            SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : default,
+            SampleRateHz = !string.IsNullOrEmpty(stream.SampleRate) ? MediaAnalysisUtils.ParseIntInvariant(stream.SampleRate) : 0,
             Profile = stream.Profile,
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
@@ -129,10 +154,12 @@ internal class MediaAnalysis : IMediaAnalysis
         return new SubtitleStream
         {
             Index = stream.Index,
-            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : default,
+            BitRate = !string.IsNullOrEmpty(stream.BitRate) ? MediaAnalysisUtils.ParseLongInvariant(stream.BitRate) : 0,
             CodecName = stream.CodecName,
             CodecLongName = stream.CodecLongName,
-            Duration = MediaAnalysisUtils.ParseDuration(stream.Duration),
+            CodecTag = stream.CodecTag,
+            CodecTagString = stream.CodecTagString,
+            Duration = ParseStreamDuration(stream),
             StartTime = MediaAnalysisUtils.ParseDuration(stream.StartTime),
             Language = stream.GetLanguage(),
             Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),

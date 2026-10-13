@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace FFMpegCore;
 
-public static class MediaAnalysisUtils
+internal static class MediaAnalysisUtils
 {
     private static readonly Regex DurationRegex = new(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
-    internal static Dictionary<string, string> ToCaseInsensitive(this Dictionary<string, string>? dictionary)
+    internal static Dictionary<string, string> ToCaseInsensitive(this IReadOnlyDictionary<string, string>? dictionary)
     {
         return dictionary?.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, string>();
     }
@@ -75,8 +75,6 @@ public static class MediaAnalysisUtils
                 var milliseconds = int.Parse(millisecondsPart);
                 return new TimeSpan(0, hours, minutes, seconds, milliseconds);
             }
-
-            return TimeSpan.Zero;
         }
 
         return TimeSpan.Zero;
@@ -84,7 +82,7 @@ public static class MediaAnalysisUtils
 
     public static int ParseRotation(FFProbeStream fFProbeStream)
     {
-        var displayMatrixSideData = fFProbeStream.SideData?.Find(item =>
+        var displayMatrixSideData = fFProbeStream.SideData?.FirstOrDefault(item =>
             item.TryGetValue("side_data_type", out var rawSideDataType) && rawSideDataType.ToString() == "Display Matrix");
 
         if (displayMatrixSideData?.TryGetValue("rotation", out var rawRotation) ?? false)
@@ -95,7 +93,7 @@ public static class MediaAnalysisUtils
         return (int)float.Parse(fFProbeStream.GetRotate() ?? "0");
     }
 
-    public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)
+    public static Dictionary<string, bool>? FormatDisposition(IReadOnlyDictionary<string, int>? disposition)
     {
         if (disposition == null)
         {

@@ -4,26 +4,29 @@ namespace FFMpegCore;
 
 public class VideoStream : MediaStream
 {
-    public double AvgFrameRate { get; set; }
-    public int BitsPerRawSample { get; set; }
-    public (int Width, int Height) DisplayAspectRatio { get; set; }
-    public (int Width, int Height) SampleAspectRatio { get; set; }
-    public string Profile { get; set; } = null!;
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public double FrameRate { get; set; }
-    public string PixelFormat { get; set; } = null!;
-    public int Level { get; set; }
-    public string FieldOrder { get; set; } = null!;
-    public int Rotation { get; set; }
-    public double AverageFrameRate { get; set; }
-    public string ColorRange { get; set; } = null!;
-    public string ColorSpace { get; set; } = null!;
-    public string ColorTransfer { get; set; } = null!;
-    public string ColorPrimaries { get; set; } = null!;
+    internal VideoStream() { }
 
-    public PixelFormat GetPixelFormatInfo()
+    /// <summary>ffprobe's avg_frame_rate: total frames divided by total duration.</summary>
+    public double AverageFrameRate { get; internal set; }
+    public int BitsPerRawSample { get; internal set; }
+    public (int Width, int Height) DisplayAspectRatio { get; internal set; }
+    public (int Width, int Height) SampleAspectRatio { get; internal set; }
+    public string Profile { get; internal set; } = null!;
+    public int Width { get; internal set; }
+    public int Height { get; internal set; }
+    /// <summary>ffprobe's r_frame_rate: the lowest rate every timestamp is a multiple of.</summary>
+    public double RealFrameRate { get; internal set; }
+    public string PixelFormat { get; internal set; } = null!;
+    public int Level { get; internal set; }
+    public string FieldOrder { get; internal set; } = null!;
+    public int Rotation { get; internal set; }
+    public string ColorRange { get; internal set; } = null!;
+    public string ColorSpace { get; internal set; } = null!;
+    public string ColorTransfer { get; internal set; } = null!;
+    public string ColorPrimaries { get; internal set; } = null!;
+
+    public PixelFormat GetPixelFormatInfo(FFOptions? ffOptions = null)
     {
-        return FFMpeg.GetPixelFormat(PixelFormat);
+        return FFMpeg.GetPixelFormat(PixelFormat, ffOptions);
     }
 }

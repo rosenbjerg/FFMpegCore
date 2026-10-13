@@ -11,12 +11,12 @@ public class StreamPipeSource : IPipeSource
     }
 
     public Stream Source { get; }
-    public int BlockSize { get; } = 4096;
-    public string StreamFormat { get; } = string.Empty;
+    public int BlockSize { get; set; } = 4096;
+    public string Format { get; set; } = string.Empty;
 
     public string GetStreamArguments()
     {
-        return StreamFormat;
+        return string.IsNullOrEmpty(Format) ? string.Empty : $"-f {Format}";
     }
 
     public Task WriteAsync(Stream outputStream, CancellationToken cancellationToken)

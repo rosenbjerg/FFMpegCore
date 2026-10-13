@@ -19,7 +19,7 @@ public class ScaleArgument : IVideoFilterArgument
 
     public ScaleArgument(VideoSize videosize)
     {
-        Size = videosize == VideoSize.Original ? null : new Size(-1, (int)videosize);
+        Size = videosize == VideoSize.Original ? null : new Size(-2, (int)videosize);
     }
 
     public string Key { get; } = "scale";

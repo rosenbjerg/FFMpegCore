@@ -1,5 +1,4 @@
 ﻿using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Arguments;
 
@@ -9,21 +8,18 @@ namespace FFMpegCore.Arguments;
 public class VideoCodecArgument : IArgument
 {
     public readonly string Codec;
+    public readonly int? StreamIndex;
 
-    public VideoCodecArgument(string codec)
+    public VideoCodecArgument(Codec value, int? streamIndex = null)
     {
-        Codec = codec;
-    }
-
-    public VideoCodecArgument(Codec value)
-    {
-        if (value.Type != CodecType.Video)
+        if (value.Type is not (CodecType.Video or CodecType.Unknown))
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{value.Name}\" is not a video codec");
+            throw new ArgumentException($"Codec \"{value.Name}\" is not a video codec", nameof(value));
         }
 
         Codec = value.Name;
+        StreamIndex = streamIndex;
     }
 
-    public string Text => $"-c:v {Codec}";
+    public string Text => $"-c:v{(StreamIndex == null ? string.Empty : $":{StreamIndex}")} {Codec}";
 }

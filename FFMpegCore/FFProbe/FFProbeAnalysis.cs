@@ -1,154 +1,269 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace FFMpegCore;
 
 public class FFProbeAnalysis
 {
-    [JsonPropertyName("streams")] public List<FFProbeStream> Streams { get; set; } = null!;
+    [JsonConstructor]
+    internal FFProbeAnalysis() { }
 
-    [JsonPropertyName("format")] public Format Format { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("streams")]
+    public IReadOnlyList<FFProbeStream> Streams { get; internal set; } = [];
 
-    [JsonPropertyName("chapters")] public List<Chapter> Chapters { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("format")]
+    public FFProbeFormat Format { get; internal set; } = null!;
 
-    [JsonIgnore] public IReadOnlyList<string> ErrorData { get; set; } = new List<string>();
+    [JsonInclude]
+    [JsonPropertyName("chapters")]
+    public IReadOnlyList<FFProbeChapter> Chapters { get; internal set; } = [];
+
+    [JsonExtensionData][JsonInclude] internal Dictionary<string, JsonElement>? ExtensionDataStore { get; set; }
+
+    [JsonIgnore] public IReadOnlyDictionary<string, JsonElement> ExtensionData => ExtensionDataStore ?? new Dictionary<string, JsonElement>();
 }
 
-public class FFProbeStream : ITagsContainer, IDispositionContainer
+public class FFProbeStream : ITagsContainer
 {
-    [JsonPropertyName("index")] public int Index { get; set; }
+    [JsonConstructor]
+    internal FFProbeStream() { }
 
-    [JsonPropertyName("avg_frame_rate")] public string AvgFrameRate { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("index")]
+    public int Index { get; internal set; }
 
+    [JsonInclude]
+    [JsonPropertyName("avg_frame_rate")]
+    public string AvgFrameRate { get; internal set; } = null!;
+
+    [JsonInclude]
     [JsonPropertyName("bits_per_raw_sample")]
-    public string BitsPerRawSample { get; set; } = null!;
+    public string BitsPerRawSample { get; internal set; } = null!;
 
-    [JsonPropertyName("bits_per_sample")] public int BitsPerSample { get; set; } = 0;
+    [JsonInclude]
+    [JsonPropertyName("bits_per_sample")]
+    public int BitsPerSample { get; internal set; }
 
-    [JsonPropertyName("bit_rate")] public string BitRate { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("bit_rate")]
+    public string BitRate { get; internal set; } = null!;
 
-    [JsonPropertyName("channels")] public int? Channels { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("channels")]
+    public int? Channels { get; internal set; }
 
-    [JsonPropertyName("channel_layout")] public string ChannelLayout { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("channel_layout")]
+    public string ChannelLayout { get; internal set; } = null!;
 
-    [JsonPropertyName("codec_type")] public string CodecType { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("codec_type")]
+    public string CodecType { get; internal set; } = null!;
 
-    [JsonPropertyName("codec_name")] public string CodecName { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("codec_name")]
+    public string CodecName { get; internal set; } = null!;
 
-    [JsonPropertyName("codec_long_name")] public string CodecLongName { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("codec_long_name")]
+    public string CodecLongName { get; internal set; } = null!;
 
-    [JsonPropertyName("codec_tag")] public string CodecTag { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("codec_tag")]
+    public string CodecTag { get; internal set; } = null!;
 
-    [JsonPropertyName("codec_tag_string")] public string CodecTagString { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("codec_tag_string")]
+    public string CodecTagString { get; internal set; } = null!;
 
+    [JsonInclude]
     [JsonPropertyName("display_aspect_ratio")]
-    public string DisplayAspectRatio { get; set; } = null!;
+    public string DisplayAspectRatio { get; internal set; } = null!;
 
+    [JsonInclude]
     [JsonPropertyName("sample_aspect_ratio")]
-    public string SampleAspectRatio { get; set; } = null!;
+    public string SampleAspectRatio { get; internal set; } = null!;
 
-    [JsonPropertyName("start_time")] public string StartTime { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("start_time")]
+    public string StartTime { get; internal set; } = null!;
 
-    [JsonPropertyName("duration")] public string Duration { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("duration")]
+    public string Duration { get; internal set; } = null!;
 
-    [JsonPropertyName("profile")] public string Profile { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("profile")]
+    public string Profile { get; internal set; } = null!;
 
-    [JsonPropertyName("width")] public int? Width { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("width")]
+    public int? Width { get; internal set; }
 
-    [JsonPropertyName("height")] public int? Height { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("height")]
+    public int? Height { get; internal set; }
 
-    [JsonPropertyName("r_frame_rate")] public string FrameRate { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("r_frame_rate")]
+    public string FrameRate { get; internal set; } = null!;
 
-    [JsonPropertyName("pix_fmt")] public string PixelFormat { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("pix_fmt")]
+    public string PixelFormat { get; internal set; } = null!;
 
-    [JsonPropertyName("level")] public int Level { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("level")]
+    public int Level { get; internal set; }
 
-    [JsonPropertyName("field_order")] public string FieldOrder { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("field_order")]
+    public string FieldOrder { get; internal set; } = null!;
 
-    [JsonPropertyName("sample_rate")] public string SampleRate { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("sample_rate")]
+    public string SampleRate { get; internal set; } = null!;
 
-    [JsonPropertyName("side_data_list")] public List<Dictionary<string, JsonValue>> SideData { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("side_data_list")]
+    public IReadOnlyList<IReadOnlyDictionary<string, JsonValue>>? SideData { get; internal set; }
 
-    [JsonPropertyName("color_range")] public string ColorRange { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("color_range")]
+    public string ColorRange { get; internal set; } = null!;
 
-    [JsonPropertyName("color_space")] public string ColorSpace { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("color_space")]
+    public string ColorSpace { get; internal set; } = null!;
 
-    [JsonPropertyName("color_transfer")] public string ColorTransfer { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("color_transfer")]
+    public string ColorTransfer { get; internal set; } = null!;
 
-    [JsonPropertyName("color_primaries")] public string ColorPrimaries { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("color_primaries")]
+    public string ColorPrimaries { get; internal set; } = null!;
 
-    [JsonPropertyName("disposition")] public Dictionary<string, int> Disposition { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("disposition")]
+    public IReadOnlyDictionary<string, int>? Disposition { get; internal set; }
 
-    [JsonPropertyName("tags")] public Dictionary<string, string>? Tags { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("tags")]
+    public IReadOnlyDictionary<string, string>? Tags { get; internal set; }
+
+    [JsonExtensionData][JsonInclude] internal Dictionary<string, JsonElement>? ExtensionDataStore { get; set; }
+
+    [JsonIgnore] public IReadOnlyDictionary<string, JsonElement> ExtensionData => ExtensionDataStore ?? new Dictionary<string, JsonElement>();
 }
 
-public class Format : ITagsContainer
+public class FFProbeFormat : ITagsContainer
 {
-    [JsonPropertyName("filename")] public string Filename { get; set; } = null!;
+    [JsonConstructor]
+    internal FFProbeFormat() { }
 
-    [JsonPropertyName("nb_streams")] public int NbStreams { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("filename")]
+    public string Filename { get; internal set; } = null!;
 
-    [JsonPropertyName("nb_programs")] public int NbPrograms { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("nb_streams")]
+    public int NbStreams { get; internal set; }
 
-    [JsonPropertyName("format_name")] public string FormatName { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("nb_programs")]
+    public int NbPrograms { get; internal set; }
 
-    [JsonPropertyName("format_long_name")] public string FormatLongName { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("format_name")]
+    public string FormatName { get; internal set; } = null!;
 
-    [JsonPropertyName("start_time")] public string StartTime { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("format_long_name")]
+    public string FormatLongName { get; internal set; } = null!;
 
-    [JsonPropertyName("duration")] public string Duration { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("start_time")]
+    public string StartTime { get; internal set; } = null!;
 
-    [JsonPropertyName("size")] public string Size { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("duration")]
+    public string Duration { get; internal set; } = null!;
 
-    [JsonPropertyName("bit_rate")] public string? BitRate { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("size")]
+    public string Size { get; internal set; } = null!;
 
-    [JsonPropertyName("probe_score")] public int ProbeScore { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("bit_rate")]
+    public string? BitRate { get; internal set; }
 
-    [JsonPropertyName("tags")] public Dictionary<string, string>? Tags { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("probe_score")]
+    public int ProbeScore { get; internal set; }
+
+    [JsonInclude]
+    [JsonPropertyName("tags")]
+    public IReadOnlyDictionary<string, string>? Tags { get; internal set; }
+
+    [JsonExtensionData][JsonInclude] internal Dictionary<string, JsonElement>? ExtensionDataStore { get; set; }
+
+    [JsonIgnore] public IReadOnlyDictionary<string, JsonElement> ExtensionData => ExtensionDataStore ?? new Dictionary<string, JsonElement>();
 }
 
-public class Chapter : ITagsContainer
+public class FFProbeChapter : ITagsContainer
 {
-    [JsonPropertyName("id")] public long Id { get; set; }
+    [JsonConstructor]
+    internal FFProbeChapter() { }
 
-    [JsonPropertyName("time_base")] public string TimeBase { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("id")]
+    public long Id { get; internal set; }
 
-    [JsonPropertyName("start")] public long Start { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("time_base")]
+    public string TimeBase { get; internal set; } = null!;
 
-    [JsonPropertyName("start_time")] public string StartTime { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("start")]
+    public long Start { get; internal set; }
 
-    [JsonPropertyName("end")] public long End { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("start_time")]
+    public string StartTime { get; internal set; } = null!;
 
-    [JsonPropertyName("end_time")] public string EndTime { get; set; } = null!;
+    [JsonInclude]
+    [JsonPropertyName("end")]
+    public long End { get; internal set; }
 
-    [JsonPropertyName("tags")] public Dictionary<string, string>? Tags { get; set; }
-}
+    [JsonInclude]
+    [JsonPropertyName("end_time")]
+    public string EndTime { get; internal set; } = null!;
 
-public interface IDispositionContainer
-{
-    Dictionary<string, int> Disposition { get; set; }
+    [JsonInclude]
+    [JsonPropertyName("tags")]
+    public IReadOnlyDictionary<string, string>? Tags { get; internal set; }
+
+    [JsonExtensionData][JsonInclude] internal Dictionary<string, JsonElement>? ExtensionDataStore { get; set; }
+
+    [JsonIgnore] public IReadOnlyDictionary<string, JsonElement> ExtensionData => ExtensionDataStore ?? new Dictionary<string, JsonElement>();
 }
 
 public interface ITagsContainer
 {
-    Dictionary<string, string>? Tags { get; set; }
+    IReadOnlyDictionary<string, string>? Tags { get; }
 }
 
 public static class TagExtensions
 {
     private static string? TryGetTagValue(ITagsContainer tagsContainer, string key)
     {
-        if (tagsContainer.Tags != null && tagsContainer.Tags.TryGetValue(key, out var tagValue))
-        {
-            return tagValue;
-        }
-
-        return null;
-    }
-
-    public static string? GetLanguage(this ITagsContainer tagsContainer)
-    {
-        return TryGetTagValue(tagsContainer, "language");
+        return tagsContainer.Tags?
+            .FirstOrDefault(tag => string.Equals(tag.Key, key, StringComparison.OrdinalIgnoreCase))
+            .Value;
     }
 
     public static string? GetCreationTime(this ITagsContainer tagsContainer)
@@ -156,36 +271,18 @@ public static class TagExtensions
         return TryGetTagValue(tagsContainer, "creation_time");
     }
 
-    public static string? GetRotate(this ITagsContainer tagsContainer)
+    internal static string? GetLanguage(this ITagsContainer tagsContainer)
+    {
+        return TryGetTagValue(tagsContainer, "language");
+    }
+
+    internal static string? GetRotate(this ITagsContainer tagsContainer)
     {
         return TryGetTagValue(tagsContainer, "rotate");
     }
 
-    public static string? GetDuration(this ITagsContainer tagsContainer)
+    internal static string? GetDuration(this ITagsContainer tagsContainer)
     {
         return TryGetTagValue(tagsContainer, "duration");
-    }
-}
-
-public static class DispositionExtensions
-{
-    private static int? TryGetDispositionValue(IDispositionContainer dispositionContainer, string key)
-    {
-        if (dispositionContainer.Disposition != null && dispositionContainer.Disposition.TryGetValue(key, out var dispositionValue))
-        {
-            return dispositionValue;
-        }
-
-        return null;
-    }
-
-    public static int? GetDefault(this IDispositionContainer tagsContainer)
-    {
-        return TryGetDispositionValue(tagsContainer, "default");
-    }
-
-    public static int? GetForced(this IDispositionContainer tagsContainer)
-    {
-        return TryGetDispositionValue(tagsContainer, "forced");
     }
 }

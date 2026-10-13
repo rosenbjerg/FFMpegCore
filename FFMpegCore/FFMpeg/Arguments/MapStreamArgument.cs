@@ -7,24 +7,19 @@ namespace FFMpegCore.Arguments;
 /// </summary>
 public class MapStreamArgument : IArgument
 {
-    private readonly Channel _channel;
     private readonly int _inputFileIndex;
     private readonly bool _negativeMap;
-    private readonly int _streamIndex;
+    private readonly int? _streamIndex;
+    private readonly StreamType _streamType;
 
-    public MapStreamArgument(int streamIndex, int inputFileIndex, Channel channel = Channel.All, bool negativeMap = false)
+    public MapStreamArgument(int inputFileIndex, StreamType streamType = StreamType.All, int? streamIndex = null, bool negativeMap = false)
     {
-        if (channel == Channel.Both)
-        {
-            // "Both" is not valid in this case and probably means all stream types
-            channel = Channel.All;
-        }
-
         _inputFileIndex = inputFileIndex;
+        _streamType = streamType;
         _streamIndex = streamIndex;
-        _channel = channel;
         _negativeMap = negativeMap;
     }
 
-    public string Text => $"-map {(_negativeMap ? "-" : "")}{_inputFileIndex}{_channel.StreamType()}:{_streamIndex}";
+    public string Text =>
+        $"-map {(_negativeMap ? "-" : "")}{_inputFileIndex}{_streamType.Specifier()}{(_streamIndex == null ? "" : $":{_streamIndex}")}";
 }

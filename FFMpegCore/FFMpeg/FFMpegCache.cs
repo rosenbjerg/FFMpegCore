@@ -5,64 +5,39 @@ namespace FFMpegCore;
 internal static class FFMpegCache
 {
     private static readonly object _syncObject = new();
-    private static Dictionary<string, PixelFormat>? _pixelFormats;
-    private static Dictionary<string, Codec>? _codecs;
-    private static Dictionary<string, ContainerFormat>? _containers;
+    private static readonly Dictionary<string, Dictionary<string, PixelFormat>> _pixelFormats = new();
+    private static readonly Dictionary<string, Dictionary<string, Codec>> _codecs = new();
+    private static readonly Dictionary<string, Dictionary<string, ContainerFormat>> _containers = new();
 
-    public static IReadOnlyDictionary<string, PixelFormat> PixelFormats
+    public static IReadOnlyDictionary<string, PixelFormat> PixelFormats(FFOptions ffOptions)
     {
-        get
-        {
-            if (_pixelFormats == null) //First check not thread safe
-            {
-                lock (_syncObject)
-                {
-                    if (_pixelFormats == null) //Second check thread safe
-                    {
-                        _pixelFormats = FFMpeg.GetPixelFormatsInternal().ToDictionary(x => x.Name);
-                    }
-                }
-            }
-
-            return _pixelFormats;
-        }
+        return Get(_pixelFormats, ffOptions, options => FFMpeg.GetPixelFormatsInternal(options).ToDictionary(format => format.Name));
     }
 
-    public static IReadOnlyDictionary<string, Codec> Codecs
+    public static IReadOnlyDictionary<string, Codec> Codecs(FFOptions ffOptions)
     {
-        get
-        {
-            if (_codecs == null) //First check not thread safe
-            {
-                lock (_syncObject)
-                {
-                    if (_codecs == null) //Second check thread safe
-                    {
-                        _codecs = FFMpeg.GetCodecsInternal();
-                    }
-                }
-            }
-
-            return _codecs;
-        }
+        return Get(_codecs, ffOptions, FFMpeg.GetCodecsInternal);
     }
 
-    public static IReadOnlyDictionary<string, ContainerFormat> ContainerFormats
+    public static IReadOnlyDictionary<string, ContainerFormat> ContainerFormats(FFOptions ffOptions)
     {
-        get
+        return Get(_containers, ffOptions, options => FFMpeg.GetContainersFormatsInternal(options).ToDictionary(format => format.Name));
+    }
+
+    private static IReadOnlyDictionary<string, TValue> Get<TValue>(Dictionary<string, Dictionary<string, TValue>> cache, FFOptions ffOptions,
+        Func<FFOptions, Dictionary<string, TValue>> load)
+    {
+        var binaryPath = GlobalFFOptions.GetFFMpegBinaryPath(ffOptions);
+
+        lock (_syncObject)
         {
-            if (_containers == null) //First check not thread safe
+            if (!cache.TryGetValue(binaryPath, out var entries))
             {
-                lock (_syncObject)
-                {
-                    if (_containers == null) //Second check thread safe
-                    {
-                        _containers = FFMpeg.GetContainersFormatsInternal().ToDictionary(x => x.Name);
-                    }
-                }
+                entries = load(ffOptions);
+                cache[binaryPath] = entries;
             }
 
-            return _containers;
+            return entries;
         }
     }
 }

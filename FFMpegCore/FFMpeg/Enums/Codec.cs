@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using FFMpegCore.Exceptions;
 
 namespace FFMpegCore.Enums;
@@ -30,10 +31,16 @@ public class Codec
     public bool IsIntraFrameOnly { get; private set; }
     public bool IsLossy { get; private set; }
     public bool IsLossless { get; private set; }
-    public string Description { get; private set; } = null!;
+    public string Description { get; private set; } = string.Empty;
 
     public FeatureLevel EncoderFeatureLevel { get; }
     public FeatureLevel DecoderFeatureLevel { get; }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    public static implicit operator Codec?(string? name)
+    {
+        return name == null ? null : new Codec(name, CodecType.Unknown);
+    }
 
     internal static bool TryParseFromCodecs(string line, out Codec codec)
     {
@@ -117,7 +124,7 @@ public class Codec
     {
         if (Name != other.Name)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
+            throw new FFMpegException("different codecs enable to merge");
         }
 
         Type |= other.Type;
