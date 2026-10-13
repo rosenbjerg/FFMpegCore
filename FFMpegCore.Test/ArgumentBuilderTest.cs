@@ -885,6 +885,15 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_OutputTo_TakesAnyOutputArgument()
+    {
+        var str = FFMpegArguments.FromFileInput("input.mp4")
+            .OutputTo(new OutputUrlArgument("rtmp://server/live"), options => options.ForceFormat("flv"))
+            .Arguments;
+        Assert.AreEqual("-i \"input.mp4\" -f flv \"rtmp://server/live\"", str);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_OutputToMany()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")

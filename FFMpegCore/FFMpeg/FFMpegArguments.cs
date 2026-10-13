@@ -182,6 +182,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         return this;
     }
 
+    public FFMpegArgumentProcessor OutputTo(IOutputArgument output, Action<FFMpegOutputOptions>? addArguments = null)
+    {
+        return ToProcessor(output, addArguments);
+    }
+
     public FFMpegArgumentProcessor OutputToFile(string file, Action<FFMpegOutputOptions> addArguments)
     {
         return OutputToFile(file, true, addArguments);

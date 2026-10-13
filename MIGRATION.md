@@ -622,7 +622,8 @@ derives from `FFMpegException`, and `EnumExtensions` is no longer part of the pa
 
 ### Inputs and outputs
 
-- `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for.
+- `FromInput(IInputArgument)` and `AddInput(IInputArgument)`, for inputs the library has no method for, and `OutputTo(IOutputArgument)`
+  for outputs, which previously needed `OutputToMany` with a single `AddOutput`.
 - `FromUrlInput(string)` and `AddUrlInput(string)` alongside the `Uri` overloads, matching the pair `OutputToUrl` already had.
 - `FromImageSequenceInput` and `AddImageSequenceInput` for building a video from images through the argument builder.
 - `FromFileInput`, `AddFileInput` and `OutputToFile` take the options lambda straight after the path, so
