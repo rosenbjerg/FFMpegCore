@@ -124,7 +124,7 @@ public class Codec
     {
         if (Name != other.Name)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, "different codecs enable to merge");
+            throw new FFMpegException("different codecs enable to merge");
         }
 
         Type |= other.Type;

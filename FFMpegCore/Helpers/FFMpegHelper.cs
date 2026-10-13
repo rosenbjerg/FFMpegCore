@@ -33,12 +33,12 @@ internal static class FFMpegHelper
         {
             if (ProcessHelper.Run(binaryPath, "-version").ExitCode != 0)
             {
-                throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath));
+                throw new FFMpegException(NotFoundMessage(binaryPath));
             }
         }
         catch (InstanceFileNotFoundException exception)
         {
-            throw new FFMpegException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
+            throw new FFMpegException(NotFoundMessage(binaryPath), exception);
         }
 
         _verifiedBinaries[binaryPath] = true;

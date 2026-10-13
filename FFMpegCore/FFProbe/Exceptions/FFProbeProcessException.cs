@@ -3,7 +3,7 @@
 public class FFProbeProcessException : FFProbeException
 {
     public FFProbeProcessException(int exitCode, IReadOnlyList<string> standardError, Exception? inner = null)
-        : base(FFMpegExceptionType.Process, $"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", standardError)})", inner)
+        : base($"ffprobe exited with non-zero exit-code ({exitCode} - {string.Join("\n", standardError)})", inner)
     {
         ExitCode = exitCode;
         StandardError = standardError;

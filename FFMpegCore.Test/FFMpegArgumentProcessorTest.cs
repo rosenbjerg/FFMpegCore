@@ -437,7 +437,6 @@ public class FFMpegArgumentProcessorTest
     {
         var exception = await Assert.ThrowsExactlyAsync<FFMpegProcessException>(() => CreateProcessorWithFailingSink().ProcessAsynchronously());
 
-        Assert.AreEqual(FFMpegExceptionType.Process, exception.Type);
         Assert.AreNotEqual(0, exception.Result.ExitCode);
         Assert.IsFalse(exception.Result.Success);
         Assert.IsNotEmpty(exception.Result.StandardError);

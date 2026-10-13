@@ -20,12 +20,12 @@ internal static class FFProbeHelper
         {
             if (ProcessHelper.Run(binaryPath, "-version").ExitCode != 0)
             {
-                throw new FFProbeException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath));
+                throw new FFProbeException(NotFoundMessage(binaryPath));
             }
         }
         catch (InstanceFileNotFoundException exception)
         {
-            throw new FFProbeException(FFMpegExceptionType.Operation, NotFoundMessage(binaryPath), exception);
+            throw new FFProbeException(NotFoundMessage(binaryPath), exception);
         }
 
         _verifiedBinaries[binaryPath] = true;

@@ -2,8 +2,8 @@
 
 public class FFProbeException : FFMpegException
 {
-    public FFProbeException(FFMpegExceptionType type, string message, Exception? inner = null)
-        : base(type, message, inner)
+    public FFProbeException(string message, Exception? inner = null)
+        : base(message, inner)
     {
     }
 }

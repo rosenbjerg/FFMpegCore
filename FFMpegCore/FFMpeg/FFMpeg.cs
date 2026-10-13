@@ -843,7 +843,7 @@ public static class FFMpeg
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), "-pix_fmts");
         if (result.ExitCode != 0)
         {
-            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            throw new FFMpegException(string.Join("\r\n", result.OutputData));
         }
 
         var list = new List<PixelFormat>();
@@ -889,7 +889,7 @@ public static class FFMpeg
             return fmt;
         }
 
-        throw new FFMpegException(FFMpegExceptionType.Operation, $"Pixel format \"{name}\" not supported");
+        throw new FFMpegException($"Pixel format \"{name}\" not supported");
     }
 
     #endregion
@@ -901,7 +901,7 @@ public static class FFMpeg
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), arguments);
         if (result.ExitCode != 0)
         {
-            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            throw new FFMpegException(string.Join("\r\n", result.OutputData));
         }
 
         foreach (var line in result.OutputData)
@@ -1021,7 +1021,7 @@ public static class FFMpeg
             return codec;
         }
 
-        throw new FFMpegException(FFMpegExceptionType.Operation, $"Codec \"{name}\" not supported");
+        throw new FFMpegException($"Codec \"{name}\" not supported");
     }
 
     #endregion
@@ -1035,7 +1035,7 @@ public static class FFMpeg
         var result = ProcessHelper.Run(GlobalFFOptions.GetFFMpegBinaryPath(ffOptions), "-formats");
         if (result.ExitCode != 0)
         {
-            throw new FFMpegException(FFMpegExceptionType.Process, string.Join("\r\n", result.OutputData));
+            throw new FFMpegException(string.Join("\r\n", result.OutputData));
         }
 
         var list = new List<ContainerFormat>();
@@ -1087,7 +1087,7 @@ public static class FFMpeg
             return fmt;
         }
 
-        throw new FFMpegException(FFMpegExceptionType.Operation, $"Container format \"{name}\" not supported");
+        throw new FFMpegException($"Container format \"{name}\" not supported");
     }
 
     #endregion

@@ -670,10 +670,10 @@ public class FFProbeTests
     {
         var missing = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
-        var exception = Assert.ThrowsExactly<FFProbeException>(() => FFProbe.Analyse(missing));
-        Assert.AreEqual(FFMpegExceptionType.File, exception.Type);
-        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetFrames(missing));
-        Assert.ThrowsExactly<FFProbeException>(() => FFProbe.GetPackets(missing));
+        var exception = Assert.ThrowsExactly<FileNotFoundException>(() => FFProbe.Analyse(missing));
+        Assert.AreEqual(missing, exception.FileName);
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFProbe.GetFrames(missing));
+        Assert.ThrowsExactly<FileNotFoundException>(() => FFProbe.GetPackets(missing));
     }
 
     [TestMethod]

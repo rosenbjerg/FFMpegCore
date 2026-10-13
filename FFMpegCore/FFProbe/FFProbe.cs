@@ -244,7 +244,7 @@ public static class FFProbe
     {
         if (!File.Exists(ffOptions.ResolvePath(filePath)))
         {
-            throw new FFProbeException(FFMpegExceptionType.File, $"No file found at '{filePath}'");
+            throw new FileNotFoundException("Input file not found", filePath);
         }
     }
 

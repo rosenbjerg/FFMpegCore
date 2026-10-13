@@ -34,7 +34,6 @@ public class FFMpegHelperTests
         using var binaryFolder = new TemporaryBinaryFolder("ffmpeg");
 
         var exception = Assert.ThrowsExactly<FFMpegException>(() => FFMpegHelper.VerifyFFMpegExists(binaryFolder.Options));
-        Assert.AreEqual(FFMpegExceptionType.Operation, exception.Type);
         StringAssert.Contains(exception.Message, binaryFolder.BinaryPath);
     }
 
@@ -47,7 +46,6 @@ public class FFMpegHelperTests
         using var binaryFolder = new TemporaryBinaryFolder("ffprobe");
 
         var exception = Assert.ThrowsExactly<FFProbeException>(() => FFProbeHelper.VerifyFFProbeExists(binaryFolder.Options));
-        Assert.AreEqual(FFMpegExceptionType.Operation, exception.Type);
         StringAssert.Contains(exception.Message, binaryFolder.BinaryPath);
     }
 }

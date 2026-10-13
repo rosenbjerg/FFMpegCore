@@ -59,7 +59,7 @@ public class RawVideoPipeSource : IPipeSource
     {
         if (frame.Width != Width || frame.Height != Height || frame.PixelFormat != PixelFormat)
         {
-            throw new FFMpegStreamFormatException(FFMpegExceptionType.Operation, "Video frame is not the same format as created raw video stream\r\n" +
+            throw new FFMpegStreamFormatException("Video frame is not the same format as created raw video stream\r\n" +
                                                                                  $"Frame format: {frame.Width}x{frame.Height} pix_fmt: {frame.PixelFormat}\r\n" +
                                                                                  $"Stream format: {Width}x{Height} pix_fmt: {PixelFormat}");
         }

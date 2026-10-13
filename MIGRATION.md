@@ -521,7 +521,14 @@ types. `FFMpegArgumentException` is gone — it derived from neither `FFMpegExce
 | `WithVideoFilters`/`WithAudioFilters` that add nothing | `FFMpegArgumentException`, when the command line was rendered | `ArgumentException`, from the `With…Filters` call itself |
 
 `OutputToFile(path, overwrite: false)` onto an existing file throws `IOException` instead of `FFMpegException`, naming the file. A missing
-input already threw `FileNotFoundException`; the two now match.
+input already threw `FileNotFoundException`; the two now match. `FFProbe.Analyse`, `GetFrames` and `GetPackets` throw
+`FileNotFoundException` for a missing input too, where they threw `FFProbeException` — and since the `FFMpeg.*` helpers probe their input
+first, so do they.
+
+`FFMpegExceptionType` and `FFMpegException.Type` are gone. `Conversion` was never used, `File` meant only that ffprobe's input was missing,
+and `Process` and `Operation` restated what the exception's type already says: `FFMpegProcessException` and `FFProbeProcessException` are a
+tool's non-zero exit, a plain `FFMpegException` or `FFProbeException` a missing binary or an unknown codec or format. The constructors of
+`FFMpegException`, `FFProbeException` and `FFMpegStreamFormatException` lose their first parameter.
 
 ## What an analysis reports
 
