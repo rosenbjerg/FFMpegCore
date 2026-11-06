@@ -5,20 +5,15 @@
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
     <LangVersion>default</LangVersion>
+    <OutputType>Exe</OutputType>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0"/>
-    <PackageReference Include="MSTest.TestAdapter" Version="4.0.1"/>
-    <PackageReference Include="MSTest.TestFramework" Version="4.0.1"/>
+    <PackageReference Include="coverlet.MTP" Version="10.1.0"/>
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.5"/>
+    <PackageReference Include="MSTest.TestAdapter" Version="4.5.2"/>
+    <PackageReference Include="MSTest.TestFramework" Version="4.5.2"/>
   </ItemGroup>
 
   <ItemGroup>

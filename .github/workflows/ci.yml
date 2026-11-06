@@ -45,7 +45,9 @@ jobs:
       - name: Prepare .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       - if: matrix.os == 'ubuntu-latest'
         name: Lint with dotnet
@@ -58,7 +60,7 @@ jobs:
           token: ${{ github.token }}
 
       - name: Test with dotnet
-        run: dotnet test FFMpegCore.sln  --collect "XPlat Code Coverage" --logger GitHubActions
+        run: dotnet test --solution FFMpegCore.sln --results-directory FFMpegCore.Test/TestResults --coverlet --coverlet-output-format cobertura --report-github
 
       - if: matrix.os == 'windows-latest'
         name: Upload coverage reports to Codecov
