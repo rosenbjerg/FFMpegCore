@@ -266,6 +266,22 @@ each of them.
 `FromFileInput(FileInfo)` and `AddFileInput(FileInfo)` now verify that the file exists, like their `string` counterparts always have. Pass
 `verifyExists: false` for the old behaviour.
 
+### Each output gets its own copy of the inputs
+
+`OutputToFile` and the other `OutputTo*` methods appended the output to the `FFMpegArguments` they were called on and handed that same
+object to the processor, so calling a second one on the same arguments turned the first processor into a two-output run too. Each now
+copies the arguments it was called on, so one set of inputs can branch into independent runs, and adding to the arguments afterwards
+changes neither:
+
+```csharp
+var inputs = FFMpegArguments.FromFileInput("in.mp4");
+var mp4 = inputs.OutputToFile("a.mp4");
+var webm = inputs.OutputToFile("b.webm", o => o.WithVideoCodec(VideoCodec.LibVpx));
+// 5.x: mp4.Arguments ended in "a.mp4 -c:v libvpx b.webm"; 6.0: "-i in.mp4 a.mp4"
+```
+
+For one ffmpeg run that writes several files, use `OutputToMany`.
+
 ### Relative paths follow `WorkingDirectory`
 
 ffmpeg and ffprobe run in `FFOptions.WorkingDirectory`, so that is where they resolve a relative path. The checks the library makes before

@@ -8,6 +8,11 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
 {
     private FFMpegArguments() { }
 
+    private FFMpegArguments(IEnumerable<IArgument> arguments)
+    {
+        Arguments.AddRange(arguments);
+    }
+
     internal string Text => GetText();
 
     private string GetText()
@@ -222,9 +227,10 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
         var args = new FFMpegOutputOptions();
         addArguments?.Invoke(args);
         MapAddedMetadata(args.Arguments);
-        Arguments.AddRange(args.Arguments);
-        Arguments.Add(argument);
-        return new FFMpegArgumentProcessor(this);
+        var arguments = new FFMpegArguments(Arguments);
+        arguments.Arguments.AddRange(args.Arguments);
+        arguments.Arguments.Add(argument);
+        return new FFMpegArgumentProcessor(arguments);
     }
 
     private void MapAddedMetadata(List<IArgument> outputArguments)
@@ -268,8 +274,9 @@ public sealed class FFMpegArguments : FFMpegArgumentsBase
             MapAddedMetadata(output.Arguments);
         }
 
-        Arguments.AddRange(args.Arguments);
-        return new FFMpegArgumentProcessor(this);
+        var arguments = new FFMpegArguments(Arguments);
+        arguments.Arguments.AddRange(args.Arguments);
+        return new FFMpegArgumentProcessor(arguments);
     }
 
     internal void Pre(FFOptions options)

@@ -903,6 +903,19 @@ public class ArgumentBuilderTest
     }
 
     [TestMethod]
+    public void Builder_BuildString_EachOutputBranchesFromTheSameInputs()
+    {
+        var inputs = FFMpegArguments.FromFileInput("input.mp4", false);
+
+        var mp4 = inputs.OutputToFile("a.mp4", false);
+        var webm = inputs.OutputToFile("b.webm", false, opt => opt.WithVideoCodec(VideoCodec.LibVpx));
+        inputs.AddFileInput("later.mp4", false);
+
+        Assert.AreEqual("-i \"input.mp4\" \"a.mp4\"", mp4.Arguments);
+        Assert.AreEqual("-i \"input.mp4\" -c:v libvpx \"b.webm\"", webm.Arguments);
+    }
+
+    [TestMethod]
     public void Builder_BuildString_OutputToMany()
     {
         var str = FFMpegArguments.FromFileInput("input.mp4")
