@@ -164,7 +164,7 @@ public class FFProbeTests
         Assert.AreEqual("avc1", info.PrimaryVideoStream.CodecTagString);
         Assert.AreEqual("0x31637661", info.PrimaryVideoStream.CodecTag);
 
-        Assert.IsGreaterThan(info.PrimaryVideoStream.BitRate, info.Format.BitRate);
+        Assert.IsGreaterThan(info.PrimaryVideoStream.BitRate!.Value, info.Format.BitRate!.Value);
     }
 
     [TestMethod]
@@ -267,6 +267,37 @@ public class FFProbeTests
         Assert.AreEqual(7, analysis.Raw.Streams[0].ExtensionData["new_stream_key"].GetInt32());
         Assert.IsEmpty(analysis.Raw.Streams[0].ExtensionData.Where(pair => pair.Key == "codec_name"));
         Assert.AreEqual("1/1000", analysis.Raw.Chapters[0].TimeBase);
+    }
+
+    [TestMethod]
+    public void MediaAnalysis_ReportsMissingKeysAsNull()
+    {
+        var analysis = FFProbe.FromJson("""
+            {
+              "format": { "format_name": "image2" },
+              "streams": [
+                { "index": 0, "codec_type": "video" },
+                { "index": 1, "codec_type": "audio" }
+              ]
+            }
+            """);
+
+        var video = analysis.PrimaryVideoStream!;
+        Assert.IsNull(video.CodecName);
+        Assert.IsNull(video.Profile);
+        Assert.IsNull(video.PixelFormat);
+        Assert.IsNull(video.ColorSpace);
+        Assert.IsNull(video.Width);
+        Assert.IsNull(video.Height);
+        Assert.IsNull(video.BitRate);
+        Assert.IsNull(video.BitsPerRawSample);
+        var audio = analysis.PrimaryAudioStream!;
+        Assert.IsNull(audio.ChannelLayout);
+        Assert.IsNull(audio.Channels);
+        Assert.IsNull(audio.SampleRateHz);
+        Assert.IsNull(analysis.Format.BitRate);
+        Assert.IsNull(analysis.Format.FormatLongName);
+        Assert.ThrowsExactly<InvalidOperationException>(() => video.GetCodecInfo());
     }
 
     [TestMethod]

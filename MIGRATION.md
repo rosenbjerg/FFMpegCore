@@ -554,6 +554,18 @@ tool's non-zero exit, a plain `FFMpegException` or `FFProbeException` a missing 
   alongside the container's.
 - A chapter with no title has an empty `Title`, where it reported the placeholder `"TitleValueNotSet"` — which then became the chapter's
   title when the chapters were passed back to `FFMetadataBuilder`.
+- A value ffprobe leaves out is `null`. The string properties were annotated non-nullable but held `null` whenever the key was missing —
+  a PNG has no `profile` or `color_*`, a PCM track no `profile`, a build without long names no `codec_long_name` — so they are now
+  `string?`: `CodecName`, `CodecLongName`, `CodecTag`, `CodecTagString`, `Profile`, `PixelFormat`, `FieldOrder`, `ColorRange`,
+  `ColorSpace`, `ColorTransfer`, `ColorPrimaries`, `ChannelLayout` and `MediaFormat.FormatLongName`. The numbers that reported `0` for
+  "not known" are nullable for the same reason: `BitRate` (streams and format) is `long?`, and `Width`, `Height`, `BitsPerRawSample`,
+  `Channels` and `SampleRateHz` are `int?`. The raw `FFProbeStream`, `FFProbeFormat`, `FFProbeFrame` and `FFProbePacket` strings follow
+  suit. `GetCodecInfo` and `GetPixelFormatInfo` throw `InvalidOperationException` for a stream ffprobe gave no codec or pixel format.
+
+  ```csharp
+  var bitrate = analysis.PrimaryAudioStream!.BitRate ?? 0;   // was .BitRate
+  var size = new Size(video.Width!.Value, video.Height!.Value);
+  ```
 
 ## FFProbe's raw output
 

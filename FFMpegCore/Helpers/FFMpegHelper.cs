@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Drawing;
 using FFMpegCore.Exceptions;
 using Instances.Exceptions;
 
@@ -8,14 +9,20 @@ internal static class FFMpegHelper
 {
     private static readonly ConcurrentDictionary<string, bool> _verifiedBinaries = new();
 
-    public static void ConversionSizeExceptionCheck(IMediaAnalysis info)
+    public static Size FrameSizeOf(IMediaAnalysis analysis, string paramName)
     {
-        ConversionSizeExceptionCheck(info.PrimaryVideoStream!.Width, info.PrimaryVideoStream.Height);
+        var stream = analysis.PrimaryVideoStream;
+        if (stream?.Width is not { } width || stream.Height is not { } height)
+        {
+            throw new ArgumentException($"ffprobe reported no video frame size for {analysis.Path ?? "the input"}", paramName);
+        }
+
+        return new Size(width, height);
     }
 
-    public static void ConversionSizeExceptionCheck(int width, int height)
+    public static void ConversionSizeExceptionCheck(Size size)
     {
-        if (height % 2 != 0 || width % 2 != 0)
+        if (size.Height % 2 != 0 || size.Width % 2 != 0)
         {
             throw new ArgumentException("FFMpeg yuv420p encoding requires the width and height to be a multiple of 2!");
         }

@@ -8,11 +8,11 @@ public abstract class MediaStream : ITagsContainer
     internal MediaStream() { }
 
     public int Index { get; internal set; }
-    public string CodecName { get; internal set; } = null!;
-    public string CodecLongName { get; internal set; } = null!;
-    public string CodecTagString { get; internal set; } = null!;
-    public string CodecTag { get; internal set; } = null!;
-    public long BitRate { get; internal set; }
+    public string? CodecName { get; internal set; }
+    public string? CodecLongName { get; internal set; }
+    public string? CodecTagString { get; internal set; }
+    public string? CodecTag { get; internal set; }
+    public long? BitRate { get; internal set; }
     public TimeSpan StartTime { get; internal set; }
     public TimeSpan Duration { get; internal set; }
     public string? Language { get; internal set; }
@@ -23,6 +23,6 @@ public abstract class MediaStream : ITagsContainer
 
     public Codec GetCodecInfo(FFOptions? ffOptions = null)
     {
-        return FFMpeg.GetCodec(CodecName, ffOptions);
+        return FFMpeg.GetCodec(CodecName ?? throw new InvalidOperationException($"ffprobe reported no codec for stream {Index}"), ffOptions);
     }
 }

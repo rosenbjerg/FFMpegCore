@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Drawing;
+using System.Runtime.Versioning;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Utilities;
@@ -13,7 +14,7 @@ public class FFMpegHelperTests
     [DataRow(2, 2)]
     public void ConversionSizeExceptionCheck_AcceptsEvenDimensions(int width, int height)
     {
-        FFMpegHelper.ConversionSizeExceptionCheck(width, height);
+        FFMpegHelper.ConversionSizeExceptionCheck(new Size(width, height));
     }
 
     [TestMethod]
@@ -22,7 +23,7 @@ public class FFMpegHelperTests
     [DataRow(1, 1)]
     public void ConversionSizeExceptionCheck_RejectsOddDimensions(int width, int height)
     {
-        Assert.ThrowsExactly<ArgumentException>(() => FFMpegHelper.ConversionSizeExceptionCheck(width, height));
+        Assert.ThrowsExactly<ArgumentException>(() => FFMpegHelper.ConversionSizeExceptionCheck(new Size(width, height)));
     }
 
     [OsSpecificTestMethod(OsPlatforms.Linux | OsPlatforms.MacOS)]

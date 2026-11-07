@@ -85,11 +85,13 @@ public static class SnapshotArgumentBuilder
             return null;
         }
 
-        var currentSize = new Size(source.PrimaryVideoStream.Width, source.PrimaryVideoStream.Height);
-        if (IsRotated(source.PrimaryVideoStream.Rotation))
+        var stream = source.PrimaryVideoStream;
+        if (stream.Width is not { } width || stream.Height is not { } height)
         {
-            currentSize = new Size(source.PrimaryVideoStream.Height, source.PrimaryVideoStream.Width);
+            return wantedSize.Value is { Width: > 0, Height: > 0 } ? wantedSize : null;
         }
+
+        var currentSize = IsRotated(stream.Rotation) ? new Size(height, width) : new Size(width, height);
 
         if (wantedSize.Value.Width != currentSize.Width || wantedSize.Value.Height != currentSize.Height)
         {

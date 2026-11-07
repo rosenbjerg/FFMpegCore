@@ -27,7 +27,7 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("pkt_pts_time")]
-    public string PacketPtsTime { get; internal set; } = null!;
+    public string? PacketPtsTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("pkt_dts")]
@@ -35,7 +35,7 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("pkt_dts_time")]
-    public string PacketDtsTime { get; internal set; } = null!;
+    public string? PacketDtsTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("best_effort_timestamp")]
@@ -43,7 +43,7 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("best_effort_timestamp_time")]
-    public string BestEffortTimestampTime { get; internal set; } = null!;
+    public string? BestEffortTimestampTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("pkt_duration")]
@@ -51,7 +51,7 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("pkt_duration_time")]
-    public string PacketDurationTime { get; internal set; } = null!;
+    public string? PacketDurationTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("pkt_pos")]
@@ -71,11 +71,11 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("pix_fmt")]
-    public string PixelFormat { get; internal set; } = null!;
+    public string? PixelFormat { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("pict_type")]
-    public string PictureType { get; internal set; } = null!;
+    public string? PictureType { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("coded_picture_number")]
@@ -99,7 +99,7 @@ public class FFProbeFrame
 
     [JsonInclude]
     [JsonPropertyName("chroma_location")]
-    public string ChromaLocation { get; internal set; } = null!;
+    public string? ChromaLocation { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("side_data_list")]

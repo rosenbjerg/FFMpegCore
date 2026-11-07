@@ -22,7 +22,7 @@ public class FFProbePacket
 
     [JsonInclude]
     [JsonPropertyName("pts_time")]
-    public string PtsTime { get; internal set; } = null!;
+    public string? PtsTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("dts")]
@@ -30,7 +30,7 @@ public class FFProbePacket
 
     [JsonInclude]
     [JsonPropertyName("dts_time")]
-    public string DtsTime { get; internal set; } = null!;
+    public string? DtsTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("duration")]
@@ -38,7 +38,7 @@ public class FFProbePacket
 
     [JsonInclude]
     [JsonPropertyName("duration_time")]
-    public string DurationTime { get; internal set; } = null!;
+    public string? DurationTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("size")]

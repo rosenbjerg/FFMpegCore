@@ -170,12 +170,12 @@ public static class FFMpeg
         var arguments = FFMpegArguments.FromImageSequenceInput(paths, options => options
             .WithFrameRate(frameRate));
 
-        var streams = analyses.Select(image => image.PrimaryVideoStream!).ToArray();
+        var sizes = analyses.Select(image => FFMpegHelper.FrameSizeOf(image, nameof(images))).ToArray();
         if (addArguments == null)
         {
-            foreach (var stream in streams)
+            foreach (var size in sizes)
             {
-                FFMpegHelper.ConversionSizeExceptionCheck(stream.Width, stream.Height);
+                FFMpegHelper.ConversionSizeExceptionCheck(size);
             }
         }
 
@@ -188,7 +188,7 @@ public static class FFMpeg
                 }
 
                 options
-                    .WithVideoFilters(filters => filters.Scale(streams[0].Width, streams[0].Height))
+                    .WithVideoFilters(filters => filters.Scale(sizes[0]))
                     .WithFrameRate(frameRate);
                 addArguments?.Invoke(options);
             })
@@ -224,7 +224,7 @@ public static class FFMpeg
         Codec? audioCodec = null, Action<FFMpegOutputOptions>? addArguments = null, FFOptions? ffOptions = null)
     {
         var image = InputPathOf(imageSource, nameof(imageSource));
-        var imageSize = new Size(imageSource.PrimaryVideoStream!.Width, imageSource.PrimaryVideoStream.Height);
+        var imageSize = FFMpegHelper.FrameSizeOf(imageSource, nameof(imageSource));
 
         return PosterWithAudio(new InputArgument(image, false), imageSize, audioSource, output, audioCodec, addArguments, ffOptions);
     }
@@ -245,7 +245,7 @@ public static class FFMpeg
         var audio = InputPathOf(audioSource, nameof(audioSource));
         if (addArguments == null)
         {
-            FFMpegHelper.ConversionSizeExceptionCheck(imageSize.Width, imageSize.Height);
+            FFMpegHelper.ConversionSizeExceptionCheck(imageSize);
         }
 
         return FFMpegArguments
@@ -639,7 +639,7 @@ public static class FFMpeg
         var paths = analyses.Select(analysis => InputPathOf(analysis, nameof(sources))).ToArray();
         foreach (var analysis in analyses)
         {
-            FFMpegHelper.ConversionSizeExceptionCheck(analysis);
+            FFMpegHelper.ConversionSizeExceptionCheck(FFMpegHelper.FrameSizeOf(analysis, nameof(sources)));
         }
 
         var withAudio = analyses.All(analysis => analysis.PrimaryAudioStream != null);

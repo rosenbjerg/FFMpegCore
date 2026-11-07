@@ -17,25 +17,25 @@ internal static class MediaAnalysisUtils
         return ratio.Item1 / ratio.Item2;
     }
 
-    public static (int, int) ParseRatioInt(string input, char separator)
+    public static (int, int) ParseRatioInt(string? input, char separator)
     {
         if (string.IsNullOrEmpty(input))
         {
             return (0, 0);
         }
 
-        var ratio = input.Split(separator);
+        var ratio = input!.Split(separator);
         return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
     }
 
-    public static (double, double) ParseRatioDouble(string input, char separator)
+    public static (double, double) ParseRatioDouble(string? input, char separator)
     {
         if (string.IsNullOrEmpty(input))
         {
             return (0, 0);
         }
 
-        var ratio = input.Split(separator);
+        var ratio = input!.Split(separator);
         return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
     }
 
@@ -54,7 +54,17 @@ internal static class MediaAnalysisUtils
         return long.Parse(line, NumberStyles.Any, CultureInfo.InvariantCulture);
     }
 
-    public static TimeSpan ParseDuration(string duration)
+    public static int? ParseOptionalInt(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? null : ParseIntInvariant(value!);
+    }
+
+    public static long? ParseOptionalLong(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? null : ParseLongInvariant(value!);
+    }
+
+    public static TimeSpan ParseDuration(string? duration)
     {
         if (!string.IsNullOrEmpty(duration))
         {

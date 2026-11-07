@@ -37,11 +37,11 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("avg_frame_rate")]
-    public string AvgFrameRate { get; internal set; } = null!;
+    public string? AvgFrameRate { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("bits_per_raw_sample")]
-    public string BitsPerRawSample { get; internal set; } = null!;
+    public string? BitsPerRawSample { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("bits_per_sample")]
@@ -49,7 +49,7 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("bit_rate")]
-    public string BitRate { get; internal set; } = null!;
+    public string? BitRate { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("channels")]
@@ -57,7 +57,7 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("channel_layout")]
-    public string ChannelLayout { get; internal set; } = null!;
+    public string? ChannelLayout { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("codec_type")]
@@ -65,39 +65,39 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("codec_name")]
-    public string CodecName { get; internal set; } = null!;
+    public string? CodecName { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("codec_long_name")]
-    public string CodecLongName { get; internal set; } = null!;
+    public string? CodecLongName { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("codec_tag")]
-    public string CodecTag { get; internal set; } = null!;
+    public string? CodecTag { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("codec_tag_string")]
-    public string CodecTagString { get; internal set; } = null!;
+    public string? CodecTagString { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("display_aspect_ratio")]
-    public string DisplayAspectRatio { get; internal set; } = null!;
+    public string? DisplayAspectRatio { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("sample_aspect_ratio")]
-    public string SampleAspectRatio { get; internal set; } = null!;
+    public string? SampleAspectRatio { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("start_time")]
-    public string StartTime { get; internal set; } = null!;
+    public string? StartTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("duration")]
-    public string Duration { get; internal set; } = null!;
+    public string? Duration { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("profile")]
-    public string Profile { get; internal set; } = null!;
+    public string? Profile { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("width")]
@@ -109,11 +109,11 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("r_frame_rate")]
-    public string FrameRate { get; internal set; } = null!;
+    public string? FrameRate { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("pix_fmt")]
-    public string PixelFormat { get; internal set; } = null!;
+    public string? PixelFormat { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("level")]
@@ -121,11 +121,11 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("field_order")]
-    public string FieldOrder { get; internal set; } = null!;
+    public string? FieldOrder { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("sample_rate")]
-    public string SampleRate { get; internal set; } = null!;
+    public string? SampleRate { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("side_data_list")]
@@ -133,19 +133,19 @@ public class FFProbeStream : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("color_range")]
-    public string ColorRange { get; internal set; } = null!;
+    public string? ColorRange { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("color_space")]
-    public string ColorSpace { get; internal set; } = null!;
+    public string? ColorSpace { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("color_transfer")]
-    public string ColorTransfer { get; internal set; } = null!;
+    public string? ColorTransfer { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("color_primaries")]
-    public string ColorPrimaries { get; internal set; } = null!;
+    public string? ColorPrimaries { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("disposition")]
@@ -183,19 +183,19 @@ public class FFProbeFormat : ITagsContainer
 
     [JsonInclude]
     [JsonPropertyName("format_long_name")]
-    public string FormatLongName { get; internal set; } = null!;
+    public string? FormatLongName { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("start_time")]
-    public string StartTime { get; internal set; } = null!;
+    public string? StartTime { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("duration")]
-    public string Duration { get; internal set; } = null!;
+    public string? Duration { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("size")]
-    public string Size { get; internal set; } = null!;
+    public string? Size { get; internal set; }
 
     [JsonInclude]
     [JsonPropertyName("bit_rate")]

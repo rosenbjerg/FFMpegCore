@@ -819,7 +819,7 @@ public class VideoTest
     public void Video_GifSnapshot_KeepsARequestedSizeEqualToTheSource()
     {
         var source = FFProbe.Analyse(TestResources.Mp4Video);
-        var size = new Size(source.PrimaryVideoStream!.Width, source.PrimaryVideoStream.Height);
+        var size = new Size(source.PrimaryVideoStream!.Width!.Value, source.PrimaryVideoStream.Height!.Value);
 
         var arguments = FFMpeg.GifSnapshot(source, "out.gif", size).Arguments;
 
