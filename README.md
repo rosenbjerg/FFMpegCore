@@ -279,6 +279,10 @@ catch (FFMpegProcessException exception)
 Problems found before ffmpeg starts throw the usual .NET exceptions: `FileNotFoundException` for a missing input, `IOException` for an
 existing output when `overwrite: false`.
 
+A processor can be run again once its previous run has finished, but not twice at the same time: the runs would share its cancellation
+state, its pipes and its temporary files. To run the same command concurrently, build it from scratch per run. Processors branched from
+one `FFMpegArguments` (see [Multiple outputs](#multiple-outputs)) share its input arguments, so run those one after another too.
+
 ### Progress and cancellation
 
 `NotifyOnProgress` reports the timestamp ffmpeg has reached. `NotifyOnPercentageProgress` reports a percentage from 0 to 100, which needs the
@@ -320,6 +324,15 @@ FFMpegArguments
         .OutputToFile("sd.mp4", options => options.WithVideoFilters(f => f.Scale(1280, 720)))
         .OutputToFile("hd.mp4", options => options.WithVideoFilters(f => f.Scale(1920, 1080))))
     .ProcessSynchronously();
+```
+
+To make them separate ffmpeg runs instead, call `OutputTo*` more than once on the same inputs. Each call returns its own processor and
+leaves the inputs unchanged:
+
+```csharp
+var inputs = FFMpegArguments.FromFileInput(inputPath);
+await inputs.OutputToFile("preview.mp4", options => options.WithDuration(TimeSpan.FromSeconds(10))).ProcessAsynchronously();
+await inputs.OutputToFile("full.mp4").ProcessAsynchronously();
 ```
 
 `OutputToTee` instead encodes once and fans the result out through ffmpeg's `tee` muxer, which is cheaper but requires every target to accept
