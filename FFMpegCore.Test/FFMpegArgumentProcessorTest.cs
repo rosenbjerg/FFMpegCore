@@ -1,4 +1,5 @@
-﻿using FFMpegCore.Enums;
+﻿using System.Globalization;
+using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Pipes;
 using FFMpegCore.Test.Resources;
@@ -161,6 +162,27 @@ public class FFMpegArgumentProcessorTest
 
         Assert.IsEmpty(quietLines);
         Assert.IsNotEmpty(infoLines);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    [Timeout(10000, CooperativeCancellation = true)]
+    public void Processor_WithLogLevel_IsLowercasedInvariantly()
+    {
+        using var output = new TemporaryFile("out.mp4");
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("tr-TR");
+
+            var result = CreateCopyProcessor(output).WithLogLevel(FFMpegLogLevel.Info).ProcessSynchronously(false);
+
+            Assert.IsTrue(result.Success, string.Join("\n", result.StandardError));
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
     }
 
     [TestMethod]

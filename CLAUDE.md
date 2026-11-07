@@ -126,3 +126,5 @@ The tracker is for FFMpegCore's own bugs, not ffmpeg usage help: a report whose 
 ## Style
 
 `.editorconfig` rules are enforced by `dotnet format` in CI: 4-space indent, UTF-8 BOM on `.cs`, `_camelCase` private/static fields, PascalCase constants, `var` everywhere (error severity). By convention the code also uses file-scoped namespaces, and argument classes expose their values as `public readonly` fields, not properties.
+
+Anything rendered into a command line or parsed from ffprobe is culture-invariant. A `double`, and an `int` that can be negative, go through the internal `ToInvariantString()` (`Helpers/NumberExtensions`): the current culture would write `29,97` under `da-DK` and a U+2212 minus under `sv-SE`. Lowercase with `ToLowerInvariant()` (`tr-TR` turns `Info` into `ınfo`), and parse with `CultureInfo.InvariantCulture`. A non-negative `int` interpolates safely, since .NET never localises digits. The culture tests in `ArgumentBuilderTest`, `FFMpegArgumentProcessorTest` and `FFProbeTests` cover each case.

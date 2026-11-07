@@ -97,10 +97,10 @@ internal static class MediaAnalysisUtils
 
         if (displayMatrixSideData?.TryGetValue("rotation", out var rawRotation) ?? false)
         {
-            return (int)float.Parse(rawRotation.ToString());
+            return (int)float.Parse(rawRotation.ToString(), CultureInfo.InvariantCulture);
         }
 
-        return (int)float.Parse(fFProbeStream.GetRotate() ?? "0");
+        return (int)float.Parse(fFProbeStream.GetRotate() ?? "0", CultureInfo.InvariantCulture);
     }
 
     public static Dictionary<string, bool>? FormatDisposition(IReadOnlyDictionary<string, int>? disposition)

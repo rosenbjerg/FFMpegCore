@@ -342,7 +342,7 @@ public class FFMpegArgumentProcessor
         var logLevel = _logLevel ?? ffOptions.LogLevel;
         if (logLevel != null)
         {
-            arguments += $" -v {logLevel.ToString().ToLower()}";
+            arguments += $" -v {logLevel.ToString().ToLowerInvariant()}";
         }
 
         var reportsProgress = _onTimeProgress != null || (_onPercentageProgress != null && _totalTimespan != null);

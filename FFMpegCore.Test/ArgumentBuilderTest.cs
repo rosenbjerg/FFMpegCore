@@ -1248,6 +1248,27 @@ public class ArgumentBuilderTest
 
     [TestMethod]
     [DoNotParallelize]
+    public void Builder_BuildString_NegativeNumbers_UseAHyphenInEveryCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("sv-SE");
+
+            var str = FFMpegArguments.FromFileInput("input.mp4", false, opt => opt.WithStreamLoop(-1).WithStartNumber(-2))
+                .OutputToFile("output.mp4", false)
+                .Arguments;
+
+            Assert.AreEqual("-stream_loop -1 -start_number -2 -i \"input.mp4\" \"output.mp4\"", str);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public void Builder_BuildString_FractionalEncoderValues_AreCultureInvariant()
     {
         var culture = CultureInfo.CurrentCulture;

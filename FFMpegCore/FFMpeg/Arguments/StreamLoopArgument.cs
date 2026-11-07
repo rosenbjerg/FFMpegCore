@@ -1,4 +1,6 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Helpers;
+
+namespace FFMpegCore.Arguments;
 
 public class StreamLoopArgument : IArgument
 {
@@ -9,5 +11,5 @@ public class StreamLoopArgument : IArgument
         Count = count;
     }
 
-    public string Text => $"-stream_loop {Count}";
+    public string Text => $"-stream_loop {Count.ToInvariantString()}";
 }

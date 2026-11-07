@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Globalization;
+using System.Runtime.Versioning;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Helpers;
 using FFMpegCore.Test.Resources;
@@ -267,6 +268,34 @@ public class FFProbeTests
         Assert.AreEqual(7, analysis.Raw.Streams[0].ExtensionData["new_stream_key"].GetInt32());
         Assert.IsEmpty(analysis.Raw.Streams[0].ExtensionData.Where(pair => pair.Key == "codec_name"));
         Assert.AreEqual("1/1000", analysis.Raw.Chapters[0].TimeBase);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void MediaAnalysis_ParsesRotationInvariantly()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            var analysis = FFProbe.FromJson("""
+                {
+                  "format": { "format_name": "mov" },
+                  "streams": [
+                    { "index": 0, "codec_type": "video", "side_data_list": [ { "side_data_type": "Display Matrix", "rotation": -90.00 } ] },
+                    { "index": 1, "codec_type": "video", "tags": { "rotate": "180.0" } }
+                  ]
+                }
+                """);
+
+            Assert.AreEqual(-90, analysis.VideoStreams[0].Rotation);
+            Assert.AreEqual(180, analysis.VideoStreams[1].Rotation);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
     }
 
     [TestMethod]
