@@ -2,8 +2,8 @@
 
 public class FFMpegStreamFormatException : FFMpegException
 {
-    public FFMpegStreamFormatException(FFMpegExceptionType type, string message, Exception? innerException = null)
-        : base(type, message, innerException)
+    public FFMpegStreamFormatException(string message, Exception? innerException = null)
+        : base(message, innerException)
     {
     }
 }

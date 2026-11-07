@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using FFMpegCore.Test.Resources;
 
 namespace FFMpegCore.Test;
 
@@ -57,6 +58,17 @@ public class FFMpegOptionsTests
     }
 
     [TestMethod]
+    public void Helpers_ProbeWithTheOptionsTheyWereGiven()
+    {
+        var ffOptions = new FFOptions { WorkingDirectory = Path.GetFullPath(TestResources.Mp4Video + "/..") };
+        var input = Path.GetFileName(TestResources.Mp4Video);
+
+        var arguments = FFMpeg.Snapshot(input, "out.png", ffOptions: ffOptions).Arguments;
+
+        Assert.Contains($"-i \"{input}\"", arguments);
+    }
+
+    [TestMethod]
     public void BinaryPath_FallsBackToBareName_WhenNothingOnDisk()
     {
         var options = new FFOptions { BinaryFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()) };
@@ -101,14 +113,40 @@ public class FFMpegOptionsTests
     }
 
     [TestMethod]
+    public void Options_Clone_DoesNotShareExtensionOverrides()
+    {
+        var original = new FFOptions();
+
+        var clone = original.Clone();
+        clone.ExtensionOverrides["mpegts"] = ".mts";
+
+        Assert.AreEqual(".ts", original.ExtensionOverrides["mpegts"]);
+        Assert.AreEqual(".mts", clone.ExtensionOverrides["mpegts"]);
+    }
+
+    [TestMethod]
     public void Options_Encoding_RoundTripsThroughWebName()
     {
-        var options = new FFOptions { Encoding = System.Text.Encoding.UTF8 };
+        var options = new FFOptions { Encoding = System.Text.Encoding.Unicode };
 
-        Assert.AreEqual("utf-8", options.EncodingWebName);
-        Assert.AreEqual(System.Text.Encoding.UTF8.WebName, options.Encoding.WebName);
+        Assert.AreEqual("utf-16", options.EncodingWebName);
+        Assert.AreEqual(System.Text.Encoding.Unicode.WebName, options.Encoding.WebName);
 
         options.Encoding = null;
-        Assert.AreEqual(System.Text.Encoding.Default.WebName, options.EncodingWebName);
+        Assert.AreEqual("utf-8", options.EncodingWebName);
+    }
+
+    [TestMethod]
+    public void Options_Encoding_DefaultsToUtf8()
+    {
+        Assert.AreEqual("utf-8", new FFOptions().EncodingWebName);
+    }
+
+    [TestMethod]
+    public void Options_NullBinaryFolder_FromConfig_MeansPath()
+    {
+        var options = JsonSerializer.Deserialize<FFOptions>("""{"BinaryFolder": null}""");
+
+        Assert.AreEqual(string.Empty, options.BinaryFolder);
     }
 }

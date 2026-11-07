@@ -1,8 +1,7 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Helpers;
 
-/// <summary>
-///     Represents start number parameter
-/// </summary>
+namespace FFMpegCore.Arguments;
+
 public class StartNumberArgument : IArgument
 {
     public readonly int StartNumber;
@@ -12,5 +11,5 @@ public class StartNumberArgument : IArgument
         StartNumber = startNumber;
     }
 
-    public string Text => $"-start_number {StartNumber}";
+    public string Text => $"-start_number {StartNumber.ToInvariantString()}";
 }

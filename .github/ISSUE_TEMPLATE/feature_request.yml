@@ -1,0 +1,22 @@
+name: Feature request
+description: Something FFMpegCore stops you from doing.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FFMpegCore does not aim to have a method for every ffmpeg option or filter. `WithCustomArgument`, `WithCustomFilter` and
+        FFProbe's `customArguments` pass anything through, so a request is considered when the library itself is in the way.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What do you want to do?
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: Why the pass-through methods do not cover it
+      description: What in FFMpegCore prevents doing this with `WithCustomArgument`, `WithCustomFilter` or `customArguments`?
+    validations:
+      required: true

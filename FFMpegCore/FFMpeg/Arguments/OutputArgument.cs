@@ -1,6 +1,4 @@
-﻿using FFMpegCore.Exceptions;
-
-namespace FFMpegCore.Arguments;
+﻿namespace FFMpegCore.Arguments;
 
 /// <summary>
 ///     Represents output parameter
@@ -18,13 +16,13 @@ public class OutputArgument : IOutputArgument
 
     public OutputArgument(FileInfo value) : this(value.FullName) { }
 
-    public OutputArgument(Uri value) : this(value.AbsolutePath) { }
+    public OutputArgument(Uri value) : this(value.LocalPath) { }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
-        if (!Overwrite && File.Exists(Path))
+        if (!Overwrite && File.Exists(options.ResolvePath(Path)))
         {
-            throw new FFMpegException(FFMpegExceptionType.File, "Output file already exists and overwrite is disabled");
+            throw new IOException($"Output file '{Path}' already exists and overwrite is disabled");
         }
     }
 

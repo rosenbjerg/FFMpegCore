@@ -1,15 +1,15 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using FFMpegCore.Helpers;
 
-/// <summary>
-///     Drawtext video filter argument
-/// </summary>
+namespace FFMpegCore.Arguments;
+
 public class DrawTextArgument : IVideoFilterArgument
 {
     public readonly DrawTextOptions Options;
 
-    public DrawTextArgument(DrawTextOptions options)
+    public DrawTextArgument(string text, Action<DrawTextOptions>? configure = null)
     {
-        Options = options;
+        Options = new DrawTextOptions(text);
+        configure?.Invoke(Options);
     }
 
     public string Key { get; } = "drawtext";
@@ -18,42 +18,29 @@ public class DrawTextArgument : IVideoFilterArgument
 
 public class DrawTextOptions
 {
-    public readonly string Font;
-    public readonly List<(string key, string value)> Parameters;
+    private readonly Dictionary<string, string> _parameters = new();
     public readonly string Text;
 
-    private DrawTextOptions(string text, string font, IEnumerable<(string, string)> parameters)
+    internal DrawTextOptions(string text)
     {
         Text = text;
-        Font = font;
-        Parameters = parameters.ToList();
     }
 
-    internal string TextInternal => string.Join(":", new[] { ("text", Text), ("fontfile", Font) }.Concat(Parameters).Select(FormatArgumentPair));
+    public IReadOnlyDictionary<string, string> Parameters => _parameters;
 
-    public static DrawTextOptions Create(string text, string font)
-    {
-        return new DrawTextOptions(text, font, new List<(string, string)>());
-    }
+    internal string TextInternal => string.Join(":", new[] { new KeyValuePair<string, string>("text", StringExtensions.ToQuotedFilterValue(Text)) }
+        .Concat(_parameters)
+        .Select(pair => $"{pair.Key}={pair.Value}"));
 
-    public static DrawTextOptions Create(string text, string font, params (string key, string value)[] parameters)
+    public DrawTextOptions WithFontFile(string fontFile)
     {
-        return new DrawTextOptions(text, font, parameters);
-    }
-
-    private static string FormatArgumentPair((string key, string value) pair)
-    {
-        return $"{pair.key}={EncloseIfContainsSpace(pair.value)}";
-    }
-
-    private static string EncloseIfContainsSpace(string input)
-    {
-        return input.Contains(" ") ? $"'{input}'" : input;
+        _parameters.Add("fontfile", StringExtensions.ToQuotedFilterValue(fontFile));
+        return this;
     }
 
     public DrawTextOptions WithParameter(string key, string value)
     {
-        Parameters.Add((key, value));
+        _parameters.Add(key, StringExtensions.EncloseIfContainsSpace(value));
         return this;
     }
 }

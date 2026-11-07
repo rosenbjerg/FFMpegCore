@@ -2,7 +2,7 @@
 
 public interface IInputOutputArgument : IArgument
 {
-    void Pre();
+    void Pre(FFOptions options);
     Task During(CancellationToken cancellationToken = default);
     void Post();
 }

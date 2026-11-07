@@ -4,7 +4,7 @@ using FFMpegCore.Pipes;
 
 namespace FFMpegCore.Arguments;
 
-public abstract class PipeArgument
+public abstract class PipeArgument : IInputOutputArgument
 {
     private readonly PipeDirection _direction;
     private readonly object _pipeLock = new();
@@ -21,7 +21,7 @@ public abstract class PipeArgument
     protected NamedPipeServerStream Pipe { get; private set; } = null!;
     public abstract string Text { get; }
 
-    public void Pre()
+    public void Pre(FFOptions options)
     {
         lock (_pipeLock)
         {

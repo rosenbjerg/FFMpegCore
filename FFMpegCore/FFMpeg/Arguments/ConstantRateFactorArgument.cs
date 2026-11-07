@@ -1,13 +1,12 @@
-﻿namespace FFMpegCore.Arguments;
+﻿using System.Globalization;
 
-/// <summary>
-///     Constant Rate Factor (CRF) argument
-/// </summary>
+namespace FFMpegCore.Arguments;
+
 public class ConstantRateFactorArgument : IArgument
 {
-    public readonly int Crf;
+    public readonly double Crf;
 
-    public ConstantRateFactorArgument(int crf)
+    public ConstantRateFactorArgument(double crf)
     {
         if (crf < 0 || crf > 63)
         {
@@ -17,5 +16,5 @@ public class ConstantRateFactorArgument : IArgument
         Crf = crf;
     }
 
-    public string Text => $"-crf {Crf}";
+    public string Text => $"-crf {Crf.ToString(CultureInfo.InvariantCulture)}";
 }

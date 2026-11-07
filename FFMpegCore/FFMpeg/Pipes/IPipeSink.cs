@@ -3,5 +3,5 @@
 public interface IPipeSink
 {
     Task ReadAsync(Stream inputStream, CancellationToken cancellationToken);
-    string GetFormat();
+    string GetStreamArguments();
 }

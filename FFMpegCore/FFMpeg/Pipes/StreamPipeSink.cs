@@ -21,8 +21,8 @@ public class StreamPipeSink : IPipeSink
         await Writer(inputStream, cancellationToken).ConfigureAwait(false);
     }
 
-    public string GetFormat()
+    public string GetStreamArguments()
     {
-        return Format;
+        return string.IsNullOrEmpty(Format) ? string.Empty : $"-f {Format}";
     }
 }

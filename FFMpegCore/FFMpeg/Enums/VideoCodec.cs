@@ -2,23 +2,25 @@
 
 public static class VideoCodec
 {
-    public static Codec LibX264 => FFMpeg.GetCodec("libx264");
-    public static Codec LibX265 => FFMpeg.GetCodec("libx265");
-    public static Codec LibVpx => FFMpeg.GetCodec("libvpx");
-    public static Codec LibTheora => FFMpeg.GetCodec("libtheora");
-    public static Codec MpegTs => FFMpeg.GetCodec("mpegts");
-    public static Codec LibaomAv1 => FFMpeg.GetCodec("libaom-av1");
+    public static Codec LibX264 => new("libx264", CodecType.Video);
+    public static Codec LibX265 => new("libx265", CodecType.Video);
+    public static Codec LibVpx => new("libvpx", CodecType.Video);
+    public static Codec LibVpxVp9 => new("libvpx-vp9", CodecType.Video);
+    public static Codec LibTheora => new("libtheora", CodecType.Video);
+    public static Codec LibAomAv1 => new("libaom-av1", CodecType.Video);
+    public static Codec LibSvtAv1 => new("libsvtav1", CodecType.Video);
+    public static Codec Copy => new("copy", CodecType.Video);
 
     public static class Image
     {
-        public static Codec Png => FFMpeg.GetCodec("png");
-        public static Codec Jpg => FFMpeg.GetCodec("mjpeg");
-        public static Codec Bmp => FFMpeg.GetCodec("bmp");
-        public static Codec Webp => FFMpeg.GetCodec("webp");
+        public static Codec Png => new("png", CodecType.Video);
+        public static Codec Jpg => new("mjpeg", CodecType.Video);
+        public static Codec Bmp => new("bmp", CodecType.Video);
+        public static Codec Webp => new("webp", CodecType.Video);
 
         public static Codec GetByExtension(string path)
         {
-            var ext = Path.GetExtension(path);
+            var ext = Path.GetExtension(path).ToLowerInvariant();
             switch (ext)
             {
                 case FileExtension.Image.Png:

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Description>FFMpeg downloader extension for FFMpegCore</Description>
-    <PackageVersion>5.0.0</PackageVersion>
+    <PackageVersion>6.0.0</PackageVersion>
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <PackageTags>ffmpeg ffprobe convert video audio mediafile resize analyze download install</PackageTags>
     <Authors>Kerry Cao, Malte Rosenbjerg</Authors>

@@ -4,12 +4,12 @@ namespace FFMpegCore.Arguments;
 
 public class HardwareAccelerationArgument : IArgument
 {
-    public HardwareAccelerationArgument(HardwareAccelerationDevice hardwareAccelerationDevice)
+    public readonly HardwareAccelerationDevice Device;
+
+    public HardwareAccelerationArgument(HardwareAccelerationDevice device)
     {
-        HardwareAccelerationDevice = hardwareAccelerationDevice;
+        Device = device;
     }
 
-    public HardwareAccelerationDevice HardwareAccelerationDevice { get; }
-
-    public string Text => $"-hwaccel {HardwareAccelerationDevice.ToString().ToLower()}";
+    public string Text => $"-hwaccel {Device}";
 }

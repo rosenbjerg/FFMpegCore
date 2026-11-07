@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace FFMpegCore.Enums;
 
@@ -19,6 +20,12 @@ public class PixelFormat
     public string Name { get; private set; }
     public int Components { get; private set; }
     public int BitsPerPixel { get; private set; }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    public static implicit operator PixelFormat?(string? name)
+    {
+        return name == null ? null : new PixelFormat(name);
+    }
 
     public bool CanConvertTo(PixelFormat other)
     {

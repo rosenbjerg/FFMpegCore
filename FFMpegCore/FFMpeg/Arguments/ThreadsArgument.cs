@@ -13,7 +13,5 @@ public class ThreadsArgument : IArgument
         Threads = threads;
     }
 
-    public ThreadsArgument(bool isMultiThreaded) : this(isMultiThreaded ? Environment.ProcessorCount : 1) { }
-
     public string Text => $"-threads {Threads}";
 }

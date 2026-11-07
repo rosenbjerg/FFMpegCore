@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace FFMpegCore;
 
-public static class MediaAnalysisUtils
+internal static class MediaAnalysisUtils
 {
     private static readonly Regex DurationRegex = new(@"^(\d+):(\d{1,2}):(\d{1,2})\.(\d{1,3})", RegexOptions.Compiled);
 
-    internal static Dictionary<string, string> ToCaseInsensitive(this Dictionary<string, string>? dictionary)
+    internal static Dictionary<string, string> ToCaseInsensitive(this IReadOnlyDictionary<string, string>? dictionary)
     {
         return dictionary?.ToDictionary(tag => tag.Key, tag => tag.Value, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, string>();
     }
@@ -17,25 +17,25 @@ public static class MediaAnalysisUtils
         return ratio.Item1 / ratio.Item2;
     }
 
-    public static (int, int) ParseRatioInt(string input, char separator)
+    public static (int, int) ParseRatioInt(string? input, char separator)
     {
         if (string.IsNullOrEmpty(input))
         {
             return (0, 0);
         }
 
-        var ratio = input.Split(separator);
+        var ratio = input!.Split(separator);
         return (ParseIntInvariant(ratio[0]), ParseIntInvariant(ratio[1]));
     }
 
-    public static (double, double) ParseRatioDouble(string input, char separator)
+    public static (double, double) ParseRatioDouble(string? input, char separator)
     {
         if (string.IsNullOrEmpty(input))
         {
             return (0, 0);
         }
 
-        var ratio = input.Split(separator);
+        var ratio = input!.Split(separator);
         return (ratio.Length > 0 ? ParseDoubleInvariant(ratio[0]) : 0, ratio.Length > 1 ? ParseDoubleInvariant(ratio[1]) : 0);
     }
 
@@ -54,7 +54,17 @@ public static class MediaAnalysisUtils
         return long.Parse(line, NumberStyles.Any, CultureInfo.InvariantCulture);
     }
 
-    public static TimeSpan ParseDuration(string duration)
+    public static int? ParseOptionalInt(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? null : ParseIntInvariant(value!);
+    }
+
+    public static long? ParseOptionalLong(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? null : ParseLongInvariant(value!);
+    }
+
+    public static TimeSpan ParseDuration(string? duration)
     {
         if (!string.IsNullOrEmpty(duration))
         {
@@ -75,8 +85,6 @@ public static class MediaAnalysisUtils
                 var milliseconds = int.Parse(millisecondsPart);
                 return new TimeSpan(0, hours, minutes, seconds, milliseconds);
             }
-
-            return TimeSpan.Zero;
         }
 
         return TimeSpan.Zero;
@@ -84,18 +92,18 @@ public static class MediaAnalysisUtils
 
     public static int ParseRotation(FFProbeStream fFProbeStream)
     {
-        var displayMatrixSideData = fFProbeStream.SideData?.Find(item =>
+        var displayMatrixSideData = fFProbeStream.SideData?.FirstOrDefault(item =>
             item.TryGetValue("side_data_type", out var rawSideDataType) && rawSideDataType.ToString() == "Display Matrix");
 
         if (displayMatrixSideData?.TryGetValue("rotation", out var rawRotation) ?? false)
         {
-            return (int)float.Parse(rawRotation.ToString());
+            return (int)float.Parse(rawRotation.ToString(), CultureInfo.InvariantCulture);
         }
 
-        return (int)float.Parse(fFProbeStream.GetRotate() ?? "0");
+        return (int)float.Parse(fFProbeStream.GetRotate() ?? "0", CultureInfo.InvariantCulture);
     }
 
-    public static Dictionary<string, bool>? FormatDisposition(Dictionary<string, int>? disposition)
+    public static Dictionary<string, bool>? FormatDisposition(IReadOnlyDictionary<string, int>? disposition)
     {
         if (disposition == null)
         {
