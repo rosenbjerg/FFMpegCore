@@ -598,6 +598,10 @@ var score = analysis.Raw.Streams[0].ExtensionData["some_new_key"].GetInt32();
 
 `FFProbeAnalysis.StandardError` is gone; `IMediaAnalysis.StandardError` carries it.
 
+`FFProbeFrame` read four keys that current ffprobe no longer writes, so they were always `0` or `null`. `PacketPts`/`PacketPtsTime` are
+`Pts`/`PtsTime`, read from `pts`/`pts_time`, and `PacketDuration`/`PacketDurationTime` are `Duration`/`DurationTime`, read from
+`duration`/`duration_time` (now a `long`). `CodedPictureNumber` and `DisplayPictureNumber` are gone, along with the keys ffmpeg 7 removed.
+
 ## Output is read as UTF-8
 
 `FFOptions.Encoding`, which decodes ffmpeg's and ffprobe's output, defaulted to `Encoding.Default`. On .NET Core that is UTF-8 already, but on

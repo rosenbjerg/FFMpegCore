@@ -51,6 +51,10 @@ public class FFProbeTests
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.Height == 360));
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.Width == 640));
         Assert.IsTrue(frameAnalysis.Frames.All(f => f.MediaType == "video"));
+        Assert.AreEqual(33, frameAnalysis.Frames[1].Pts);
+        Assert.AreEqual("0:00:00.033000", frameAnalysis.Frames[1].PtsTime);
+        Assert.AreEqual(33, frameAnalysis.Frames[1].Duration);
+        Assert.AreEqual("0:00:00.033000", frameAnalysis.Frames[1].DurationTime);
     }
 
     [TestMethod]
