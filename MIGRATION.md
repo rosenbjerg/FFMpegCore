@@ -598,6 +598,12 @@ var score = analysis.Raw.Streams[0].ExtensionData["some_new_key"].GetInt32();
 
 `FFProbeAnalysis.StandardError` is gone; `IMediaAnalysis.StandardError` carries it.
 
+## Output is read as UTF-8
+
+`FFOptions.Encoding`, which decodes ffmpeg's and ffprobe's output, defaulted to `Encoding.Default`. On .NET Core that is UTF-8 already, but on
+.NET Framework it is the ANSI code page, so the UTF-8 that ffprobe writes came out garbled — a title tag of `Øresund` read as `Ã˜resund`.
+The default is now UTF-8 everywhere. Set `Encoding` (or `EncodingWebName` in `ffmpeg.config.json`) to keep the old decoding.
+
 ## FFProbe's async overloads take the token last
 
 `CancellationToken` sat before `customArguments`; it is now the final parameter, so a positionally-passed token has to be named:

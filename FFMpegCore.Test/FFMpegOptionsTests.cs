@@ -127,13 +127,19 @@ public class FFMpegOptionsTests
     [TestMethod]
     public void Options_Encoding_RoundTripsThroughWebName()
     {
-        var options = new FFOptions { Encoding = System.Text.Encoding.UTF8 };
+        var options = new FFOptions { Encoding = System.Text.Encoding.Unicode };
 
-        Assert.AreEqual("utf-8", options.EncodingWebName);
-        Assert.AreEqual(System.Text.Encoding.UTF8.WebName, options.Encoding.WebName);
+        Assert.AreEqual("utf-16", options.EncodingWebName);
+        Assert.AreEqual(System.Text.Encoding.Unicode.WebName, options.Encoding.WebName);
 
         options.Encoding = null;
-        Assert.AreEqual(System.Text.Encoding.Default.WebName, options.EncodingWebName);
+        Assert.AreEqual("utf-8", options.EncodingWebName);
+    }
+
+    [TestMethod]
+    public void Options_Encoding_DefaultsToUtf8()
+    {
+        Assert.AreEqual("utf-8", new FFOptions().EncodingWebName);
     }
 
     [TestMethod]

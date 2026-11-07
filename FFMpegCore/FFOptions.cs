@@ -28,7 +28,7 @@ public class FFOptions : ICloneable
     /// <summary>
     ///     Encoding web name used to persist encoding <see cref="Encoding" />
     /// </summary>
-    public string EncodingWebName { get; set; } = Encoding.Default.WebName;
+    public string EncodingWebName { get; set; } = Encoding.UTF8.WebName;
 
     /// <summary>
     ///     Encoding used for parsing stdout/stderr on ffmpeg and ffprobe processes
@@ -37,7 +37,7 @@ public class FFOptions : ICloneable
     public Encoding Encoding
     {
         get => Encoding.GetEncoding(EncodingWebName);
-        set => EncodingWebName = value?.WebName ?? Encoding.Default.WebName;
+        set => EncodingWebName = value?.WebName ?? Encoding.UTF8.WebName;
     }
 
     /// <summary>
